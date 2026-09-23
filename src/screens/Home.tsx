@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { RoamingHamster } from '../components/RoamingHamster';
+import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatClock, formatKoreanDate, formatRemaining } from '../domain/date';
 import { daysUntilPayday } from '../domain/engine';
 import { formatWon, itemOf } from '../domain/records';
-import { dayBounds, earnedAt, hamsterMood, MOOD_LABEL, progressAt } from '../domain/schedule';
+import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
 
 interface Props {
@@ -50,14 +50,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord }: P
       </header>
 
       <div className="ambient-body">
-        <div className="habitat">
-          <div className="habitat-ground" />
-          <RoamingHamster custom={custom} mood={mood} />
-          {mood === 'oneMore' && <div className="habitat-speech">조금만 더...</div>}
-        </div>
-        <div className="habitat-status">
-          {settings.hamsterName || '햄스터'} · {MOOD_LABEL[mood]}
-        </div>
+        <Habitat custom={custom} mood={mood} name={settings.hamsterName} now={now} />
 
         {!day || !item ? (
           <p className="rest-note">오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.</p>

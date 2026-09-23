@@ -1,11 +1,20 @@
-import { StrictMode } from 'react';
+import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
+const Gallery = lazy(() => import('./dev/Gallery').then((m) => ({ default: m.Gallery })));
+const isGallery = new URLSearchParams(location.search).has('gallery');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {isGallery ? (
+      <Suspense>
+        <Gallery />
+      </Suspense>
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );
 

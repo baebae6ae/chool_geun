@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Hamster } from '../components/Hamster';
+import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import { formatWon } from '../domain/records';
 import { hourlyWage, validateSchedule } from '../domain/schedule';
 import type { Customization, Settings } from '../domain/types';
@@ -54,12 +54,13 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
     <form className="screen settings" onSubmit={submit}>
       {onboarding ? (
         <div className="onboarding-hero">
-          <Hamster custom={custom} mood="arriving" bare />
+          <div className="onboarding-hamster">
+            <HamsterSprite custom={custom} pose={{ pose: 'front', action: 'wave' }} />
+          </div>
           <h1>햄스터 출근일지</h1>
           <p>
-            출근하고 그냥 켜두세요. 작은 햄스터가 돌아다니는 동안
-            <br />
-            <b>번 돈이 실시간으로</b> 쌓이고, 퇴근하면 하루가 저장돼요.
+            출근하고 그냥 켜두세요. 햄스터가 알아서 일하고 놀고 쉬는 동안 <b>번 돈이 실시간으로</b> 쌓이고, 퇴근하면
+            하루가 저장돼요.
           </p>
         </div>
       ) : (

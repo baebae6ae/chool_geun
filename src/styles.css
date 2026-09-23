@@ -17,6 +17,10 @@
   --c-rare: #3d8bfd;
   --c-epic: #a45cf0;
   --c-legendary: #d69a1f;
+  --floor: #efe2cd;
+  --floor-2: #d9c29f;
+  --wall: #f7efe3;
+  --wall-2: #f3e8d8;
   color-scheme: light;
 }
 
@@ -32,6 +36,10 @@
     --accent-ink: #241a10;
     --accent-soft: #382b1e;
     --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --floor: #2e251c;
+    --floor-2: #4a3c2d;
+    --wall: #241d17;
+    --wall-2: #2a221a;
     color-scheme: dark;
   }
 }
@@ -220,68 +228,6 @@ button {
   color: var(--ink-2);
 }
 
-/* 서식지: 작은 햄스터가 스스로 걸어다니는 자리. 카드가 아니라 그냥 열린 공간이다. */
-.habitat {
-  position: relative;
-  height: 148px;
-}
-
-.habitat-ground {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 22px;
-  height: 1px;
-  background: var(--line);
-}
-
-.habitat-ground::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 1px;
-  bottom: -22px;
-  background: linear-gradient(180deg, var(--bg-2), transparent);
-  opacity: 0.5;
-}
-
-.habitat-pet {
-  position: absolute;
-  bottom: 20px;
-  width: 74px;
-  height: 68px;
-  transition: left 2.2s cubic-bezier(0.45, 0, 0.2, 1);
-}
-
-.habitat-pet .hamster {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.habitat-speech {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  border-radius: 12px;
-  padding: 5px 10px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  animation: bob 1.2s ease-in-out infinite;
-}
-
-.habitat-status {
-  text-align: center;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink-2);
-  margin-top: -8px;
-}
-
 .rest-note {
   text-align: center;
   color: var(--ink-2);
@@ -301,7 +247,8 @@ button {
 }
 
 .hero-money-value {
-  font-size: 3rem;
+  font-size: clamp(2.1rem, 11.5vw, 3rem);
+  white-space: nowrap;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -400,10 +347,6 @@ button {
   overflow: hidden;
 }
 
-.stage-card .hamster {
-  width: min(78%, 280px);
-  height: auto;
-}
 
 /* ---------- Progress & build ---------- */
 .progress {
@@ -416,7 +359,7 @@ button {
 
 .progress-fill {
   height: 100%;
-  background: var(--ink-2);
+  background: color-mix(in srgb, var(--accent) 45%, var(--card));
   transition: width 0.6s ease;
 }
 
@@ -430,128 +373,14 @@ button {
   color: var(--ink);
 }
 
-/* ---------- Hamster animation ---------- */
-.hamster .paws.typing .paw-l {
-  animation: type 0.36s ease-in-out infinite;
-}
-.hamster .paws.typing .paw-r {
-  animation: type 0.36s ease-in-out 0.18s infinite;
-}
-.hamster .paw {
-  transform-box: fill-box;
-}
-.hamster .hamster-body {
-  transform-origin: 100px 140px;
-  animation: breathe 3s ease-in-out infinite;
-}
-.hamster.mood-arriving .hamster-body {
-  animation: walk-in 1.6s ease-out both, hop 0.5s ease-in-out 1.6s 3;
-}
-.hamster.mood-off .hamster-body {
-  animation: hop 0.6s ease-in-out infinite;
-}
-.hamster.leaving .hamster-body {
-  animation: walk-out 3.2s ease-in 0.8s both;
-}
-.hamster.mood-oneMore .hamster-body {
-  animation: shake 0.4s ease-in-out infinite;
-}
-.hamster .zzz {
-  color: var(--ink);
-  animation: float 2.4s ease-in-out infinite;
-}
-.hamster .bubble-clock {
-  transform-origin: 160px 30px;
-  animation: wiggle 1s ease-in-out infinite;
-}
-.hamster .steam {
-  animation: float 1.8s ease-in-out infinite;
-}
-.hamster .sweat {
-  animation: drip 1.2s ease-in infinite;
-}
-.hamster .sparkles {
-  animation: twinkle 1s ease-in-out infinite;
-}
-.hamster .feet .foot {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.hamster .feet.walking .foot-l {
-  animation: legstep 0.5s ease-in-out infinite;
-}
-.hamster .feet.walking .foot-r {
-  animation: legstep 0.5s ease-in-out 0.25s infinite;
-}
-.hamster.activity-walking .hamster-body {
-  animation: walkbob 0.5s ease-in-out infinite;
-}
-.hamster.activity-nibble .hamster-body {
-  animation: nibblebob 0.45s ease-in-out infinite;
-}
-.hamster .nibble {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: nibblechew 0.45s ease-in-out infinite;
-}
-
-@keyframes type {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes breathe {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.015, 0.985); }
-}
-@keyframes hop {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-@keyframes walk-in {
-  from { transform: translateX(140px); }
-  to { transform: translateX(0); }
-}
-@keyframes walk-out {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-240px); }
-}
 @keyframes shake {
   0%, 100% { transform: rotate(0); }
   25% { transform: rotate(-1.5deg); }
   75% { transform: rotate(1.5deg); }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(-5px); opacity: 0.6; }
-}
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
-}
-@keyframes drip {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(10px); opacity: 0; }
-}
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
-}
-@keyframes legstep {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-2px) scaleY(0.85); }
-}
-@keyframes walkbob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-@keyframes nibblebob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(1.5px); }
-}
-@keyframes nibblechew {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(0.82); }
 }
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
@@ -748,9 +577,25 @@ button {
   border-top: 0;
 }
 
-.clockout .hamster {
-  width: 140px;
-  align-self: center;
+.clockout-lane {
+  position: relative;
+  height: 64px;
+  overflow: hidden;
+  margin: 0 -20px;
+}
+
+.clockout-walker {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 88px;
+  height: 63px;
+  animation: clockout-walk 6s linear infinite;
+}
+
+@keyframes clockout-walk {
+  from { transform: translateX(-100px); }
+  to { transform: translateX(520px); }
 }
 
 .confetti {
@@ -1257,8 +1102,10 @@ button {
   padding: 12px 0 4px;
 }
 
-.onboarding-hero .hamster {
-  width: 160px;
+.onboarding-hamster {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
 }
 
 .onboarding-hero h1 {
@@ -1269,7 +1116,10 @@ button {
 .onboarding-hero p {
   color: var(--ink-2);
   line-height: 1.6;
-  margin: 6px 0 0;
+  margin: 6px auto 0;
+  max-width: 300px;
+  word-break: keep-all;
+  text-wrap: balance;
 }
 
 select {
@@ -1282,9 +1132,27 @@ select {
 .stage-card.custom-preview {
   flex-direction: row;
   justify-content: center;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 16px;
 }
 
-.stage-card.custom-preview .hamster {
-  width: 48%;
+.custom-preview-solo {
+  width: 120px;
+  height: 120px;
+  align-self: flex-end;
+}
+
+.custom-preview-desk {
+  position: relative;
+  width: 120px;
+  height: 140px;
+}
+
+.custom-preview-sitter {
+  position: absolute;
+  left: 24px;
+  bottom: 54px;
+  width: 72px;
+  height: 72px;
+  z-index: 3;
 }

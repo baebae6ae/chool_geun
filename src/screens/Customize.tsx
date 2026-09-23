@@ -1,4 +1,5 @@
-import { Hamster } from '../components/Hamster';
+import { DeskBack, DeskFront } from '../components/habitat/props';
+import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import {
   COLORS,
   DECOS,
@@ -26,8 +27,16 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
         <h1>🎀 꾸미기</h1>
       </header>
       <div className="stage-card custom-preview">
-        <Hamster custom={c} mood="starting" bare />
-        <Hamster custom={c} mood="working" />
+        <div className="custom-preview-solo">
+          <HamsterSprite custom={c} pose={{ pose: 'front', action: 'wave' }} />
+        </div>
+        <div className="custom-preview-desk">
+          <DeskBack x={60} />
+          <div className="custom-preview-sitter">
+            <HamsterSprite custom={c} pose={{ pose: 'front', action: 'type' }} className="no-shadow" />
+          </div>
+          <DeskFront x={60} custom={c} />
+        </div>
       </div>
       <p className="muted small center-text">
         작업물 {p.completed}개 완성 · 도감 {p.collected}종 — 더 모으면 새 아이템이 열려요

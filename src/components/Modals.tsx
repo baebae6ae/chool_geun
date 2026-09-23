@@ -3,7 +3,7 @@ import { GACHA_BY_ID, RARITY_LABEL } from '../domain/gacha';
 import { formatDotDate, formatDuration } from '../domain/date';
 import { formatWon, itemOf } from '../domain/records';
 import type { Customization, DailyWork } from '../domain/types';
-import { Hamster } from './Hamster';
+import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
 
 /** 기획서 7. 근무 중 랜덤 발생한 직장인 가챠 */
@@ -48,7 +48,11 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="퇴근">
       <div className="sheet clockout">
-        <Hamster custom={custom} mood="off" bare className="leaving" />
+        <div className="clockout-lane" aria-hidden>
+          <div className="clockout-walker">
+            <HamsterSprite custom={custom} pose={{ pose: 'side', action: 'walk' }} backpack />
+          </div>
+        </div>
         {day.completed ? (
           <>
             <div className="confetti" aria-hidden>🎉✨🎊✨🎉</div>
