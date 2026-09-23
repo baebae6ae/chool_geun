@@ -1,0 +1,26 @@
+{
+  "name": "chool-geun",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "햄스터 출근일지 — 일하는 시간만큼 햄스터가 무언가를 만드는 직장인 앱",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}
