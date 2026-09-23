@@ -77,7 +77,6 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
             type="number"
             inputMode="numeric"
             min={0}
-            step={10000}
             value={s.salary || ''}
             onChange={(e) => set('salary', Number(e.target.value))}
             required

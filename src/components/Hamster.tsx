@@ -17,6 +17,23 @@ interface Props {
 
 const INK = '#3a2a20';
 
+/** 타원 둘레에 보송한 털뭉치를 겹쳐 그려 매끈한 실루엣 대신 복슬복슬한 윤곽을 만든다. */
+function furRing(cx: number, cy: number, rx: number, ry: number, count: number, bumpR: number, jitter = 0.14) {
+  return Array.from({ length: count }, (_, i) => {
+    const t = (i / count) * Math.PI * 2;
+    const wob = 1 + jitter * Math.sin(t * 3.3 + i);
+    return {
+      x: cx + Math.cos(t) * rx * wob,
+      y: cy + Math.sin(t) * ry * wob,
+      r: bumpR * (0.82 + 0.32 * Math.abs(Math.sin(t * 2.1 + i * 0.7))),
+    };
+  });
+}
+
+const BODY_FUR = furRing(100, 98, 50, 45, 20, 13);
+const EAR_FUR_L = furRing(66, 50, 16, 16, 9, 6.5);
+const EAR_FUR_R = furRing(134, 50, 16, 16, 9, 6.5);
+
 /** 기획서 4. 햄스터 애니메이션은 장식이 아니라 시간의 시각화 수단 — 복슬복슬한 털 질감의 햄스터 */
 export function Hamster({ custom, mood, bare = false, activity = 'idle', className = '' }: Props) {
   const uid = useId().replace(/:/g, '');
@@ -27,8 +44,6 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
   const happyEyes = mood === 'break' || mood === 'off';
   const deco = DECOS.find((d) => d.id === custom.deco);
   const act = bare ? activity : 'idle';
-  const fuzz = `url(#fuzz-${uid})`;
-  const fuzzFine = `url(#fuzzfine-${uid})`;
   const soft = `url(#soft-${uid})`;
 
   return (
@@ -39,17 +54,8 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
       aria-label={`햄스터 (${mood})`}
     >
       <defs>
-        {/* 몸/귀 윤곽을 미세하게 흔들어 매끈한 벡터 대신 보송한 털 질감을 낸다 */}
-        <filter id={`fuzz-${uid}`} x="-25%" y="-25%" width="150%" height="150%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-        <filter id={`fuzzfine-${uid}`} x="-25%" y="-25%" width="150%" height="150%">
-          <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="3" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-        <filter id={`soft-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" />
+        <filter id={`soft-${uid}`} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="3" />
         </filter>
         <radialGradient id={`body-${uid}`} cx="40%" cy="24%" r="82%">
           <stop offset="0%" stopColor={c.light} />
@@ -86,33 +92,44 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
       )}
 
       <g className="hamster-body">
-        {/* 정수리 삐죽 털 */}
-        <g stroke={c.shade} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".8">
-          <path d="M88 40 q3 -12 8 -3" />
-          <path d="M98 37 q3 -13 8 -1" />
-          <path d="M108 40 q4 -11 7 -1" />
-        </g>
+        {/* 은은한 솜털 후광 */}
+        <ellipse cx="100" cy="100" rx="64" ry="58" fill={c.light} opacity=".3" filter={soft} />
 
-        {/* 귀 */}
-        <g filter={fuzz}>
-          <circle cx="66" cy="50" r="17" fill={c.ear} />
-          <circle cx="134" cy="50" r="17" fill={c.ear} />
+        {/* 귀 뒤 잔털 */}
+        <g fill={c.ear}>
+          {EAR_FUR_L.map((b, i) => (
+            <circle key={`efl${i}`} cx={b.x} cy={b.y} r={b.r} />
+          ))}
+          {EAR_FUR_R.map((b, i) => (
+            <circle key={`efr${i}`} cx={b.x} cy={b.y} r={b.r} />
+          ))}
         </g>
+        {/* 귀 */}
+        <circle cx="66" cy="50" r="17" fill={c.ear} />
+        <circle cx="134" cy="50" r="17" fill={c.ear} />
         <circle cx="67" cy="52" r="9" fill="#f7b6b0" />
         <circle cx="133" cy="52" r="9" fill="#f7b6b0" />
 
-        {/* 몸 (보송한 윤곽 + 입체 음영) */}
-        <g filter={fuzz}>
-          <ellipse cx="100" cy="98" rx="50" ry="45" fill={`url(#body-${uid})`} />
+        {/* 정수리 삐죽 털 */}
+        <g stroke={c.shade} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".8">
+          <path d="M88 38 q3 -13 8 -3" />
+          <path d="M98 35 q3 -14 8 -1" />
+          <path d="M108 38 q4 -12 7 -1" />
         </g>
 
-        <g filter={fuzzFine}>
-          <ellipse cx="100" cy="60" rx="18" ry="10" fill={c.shade} opacity=".35" />
-          <ellipse cx="100" cy="116" rx="32" ry="26" fill={`url(#cream-${uid})`} />
-          {/* 볼주머니 */}
-          <ellipse cx="67" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
-          <ellipse cx="133" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
+        {/* 몸 잔털 (겹친 털뭉치 → 그라디언트 몸통이 안쪽을 덮어 가장자리만 복슬하게 보임) */}
+        <g fill={c.shade}>
+          {BODY_FUR.map((b, i) => (
+            <circle key={`bf${i}`} cx={b.x} cy={b.y} r={b.r} />
+          ))}
         </g>
+        <ellipse cx="100" cy="98" rx="50" ry="45" fill={`url(#body-${uid})`} />
+
+        <ellipse cx="100" cy="60" rx="18" ry="10" fill={c.shade} opacity=".3" />
+        <ellipse cx="100" cy="116" rx="32" ry="26" fill={`url(#cream-${uid})`} />
+        {/* 볼주머니 */}
+        <ellipse cx="67" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
+        <ellipse cx="133" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
 
         <Outfit id={custom.outfit} />
         {withBag && (
@@ -122,16 +139,6 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
             <rect x="44" y="118" width="30" height="4" fill="#9a5b2d" />
           </g>
         )}
-
-        {/* 몸 가장자리로 삐져나온 잔털 */}
-        <g stroke={c.shade} strokeWidth="1.3" strokeLinecap="round" opacity=".45">
-          <path d="M52 78 q-6 5 -4 13" />
-          <path d="M148 78 q6 5 4 13" />
-          <path d="M46 112 q-5 7 -1 13" />
-          <path d="M154 112 q5 7 1 13" />
-          <path d="M62 66 q-4 4 -4 10" />
-          <path d="M138 66 q4 4 4 10" />
-        </g>
 
         {/* 얼굴 */}
         {sleeping || happyEyes ? (
@@ -180,19 +187,19 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
           </g>
         )}
         <Hat id={custom.hat} />
-      </g>
 
-      {bare && (
-        <g className={`feet ${act === 'walking' ? 'walking' : ''}`} filter={fuzzFine}>
-          <ellipse className="foot foot-l" cx="80" cy="140" rx="10" ry="6" fill={c.ear} />
-          <ellipse className="foot foot-r" cx="120" cy="140" rx="10" ry="6" fill={c.ear} />
-        </g>
-      )}
-      {bare && act === 'nibble' && (
-        <g className="nibble" transform="rotate(18 108 90)">
-          <ellipse cx="108" cy="90" rx="5" ry="3" fill="#e3c07f" stroke="#c29a52" strokeWidth="1" />
-        </g>
-      )}
+        {bare && (
+          <g className={`feet ${act === 'walking' ? 'walking' : ''}`} fill={c.ear}>
+            <ellipse className="foot foot-l" cx="80" cy="140" rx="10" ry="6" />
+            <ellipse className="foot foot-r" cx="120" cy="140" rx="10" ry="6" />
+          </g>
+        )}
+        {bare && act === 'nibble' && (
+          <g className="nibble" transform="rotate(18 108 90)">
+            <ellipse cx="108" cy="90" rx="5" ry="3" fill="#e3c07f" stroke="#c29a52" strokeWidth="1" />
+          </g>
+        )}
+      </g>
 
       {!bare && (
         <g className="desk">
