@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/hamster-work-log-app-30zizj
   workflow_dispatch:
 
 permissions:
