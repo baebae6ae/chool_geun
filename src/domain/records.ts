@@ -59,5 +59,5 @@ export function completedInSeason(days: Record<string, DailyWork>, season: numbe
 }
 
 export function formatWon(n: number, decimals = 0): string {
-  return '₩' + n.toLocaleString('ko-KR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return '₩ ' + n.toLocaleString('ko-KR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }

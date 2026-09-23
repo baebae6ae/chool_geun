@@ -57,9 +57,9 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
           <Hamster custom={custom} mood="arriving" bare />
           <h1>햄스터 출근일지</h1>
           <p>
-            출근해서 켜두면, 햄스터가 <b>내가 일한 시간만큼</b> 무언가를 만들고
+            출근하고 그냥 켜두세요. 작은 햄스터가 돌아다니는 동안
             <br />
-            퇴근할 때 하나가 완성돼요.
+            <b>번 돈이 실시간으로</b> 쌓이고, 퇴근하면 하루가 저장돼요.
           </p>
         </div>
       ) : (

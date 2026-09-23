@@ -2,29 +2,34 @@ import { COLORS, DECOS } from '../domain/customization';
 import type { HamsterMood } from '../domain/schedule';
 import type { Customization } from '../domain/types';
 
+export type HamsterActivity = 'idle' | 'walking' | 'nibble';
+
 interface Props {
   custom: Customization;
   mood: HamsterMood;
-  /** 책상 없이 햄스터만 */
+  /** 책상 없이 햄스터만 — 돌아다니는 작은 모습 */
   bare?: boolean;
+  /** bare일 때의 작은 행동 (걷기 / 씨앗 냠냠) */
+  activity?: HamsterActivity;
   className?: string;
 }
 
 const INK = '#3a2a20';
 
 /** 기획서 4. 햄스터 애니메이션은 장식이 아니라 시간의 시각화 수단 */
-export function Hamster({ custom, mood, bare = false, className = '' }: Props) {
+export function Hamster({ custom, mood, bare = false, activity = 'idle', className = '' }: Props) {
   const c = COLORS.find((x) => x.id === custom.color) ?? COLORS[0];
   const sleeping = mood === 'beforeWork' || mood === 'holiday';
   const typing = mood === 'working' || mood === 'almostDone' || mood === 'oneMore';
   const withBag = mood === 'arriving' || mood === 'off';
   const happyEyes = mood === 'break' || mood === 'off';
   const deco = DECOS.find((d) => d.id === custom.deco);
+  const act = bare ? activity : 'idle';
 
   return (
     <svg
       viewBox="0 0 200 170"
-      className={`hamster mood-${mood} ${className}`}
+      className={`hamster mood-${mood} activity-${act} ${className}`}
       role="img"
       aria-label={`햄스터 (${mood})`}
     >
@@ -105,6 +110,18 @@ export function Hamster({ custom, mood, bare = false, className = '' }: Props) {
         )}
         <Hat id={custom.hat} />
       </g>
+
+      {bare && (
+        <g className={`feet ${act === 'walking' ? 'walking' : ''}`} fill={c.ear}>
+          <ellipse className="foot foot-l" cx="82" cy="140" rx="9" ry="5" />
+          <ellipse className="foot foot-r" cx="118" cy="140" rx="9" ry="5" />
+        </g>
+      )}
+      {bare && act === 'nibble' && (
+        <g className="nibble" transform="rotate(18 108 90)">
+          <ellipse cx="108" cy="90" rx="5" ry="3" fill="#e3c07f" stroke="#c29a52" strokeWidth="1" />
+        </g>
+      )}
 
       {!bare && (
         <g className="desk">

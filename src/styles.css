@@ -1,37 +1,37 @@
 :root {
-  --bg: #fff4e0;
-  --bg-2: #ffe9c2;
+  --bg: #faf6ef;
+  --bg-2: #f1e8d9;
   --card: #ffffff;
-  --ink: #3a2a20;
-  --ink-2: #7a6353;
-  --line: #f0dcc0;
-  --accent: #f08a3c;
+  --ink: #362a20;
+  --ink-2: #8c7c6c;
+  --line: #e9e0d1;
+  --accent: #b97a41;
   --accent-ink: #ffffff;
-  --accent-soft: #ffe0c4;
+  --accent-soft: #f1e3d0;
   --good: #3fae7a;
-  --danger: #d9534f;
-  --shadow: 0 6px 20px rgba(122, 76, 32, 0.12);
-  --radius: 20px;
+  --danger: #c1543f;
+  --shadow: 0 2px 12px rgba(60, 42, 24, 0.06);
+  --radius: 18px;
   --c-common: #9aa3ad;
   --c-uncommon: #43b27f;
   --c-rare: #3d8bfd;
   --c-epic: #a45cf0;
-  --c-legendary: #f5a800;
+  --c-legendary: #d69a1f;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #1f1812;
-    --bg-2: #2b2119;
-    --card: #2e241c;
-    --ink: #f6e9d9;
-    --ink-2: #c2ab95;
-    --line: #473628;
-    --accent: #ff9d52;
-    --accent-ink: #2a1a0d;
-    --accent-soft: #4a3120;
-    --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    --bg: #1c1712;
+    --bg-2: #251e17;
+    --card: #292019;
+    --ink: #f1e6d9;
+    --ink-2: #a3907c;
+    --line: #3b3025;
+    --accent: #d6a06a;
+    --accent-ink: #241a10;
+    --accent-soft: #382b1e;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     color-scheme: dark;
   }
 }
@@ -70,6 +70,9 @@ button {
 
 .content {
   padding: calc(12px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .screen {
@@ -107,7 +110,7 @@ button {
   background: var(--card);
   border-radius: var(--radius);
   padding: 16px;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
 }
 
 .card.center {
@@ -141,18 +144,16 @@ button {
 }
 
 .btn.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  background: var(--ink);
+  color: var(--bg);
 }
 
 .btn.primary:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+  opacity: 0.85;
 }
 
 .btn.primary:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .btn.ghost {
@@ -170,40 +171,229 @@ button {
 }
 
 .icon-btn {
-  border: 0;
+  border: 1px solid var(--line);
   background: var(--card);
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  font-size: 1.2rem;
-  box-shadow: var(--shadow);
+  font-size: 1.15rem;
   flex: none;
 }
 
-/* ---------- Home ---------- */
-.home-head {
+.icon-btn.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* ---------- Ambient home ---------- */
+.ambient {
+  flex: 1;
+}
+
+.ambient-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
+.ambient-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.home-date {
-  font-size: 1.3rem;
-  font-weight: 800;
+.ambient-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.home-sub {
-  font-size: 0.85rem;
+.ambient-date-main {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.ambient-date-sub {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+/* 서식지: 작은 햄스터가 스스로 걸어다니는 자리. 카드가 아니라 그냥 열린 공간이다. */
+.habitat {
+  position: relative;
+  height: 148px;
+}
+
+.habitat-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  height: 1px;
+  background: var(--line);
+}
+
+.habitat-ground::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1px;
+  bottom: -22px;
+  background: linear-gradient(180deg, var(--bg-2), transparent);
+  opacity: 0.5;
+}
+
+.habitat-pet {
+  position: absolute;
+  bottom: 20px;
+  width: 74px;
+  height: 68px;
+  transition: left 2.2s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.habitat-pet .hamster {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.habitat-speech {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  animation: bob 1.2s ease-in-out infinite;
+}
+
+.habitat-status {
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-top: -8px;
+}
+
+.rest-note {
+  text-align: center;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* 실시간으로 쌓이는 돈이 화면의 중심 */
+.hero-money {
+  text-align: center;
+  padding: 6px 0;
+}
+
+.hero-money-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.hero-money-value {
+  font-size: 3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.hero-money-sub {
+  font-size: 0.78rem;
   color: var(--ink-2);
   margin-top: 2px;
 }
 
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-emoji {
+  font-size: 1.5rem;
+  flex: none;
+}
+
+.task-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.task-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.task-bar-fill {
+  height: 100%;
+  background: var(--ink-2);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.task-pct {
+  flex: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.time-row {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-now {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.time-left {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+.ambient-btn {
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+}
+
+.ambient-btn:active {
+  background: var(--bg-2);
+}
+
 .stage-card {
   position: relative;
-  background: linear-gradient(180deg, var(--bg-2), var(--card));
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 12px 12px 14px;
-  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -213,126 +403,6 @@ button {
 .stage-card .hamster {
   width: min(78%, 280px);
   height: auto;
-}
-
-.mood-bg-break {
-  background: linear-gradient(180deg, #e7f6ee, var(--card));
-}
-.mood-bg-beforeWork,
-.mood-bg-holiday {
-  background: linear-gradient(180deg, #dfe6ff, var(--card));
-}
-.mood-bg-off {
-  background: linear-gradient(180deg, #ffe0d0, var(--card));
-}
-.mood-bg-almostDone,
-.mood-bg-oneMore {
-  background: linear-gradient(180deg, #fff0b8, var(--card));
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .stage-card[class*='mood-bg-'] {
-    background: linear-gradient(180deg, var(--bg-2), var(--card));
-  }
-}
-
-.status-pill {
-  margin-top: 6px;
-  background: var(--ink);
-  color: var(--bg);
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 6px 14px;
-  border-radius: 999px;
-}
-
-.speech {
-  position: absolute;
-  top: 14px;
-  left: 16px;
-  background: #fff;
-  color: #3a2a20;
-  border-radius: 14px;
-  padding: 6px 12px;
-  font-weight: 700;
-  box-shadow: var(--shadow);
-  animation: bob 1.2s ease-in-out infinite;
-}
-
-.work-name {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.money-value {
-  font-size: 2rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-.clock {
-  text-align: center;
-}
-
-.clock-now {
-  font-size: 2.2rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.clock-left {
-  color: var(--ink-2);
-  font-weight: 700;
-}
-
-.today-gacha {
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: var(--ink-2);
-}
-
-.today-gacha span {
-  font-size: 1.2rem;
-  margin-left: 2px;
-}
-
-.week-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.week-slot {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 0;
-  border-radius: 12px;
-  background: var(--bg);
-}
-
-.week-slot.today {
-  outline: 2px solid var(--accent);
-}
-
-.week-day {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--ink-2);
-}
-
-.week-emoji {
-  font-size: 1.4rem;
-  min-height: 1.7rem;
-}
-
-.week-done {
-  margin-top: 10px;
-  text-align: center;
-  font-weight: 800;
 }
 
 /* ---------- Progress & build ---------- */
@@ -346,9 +416,7 @@ button {
 
 .progress-fill {
   height: 100%;
-  background: repeating-linear-gradient(-45deg, var(--accent), var(--accent) 10px, #f6a15c 10px, #f6a15c 20px);
-  background-size: 28px 28px;
-  animation: stripes 1.2s linear infinite;
+  background: var(--ink-2);
   transition: width 0.6s ease;
 }
 
@@ -360,75 +428,6 @@ button {
   font-size: 0.8rem;
   font-weight: 800;
   color: var(--ink);
-}
-
-.build {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.build-stage {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-}
-
-.build-stage span {
-  opacity: 0.25;
-  filter: grayscale(1);
-  font-size: 1.1rem;
-}
-
-.build-stage span.on {
-  opacity: 1;
-  filter: none;
-}
-
-.build-area {
-  position: relative;
-  height: 110px;
-  border-radius: 16px;
-  background: var(--bg);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.build-blocks {
-  position: absolute;
-  left: 10px;
-  bottom: 8px;
-  display: grid;
-  grid-template-columns: repeat(4, 1.3rem);
-  direction: rtl;
-  gap: 1px;
-  font-size: 1rem;
-}
-
-.build-blocks span {
-  animation: drop 0.4s ease-out both;
-}
-
-.build-item {
-  font-size: 4.2rem;
-  line-height: 1;
-  margin-bottom: 12px;
-  transition: filter 1s, transform 1s;
-  transform-origin: bottom center;
-}
-
-.build-done .build-item {
-  animation: pop 0.6s ease-out;
-}
-
-.build-label {
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ink-2);
 }
 
 /* ---------- Hamster animation ---------- */
@@ -474,6 +473,27 @@ button {
 .hamster .sparkles {
   animation: twinkle 1s ease-in-out infinite;
 }
+.hamster .feet .foot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.hamster .feet.walking .foot-l {
+  animation: legstep 0.5s ease-in-out infinite;
+}
+.hamster .feet.walking .foot-r {
+  animation: legstep 0.5s ease-in-out 0.25s infinite;
+}
+.hamster.activity-walking .hamster-body {
+  animation: walkbob 0.5s ease-in-out infinite;
+}
+.hamster.activity-nibble .hamster-body {
+  animation: nibblebob 0.45s ease-in-out infinite;
+}
+.hamster .nibble {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nibblechew 0.45s ease-in-out infinite;
+}
 
 @keyframes type {
   0%, 100% { transform: translateY(0); }
@@ -517,16 +537,25 @@ button {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-@keyframes bob {
+@keyframes legstep {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-2px) scaleY(0.85); }
+}
+@keyframes walkbob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
 }
-@keyframes stripes {
-  to { background-position: 28px 0; }
+@keyframes nibblebob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1.5px); }
 }
-@keyframes drop {
-  from { transform: translateY(-30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes nibblechew {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.82); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 @keyframes pop {
   0% { transform: scale(0.4); }
