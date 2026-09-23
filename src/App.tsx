@@ -11,7 +11,7 @@ import { Home } from './screens/Home';
 import { Office } from './screens/Office';
 import { Records } from './screens/Records';
 import { SettingsForm } from './screens/SettingsForm';
-import { getState, now as clockNow, resetState, setState, useAppState, useNow } from './store';
+import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -23,10 +23,45 @@ const TABS: { id: Tab; icon: string; label: string }[] = [
   { id: 'custom', icon: '🎀', label: '꾸미기' },
 ];
 
+const TAB_KEY = 'hamster-tab';
+const initialTab = (): Tab => {
+  try {
+    const t = sessionStorage.getItem(TAB_KEY) as Tab | null;
+    return t && TABS.some((x) => x.id === t) ? t : 'home';
+  } catch {
+    return 'home';
+  }
+};
+
+function StorageNotice() {
+  const [hidden, setHidden] = useState(false);
+  if (hidden || (storageOk && !inAppBrowser)) return null;
+  return (
+    <div className="storage-notice" role="alert">
+      <span>
+        {!storageOk
+          ? '이 브라우저에서는 기록이 저장되지 않아요 (시크릿 모드·쿠키 차단). 새로고침하면 처음부터 시작돼요. 일반 모드의 사파리·크롬에서 열어주세요.'
+          : `${inAppBrowser} 안에서 열면 창을 닫을 때 기록이 지워질 수 있어요. ⋯ 메뉴에서 '다른 브라우저로 열기'를 눌러주세요.`}
+      </span>
+      <button className="icon-btn quiet" onClick={() => setHidden(true)} aria-label="닫기">
+        ✕
+      </button>
+    </div>
+  );
+}
+
 export function App() {
   const state = useAppState();
   const now = useNow(1000);
-  const [tab, setTab] = useState<Tab>('home');
+  const [tab, setTabState] = useState<Tab>(initialTab);
+  const setTab = (t: Tab) => {
+    setTabState(t);
+    try {
+      sessionStorage.setItem(TAB_KEY, t);
+    } catch {
+      // 무시
+    }
+  };
   const [showSettings, setShowSettings] = useState(false);
   const [recordFocus, setRecordFocus] = useState<string>();
   const prevTick = useRef(now);
@@ -56,6 +91,7 @@ export function App() {
   if (!state.settings) {
     return (
       <div className="app">
+        <StorageNotice />
         <SettingsForm initial={null} custom={state.custom} onSave={saveSettings} />
       </div>
     );
@@ -76,6 +112,7 @@ export function App() {
 
   return (
     <div className="app">
+      <StorageNotice />
       <main className="content">
         {showSettings ? (
           <SettingsForm

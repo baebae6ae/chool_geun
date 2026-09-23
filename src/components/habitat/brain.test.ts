@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { HamsterMood } from '../../domain/schedule';
-import { entrance, exitScene, initialScene, planErrand, spotsFor, travel, type Step } from './brain';
+import { endDay, initialScene, planErrand, spotsFor, startDay, travel, type Step } from './brain';
 
 const S = spotsFor(358);
 const seeded = (seed: number) => () => {
@@ -10,13 +10,12 @@ const seeded = (seed: number) => () => {
 const MOODS: HamsterMood[] = ['holiday', 'beforeWork', 'arriving', 'starting', 'working', 'break', 'almostDone', 'oneMore', 'off'];
 
 describe('habitat brain', () => {
-  it('소품 위치가 왼쪽부터 쳇바퀴 → 돌아다닐 곳 → 가방 → 책상 순서', () => {
+  it('소품 위치가 왼쪽부터 쳇바퀴 → 돌아다닐 곳 → 책상 순서', () => {
     for (const W of [300, 358, 448]) {
       const s = spotsFor(W);
       expect(s.wheel).toBeLessThan(s.wanderMin);
       expect(s.wanderMin).toBeLessThanOrEqual(s.wanderMax);
-      expect(s.wanderMax).toBeLessThan(s.bag);
-      expect(s.bag).toBeLessThan(s.desk);
+      expect(s.wanderMax).toBeLessThan(s.desk);
       expect(s.desk).toBeLessThan(W);
     }
   });
@@ -41,7 +40,7 @@ describe('habitat brain', () => {
       for (let i = 0; i < 60; i++) {
         const plan = planErrand(mood, S, x, rnd, last);
         expect(plan.steps.length).toBeGreaterThan(0);
-        if (!['oneMore', 'off'].includes(mood)) expect(plan.name).not.toBe(last);
+        if (mood !== 'oneMore') expect(plan.name).not.toBe(last);
         for (const st of plan.steps) {
           if (st.t === 'move') {
             expect(st.to).toBeGreaterThanOrEqual(0);
@@ -75,20 +74,32 @@ describe('habitat brain', () => {
     }
   });
 
-  it('출근: 가방 메고 문밖에서 들어와 가방을 내려놓는다 / 퇴근: 다시 메고 나간다', () => {
-    const inn = entrance(S, seeded(1));
-    expect(inn[0]).toMatchObject({ t: 'set', visible: true, backpack: true, x: S.exit });
-    expect(inn.some((s) => s.t === 'set' && s.backpack === false && s.bagOnFloor === true)).toBe(true);
-    const out = exitScene(S, S.desk, seeded(1));
-    const moves = out.filter((s) => s.t === 'move');
-    expect(moves.at(-1)).toMatchObject({ to: S.exit });
-    expect(out.some((s) => s.t === 'set' && s.visible === false)).toBe(true);
-    expect(out.findIndex((s) => s.t === 'set' && s.backpack === true)).toBeLessThan(out.findIndex((s) => s.t === 'set' && s.visible === false));
+  it('출근: 이불에서 일어나 하품·세수하고 책상으로 / 퇴근: 이불로 가서 꿀잠', () => {
+    const start = startDay(S, S.bed, seeded(1));
+    const acts = start.filter((s): s is Extract<Step, { t: 'act' }> => s.t === 'act').map((s) => s.pose.action);
+    expect(acts.slice(0, 2)).toEqual(['yawn', 'groom']);
+    expect(start.filter((s) => s.t === 'move').at(-1)).toMatchObject({ to: S.desk });
+    expect(start.at(-1)).toMatchObject({ t: 'act', place: 'desk' });
+
+    const end = endDay(S, S.desk, 'desk', seeded(1));
+    expect(end[0]).toMatchObject({ t: 'act', place: 'desk', pose: { action: 'yawn' } });
+    expect(end.filter((s) => s.t === 'move').at(-1)).toMatchObject({ to: S.bed });
+    expect(end.at(-1)).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
   });
 
-  it('처음 열었을 때: 출근 전엔 자고, 퇴근 후엔 없고, 근무 중엔 책상에 있다', () => {
+  it('퇴근 후엔 계속 솜 이불 근처에서 지낸다', () => {
+    const rnd = seeded(9);
+    let last: string | undefined;
+    for (let i = 0; i < 30; i++) {
+      const plan = planErrand('off', S, S.bed, rnd, last, 'bed');
+      expect(['sleep', 'wake', 'eat']).toContain(plan.name);
+      last = plan.name;
+    }
+  });
+
+  it('처음 열었을 때: 출근 전·퇴근 후엔 이불에서 자고, 근무 중엔 책상에 있다', () => {
     expect(initialScene('beforeWork', S)[1]).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
-    expect(initialScene('off', S)[0]).toMatchObject({ t: 'set', visible: false });
+    expect(initialScene('off', S)[1]).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
     expect(initialScene('working', S)[1]).toMatchObject({ t: 'act', place: 'desk', pose: { action: 'type' } });
   });
 });

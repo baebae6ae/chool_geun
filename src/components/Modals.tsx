@@ -50,7 +50,7 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
       <div className="sheet clockout">
         <div className="clockout-lane" aria-hidden>
           <div className="clockout-walker">
-            <HamsterSprite custom={custom} pose={{ pose: 'side', action: 'walk' }} backpack />
+            <HamsterSprite custom={custom} pose={{ pose: 'side', action: 'walk' }} />
           </div>
         </div>
         {day.completed ? (

@@ -190,18 +190,6 @@ export function Nest({ x, layer }: { x: number; layer: 'back' | 'front' }) {
   );
 }
 
-/* ---------- 바닥에 내려둔 가방 ---------- */
-export function FloorBag({ x }: { x: number }) {
-  return (
-    <svg viewBox="0 0 30 32" style={place(x, 30, 12, 2)} aria-hidden>
-      <path d="M9 8 q6 -8 12 0" stroke="#8a5129" strokeWidth="2.4" fill="none" />
-      <rect x="3" y="7" width="24" height="24" rx="7" fill="#b8733f" stroke="#8a5129" strokeWidth="1.2" />
-      <path d="M3 15 Q15 20 27 15" stroke="#8a5129" strokeWidth="1.2" fill="none" />
-      <rect x="12" y="16" width="6" height="5" rx="1.2" fill="#f2c14e" />
-    </svg>
-  );
-}
-
 /* ---------- 바닥 (톱밥) ---------- */
 const SHAVINGS = Array.from({ length: 70 }, (_, i) => ({
   x: rand01(i) * 100,

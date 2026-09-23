@@ -1156,3 +1156,26 @@ select {
   height: 72px;
   z-index: 3;
 }
+
+.storage-notice {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 12px;
+  padding: 10px 6px 10px 14px;
+  border-radius: 0 0 14px 14px;
+  background: #fff1d6;
+  color: #6b4a14;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+.storage-notice .icon-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+  color: inherit;
+}

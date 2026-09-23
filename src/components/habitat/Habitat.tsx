@@ -2,8 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { HamsterMood } from '../../domain/schedule';
 import type { Customization } from '../../domain/types';
 import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
-import { ACTIVITY_LABEL, entrance, exitScene, initialScene, planErrand, spotsFor, type Place, type Step } from './brain';
-import { Bowl, DeskBack, DeskFront, Floor, FloorBag, Nest, WallClock, Wheel, Window } from './props';
+import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, type Place, type Step } from './brain';
+import { Bowl, DeskBack, DeskFront, Floor, Nest, WallClock, Wheel, Window } from './props';
 import './habitat.css';
 
 interface Props {
@@ -17,9 +17,28 @@ interface View {
   pose: Pose;
   place: Place;
   facing: 1 | -1;
-  backpack: boolean;
-  bagOnFloor: boolean;
-  visible: boolean;
+}
+
+/** 새로고침해도 하던 일을 이어가도록 잠깐 기억해 둔다 */
+interface Snapshot {
+  at: number;
+  mood: HamsterMood;
+  W: number;
+  last?: string;
+  queue: Step[];
+}
+const SNAP_KEY = 'hamster-habitat:v1';
+const SNAP_TTL = 10 * 60_000;
+
+function readSnapshot(mood: HamsterMood, W: number): Snapshot | null {
+  try {
+    const snap = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null') as Snapshot | null;
+    if (!snap || !Array.isArray(snap.queue) || snap.queue.length === 0) return null;
+    if (Date.now() - snap.at > SNAP_TTL || snap.mood !== mood || Math.abs(snap.W - W) > 40) return null;
+    return snap;
+  } catch {
+    return null;
+  }
 }
 
 const SPEED = { walk: 44, run: 125 };
@@ -27,6 +46,11 @@ const SPEED = { walk: 44, run: 125 };
 const LIFT: Record<Place, number> = { floor: 0, desk: 42, wheel: 16, bed: 5 };
 const SCALE: Record<Place, number> = { floor: 1, desk: 1, wheel: 0.76, bed: 1 };
 const IN_OFFICE: HamsterMood[] = ['arriving', 'starting', 'working', 'break', 'almostDone', 'oneMore'];
+const SLEEP_LABEL: Partial<Record<HamsterMood, string>> = {
+  off: '퇴근하고 꿀잠 중',
+  beforeWork: '출근 전 쿨쿨',
+  holiday: '쉬는 날 늦잠 중',
+};
 
 /** 개발용: `?hspeed=4` 로 햄스터 시간을 빠르게 */
 const HSPEED = (() => {
@@ -53,9 +77,6 @@ export function Habitat({ custom, mood, name, now }: Props) {
     pose: { pose: 'front', action: 'idle' },
     place: 'floor',
     facing: 1,
-    backpack: false,
-    bagOnFloor: true,
-    visible: true,
   });
   const [heart, setHeart] = useState(0);
 
@@ -76,10 +97,7 @@ export function Habitat({ custom, mood, name, now }: Props) {
       next.pose.pose === v.pose.pose &&
       next.pose.action === v.pose.action &&
       next.place === v.place &&
-      next.facing === v.facing &&
-      next.backpack === v.backpack &&
-      next.bagOnFloor === v.bagOnFloor &&
-      next.visible === v.visible
+      next.facing === v.facing
     )
       return;
     viewRef.current = next;
@@ -88,6 +106,25 @@ export function Habitat({ custom, mood, name, now }: Props) {
 
   const placeActor = useCallback(() => {
     if (actor.current) actor.current.style.transform = `translateX(${x.current - 46}px)`;
+  }, []);
+
+  /** 지금 하던 일 + 남은 할 일을 저장 */
+  const saveSnapshot = useCallback(() => {
+    const steps: Step[] = [{ t: 'set', x: x.current, facing: viewRef.current.facing }];
+    const c = cur.current;
+    if (c?.step.t === 'act') {
+      const left = c.step.ms - (performance.now() - c.since) * HSPEED;
+      if (left > 400) steps.push({ ...c.step, ms: left });
+    } else if (c?.step.t === 'move') {
+      steps.push(c.step);
+    }
+    steps.push(...queue.current);
+    const snap: Snapshot = { at: Date.now(), mood: moodRef.current, W: spotsRef.current.W, last: lastErrand.current, queue: steps };
+    try {
+      localStorage.setItem(SNAP_KEY, JSON.stringify(snap));
+    } catch {
+      // 저장 못 해도 동작에는 지장 없음
+    }
   }, []);
 
   // 폭 측정
@@ -105,18 +142,23 @@ export function Habitat({ custom, mood, name, now }: Props) {
   useEffect(() => {
     const prev = moodRef.current;
     moodRef.current = mood;
-    const s = started.current ? spotsRef.current : spotsFor(box.current?.clientWidth || 358);
+    const W0 = box.current?.clientWidth || 358;
+    const s = started.current ? spotsRef.current : spotsFor(W0);
     if (!started.current) {
       started.current = true;
-      queue.current = initialScene(mood, s);
+      const snap = readSnapshot(mood, W0);
+      queue.current = snap ? snap.queue : initialScene(mood, s);
+      lastErrand.current = snap?.last;
       cur.current = null;
       return;
     }
     if (prev === mood) return;
-    if (mood === 'off' && viewRef.current.visible) {
-      queue.current = exitScene(s, x.current);
-    } else if (mood === 'arriving' || (IN_OFFICE.includes(mood) && !viewRef.current.visible)) {
-      queue.current = entrance(s);
+    const wasWorking = IN_OFFICE.includes(prev);
+    const isWorking = IN_OFFICE.includes(mood);
+    if (wasWorking && !isWorking) {
+      queue.current = endDay(s, x.current, viewRef.current.place);
+    } else if (!wasWorking && isWorking) {
+      queue.current = startDay(s, x.current);
     } else {
       queue.current = [];
     }
@@ -150,16 +192,13 @@ export function Habitat({ custom, mood, name, now }: Props) {
         cur.current = { step, since: now };
         if (step.t === 'set') {
           if (step.x !== undefined) x.current = step.x;
-          patch({
-            ...(step.backpack !== undefined && { backpack: step.backpack }),
-            ...(step.bagOnFloor !== undefined && { bagOnFloor: step.bagOnFloor }),
-            ...(step.visible !== undefined && { visible: step.visible }),
-            ...(step.facing !== undefined && { facing: step.facing }),
-          });
+          if (step.facing !== undefined) patch({ facing: step.facing });
           placeActor();
           cur.current = null;
+          saveSnapshot();
         } else if (step.t === 'act') {
           patch({ pose: step.pose, place: step.place });
+          saveSnapshot();
         } else {
           const dir = step.to >= x.current ? 1 : -1;
           patch({ pose: { pose: 'side', action: step.gait }, place: 'floor', facing: dir });
@@ -183,12 +222,22 @@ export function Habitat({ custom, mood, name, now }: Props) {
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [patch, placeActor]);
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') saveSnapshot();
+    };
+    window.addEventListener('pagehide', saveSnapshot);
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      cancelAnimationFrame(raf);
+      saveSnapshot();
+      window.removeEventListener('pagehide', saveSnapshot);
+      document.removeEventListener('visibilitychange', onHide);
+    };
+  }, [patch, placeActor, saveSnapshot]);
 
   // 쓰다듬기: 하던 일을 잠깐 멈추고 손 흔들기
   const poke = () => {
-    if (!viewRef.current.visible || cur.current?.step.t === 'move') return;
+    if (cur.current?.step.t === 'move') return;
     const place = viewRef.current.place;
     if (place === 'bed') {
       queue.current.unshift({ t: 'act', pose: { pose: 'front', action: 'yawn' }, ms: 2800, place: 'floor' });
@@ -199,16 +248,13 @@ export function Habitat({ custom, mood, name, now }: Props) {
     setHeart((h) => h + 1);
   };
 
-  const { pose, place, facing, backpack, bagOnFloor, visible } = view;
+  const { pose, place, facing } = view;
   const onWheel = place === 'wheel';
-  const label = !visible
-    ? mood === 'off'
-      ? '퇴근했어요. 내일 봐요!'
-      : ''
-    : backpack && mood === 'off'
-      ? '퇴근하는 중'
-      : onWheel && pose.action === 'run'
-        ? '쳇바퀴 도는 중'
+  const label =
+    onWheel && pose.action === 'run'
+      ? '쳇바퀴 도는 중'
+      : pose.action === 'sleep'
+        ? (SLEEP_LABEL[mood] ?? ACTIVITY_LABEL.sleep)
         : ACTIVITY_LABEL[pose.action];
 
   return (
@@ -221,11 +267,10 @@ export function Habitat({ custom, mood, name, now }: Props) {
         <Nest x={spots.bed} layer="back" />
         <Bowl x={spots.bowl} />
         <DeskBack x={spots.desk} />
-        {bagOnFloor && !backpack && IN_OFFICE.includes(mood) && <FloorBag x={spots.bag} />}
 
         <div
           ref={actor}
-          className={`habitat-actor ${visible ? '' : 'gone'}`}
+          className="habitat-actor"
           style={{ zIndex: place === 'bed' || place === 'desk' ? 3 : 5 }}
           onClick={poke}
           role="button"
@@ -240,7 +285,6 @@ export function Habitat({ custom, mood, name, now }: Props) {
               <HamsterSprite
                 custom={custom}
                 pose={pose}
-                backpack={backpack}
                 className={place === 'floor' ? '' : 'no-shadow'}
               />
             </div>
@@ -255,11 +299,12 @@ export function Habitat({ custom, mood, name, now }: Props) {
         <Nest x={spots.bed} layer="front" />
         <DeskFront x={spots.desk} custom={custom} mugTaken={place === 'desk' && pose.action === 'sip'} />
         <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} />
-        {mood === 'oneMore' && visible && <div className="habitat-speech">조금만 더...</div>}
+        {mood === 'oneMore' && <div className="habitat-speech">조금만 더...</div>}
       </div>
       <div className="habitat-status" aria-live="polite">
         {name || '햄스터'}
-        {label && <> · {label}</>}
+        {' · '}
+        {label}
       </div>
     </div>
   );

@@ -36,10 +36,6 @@
   transition: opacity 0.4s;
   -webkit-tap-highlight-color: transparent;
 }
-.habitat-actor.gone {
-  opacity: 0;
-  pointer-events: none;
-}
 
 .habitat-lift {
   width: 100%;

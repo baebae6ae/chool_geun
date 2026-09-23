@@ -10,7 +10,7 @@ export type Place = 'floor' | 'wheel' | 'desk' | 'bed';
 export type Step =
   | { t: 'move'; to: number; gait: 'walk' | 'run' }
   | { t: 'act'; pose: Pose; ms: number; place: Place }
-  | { t: 'set'; backpack?: boolean; bagOnFloor?: boolean; visible?: boolean; x?: number; facing?: 1 | -1 };
+  | { t: 'set'; x?: number; facing?: 1 | -1 };
 
 export interface Spots {
   W: number;
@@ -19,8 +19,6 @@ export interface Spots {
   eat: number;
   bed: number;
   desk: number;
-  bag: number;
-  exit: number;
   wanderMin: number;
   wanderMax: number;
 }
@@ -37,8 +35,6 @@ export function spotsFor(W: number): Spots {
     eat: bowl + 30,
     bed,
     desk,
-    bag: desk - 64,
-    exit: W + 60,
     wanderMin: wheel + 78,
     wanderMax: desk - 100,
   };
@@ -135,6 +131,7 @@ export function planErrand(
   switch (mood) {
     case 'beforeWork':
     case 'holiday':
+    case 'off':
       list = [
         ['sleep', 4, sleepLong],
         ['wake', 1.2, wakeUp],
@@ -174,8 +171,6 @@ export function planErrand(
       break;
     case 'oneMore':
       return { name: 'typeFast', steps: [...go(s.desk), front('typeFast', 6000, 'desk')] };
-    case 'off':
-      return { name: 'gone', steps: [{ t: 'set', visible: false }, front('idle', 60000)] };
   }
   const [name, errand] = weighted(rnd, list, last);
   return { name, steps: errand(x) };
@@ -186,38 +181,34 @@ export function initialScene(mood: HamsterMood, s: Spots, rnd: Rnd = Math.random
   switch (mood) {
     case 'beforeWork':
     case 'holiday':
-      return [{ t: 'set', visible: true, x: s.bed, backpack: false, bagOnFloor: false }, side('sleep', between(rnd, 8000, 16000), 'bed')];
-    case 'arriving':
-      return entrance(s, rnd);
-    case 'break':
-      return [{ t: 'set', visible: true, x: s.eat, backpack: false, bagOnFloor: true }, front('nibble', between(rnd, 3000, 6000))];
     case 'off':
-      return [{ t: 'set', visible: false, backpack: false, bagOnFloor: false }, front('idle', 60000)];
+      return [{ t: 'set', x: s.bed }, side('sleep', between(rnd, 8000, 16000), 'bed')];
+    case 'arriving':
+      return [{ t: 'set', x: s.bed }, side('sleep', 2500, 'bed'), ...startDay(s, s.bed, rnd)];
+    case 'break':
+      return [{ t: 'set', x: s.eat }, front('nibble', between(rnd, 3000, 6000))];
     default:
-      return [{ t: 'set', visible: true, x: s.desk, backpack: false, bagOnFloor: true }, front(mood === 'oneMore' ? 'typeFast' : 'type', between(rnd, 3000, 7000), 'desk')];
+      return [{ t: 'set', x: s.desk }, front(mood === 'oneMore' ? 'typeFast' : 'type', between(rnd, 3000, 7000), 'desk')];
   }
 }
 
-/** 출근: 가방 메고 문 쪽에서 들어와 책상 옆에 가방을 내려놓는다 */
-export function entrance(s: Spots, rnd: Rnd = Math.random): Step[] {
+/** 출근: 솜 이불에서 일어나 하품·세수하고 책상으로 */
+export function startDay(s: Spots, x: number, rnd: Rnd = Math.random): Step[] {
   return [
-    { t: 'set', visible: true, x: s.exit, backpack: true, bagOnFloor: false, facing: -1 },
-    ...travel(s.exit, s.bag - 36, rnd),
-    front('wave', 1600),
-    { t: 'set', backpack: false, bagOnFloor: true },
+    ...travel(x, s.bed, rnd, true),
     front('yawn', 2800),
+    front('groom', 2600),
+    ...travel(s.bed, s.desk, rnd),
+    front('wave', 1400, 'desk'),
   ];
 }
 
-/** 퇴근: 가방을 다시 메고 손 흔들고 문 밖으로 */
-export function exitScene(s: Spots, x: number, rnd: Rnd = Math.random): Step[] {
+/** 퇴근: 기지개 한 번 켜고 솜 이불로 가서 꿀잠 */
+export function endDay(s: Spots, x: number, here: Place, rnd: Rnd = Math.random): Step[] {
   return [
-    ...travel(x, s.bag - 36, rnd),
-    { t: 'set', backpack: true, bagOnFloor: false },
-    front('wave', 1600),
-    ...travel(s.bag - 36, s.exit, rnd),
-    { t: 'set', visible: false },
-    front('idle', 60000),
+    front('yawn', 2800, here === 'desk' ? 'desk' : 'floor'),
+    ...travel(x, s.bed, rnd, true),
+    side('sleep', between(rnd, 20000, 40000), 'bed'),
   ];
 }
 
