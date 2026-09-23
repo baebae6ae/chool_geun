@@ -16,11 +16,20 @@ export interface CatalogItem<T extends string> {
 
 const d = { kind: 'default' } as const;
 
-export const COLORS: (CatalogItem<HamsterColor> & { body: string; belly: string; ear: string })[] = [
-  { id: 'golden', label: '골든', emoji: '🟠', unlock: d, body: '#f0a95e', belly: '#fff3df', ear: '#e08a3f' },
-  { id: 'white', label: '화이트', emoji: '⚪', unlock: d, body: '#fbf6ee', belly: '#ffffff', ear: '#e9dccb' },
-  { id: 'gray', label: '그레이', emoji: '🩶', unlock: { kind: 'completed', n: 3 }, body: '#b9b4ae', belly: '#f3efe9', ear: '#948d86' },
-  { id: 'choco', label: '초코', emoji: '🟤', unlock: { kind: 'completed', n: 7 }, body: '#8a5a3c', belly: '#f1dcc4', ear: '#6e452c' },
+/** 털 색상 팔레트. light/shade는 그라디언트 음영, cream은 가슴/배 털 */
+export interface FurPalette {
+  body: string;
+  light: string;
+  shade: string;
+  cream: string;
+  ear: string;
+}
+
+export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
+  { id: 'golden', label: '골든', emoji: '🟠', unlock: d, body: '#f0a95e', light: '#ffd9ad', shade: '#d98a43', cream: '#fff3df', ear: '#e08a3f' },
+  { id: 'white', label: '화이트', emoji: '⚪', unlock: d, body: '#fbf6ee', light: '#ffffff', shade: '#dccbb5', cream: '#ffffff', ear: '#e9dccb' },
+  { id: 'gray', label: '그레이', emoji: '🩶', unlock: { kind: 'completed', n: 3 }, body: '#b9b4ae', light: '#d9d4cd', shade: '#8f877e', cream: '#f3efe9', ear: '#948d86' },
+  { id: 'choco', label: '초코', emoji: '🟤', unlock: { kind: 'completed', n: 7 }, body: '#8a5a3c', light: '#b47f5c', shade: '#5e3a24', cream: '#f1dcc4', ear: '#6e452c' },
 ];
 
 export const HATS: CatalogItem<HatId>[] = [

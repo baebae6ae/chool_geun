@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { COLORS, DECOS } from '../domain/customization';
 import type { HamsterMood } from '../domain/schedule';
 import type { Customization } from '../domain/types';
@@ -16,8 +17,9 @@ interface Props {
 
 const INK = '#3a2a20';
 
-/** 기획서 4. 햄스터 애니메이션은 장식이 아니라 시간의 시각화 수단 */
+/** 기획서 4. 햄스터 애니메이션은 장식이 아니라 시간의 시각화 수단 — 복슬복슬한 털 질감의 햄스터 */
 export function Hamster({ custom, mood, bare = false, activity = 'idle', className = '' }: Props) {
+  const uid = useId().replace(/:/g, '');
   const c = COLORS.find((x) => x.id === custom.color) ?? COLORS[0];
   const sleeping = mood === 'beforeWork' || mood === 'holiday';
   const typing = mood === 'working' || mood === 'almostDone' || mood === 'oneMore';
@@ -25,44 +27,92 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
   const happyEyes = mood === 'break' || mood === 'off';
   const deco = DECOS.find((d) => d.id === custom.deco);
   const act = bare ? activity : 'idle';
+  const fuzz = `url(#fuzz-${uid})`;
+  const fuzzFine = `url(#fuzzfine-${uid})`;
+  const soft = `url(#soft-${uid})`;
 
   return (
     <svg
-      viewBox="0 0 200 170"
+      viewBox="0 0 200 190"
       className={`hamster mood-${mood} activity-${act} ${className}`}
       role="img"
       aria-label={`햄스터 (${mood})`}
     >
+      <defs>
+        {/* 몸/귀 윤곽을 미세하게 흔들어 매끈한 벡터 대신 보송한 털 질감을 낸다 */}
+        <filter id={`fuzz-${uid}`} x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id={`fuzzfine-${uid}`} x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="3" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id={`soft-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" />
+        </filter>
+        <radialGradient id={`body-${uid}`} cx="40%" cy="24%" r="82%">
+          <stop offset="0%" stopColor={c.light} />
+          <stop offset="55%" stopColor={c.body} />
+          <stop offset="100%" stopColor={c.shade} />
+        </radialGradient>
+        <radialGradient id={`cream-${uid}`} cx="50%" cy="26%" r="78%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor={c.cream} />
+        </radialGradient>
+      </defs>
+
+      {bare && <ellipse cx="100" cy="176" rx="42" ry="7" fill={INK} opacity=".1" />}
+
       {/* 머리 위 소품 */}
       {sleeping && (
         <g className="zzz" fill="currentColor" fontWeight="700">
-          <text x="140" y="40" fontSize="14">z</text>
-          <text x="152" y="28" fontSize="18">Z</text>
+          <text x="138" y="34" fontSize="13">z</text>
+          <text x="150" y="21" fontSize="17">Z</text>
         </g>
       )}
       {mood === 'almostDone' && (
         <g className="bubble-clock">
-          <circle cx="160" cy="30" r="15" fill="#fff" stroke={INK} strokeWidth="2" />
-          <path d="M160 21 V30 L167 34" stroke={INK} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <circle cx="158" cy="26" r="14" fill="#fff" stroke={INK} strokeWidth="2" />
+          <path d="M158 18 V26 L164 30" stroke={INK} strokeWidth="2.3" fill="none" strokeLinecap="round" />
         </g>
       )}
-      {mood === 'oneMore' && <path className="sweat" d="M146 52 q6 9 0 13 q-6 -4 0 -13z" fill="#8fd0ff" />}
+      {mood === 'oneMore' && <path className="sweat" d="M144 46 q6 8 0 12 q-6 -4 0 -12z" fill="#8fd0ff" />}
       {mood === 'starting' && (
         <g className="sparkles" fill="#ffc83d">
-          <path d="M40 40 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" />
-          <path d="M160 36 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" />
+          <path d="M38 34 l3 6 6 3 -6 3 -3 6 -3 -6 -6 -3 6 -3z" />
+          <path d="M158 30 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" />
         </g>
       )}
 
       <g className="hamster-body">
+        {/* 정수리 삐죽 털 */}
+        <g stroke={c.shade} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".8">
+          <path d="M88 40 q3 -12 8 -3" />
+          <path d="M98 37 q3 -13 8 -1" />
+          <path d="M108 40 q4 -11 7 -1" />
+        </g>
+
         {/* 귀 */}
-        <circle cx="64" cy="54" r="15" fill={c.ear} />
-        <circle cx="136" cy="54" r="15" fill={c.ear} />
-        <circle cx="64" cy="54" r="8" fill="#f7b6b0" />
-        <circle cx="136" cy="54" r="8" fill="#f7b6b0" />
-        {/* 몸 */}
-        <ellipse cx="100" cy="98" rx="50" ry="45" fill={c.body} />
-        <ellipse cx="100" cy="116" rx="32" ry="26" fill={c.belly} />
+        <g filter={fuzz}>
+          <circle cx="66" cy="50" r="17" fill={c.ear} />
+          <circle cx="134" cy="50" r="17" fill={c.ear} />
+        </g>
+        <circle cx="67" cy="52" r="9" fill="#f7b6b0" />
+        <circle cx="133" cy="52" r="9" fill="#f7b6b0" />
+
+        {/* 몸 (보송한 윤곽 + 입체 음영) */}
+        <g filter={fuzz}>
+          <ellipse cx="100" cy="98" rx="50" ry="45" fill={`url(#body-${uid})`} />
+        </g>
+
+        <g filter={fuzzFine}>
+          <ellipse cx="100" cy="60" rx="18" ry="10" fill={c.shade} opacity=".35" />
+          <ellipse cx="100" cy="116" rx="32" ry="26" fill={`url(#cream-${uid})`} />
+          {/* 볼주머니 */}
+          <ellipse cx="67" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
+          <ellipse cx="133" cy="101" rx="13" ry="11" fill={`url(#cream-${uid})`} opacity=".92" />
+        </g>
 
         <Outfit id={custom.outfit} />
         {withBag && (
@@ -73,48 +123,69 @@ export function Hamster({ custom, mood, bare = false, activity = 'idle', classNa
           </g>
         )}
 
+        {/* 몸 가장자리로 삐져나온 잔털 */}
+        <g stroke={c.shade} strokeWidth="1.3" strokeLinecap="round" opacity=".45">
+          <path d="M52 78 q-6 5 -4 13" />
+          <path d="M148 78 q6 5 4 13" />
+          <path d="M46 112 q-5 7 -1 13" />
+          <path d="M154 112 q5 7 1 13" />
+          <path d="M62 66 q-4 4 -4 10" />
+          <path d="M138 66 q4 4 4 10" />
+        </g>
+
         {/* 얼굴 */}
         {sleeping || happyEyes ? (
           <g stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round">
             {sleeping ? (
               <>
-                <path d="M78 82 q6 4 12 0" />
-                <path d="M110 82 q6 4 12 0" />
+                <path d="M77 83 q6 4 12 0" />
+                <path d="M111 83 q6 4 12 0" />
               </>
             ) : (
               <>
-                <path d="M78 84 q6 -7 12 0" />
-                <path d="M110 84 q6 -7 12 0" />
+                <path d="M77 85 q6 -7 12 0" />
+                <path d="M111 85 q6 -7 12 0" />
               </>
             )}
           </g>
         ) : (
           <g className="eyes">
-            <circle cx="84" cy="81" r="5.5" fill={INK} />
-            <circle cx="116" cy="81" r="5.5" fill={INK} />
-            <circle cx="86" cy="79" r="1.8" fill="#fff" />
-            <circle cx="118" cy="79" r="1.8" fill="#fff" />
+            <circle cx="83" cy="82" r="7" fill={INK} />
+            <circle cx="117" cy="82" r="7" fill={INK} />
+            <circle cx="85.5" cy="79" r="2.4" fill="#fff" />
+            <circle cx="119.5" cy="79" r="2.4" fill="#fff" />
+            <circle cx="80.3" cy="85.5" r="1.1" fill="#fff" opacity=".85" />
+            <circle cx="114.3" cy="85.5" r="1.1" fill="#fff" opacity=".85" />
           </g>
         )}
-        <ellipse cx="72" cy="94" rx="8" ry="5" fill="#f7a8a0" opacity=".75" />
-        <ellipse cx="128" cy="94" rx="8" ry="5" fill="#f7a8a0" opacity=".75" />
-        <ellipse cx="100" cy="89" rx="3" ry="2.2" fill="#d9776f" />
-        <path d="M95 94 q5 4 10 0" stroke={INK} strokeWidth="2" fill="none" strokeLinecap="round" />
+
+        <ellipse cx="70" cy="96" rx="9" ry="5.5" fill="#f7a8a0" opacity=".65" filter={soft} />
+        <ellipse cx="130" cy="96" rx="9" ry="5.5" fill="#f7a8a0" opacity=".65" filter={soft} />
+
+        <path d="M96 92 q4 -3 8 0 q-4 5 -8 0z" fill="#e98585" />
+        <path d="M93 98 q7 5 14 0" stroke={INK} strokeWidth="2" fill="none" strokeLinecap="round" />
+
+        <g stroke={c.shade} strokeWidth="1.1" strokeLinecap="round" opacity=".5">
+          <path d="M58 92 L34 88" />
+          <path d="M58 98 L32 100" />
+          <path d="M142 92 L166 88" />
+          <path d="M142 98 L168 100" />
+        </g>
 
         {custom.glasses && (
-          <g stroke={INK} strokeWidth="2" fill="rgba(255,255,255,.25)">
-            <circle cx="84" cy="81" r="10" />
-            <circle cx="116" cy="81" r="10" />
-            <path d="M94 81 h12" fill="none" />
+          <g stroke={INK} strokeWidth="2" fill="rgba(255,255,255,.22)">
+            <circle cx="83" cy="82" r="11" />
+            <circle cx="117" cy="82" r="11" />
+            <path d="M94 82 h6" fill="none" />
           </g>
         )}
         <Hat id={custom.hat} />
       </g>
 
       {bare && (
-        <g className={`feet ${act === 'walking' ? 'walking' : ''}`} fill={c.ear}>
-          <ellipse className="foot foot-l" cx="82" cy="140" rx="9" ry="5" />
-          <ellipse className="foot foot-r" cx="118" cy="140" rx="9" ry="5" />
+        <g className={`feet ${act === 'walking' ? 'walking' : ''}`} filter={fuzzFine}>
+          <ellipse className="foot foot-l" cx="80" cy="140" rx="10" ry="6" fill={c.ear} />
+          <ellipse className="foot foot-r" cx="120" cy="140" rx="10" ry="6" fill={c.ear} />
         </g>
       )}
       {bare && act === 'nibble' && (
