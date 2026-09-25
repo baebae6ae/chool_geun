@@ -16,19 +16,18 @@ export function Gallery() {
     hat: (params.get('hat') as Customization['hat']) || 'none',
     glasses: params.has('glasses'),
   };
-  const bag = params.has('bag');
   const only = params.get('only');
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, padding: 12, background: '#faf6ef' }}>
       {FRONT.filter((a) => !only || only === a).map((a) => (
         <figure key={a} id={`f-${a}`} style={{ margin: 0, width: size, height: size }}>
-          <HamsterSprite custom={custom} pose={{ pose: 'front', action: a }} backpack={bag} />
+          <HamsterSprite custom={custom} pose={{ pose: 'front', action: a }} />
           <figcaption style={{ fontSize: 12, textAlign: 'center' }}>{a}</figcaption>
         </figure>
       ))}
       {SIDE.filter((a) => !only || only === a).map((a) => (
         <figure key={a} id={`s-${a}`} style={{ margin: 0, width: size * 1.17, height: size * 0.83 }}>
-          <HamsterSprite custom={custom} pose={{ pose: 'side', action: a }} backpack={bag} />
+          <HamsterSprite custom={custom} pose={{ pose: 'side', action: a }} />
           <figcaption style={{ fontSize: 12, textAlign: 'center' }}>{a}</figcaption>
         </figure>
       ))}

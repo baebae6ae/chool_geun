@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatClock, formatKoreanDate, formatRemaining } from '../domain/date';
 import { daysUntilPayday } from '../domain/engine';
@@ -12,6 +12,26 @@ interface Props {
   onClockOut: () => void;
   onOpenSettings: () => void;
   onOpenRecord: () => void;
+}
+
+/** 바뀐 자릿수만 살짝 밝아지며 들어온다 — 돈이 '방금' 쌓였다는 걸 조용히 알려줌 */
+function MoneyTicker({ value }: { value: string }) {
+  const last = useRef({ value, keep: value.length });
+  if (last.current.value !== value) {
+    const p = last.current.value;
+    let i = 0;
+    while (i < p.length && i < value.length && p[i] === value[i]) i++;
+    last.current = { value, keep: i };
+  }
+  const keep = last.current.keep;
+  return (
+    <>
+      {value.slice(0, keep)}
+      <span key={value} className="money-tick">
+        {value.slice(keep)}
+      </span>
+    </>
+  );
 }
 
 /**
@@ -31,6 +51,13 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord }: P
   const bounds = day ? dayBounds(key, day.schedule) : null;
   const item = day ? itemOf(day) : null;
   const pct = Math.floor(progress * 100);
+  // 작업물이 막 100%가 된 순간만 한 번 축하
+  const prevPct = useRef(pct);
+  const [justDone, setJustDone] = useState(false);
+  useEffect(() => {
+    if (prevPct.current < 100 && pct >= 100) setJustDone(true);
+    prevPct.current = pct;
+  }, [pct]);
 
   let timeInfo = '';
   if (day && bounds) {
@@ -59,13 +86,13 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord }: P
             <div className="hero-money">
               <div className="hero-money-label">오늘 번 돈</div>
               <div className="hero-money-value" aria-live="off">
-                {formatWon(earned, 2)}
+                <MoneyTicker value={formatWon(earned, 2)} />
               </div>
               <div className="hero-money-sub">시급 {formatWon(Math.round(day.hourly))} 기준</div>
             </div>
 
-            <div className="task-row" title={`시즌 ${day.season} · Day ${day.workItemIndex + 1}/20`}>
-              <span className="task-emoji" aria-hidden>
+            <div className={`task-row ${pct >= 100 ? 'done' : ''}`} title={`시즌 ${day.season} · Day ${day.workItemIndex + 1}/20`}>
+              <span className={`task-emoji ${justDone ? 'pop' : ''}`} aria-hidden onAnimationEnd={() => setJustDone(false)}>
                 {item.emoji}
               </span>
               <div className="task-body">

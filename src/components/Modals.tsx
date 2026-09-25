@@ -2,33 +2,49 @@ import { useEffect, useState } from 'react';
 import { GACHA_BY_ID, RARITY_LABEL } from '../domain/gacha';
 import { formatDotDate, formatDuration } from '../domain/date';
 import { formatWon, itemOf } from '../domain/records';
-import type { Customization, DailyWork } from '../domain/types';
+import type { Customization, DailyWork, Rarity } from '../domain/types';
+import { buzz } from '../haptics';
 import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
 
+/** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
+const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
+  COMMON: { wait: 700, buzz: [] },
+  UNCOMMON: { wait: 850, buzz: [] },
+  RARE: { wait: 1100, buzz: [15] },
+  EPIC: { wait: 1500, buzz: [20, 60, 30] },
+  LEGENDARY: { wait: 2000, buzz: [30, 60, 30, 60, 80] },
+};
+
 /** 기획서 7. 근무 중 랜덤 발생한 직장인 가챠 */
-export function GachaModal({ eventId, isNew, remaining, onClose }: { eventId: string; isNew: boolean; remaining: number; onClose: () => void }) {
+export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: string; eventId: string; isNew: boolean; remaining: number; onClose: () => void }) {
   const e = GACHA_BY_ID[eventId];
   const [opened, setOpened] = useState(false);
+  const tier = e ? REVEAL[e.rarity] : REVEAL.COMMON;
   useEffect(() => {
     setOpened(false);
-    const id = setTimeout(() => setOpened(true), 900);
-    return () => clearTimeout(id);
-  }, [eventId]);
+    const t = setTimeout(() => setOpened(true), tier.wait);
+    return () => clearTimeout(t);
+  }, [id, tier.wait]);
+  useEffect(() => {
+    if (opened && tier.buzz.length) buzz(tier.buzz);
+  }, [opened, tier.buzz]);
   if (!e) return null;
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="직장인 가챠">
-      <div className={`sheet gacha-card rarity-${e.rarity}`}>
+      <div key={id} className={`sheet gacha-card rarity-${e.rarity}`}>
         <div className="gacha-title">🎰 직장인 이벤트 발생!</div>
         {!opened ? (
-          <div className="capsule" onClick={() => setOpened(true)} aria-label="캡슐 열기">
+          <div className="capsule" onClick={() => setOpened(true)} style={{ '--wait': `${tier.wait}ms` } as React.CSSProperties} aria-label="캡슐 열기">
             <div className="capsule-top" />
             <div className="capsule-bottom" />
           </div>
         ) : (
           <div className="gacha-reveal">
             <div className="rarity-badge">{e.rarity} · {RARITY_LABEL[e.rarity]}</div>
-            <div className="gacha-emoji">{e.emoji}</div>
+            <div className="gacha-emoji-wrap">
+              <div className="gacha-emoji">{e.emoji}</div>
+            </div>
             <div className="gacha-name">{e.name}</div>
             <p className="gacha-desc">{e.description}</p>
             {isNew && <div className="new-badge">NEW! 도감 등록</div>}
@@ -45,9 +61,18 @@ export function GachaModal({ eventId, isNew, remaining, onClose }: { eventId: st
 /** 기획서 10. 퇴근 연출 */
 export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWork; custom: Customization; onClose: () => void; onRecord: () => void }) {
   const item = itemOf(day);
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => {
+    if (day.completed) buzz([20, 80, 40]);
+  }, [day.completed]);
+  const leave = (then: () => void) => {
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(then, 240);
+  };
   return (
-    <div className="overlay" role="dialog" aria-modal="true" aria-label="퇴근">
-      <div className="sheet clockout">
+    <div className={`overlay ${leaving ? 'leaving' : ''}`} role="dialog" aria-modal="true" aria-label="퇴근">
+      <div className={`sheet clockout ${day.completed ? 'done' : ''}`}>
         <div className="clockout-lane" aria-hidden>
           <div className="clockout-walker">
             <HamsterSprite custom={custom} pose={{ pose: 'side', action: 'walk' }} />
@@ -55,10 +80,10 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
         </div>
         {day.completed ? (
           <>
-            <div className="confetti" aria-hidden>🎉✨🎊✨🎉</div>
-            <h2>✨ 오늘의 작업 완료! ✨</h2>
-            <div className="clockout-item pop">{item.emoji}</div>
-            <p className="clockout-name">{item.name} 완성</p>
+            <div className="confetti stagger" aria-hidden>🎉✨🎊✨🎉</div>
+            <h2 className="stagger">✨ 오늘의 작업 완료! ✨</h2>
+            <div className="clockout-item stagger pop-late">{item.emoji}</div>
+            <p className="clockout-name stagger">{item.name} 완성</p>
           </>
         ) : (
           <>
@@ -67,14 +92,14 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
             <p className="clockout-name">{item.name}은 내일 이어서 만들어요</p>
           </>
         )}
-        <div className="kv">
+        <div className="kv stagger">
           <span>오늘의 작업량</span>
           <ProgressBar value={day.progress} />
           <span>오늘 번 돈</span>
           <strong>{formatWon(Math.floor(day.earned))}</strong>
         </div>
-        <button className="btn primary" onClick={onRecord}>오늘의 기록 보기</button>
-        <button className="btn ghost" onClick={onClose}>닫기</button>
+        <button className="btn primary" onClick={() => leave(onRecord)}>오늘의 기록 보기</button>
+        <button className="btn ghost" onClick={() => leave(onClose)}>닫기</button>
       </div>
     </div>
   );

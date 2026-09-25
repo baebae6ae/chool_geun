@@ -87,6 +87,10 @@ button {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  animation: screen-in 0.22s ease-out;
+}
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(6px); }
 }
 
 .screen-head {
@@ -149,6 +153,12 @@ button {
   padding: 13px 16px;
   font-weight: 700;
   width: 100%;
+  transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+.btn:active:not(:disabled),
+.icon-btn:active,
+.tabbar button:active {
+  transform: scale(0.96);
 }
 
 .btn.primary {
@@ -179,6 +189,7 @@ button {
 }
 
 .icon-btn {
+  transition: transform 0.12s ease;
   border: 1px solid var(--line);
   background: var(--card);
   width: 40px;
@@ -297,6 +308,19 @@ button {
   background: var(--ink-2);
   border-radius: 999px;
   transition: width 0.6s ease;
+}
+
+.task-row.done .task-bar-fill {
+  background: var(--accent);
+}
+.task-emoji.pop {
+  display: inline-block;
+}
+.money-tick {
+  animation: money-tick 0.5s ease-out;
+}
+@keyframes money-tick {
+  from { opacity: 0.35; }
 }
 
 .task-pct {
@@ -430,6 +454,9 @@ button {
   color: var(--ink-2);
 }
 
+.tabbar button {
+  transition: transform 0.12s ease, background-color 0.2s ease, color 0.2s ease;
+}
 .tabbar button.on {
   color: var(--ink);
   background: var(--accent-soft);
@@ -552,7 +579,61 @@ button {
   height: 120px;
   margin: 16px auto;
   position: relative;
-  animation: shake 0.25s ease-in-out infinite;
+  --amp: 0.5;
+  animation: capsule-charge var(--wait, 900ms) ease-in forwards;
+}
+.rarity-UNCOMMON .capsule { --amp: 0.6; }
+.rarity-RARE .capsule { --amp: 0.85; }
+.rarity-EPIC .capsule { --amp: 1.1; }
+.rarity-LEGENDARY .capsule { --amp: 1.4; }
+/* 점점 세게 흔들리다가 부풀어 오르며 열린다 */
+@keyframes capsule-charge {
+  0% { transform: rotate(0); }
+  12% { transform: rotate(calc(var(--amp) * -2deg)); }
+  24% { transform: rotate(calc(var(--amp) * 2deg)); }
+  36% { transform: rotate(calc(var(--amp) * -3.5deg)); }
+  48% { transform: rotate(calc(var(--amp) * 3.5deg)); }
+  60% { transform: rotate(calc(var(--amp) * -5deg)); }
+  70% { transform: rotate(calc(var(--amp) * 6deg)); }
+  80% { transform: rotate(calc(var(--amp) * -7deg)) scale(1.03); }
+  90% { transform: rotate(calc(var(--amp) * 8deg)) scale(1.06); }
+  100% { transform: rotate(0) scale(calc(1 + var(--amp) * 0.08)); }
+}
+.rarity-EPIC .capsule,
+.rarity-LEGENDARY .capsule {
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 var(--rarity);
+  animation: capsule-charge var(--wait, 900ms) ease-in forwards, capsule-glow var(--wait, 900ms) ease-in forwards;
+}
+@keyframes capsule-glow {
+  to { box-shadow: 0 0 36px 6px var(--rarity); }
+}
+
+/* EPIC·LEGENDARY만: 결과 뒤로 빛줄기 */
+.gacha-emoji-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.rarity-EPIC .gacha-emoji-wrap::before,
+.rarity-LEGENDARY .gacha-emoji-wrap::before {
+  content: '';
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--rarity) 35%, transparent) 0deg 12deg, transparent 12deg 30deg);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: rays-in 0.6s ease-out, rays-spin 14s linear infinite;
+}
+.gacha-emoji {
+  position: relative;
+}
+@keyframes rays-in {
+  from { opacity: 0; transform: scale(0.4); }
+}
+@keyframes rays-spin {
+  to { rotate: 360deg; }
 }
 
 .capsule-top,
@@ -619,6 +700,37 @@ button {
 
 .pop {
   animation: pop 0.6s ease-out;
+}
+
+/* 퇴근: 작업을 끝낸 날만 튀어오르며 등장하고, 내용이 차례로 떠오른다 */
+.sheet.clockout.done {
+  animation: sheet-pop 0.5s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+@keyframes sheet-pop {
+  from { transform: translateY(70px) scale(0.96); opacity: 0; }
+}
+.clockout.done .stagger {
+  animation: rise 0.4s ease-out both;
+}
+.clockout.done .confetti { animation-delay: 0.15s; }
+.clockout.done h2 { animation-delay: 0.25s; }
+.clockout.done .clockout-item { animation: pop 0.6s ease-out 0.35s both; }
+.clockout.done .clockout-name { animation-delay: 0.5s; }
+.clockout.done .kv { animation-delay: 0.6s; }
+@keyframes rise {
+  from { transform: translateY(10px); opacity: 0; }
+}
+.overlay.leaving {
+  animation: fade-out 0.24s ease-in forwards;
+}
+.overlay.leaving .sheet {
+  animation: slide-down 0.24s ease-in forwards;
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+@keyframes slide-down {
+  to { transform: translateY(50px); opacity: 0; }
 }
 
 .kv {
@@ -862,6 +974,37 @@ button {
 
 .office-obj.pop {
   animation: pop 0.6s ease-out;
+}
+
+/* 퇴근: 작업을 끝낸 날만 튀어오르며 등장하고, 내용이 차례로 떠오른다 */
+.sheet.clockout.done {
+  animation: sheet-pop 0.5s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+@keyframes sheet-pop {
+  from { transform: translateY(70px) scale(0.96); opacity: 0; }
+}
+.clockout.done .stagger {
+  animation: rise 0.4s ease-out both;
+}
+.clockout.done .confetti { animation-delay: 0.15s; }
+.clockout.done h2 { animation-delay: 0.25s; }
+.clockout.done .clockout-item { animation: pop 0.6s ease-out 0.35s both; }
+.clockout.done .clockout-name { animation-delay: 0.5s; }
+.clockout.done .kv { animation-delay: 0.6s; }
+@keyframes rise {
+  from { transform: translateY(10px); opacity: 0; }
+}
+.overlay.leaving {
+  animation: fade-out 0.24s ease-in forwards;
+}
+.overlay.leaving .sheet {
+  animation: slide-down 0.24s ease-in forwards;
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+@keyframes slide-down {
+  to { transform: translateY(50px); opacity: 0; }
 }
 
 .banner {

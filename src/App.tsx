@@ -166,7 +166,7 @@ export function App() {
 
       {gacha && (
         <GachaModal
-          key={`${gacha.date}-${gacha.at}`}
+          id={`${gacha.date}-${gacha.at}`}
           eventId={gacha.eventId}
           isNew={state.collection[gacha.eventId]?.firstObtainedAt === gacha.at}
           remaining={pending.length - 1}

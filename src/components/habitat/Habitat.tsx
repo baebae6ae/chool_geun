@@ -3,6 +3,7 @@ import type { HamsterMood } from '../../domain/schedule';
 import type { Customization } from '../../domain/types';
 import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, type Place, type Step } from './brain';
+import { buzz } from '../../haptics';
 import { Bowl, DeskBack, DeskFront, Floor, Nest, WallClock, Wheel, Window } from './props';
 import './habitat.css';
 
@@ -246,6 +247,7 @@ export function Habitat({ custom, mood, name, now }: Props) {
     }
     cur.current = null;
     setHeart((h) => h + 1);
+    buzz(8);
   };
 
   const { pose, place, facing } = view;
