@@ -59,7 +59,9 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
   const day = state.days[key];
   const [confirming, setConfirming] = useState(false);
   const payD = daysUntilPayday(key, settings.payday);
-  const holiday = settings.holidaysOff !== false ? holidayName(key) : undefined;
+  const override = settings.dayOverrides?.[key];
+  const holiday =
+    override === 'off' ? (holidayName(key) ?? '쉬는 날') : override === 'on' ? undefined : settings.holidaysOff !== false ? holidayName(key) : undefined;
 
   const mood = day ? hamsterMood(key, day.schedule, now, day.clockedOut) : 'holiday';
   const progress = day ? (day.clockedOut ? day.progress : progressAt(key, day.schedule, now)) : 0;

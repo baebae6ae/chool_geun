@@ -158,7 +158,23 @@ export function App() {
             )}
             {tab === 'office' && <Office state={state} />}
             {tab === 'dex' && <Collection state={state} />}
-            {tab === 'records' && <Records key={recordFocus} state={state} now={now} focusDate={recordFocus} />}
+            {tab === 'records' && (
+              <Records
+                key={recordFocus}
+                state={state}
+                now={now}
+                focusDate={recordFocus}
+                onDayOverride={(date, v) =>
+                  setState((s) => {
+                    if (!s.settings) return s;
+                    const dayOverrides = { ...s.settings.dayOverrides };
+                    if (v) dayOverrides[date] = v;
+                    else delete dayOverrides[date];
+                    return { ...s, settings: { ...s.settings, dayOverrides } };
+                  })
+                }
+              />
+            )}
             {tab === 'custom' && <Customize state={state} onChange={(custom) => setState((s) => ({ ...s, custom }))} />}
           </>
         )}

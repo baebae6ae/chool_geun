@@ -81,7 +81,9 @@ export function earnedAt(key: string, s: Schedule, hourly: number, t: number): n
   return (workedMs(key, s, t) / (60 * MIN)) * hourly;
 }
 
-export function isWorkday(key: string, settings: Pick<Settings, 'weekendWork' | 'holidaysOff'>): boolean {
+export function isWorkday(key: string, settings: Pick<Settings, 'weekendWork' | 'holidaysOff' | 'dayOverrides'>): boolean {
+  const o = settings.dayOverrides?.[key];
+  if (o) return o === 'on';
   if (settings.holidaysOff !== false && holidayName(key)) return false;
   const wd = weekday(key);
   return settings.weekendWork || (wd !== 0 && wd !== 6);

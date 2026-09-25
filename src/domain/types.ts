@@ -34,6 +34,8 @@ export interface Settings extends Schedule {
   weekendWork: boolean;
   /** 공휴일엔 쉰다 (없으면 쉼) */
   holidaysOff?: boolean;
+  /** 날짜별로 직접 정한 쉬는 날(연차·회사 휴무·임시공휴일) / 출근하는 날 */
+  dayOverrides?: Record<string, 'off' | 'on'>;
   hamsterName: string;
   /** 브라우저 알림 사용 */
   notifications: boolean;
