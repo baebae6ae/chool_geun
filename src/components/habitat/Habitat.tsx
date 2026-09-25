@@ -12,6 +12,8 @@ interface Props {
   mood: HamsterMood;
   name: string;
   now: number;
+  /** 탁상시계 화면: 주어진 칸 높이에 맞춰 방 전체를 확대 */
+  fit?: boolean;
 }
 
 interface View {
@@ -68,8 +70,13 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
  * 햄스터가 사는 작은 사무실. 조작 없이 켜두면 햄스터가 알아서
  * 일하고, 쳇바퀴 돌고, 씨앗 먹고, 세수하고, 졸고, 출퇴근한다.
  */
-export function Habitat({ custom, mood, name, now }: Props) {
+/** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
+const BASE_H = 236;
+
+export function Habitat({ custom, mood, name, now, fit = false }: Props) {
   const box = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
   const actor = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(358);
   const spots = useMemo(() => spotsFor(W), [W]);
@@ -128,22 +135,32 @@ export function Habitat({ custom, mood, name, now }: Props) {
     }
   }, []);
 
+  /** 방의 논리 폭 (확대 전) */
+  const logicalW = useCallback(() => {
+    const f = frame.current;
+    if (fit && f && f.clientHeight > 0) return f.clientWidth / Math.max(1, f.clientHeight / BASE_H);
+    return box.current?.clientWidth || 358;
+  }, [fit]);
+
   // 폭 측정
   useLayoutEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    const measure = () => setW(el.clientWidth || 358);
+    const f = frame.current;
+    if (!f) return;
+    const measure = () => {
+      setZoom(fit && f.clientHeight > 0 ? Math.max(1, f.clientHeight / BASE_H) : 1);
+      setW(Math.round(logicalW()));
+    };
     measure();
     const ro = new ResizeObserver(measure);
-    ro.observe(el);
+    ro.observe(f);
     return () => ro.disconnect();
-  }, []);
+  }, [fit, logicalW]);
 
   // 근무 상태 변화 → 할 일 다시 짜기
   useEffect(() => {
     const prev = moodRef.current;
     moodRef.current = mood;
-    const W0 = box.current?.clientWidth || 358;
+    const W0 = logicalW();
     const s = started.current ? spotsRef.current : spotsFor(W0);
     if (!started.current) {
       started.current = true;
@@ -165,7 +182,7 @@ export function Habitat({ custom, mood, name, now }: Props) {
     }
     // 이동 중이면 멈추지 말고 목적지까지 가게 두고, 행동 중이면 바로 다음 할 일로
     if (cur.current?.step.t !== 'move') cur.current = null;
-  }, [mood]);
+  }, [mood, logicalW]);
 
   // 폭이 바뀌면 위치 보정
   useEffect(() => {
@@ -261,7 +278,12 @@ export function Habitat({ custom, mood, name, now }: Props) {
 
   return (
     <div className="habitat-wrap">
-      <div className="habitat" ref={box}>
+      <div className="habitat-frame" ref={frame}>
+      <div
+        className="habitat"
+        ref={box}
+        style={fit ? { width: W, height: BASE_H, margin: 0, transform: `scale(${zoom})`, transformOrigin: '0 0' } : undefined}
+      >
         <Window x={spots.bowl + (spots.bed - spots.bowl) / 2} now={now} />
         <WallClock x={spots.desk} now={now} />
         <Floor />
@@ -302,6 +324,7 @@ export function Habitat({ custom, mood, name, now }: Props) {
         <DeskFront x={spots.desk} custom={custom} mugTaken={place === 'desk' && pose.action === 'sip'} />
         <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} />
         {mood === 'oneMore' && <div className="habitat-speech">조금만 더...</div>}
+      </div>
       </div>
       <div className="habitat-status" aria-live="polite">
         {name || '햄스터'}

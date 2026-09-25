@@ -12,6 +12,8 @@ interface Props {
   onClockOut: () => void;
   onOpenSettings: () => void;
   onOpenRecord: () => void;
+  /** 가로로 눕힌 탁상시계 화면 */
+  clock?: boolean;
 }
 
 /** 바뀐 자릿수만 살짝 밝아지며 들어온다 — 돈이 '방금' 쌓였다는 걸 조용히 알려줌 */
@@ -34,11 +36,18 @@ function MoneyTicker({ value }: { value: string }) {
   );
 }
 
+/** 안드로이드 크롬 등은 진짜 전체 화면 가능 (아이폰은 브라우저가 막음 → 홈 화면에 추가해야 함) */
+const canFullscreen = typeof document !== 'undefined' && !!document.fullscreenEnabled;
+const toggleFullscreen = () => {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+};
+
 /**
  * "그냥 켜놓는" 화면. 사용자가 조작할 게 거의 없고, 시간이 흐르는 대로
  * 번 돈과 작업 진행률, 햄스터의 행동이 저절로 바뀐다.
  */
-export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord }: Props) {
+export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, clock = false }: Props) {
   const { settings, custom } = state;
   const key = dateKey(now);
   const day = state.days[key];
@@ -73,11 +82,17 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord }: P
           <span className="ambient-date-main">{formatKoreanDate(key)}</span>
           <span className="ambient-date-sub">{payD === 0 ? '오늘은 월급날' : `월급날까지 D-${payD}`}</span>
         </div>
-        <button className="icon-btn quiet" onClick={onOpenSettings} aria-label="설정">⚙️</button>
+        {clock && canFullscreen ? (
+          <button className="icon-btn quiet" onClick={toggleFullscreen} aria-label="전체 화면">
+            ⛶
+          </button>
+        ) : (
+          <button className="icon-btn quiet" onClick={onOpenSettings} aria-label="설정">⚙️</button>
+        )}
       </header>
 
       <div className="ambient-body">
-        <Habitat custom={custom} mood={mood} name={settings.hamsterName} now={now} />
+        <Habitat custom={custom} mood={mood} name={settings.hamsterName} now={now} fit={clock} />
 
         {!day || !item ? (
           <p className="rest-note">오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.</p>

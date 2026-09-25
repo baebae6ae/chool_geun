@@ -5,6 +5,10 @@
   gap: 6px;
 }
 
+.habitat-frame {
+  position: relative;
+}
+
 .habitat {
   position: relative;
   height: clamp(206px, 28dvh, 236px);

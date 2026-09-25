@@ -1322,3 +1322,53 @@ select {
   font-size: 0.9rem;
   color: inherit;
 }
+
+/* ---------- 탁상시계 (가로로 눕힌 홈 화면) ---------- */
+.app.clock {
+  max-width: none;
+}
+.app.clock .tabbar {
+  display: none;
+}
+.app.clock .content {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+.app.clock .ambient {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(210px, 1fr);
+  grid-template-rows: auto 1fr auto auto auto;
+  column-gap: 20px;
+  row-gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+.app.clock .ambient-body {
+  display: contents;
+}
+.app.clock .habitat-wrap {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  min-height: 0;
+}
+.app.clock .habitat-frame {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.app.clock .ambient-head { grid-column: 2; grid-row: 1; }
+.app.clock .hero-money { grid-column: 2; grid-row: 2; align-self: center; text-align: left; padding: 0; }
+.app.clock .rest-note { grid-column: 2; grid-row: 2; align-self: center; text-align: left; }
+.app.clock .task-row { grid-column: 2; grid-row: 3; }
+.app.clock .time-row { grid-column: 2; grid-row: 4; justify-content: flex-start; flex-wrap: wrap; }
+.app.clock .ambient-btn { grid-column: 2; grid-row: 5; padding: 9px 12px; }
+.app.clock .hero-money-value {
+  font-size: clamp(1.5rem, 4.4vw, 2.6rem);
+}
+.app.clock .time-now {
+  font-size: 1.3rem;
+}

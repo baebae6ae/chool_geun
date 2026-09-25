@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal } from './components/Modals';
 import { dateKey } from './domain/date';
 import { applySettings, clockOut, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
@@ -63,6 +64,9 @@ export function App() {
     }
   };
   const [showSettings, setShowSettings] = useState(false);
+  const landscape = useClockMode();
+  const clock = landscape && !!state.settings && tab === 'home' && !showSettings;
+  useWakeLock(clock);
   const [recordFocus, setRecordFocus] = useState<string>();
   const prevTick = useRef(now);
 
@@ -111,7 +115,7 @@ export function App() {
   };
 
   return (
-    <div className="app">
+    <div className={clock ? 'app clock' : 'app'}>
       <StorageNotice />
       <main className="content">
         {showSettings ? (
@@ -135,6 +139,7 @@ export function App() {
                 onClockOut={() => setState(clockOut(getState(), key, clockNow()))}
                 onOpenSettings={() => setShowSettings(true)}
                 onOpenRecord={() => openRecord(key)}
+                clock={clock}
               />
             )}
             {tab === 'office' && <Office state={state} />}
