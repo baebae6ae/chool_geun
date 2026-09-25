@@ -4,14 +4,15 @@ import { App } from './App';
 import './styles.css';
 
 const Gallery = lazy(() => import('./dev/Gallery').then((m) => ({ default: m.Gallery })));
-const isGallery = new URLSearchParams(location.search).has('gallery');
+const Diag = lazy(() => import('./dev/Diag').then((m) => ({ default: m.Diag })));
+const params = new URLSearchParams(location.search);
+const isGallery = params.has('gallery');
+const isDiag = params.has('diag');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isGallery ? (
-      <Suspense>
-        <Gallery />
-      </Suspense>
+    {isGallery || isDiag ? (
+      <Suspense>{isDiag ? <Diag /> : <Gallery />}</Suspense>
     ) : (
       <App />
     )}
