@@ -1,3 +1,4 @@
+import { holidayName } from './holidays';
 import { estimateNet } from './tax';
 import { atTime, toMinutes, weekday } from './date';
 import type { Schedule, Settings } from './types';
@@ -80,9 +81,16 @@ export function earnedAt(key: string, s: Schedule, hourly: number, t: number): n
   return (workedMs(key, s, t) / (60 * MIN)) * hourly;
 }
 
-export function isWorkday(key: string, settings: Pick<Settings, 'weekendWork'>): boolean {
+export function isWorkday(key: string, settings: Pick<Settings, 'weekendWork' | 'holidaysOff'>): boolean {
+  if (settings.holidaysOff !== false && holidayName(key)) return false;
   const wd = weekday(key);
   return settings.weekendWork || (wd !== 0 && wd !== 6);
+}
+
+/** 은행 영업일 (주말·공휴일 제외) — 월급날 계산용 */
+export function isBankDay(key: string): boolean {
+  const wd = weekday(key);
+  return wd !== 0 && wd !== 6 && !holidayName(key);
 }
 
 export function validateSchedule(s: Schedule): string | null {

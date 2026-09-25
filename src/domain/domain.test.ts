@@ -139,13 +139,25 @@ describe('engine', () => {
 
   it('앱을 닫아둔 지난 날도 다음 실행 때 퇴근 처리된다', () => {
     let s = reconcile(withSettings(), atTime(DAY, '10:00')).state;
-    const r = reconcile(s, atTime('2026-09-24', '08:00'));
+    const r = reconcile(s, atTime('2026-09-28', '08:00'));
     s = r.state;
     expect(r.finalized).toContain(DAY);
     expect(s.days[DAY].completed).toBe(true);
     // 앱을 열지 않은 23일은 기록이 없다
     expect(s.days['2026-09-23']).toBeUndefined();
-    expect(s.days['2026-09-24'].workItemIndex).toBe(1);
+    expect(s.days['2026-09-28'].workItemIndex).toBe(1);
+  });
+
+  it('공휴일(추석)엔 근무일이 아니고, 이미 만들어진 오늘 기록도 치운다', () => {
+    expect(reconcile(withSettings(), atTime('2026-09-25', '10:00')).state.days['2026-09-25']).toBeUndefined();
+    // 공휴일 처리 전 버전에서 만들어진 기록
+    const before = reconcile({ ...withSettings(), settings: { ...withSettings().settings!, holidaysOff: false } }, atTime('2026-09-25', '08:00')).state;
+    expect(before.days['2026-09-25']).toBeDefined();
+    const after = reconcile({ ...before, settings: { ...before.settings!, holidaysOff: true } }, atTime('2026-09-25', '08:30')).state;
+    expect(after.days['2026-09-25']).toBeUndefined();
+    // 공휴일에도 일하는 사람
+    const worker = { ...withSettings(), settings: { ...withSettings().settings!, holidaysOff: false } };
+    expect(reconcile(worker, atTime('2026-09-25', '10:00')).state.days['2026-09-25']).toBeDefined();
   });
 
   it('조기 퇴근은 미완성으로 저장되고 다음 날 같은 작업을 이어간다', () => {
@@ -202,9 +214,13 @@ describe('records', () => {
 
   it('유틸', () => {
     expect(mondayOf('2026-09-27')).toBe('2026-09-21');
-    expect(daysUntilPayday('2026-09-22', 25)).toBe(3);
-    expect(daysUntilPayday('2026-09-26', 25)).toBe(29);
-    expect(daysUntilPayday('2026-02-20', 31)).toBe(8);
+    // 2026-09-25는 추석, 24일도 연휴 → 23일(수)에 지급
+    expect(daysUntilPayday('2026-09-22', 25)).toBe(1);
+    // 2026-10-25는 일요일 → 23일(금)
+    expect(daysUntilPayday('2026-09-26', 25)).toBe(27);
+    // 2026-02-28은 토요일 → 27일(금)
+    expect(daysUntilPayday('2026-02-20', 31)).toBe(7);
+    expect(daysUntilPayday('2026-11-20', 25)).toBe(5);
     expect(formatRemaining(18 * 60_000)).toBe('18분');
     expect(formatRemaining(65 * 60_000)).toBe('1시간 5분');
   });

@@ -32,6 +32,8 @@ export interface Settings extends Schedule {
   monthWorkDays: number;
   /** 주말 근무 여부 */
   weekendWork: boolean;
+  /** 공휴일엔 쉰다 (없으면 쉼) */
+  holidaysOff?: boolean;
   hamsterName: string;
   /** 브라우저 알림 사용 */
   notifications: boolean;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatClock, formatKoreanDate, formatRemaining } from '../domain/date';
 import { completedCount, daysUntilPayday } from '../domain/engine';
+import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
 import { completedInSeason, formatWon, itemOf } from '../domain/records';
@@ -58,6 +59,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
   const day = state.days[key];
   const [confirming, setConfirming] = useState(false);
   const payD = daysUntilPayday(key, settings.payday);
+  const holiday = settings.holidaysOff !== false ? holidayName(key) : undefined;
 
   const mood = day ? hamsterMood(key, day.schedule, now, day.clockedOut) : 'holiday';
   const progress = day ? (day.clockedOut ? day.progress : progressAt(key, day.schedule, now)) : 0;
@@ -128,7 +130,10 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
       <header className="ambient-head">
         <div className="ambient-date">
           <span className="ambient-date-main">{formatKoreanDate(key)}</span>
-          <span className="ambient-date-sub">{payD === 0 ? '오늘은 월급날' : `월급날까지 D-${payD}`}</span>
+          <span className="ambient-date-sub">
+            {holiday && <b className="holiday-chip">{holiday}</b>}
+            {payD === 0 ? '오늘은 월급날' : `월급날까지 D-${payD}`}
+          </span>
         </div>
         {clock && canFullscreen ? (
           <button className="icon-btn quiet" onClick={toggleFullscreen} aria-label="전체 화면">
@@ -153,7 +158,15 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
         />
 
         {!day || !item ? (
-          <p className="rest-note">오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.</p>
+          <p className="rest-note">
+            {holiday?.includes('추석')
+              ? '🎑 즐거운 추석! 햄스터도 송편 먹으며 쉬는 중.'
+              : holiday?.includes('설날')
+                ? '🧧 새해 복 많이 받으세요! 햄스터도 떡국 먹으며 쉬는 중.'
+                : holiday
+                  ? `오늘은 ${holiday}, 쉬는 날이에요. 햄스터도 늦잠 자는 중.`
+                  : '오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.'}
+          </p>
         ) : (
           <>
             <div className="hero-money">

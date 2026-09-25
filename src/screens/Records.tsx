@@ -3,6 +3,7 @@ import { DailyRecordCard } from '../components/Modals';
 import { OfficeRoom } from '../components/OfficeRoom';
 import { addDays, dateKey, formatDotDate, mondayOf, MONTH_EN, WEEKDAY_KO, weekday } from '../domain/date';
 import { formatWon, itemOf, monthSummary, weekSlots } from '../domain/records';
+import { holidayName } from '../domain/holidays';
 import { dayBounds } from '../domain/schedule';
 import type { AppState, DailyWork } from '../domain/types';
 
@@ -21,7 +22,9 @@ function StampWeek({ state, now }: { state: AppState; now: number }) {
         {slots.map(({ date, day }) => (
           <div key={date} className={`stamp-cell ${date === today ? 'today' : ''} ${date > today ? 'future' : ''}`}>
             <span className="stamp-day">{WEEKDAY_KO[weekday(date)]}</span>
-            <span className={`stamp ${worked(day, now) ? 'on' : ''}`}>{worked(day, now) ? '🐾' : ''}</span>
+            <span className={`stamp ${worked(day, now) ? 'on' : holidayName(date) ? 'off' : ''}`} title={holidayName(date)}>
+              {worked(day, now) ? '🐾' : holidayName(date) ? '휴' : ''}
+            </span>
           </div>
         ))}
       </div>
@@ -50,7 +53,13 @@ function StampCalendar({ y, m, state, now }: { y: number; m: number; state: AppS
         const day = state.days[d];
         const on = inMonth && worked(day, now);
         return (
-          <span key={d} className={`stamp-cal-cell ${inMonth ? '' : 'out'} ${d === today ? 'today' : ''}`}>
+          <span
+            key={d}
+            className={`stamp-cal-cell ${inMonth ? '' : 'out'} ${d === today ? 'today' : ''} ${
+              holidayName(d) || weekday(d) === 0 ? 'red' : weekday(d) === 6 ? 'blue' : ''
+            }`}
+            title={holidayName(d)}
+          >
             <small>{Number(d.slice(8))}</small>
             {on && <span className="stamp on">🐾</span>}
             {on && day?.completed && <i title={itemOf(day).name}>{itemOf(day).emoji}</i>}

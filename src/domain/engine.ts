@@ -5,7 +5,7 @@
 import { addDays, dateKey } from './date';
 import { GACHA_BY_ID, planDailyGacha } from './gacha';
 import { createRng } from './random';
-import { dayBounds, earnedAt, hourlyWage, isWorkday, progressAt, timeAtFraction, workedMs } from './schedule';
+import { dayBounds, earnedAt, hourlyWage, isBankDay, isWorkday, progressAt, timeAtFraction, workedMs } from './schedule';
 import { DEFAULT_CUSTOM, isUnlocked, rarityIndex, type Progress, type ProgressSource, type Unlock } from './customization';
 import { itemForCompletedCount } from './workItems';
 import type { AppState, DailyWork, Settings } from './types';
@@ -147,6 +147,13 @@ export function reconcile(state: AppState, now: number): ReconcileResult {
     days[key] = day;
   };
 
+  // 쉬는 날(공휴일 등)인데 아직 일을 시작하지 않은 오늘 기록은 치운다
+  const t = days[today];
+  if (t && !t.clockedOut && !isWorkday(today, settings) && !t.gacha.some((g) => g.obtained)) {
+    delete days[today];
+    changed = true;
+  }
+
   // 지난 날을 먼저 정리해야 오늘의 작업물 배정(완성 개수 기준)이 정확하다
   for (const key of Object.keys(days).sort()) process(key);
   if (isWorkday(today, settings) && !days[today]) {
@@ -215,12 +222,19 @@ export function unlocked(state: ProgressSource, u: Unlock): boolean {
 }
 
 /** 급여일까지 남은 일수 (오늘이 급여일이면 0). 급여일이 말일보다 크면 말일로. */
+/** 그 달의 실제 월급날: 급여일이 주말·공휴일이면 전 영업일로 당긴다 */
+export function paydayOf(year: number, month: number, payday: number): string {
+  const last = new Date(year, month, 0).getDate();
+  let k = `${year}-${String(month).padStart(2, '0')}-${String(Math.min(payday, last)).padStart(2, '0')}`;
+  for (let i = 0; i < 10 && !isBankDay(k); i++) k = addDays(k, -1);
+  return k;
+}
+
 export function daysUntilPayday(key: string, payday: number): number {
   for (let i = 0; i < 62; i++) {
     const k = addDays(key, i);
-    const [y, m, d] = k.split('-').map(Number);
-    const last = new Date(y, m, 0).getDate();
-    if (d === Math.min(payday, last)) return i;
+    const [y, m] = k.split('-').map(Number);
+    if (k === paydayOf(y, m, payday)) return i;
   }
   return 0;
 }

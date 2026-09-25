@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   payday: 25,
   monthWorkDays: 21,
   weekendWork: false,
+  holidaysOff: true,
   workStart: '09:00',
   workEnd: '18:00',
   lunchStart: '12:00',
@@ -227,6 +228,10 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         <label className="toggle">
           <input type="checkbox" checked={s.weekendWork} onChange={(e) => set('weekendWork', e.target.checked)} />
           주말에도 근무해요
+        </label>
+        <label className="toggle">
+          <input type="checkbox" checked={s.holidaysOff !== false} onChange={(e) => set('holidaysOff', e.target.checked)} />
+          공휴일(설·추석·대체공휴일 등)엔 쉬어요
         </label>
         {annual && (
           <label className="toggle">

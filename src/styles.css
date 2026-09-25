@@ -1583,3 +1583,28 @@ select {
   font-size: 0.68rem;
   color: var(--ink-2);
 }
+
+/* 공휴일 */
+.holiday-chip {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #d9534f 14%, transparent);
+  color: #c9403c;
+  font-size: 0.75rem;
+}
+.stamp.off {
+  border-style: solid;
+  border-color: var(--line);
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.stamp-cal-cell.red small {
+  color: #d9534f;
+  font-weight: 700;
+}
+.stamp-cal-cell.blue small {
+  color: #4a7fd4;
+}
