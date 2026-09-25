@@ -1,5 +1,6 @@
-// 오프라인 지원용 최소 서비스워커: 페이지는 네트워크 우선, 정적 자원은 캐시 우선.
-const CACHE = 'hamster-worklog-v1';
+// 오프라인 지원용 최소 서비스워커: 해시가 붙은 빌드 파일(assets/)만 캐시 우선,
+// 페이지·아이콘·manifest처럼 이름이 안 바뀌는 파일은 네트워크 우선 (업데이트가 바로 반영되게).
+const CACHE = 'hamster-worklog-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => {
@@ -15,15 +16,17 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
 
-  if (req.mode === 'navigate') {
+  if (!new URL(req.url).pathname.includes('/assets/')) {
     e.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
           return res;
         })
-        .catch(() => caches.match(req).then((r) => r || caches.match('./'))),
+        .catch(() => caches.match(req).then((r) => r || (req.mode === 'navigate' ? caches.match('./') : Response.error()))),
     );
     return;
   }
