@@ -67,6 +67,14 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
       <ellipse className="hs-shadow" cx="60" cy="109" rx="38" ry="4" fill={INK} opacity=".1" />
 
       <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
+        {/* 다크 모드에서만 보이는 밝은 테두리 (어두운 배경에 윤곽이 묻히지 않게) */}
+        <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
+          <circle cx="31" cy="26" r="9.5" />
+          <circle cx="89" cy="26" r="9.5" />
+          <path d={FRONT.body} />
+          <ellipse cx="45" cy="106.5" rx="7" ry="3.8" />
+          <ellipse cx="75" cy="106.5" rx="7" ry="3.8" />
+        </g>
         {/* 귀 */}
         <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE}>
           <circle className="hs-ear-l" cx="31" cy="26" r="9.5" />
@@ -341,6 +349,11 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
       <ellipse className="hs-shadow" cx="66" cy="94" rx="46" ry="4" fill={INK} opacity=".1" />
 
       <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
+        <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
+          <circle cx="80" cy="34" r="9.5" />
+          <ellipse cx="31" cy="72" rx="4.4" ry="3.4" />
+          <path d={SIDE.body} />
+        </g>
         {/* 먼 쪽 다리 */}
         {!sleeping && (
           <g fill="#e89ea2" stroke={INK} strokeWidth="2">

@@ -6,6 +6,18 @@
   overflow: visible;
 }
 
+.hs-halo {
+  stroke: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .hs-halo {
+    stroke: rgba(255, 244, 230, 0.55);
+  }
+}
+:root[data-theme='dark'] .hs-halo {
+  stroke: rgba(255, 244, 230, 0.55);
+}
+
 /* 깜빡임 — 가끔 두 번 연속 */
 .hs-blink {
   transform-box: fill-box;
