@@ -209,13 +209,25 @@
   100% { transform: translate(5px, 0); }
 }
 
-.hs-side.act-sleep .hs-bob { animation: hs-sleep 3.8s ease-in-out infinite; }
-@keyframes hs-sleep {
-  0%, 100% { transform: translateY(4px) scale(1.03, 0.88); }
-  50% { transform: translateY(4px) scale(1.05, 0.92); }
+/* 쌔근쌔근: 등이 천천히 부풀었다 가라앉음 */
+.hs-side.act-sleep .hs-bob {
+  transform-origin: 70px 92px;
+  animation: hs-sleep 4s ease-in-out infinite;
 }
-.hs-zzz {
-  animation: hs-float 2.4s ease-in-out infinite;
+@keyframes hs-sleep {
+  0%, 100% { transform: scale(1, 1); }
+  45% { transform: scale(1.025, 1.045); }
+}
+.hs-zzz text {
+  animation: hs-zzz 4s ease-in-out infinite;
+}
+.hs-zzz text:nth-child(2) {
+  animation-delay: 0.6s;
+}
+@keyframes hs-zzz {
+  0%, 100% { opacity: 0; transform: translate(0, 4px); }
+  30%, 70% { opacity: 1; }
+  90% { opacity: 0; transform: translate(4px, -6px); }
 }
 
 /* ---------- 희귀 행동 ---------- */

@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { COLORS } from '../../domain/customization';
 import type { Customization } from '../../domain/types';
-import { FRONT, SIDE } from './shapes';
+import { FRONT, LOAF, SIDE } from './shapes';
 import './hamster.css';
 
 export type FrontAction =
@@ -450,8 +450,72 @@ function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
 
 /* ============================ 옆모습 (걷기/달리기/자기) ============================ */
 
+/** 자는 자세: 앞을 보고 납작 엎드려 눈 감고, 앞발은 턱 밑에 */
+function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, 'action'>) {
+  return (
+    <svg viewBox="0 0 140 100" className={`hs hs-side act-sleep ${className}`} aria-hidden>
+      <clipPath id={clip}>
+        <path d={LOAF.clip} />
+      </clipPath>
+      <ellipse className="hs-shadow" cx="70" cy="93" rx="48" ry="4" fill={INK} opacity=".1" />
+
+      <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
+        <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
+          <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
+          <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
+          <path d={LOAF.body} />
+        </g>
+        {/* 귀는 살짝 눕힘 */}
+        <g fill={c.ear} stroke={INK} strokeWidth={LINE}>
+          <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
+          <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
+        </g>
+
+        <path d={LOAF.body} fill={c.body} />
+        <g clipPath={`url(#${clip})`}>
+          <SideOutfit id={custom.outfit === 'apron' ? 'none' : custom.outfit} />
+        </g>
+        <path d={LOAF.body} fill="none" stroke={INK} strokeWidth={LINE} />
+
+        {/* 얼굴 */}
+        <ellipse cx="47" cy="71" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
+        <ellipse cx="93" cy="71" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
+        <ellipse cx="70" cy="72" rx="10" ry="7" fill={c.cream} />
+        <g stroke={INK} strokeWidth="2.3" fill="none">
+          <path d="M52 64 q5 4.5 10 0" />
+          <path d="M78 64 q5 4.5 10 0" />
+        </g>
+        <ellipse cx="70" cy="68.5" rx="2.7" ry="2" fill={NOSE} />
+        <path d="M70 70.4 v1.4 M66.6 72 q1.7 1.8 3.4 .2 q1.7 1.6 3.4 -.2" stroke={INK} strokeWidth="1.5" fill="none" />
+
+        {/* 턱 밑에 모은 앞발 */}
+        <g fill={PINK} stroke={INK} strokeWidth="2">
+          <ellipse cx="61" cy="85" rx="5.6" ry="4" />
+          <ellipse cx="79" cy="85" rx="5.6" ry="4" />
+        </g>
+
+        {custom.glasses && (
+          <g stroke={INK} strokeWidth="1.6" fill="#ffffff" fillOpacity=".25">
+            <circle cx="61" cy="47" r="6" />
+            <circle cx="79" cy="47" r="6" />
+            <path d="M67 46.5 h6" fill="none" />
+          </g>
+        )}
+        <g transform="translate(70 40) rotate(-8) scale(.8)">
+          <Hat id={custom.hat} side={false} />
+        </g>
+      </g>
+
+      <g className="hs-zzz" fill={INK} fontWeight="800" fontFamily="system-ui, sans-serif">
+        <text x="104" y="36" fontSize="10">z</text>
+        <text x="113" y="25" fontSize="14">Z</text>
+      </g>
+    </svg>
+  );
+}
+
 function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>) {
-  const sleeping = action === 'sleep';
+  if (action === 'sleep') return <SleepView c={c} clip={clip} custom={custom} className={className} />;
   const legClass = action === 'walk' || action === 'run' ? 'hs-leg moving' : 'hs-leg';
   return (
     <svg viewBox="0 0 140 100" className={`hs hs-side act-${action} ${className}`} aria-hidden>
@@ -468,7 +532,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           <path d={SIDE.body} />
         </g>
         {/* 먼 쪽 다리 */}
-        {!sleeping && (
+        {(
           <g fill="#e89ea2" stroke={INK} strokeWidth="2">
             <g className={`${legClass} leg-fb`}><ellipse cx="44" cy="91" rx="6" ry="3.4" /></g>
             <g className={`${legClass} leg-ff`}><ellipse cx="94" cy="91" rx="5.2" ry="3.2" /></g>
@@ -492,14 +556,10 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         {/* 눈 · 코 · 입 */}
         <ellipse cx="92" cy="66" rx="5" ry="2.8" fill={BLUSH} opacity=".45" />
         <ellipse cx="105" cy="66" rx="8.5" ry="7" fill={c.cream} />
-        {sleeping ? (
-          <path d="M93 55 q4 3.4 8 0" stroke={INK} strokeWidth="2.3" fill="none" />
-        ) : (
-          <g className="hs-blink" fill={INK}>
+                  <g className="hs-blink" fill={INK}>
             <circle cx="97" cy="55" r="3.6" />
             <circle cx="98.2" cy="53.8" r="1" fill="#fff" />
           </g>
-        )}
         <ellipse className="hs-nose" cx="110" cy="62.5" rx="2.6" ry="2.1" fill={NOSE} />
         <path d="M108.6 66.4 q-1.4 2.6 -4.6 1.6" stroke={INK} strokeWidth="1.6" fill="none" />
 
@@ -508,14 +568,14 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         )}
 
         {/* 가까운 쪽 다리 */}
-        {!sleeping && (
+        {(
           <g fill={PINK} stroke={INK} strokeWidth="2">
             <g className={`${legClass} leg-nb`}><ellipse cx="53" cy="91.5" rx="6.6" ry="3.6" /></g>
             <g className={`${legClass} leg-nf`}><ellipse cx="86" cy="91.5" rx="5.6" ry="3.4" /></g>
           </g>
         )}
 
-        {custom.glasses && !sleeping && (
+        {custom.glasses && (
           <g stroke={INK} strokeWidth="1.8" fill="#ffffff" fillOpacity=".2">
             <circle cx="97" cy="55" r="7.5" />
             <path d="M89.5 54 L78 50" fill="none" />
@@ -525,13 +585,6 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           <Hat id={custom.hat} side />
         </g>
       </g>
-
-      {sleeping && (
-        <g className="hs-zzz" fill={INK} fontWeight="700" fontFamily="system-ui, sans-serif">
-          <text x="110" y="34" fontSize="10">z</text>
-          <text x="118" y="24" fontSize="13">Z</text>
-        </g>
-      )}
     </svg>
   );
 }

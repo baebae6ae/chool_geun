@@ -79,3 +79,33 @@ export const SIDE = {
   /** 달릴 때 뒤로 남는 속도선 */
   ticks: 'M26 56 l-6 -1.4 M24.6 63 l-7 .4 M26 70 l-5 1.6',
 };
+
+/* ---------------- 자는 자세 (앞을 보고 식빵처럼 엎드림, viewBox 0 0 140 100) ---------------- */
+
+const LN = 34;
+const loafT = thetaOf(LN);
+function loafPt(t: number): Pt {
+  const s = Math.sin(t);
+  const c = Math.cos(t);
+  const rx = 45 + 3 * Math.max(0, s);
+  const ry = s < 0 ? 29 : 24;
+  return [70 + rx * spow(c, s < 0 ? 0.85 : 0.6), Math.min(66 + ry * spow(s, s < 0 ? 0.9 : 0.55), 91)];
+}
+const loafPts = sampleShape(LN, loafPt);
+
+export const LOAF = {
+  body: tuftPath(
+    loafPts,
+    (i) => {
+      const t = loafT(i);
+      const base =
+        0.35 +
+        1.8 * (bell(t, 0.1, 0.4) + bell(t, Math.PI - 0.1, 0.4)) - // 옆구리 털
+        1.4 * bell(t, Math.PI / 2, 0.5) - // 바닥
+        0.3 * bell(t, -Math.PI / 2, 0.6);
+      return Math.max(0, base * (0.35 + 1.1 * rand01(i + 29)));
+    },
+    0,
+  ),
+  clip: smoothPath(loafPts),
+};
