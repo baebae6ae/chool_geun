@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatClock, formatKoreanDate, formatRemaining } from '../domain/date';
-import { daysUntilPayday } from '../domain/engine';
-import { formatWon, itemOf } from '../domain/records';
+import { completedCount, daysUntilPayday } from '../domain/engine';
+import { MILESTONES, milestoneIndex } from '../domain/milestones';
+import { RARE_BY_ID, type RareId } from '../domain/rare';
+import { completedInSeason, formatWon, itemOf } from '../domain/records';
+import { SEASON_LENGTH, WORK_ITEMS } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
 
@@ -12,6 +15,8 @@ interface Props {
   onClockOut: () => void;
   onOpenSettings: () => void;
   onOpenRecord: () => void;
+  /** 희귀 행동 목격 (처음이면 도감에 등록) */
+  onRare: (id: RareId) => void;
   /** 가로로 눕힌 탁상시계 화면 */
   clock?: boolean;
 }
@@ -47,7 +52,7 @@ const toggleFullscreen = () => {
  * "그냥 켜놓는" 화면. 사용자가 조작할 게 거의 없고, 시간이 흐르는 대로
  * 번 돈과 작업 진행률, 햄스터의 행동이 저절로 바뀐다.
  */
-export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, clock = false }: Props) {
+export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onRare, clock = false }: Props) {
   const { settings, custom } = state;
   const key = dateKey(now);
   const day = state.days[key];
@@ -60,6 +65,49 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, clo
   const bounds = day ? dayBounds(key, day.schedule) : null;
   const item = day ? itemOf(day) : null;
   const pct = Math.floor(progress * 100);
+
+  // 이번 시즌에 완성한 작업물 → 햄스터 방 선반
+  const season = Math.floor(completedCount(state.days) / SEASON_LENGTH) + 1;
+  const trophies = [...completedInSeason(state.days, season)]
+    .sort((a, b) => a - b)
+    .map((i) => ({ ...WORK_ITEMS[i], fresh: !!day?.completed && day.season === season && day.workItemIndex === i }));
+
+  // 햄스터 말풍선: 번 돈 환산, 희귀 행동
+  const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
+  const say = (text: string) => setBubble({ key: `${Date.now()}`, text });
+
+  const mi = milestoneIndex(earned);
+  const msKey = `hamster-milestone:${key}`;
+  const lastMs = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastMs.current === null) {
+      // 앱을 켰을 때 이미 지난 단계는 조용히 넘긴다 ("방금"이 아니므로)
+      let saved = -1;
+      try {
+        saved = Number(sessionStorage.getItem(msKey) ?? -1);
+      } catch {
+        // 무시
+      }
+      lastMs.current = Math.max(saved, mi);
+    } else if (mi > lastMs.current) {
+      const m = MILESTONES[mi];
+      say(`${m.emoji} 방금 ${m.text} 벌었어요!`);
+      lastMs.current = mi;
+    }
+    try {
+      sessionStorage.setItem(msKey, String(lastMs.current));
+    } catch {
+      // 무시
+    }
+  }, [mi, msKey]);
+
+  const rareSeen = useRef(state.rare ?? {});
+  rareSeen.current = state.rare ?? {};
+  const handleRare = (id: RareId) => {
+    const r = RARE_BY_ID[id];
+    say(rareSeen.current[id] ? `${r.emoji} ${r.name}!` : `✨ 희귀 행동 발견! ${r.emoji} ${r.name}`);
+    onRare(id);
+  };
   // 작업물이 막 100%가 된 순간만 한 번 축하
   const prevPct = useRef(pct);
   const [justDone, setJustDone] = useState(false);
@@ -92,7 +140,17 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, clo
       </header>
 
       <div className="ambient-body">
-        <Habitat custom={custom} mood={mood} name={settings.hamsterName} now={now} fit={clock} />
+        <Habitat
+          custom={custom}
+          mood={mood}
+          name={settings.hamsterName}
+          now={now}
+          fit={clock}
+          trophies={trophies}
+          bubble={bubble}
+          payday={payD === 0}
+          onRare={handleRare}
+        />
 
         {!day || !item ? (
           <p className="rest-note">오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.</p>

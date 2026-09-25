@@ -1,5 +1,6 @@
 /** 기획서 11~13. 일일 / 주간 / 월간 기록 집계 */
 import { addDays, mondayOf } from './date';
+import { daysUntilPayday } from './engine';
 import { WORK_ITEMS } from './workItems';
 import type { DailyWork } from './types';
 
@@ -60,4 +61,29 @@ export function completedInSeason(days: Record<string, DailyWork>, season: numbe
 
 export function formatWon(n: number, decimals = 0): string {
   return '₩ ' + n.toLocaleString('ko-KR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+/** 월급날: 지난 월급날 다음 날부터 오늘까지 번 돈 (오늘은 지금까지 번 만큼) */
+export function paydaySummary(
+  days: Record<string, DailyWork>,
+  key: string,
+  payday: number,
+  todayEarned: number,
+): { total: number; workDays: number; since: string } {
+  let prev = addDays(key, -1);
+  for (let i = 0; i < 40 && daysUntilPayday(prev, payday) !== 0; i++) prev = addDays(prev, -1);
+  const since = addDays(prev, 1);
+  let total = 0;
+  let workDays = 0;
+  for (const d of Object.values(days)) {
+    if (d.date < since || d.date > key) continue;
+    if (d.date === key) {
+      total += d.clockedOut ? d.earned : todayEarned;
+      workDays++;
+    } else if (d.clockedOut) {
+      total += d.earned;
+      workDays++;
+    }
+  }
+  return { total, workDays, since };
 }

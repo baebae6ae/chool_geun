@@ -2,7 +2,7 @@ import { HamsterSprite, type FrontAction, type SideAction } from '../components/
 import { DEFAULT_CUSTOM } from '../domain/customization';
 import type { Customization } from '../domain/types';
 
-const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave'];
+const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 
 /** 개발용: `?gallery` 로 모든 자세를 한눈에 본다 */

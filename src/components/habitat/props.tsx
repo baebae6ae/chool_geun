@@ -308,3 +308,33 @@ export function WallClock({ x, now }: { x: number; now: number }) {
     </svg>
   );
 }
+
+/* ---------- 완성품 선반 (이번 시즌에 만든 작업물이 하나씩 올라간다) ---------- */
+export interface Trophy {
+  emoji: string;
+  name: string;
+  /** 오늘 막 완성한 것 */
+  fresh: boolean;
+}
+
+const SHELF_COLS = 7;
+const SHELF_ROWS = 3;
+
+export function TrophyShelf({ items }: { items: Trophy[] }) {
+  return (
+    <div className="shelf" aria-label={`완성한 작업물 ${items.length}개`}>
+      {Array.from({ length: SHELF_ROWS }, (_, r) => (
+        <div key={r} className="shelf-row">
+          <div className="shelf-items">
+            {items.slice(r * SHELF_COLS, (r + 1) * SHELF_COLS).map((it) => (
+              <span key={it.name} className={it.fresh ? 'fresh' : ''} title={it.name}>
+                {it.emoji}
+              </span>
+            ))}
+          </div>
+          <div className="shelf-plank" />
+        </div>
+      ))}
+    </div>
+  );
+}

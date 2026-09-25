@@ -92,6 +92,10 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
             <p className="clockout-name">{item.name}은 내일 이어서 만들어요</p>
           </>
         )}
+        <div className="stamp-slam" aria-label="출근 도장">
+          <span>🐾</span>
+          <small>출근 도장</small>
+        </div>
         <div className="kv stagger">
           <span>오늘의 작업량</span>
           <ProgressBar value={day.progress} />
@@ -100,6 +104,58 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
         </div>
         <button className="btn primary" onClick={() => leave(onRecord)}>오늘의 기록 보기</button>
         <button className="btn ghost" onClick={() => leave(onClose)}>닫기</button>
+      </div>
+    </div>
+  );
+}
+
+/** 월급날: 한 달에 한 번 오는 가장 큰 순간 */
+export function PaydayModal({
+  custom,
+  total,
+  workDays,
+  name,
+  onClose,
+}: {
+  custom: Customization;
+  total: number;
+  workDays: number;
+  name: string;
+  onClose: () => void;
+}) {
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => buzz([30, 60, 30, 60, 80]), []);
+  const close = () => {
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(onClose, 240);
+  };
+  return (
+    <div className={`overlay ${leaving ? 'leaving' : ''}`} role="dialog" aria-modal="true" aria-label="월급날">
+      <div className="sheet payday">
+        <div className="payday-rain" aria-hidden>
+          {Array.from({ length: 12 }, (_, i) => (
+            <span key={i} style={{ left: `${(i * 8.3 + 4) % 100}%`, animationDelay: `${(i * 0.37) % 2}s` }}>
+              {i % 3 === 0 ? '💰' : i % 3 === 1 ? '💵' : '✨'}
+            </span>
+          ))}
+        </div>
+        <div className="payday-hamster">
+          <HamsterSprite custom={custom} pose={{ pose: 'front', action: 'dance' }} />
+        </div>
+        <h2 className="stagger">💰 오늘은 월급날!</h2>
+        <p className="stagger">한 달 동안 {name || '햄스터'}랑 같이 정말 수고했어요.</p>
+        {workDays > 0 && (
+          <div className="kv stagger">
+            <span>지난 월급날 이후 출근</span>
+            <strong>{workDays}일</strong>
+            <span>그동안 번 돈</span>
+            <strong>{formatWon(Math.floor(total))}</strong>
+          </div>
+        )}
+        <button className="btn primary" onClick={close}>
+          야호! 🎉
+        </button>
       </div>
     </div>
   );

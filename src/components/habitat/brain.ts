@@ -2,6 +2,7 @@
  * 햄스터의 "뇌" — 근무 상태(mood)에 따라 다음에 할 일을 정한다. 순수 함수라 테스트 가능.
  * 결과는 Step 목록이며, Habitat이 하나씩 실행한다.
  */
+import { RARE_BEHAVIORS, type RareId } from '../../domain/rare';
 import type { HamsterMood } from '../../domain/schedule';
 import type { FrontAction, Pose, SideAction } from '../hamster/HamsterSprite';
 
@@ -9,7 +10,7 @@ export type Place = 'floor' | 'wheel' | 'desk' | 'bed';
 
 export type Step =
   | { t: 'move'; to: number; gait: 'walk' | 'run' }
-  | { t: 'act'; pose: Pose; ms: number; place: Place }
+  | { t: 'act'; pose: Pose; ms: number; place: Place; rare?: RareId }
   | { t: 'set'; x?: number; facing?: 1 | -1 };
 
 export interface Spots {
@@ -19,6 +20,8 @@ export interface Spots {
   eat: number;
   bed: number;
   desk: number;
+  /** 창문 아래 */
+  window: number;
   wanderMin: number;
   wanderMax: number;
 }
@@ -35,6 +38,7 @@ export function spotsFor(W: number): Spots {
     eat: bowl + 30,
     bed,
     desk,
+    window: (bowl + bed) / 2,
     wanderMin: wheel + 78,
     wanderMax: desk - 100,
   };
@@ -92,6 +96,10 @@ function weighted(rnd: Rnd, list: Choice[], last?: string): [string, Errand] {
   return [n, e];
 }
 
+/** 한 번의 할 일이 희귀 행동이 될 확률. 대략 한두 시간에 한 번꼴 */
+export const RARE_CHANCE = 0.004;
+const RARE_MOODS: HamsterMood[] = ['starting', 'working', 'break', 'almostDone'];
+
 /** 다음 할 일 하나(여러 Step)를 고른다. name은 다음 호출에 last로 넘겨 반복을 피한다. */
 export function planErrand(
   mood: HamsterMood,
@@ -100,6 +108,7 @@ export function planErrand(
   rnd: Rnd = Math.random,
   last?: string,
   here: Place = 'floor',
+  payday = false,
 ): { name: string; steps: Step[] } {
   const go = (to: number, lazy = false) => travel(x, to, rnd, lazy);
   const wanderTo = () => between(rnd, s.wanderMin, Math.max(s.wanderMin + 1, s.wanderMax));
@@ -126,6 +135,29 @@ export function planErrand(
   };
   const sleepLong: Errand = () => [...go(s.bed, true), side('sleep', between(rnd, 15000, 30000), 'bed')];
   const wakeUp: Errand = () => [...go(s.bed, true), side('sleep', 6000, 'bed'), front('yawn', 2800), front('groom', 3000)];
+  const payDance: Errand = () => [...go(wanderTo()), front('dance', between(rnd, 3000, 5000))];
+
+  // 희귀 행동
+  const rare = (id: RareId, step: Step): Step => ({ ...step, rare: id }) as Step;
+  const RARE: Record<RareId, Errand> = {
+    stuff: () => [...go(s.eat), front('nibble', 2500), rare('stuff', front('stuff', 5000))],
+    sneeze: () => [...inPlace(rare('sneeze', front('sneeze', 3200)))],
+    doze: () => [...go(s.window), front('look', 2200), rare('doze', front('doze', 7000)), front('yawn', 2800)],
+    dizzy: () => [
+      ...go(s.wheel),
+      side('run', 6000, 'wheel'),
+      { t: 'move', to: s.wheel + 64, gait: 'walk' },
+      rare('dizzy', front('dizzy', 3800)),
+    ],
+    dance: () => [...go(wanderTo()), rare('dance', front('dance', 4500))],
+  };
+  if (RARE_MOODS.includes(mood) && rnd() < RARE_CHANCE) {
+    const [id, errand] = weighted(
+      rnd,
+      RARE_BEHAVIORS.map((r) => [r.id, r.weight, RARE[r.id]] as Choice),
+    );
+    return { name: `rare:${id}`, steps: errand(x) };
+  }
 
   let list: Choice[];
   switch (mood) {
@@ -172,6 +204,7 @@ export function planErrand(
     case 'oneMore':
       return { name: 'typeFast', steps: [...go(s.desk), front('typeFast', 6000, 'desk')] };
   }
+  if (payday && mood !== 'beforeWork' && mood !== 'holiday') list = [...list, ['payDance', 2.5, payDance]];
   const [name, errand] = weighted(rnd, list, last);
   return { name, steps: errand(x) };
 }
@@ -223,6 +256,11 @@ export const ACTIVITY_LABEL: Record<FrontAction | SideAction, string> = {
   type: '열일 중',
   typeFast: '막판 스퍼트!',
   wave: '안녕!',
+  stuff: '볼주머니 빵빵!',
+  sneeze: '에취!',
+  doze: '꾸벅꾸벅…',
+  dizzy: '어질어질…',
+  dance: '신나서 춤추는 중',
   stand: '두리번두리번',
   walk: '종종종 걷는 중',
   run: '뽈뽈뽈 달리는 중',

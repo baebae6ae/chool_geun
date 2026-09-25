@@ -140,3 +140,80 @@
   from { transform: translateX(-6px); }
   to { transform: translateX(8px); }
 }
+
+/* 완성품 선반 — 창문 왼쪽, 쳇바퀴 위 벽 */
+.shelf {
+  position: absolute;
+  left: 10px;
+  top: 18px;
+  width: 102px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 0;
+}
+.shelf-items {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  height: 17px;
+  align-items: end;
+  justify-items: center;
+  font-size: 12.5px;
+  line-height: 1;
+}
+.shelf-plank {
+  height: 4px;
+  margin: 0 -3px;
+  border-radius: 2px;
+  background: #c9a57c;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+.shelf-items .fresh {
+  animation: shelf-fresh 2.4s ease-in-out infinite;
+}
+@keyframes shelf-fresh {
+  0%, 100% { transform: translateY(0) scale(1); filter: none; }
+  50% { transform: translateY(-2px) scale(1.15); filter: drop-shadow(0 0 3px #ffd86b); }
+}
+
+/* 햄스터 말풍선 */
+.habitat-bubble {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: 230px;
+  width: max-content;
+  word-break: keep-all;
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  animation: bubble-life 5.5s ease-out forwards;
+}
+.habitat-bubble::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 5px + var(--tail, 0px));
+  bottom: -6px;
+  width: 9px;
+  height: 9px;
+  background: var(--card);
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  transform: rotate(45deg);
+}
+@keyframes bubble-life {
+  0% { opacity: 0; translate: 0 6px; scale: 0.8; }
+  6% { opacity: 1; translate: 0 0; scale: 1.04; }
+  10% { scale: 1; }
+  88% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; translate: 0 -6px; }
+}

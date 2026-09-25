@@ -61,7 +61,29 @@ describe('habitat brain', () => {
       last = planErrand('working', S, S.desk, rnd, last).name;
       names.add(last);
     }
-    expect([...names].sort()).toEqual(['eat', 'groom', 'sip', 'type', 'wander', 'wheel', 'yawn']);
+    expect([...names].filter((n) => !n.startsWith('rare:')).sort()).toEqual(['eat', 'groom', 'sip', 'type', 'wander', 'wheel', 'yawn']);
+  });
+
+  it('희귀 행동: 근무 중에만 아주 가끔, 목격 표시(rare)가 붙은 동작이 들어 있다', () => {
+    const always = () => 0;
+    const plan = planErrand('working', S, S.desk, always);
+    expect(plan.name).toBe('rare:stuff');
+    expect(plan.steps.find((s) => s.t === 'act' && s.rare)).toMatchObject({ rare: 'stuff', pose: { action: 'stuff' } });
+    // 잠자는 시간엔 희귀 행동 없음
+    expect(planErrand('off', S, S.bed, always).name.startsWith('rare:')).toBe(false);
+
+    const rnd = seeded(3);
+    let rare = 0;
+    for (let i = 0; i < 5000; i++) if (planErrand('working', S, S.desk, rnd).name.startsWith('rare:')) rare++;
+    expect(rare).toBeGreaterThan(0);
+    expect(rare).toBeLessThan(60);
+  });
+
+  it('월급날엔 춤을 춘다', () => {
+    const rnd = seeded(5);
+    const names = new Set<string>();
+    for (let i = 0; i < 60; i++) names.add(planErrand('working', S, S.desk, rnd, undefined, 'floor', true).name);
+    expect(names.has('payDance')).toBe(true);
   });
 
   it('의자 위에서 세수하면 의자에서 내려오지 않는다', () => {

@@ -104,4 +104,8 @@ export interface AppState {
   collection: Record<string, CollectionEntry>;
   /** 하루 최대 3회 알림 제한용 */
   notif: { date: string; count: number };
+  /** 희귀 행동을 처음 목격한 시각 */
+  rare?: Partial<Record<string, number>>;
+  /** 월급날 축하를 본 날짜 */
+  paydaySeen?: string;
 }

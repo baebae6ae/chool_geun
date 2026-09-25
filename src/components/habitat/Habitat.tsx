@@ -4,7 +4,8 @@ import type { Customization } from '../../domain/types';
 import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, type Place, type Step } from './brain';
 import { buzz } from '../../haptics';
-import { Bowl, DeskBack, DeskFront, Floor, Nest, WallClock, Wheel, Window } from './props';
+import type { RareId } from '../../domain/rare';
+import { Bowl, DeskBack, DeskFront, Floor, Nest, TrophyShelf, WallClock, Wheel, Window, type Trophy } from './props';
 import './habitat.css';
 
 interface Props {
@@ -14,6 +15,14 @@ interface Props {
   now: number;
   /** 탁상시계 화면: 주어진 칸 높이에 맞춰 방 전체를 확대 */
   fit?: boolean;
+  /** 이번 시즌에 완성한 작업물 (벽 선반) */
+  trophies?: Trophy[];
+  /** 햄스터 머리 위 말풍선. key가 바뀔 때마다 새로 뜬다 */
+  bubble?: { key: string; text: string } | null;
+  /** 월급날엔 가끔 춤춘다 */
+  payday?: boolean;
+  /** 화면을 보고 있을 때 희귀 행동이 시작됨 */
+  onRare?: (id: RareId) => void;
 }
 
 interface View {
@@ -73,9 +82,10 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
+  const bubbleEl = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const actor = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(358);
@@ -96,7 +106,11 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
   const viewRef = useRef(view);
   const started = useRef(false);
   const lastErrand = useRef<string | undefined>(undefined);
+  const paydayRef = useRef(payday);
+  const onRareRef = useRef(onRare);
   spotsRef.current = spots;
+  paydayRef.current = payday;
+  onRareRef.current = onRare;
 
   const patch = useCallback((p: Partial<View>) => {
     const next = { ...viewRef.current, ...p };
@@ -114,6 +128,13 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
 
   const placeActor = useCallback(() => {
     if (actor.current) actor.current.style.transform = `translateX(${x.current - 46}px)`;
+    // 말풍선은 가구보다 앞 층에 따로 있어서 위치만 따라간다 (방 가장자리에선 안쪽으로)
+    if (bubbleEl.current) {
+      const W = spotsRef.current.W;
+      const bx = Math.min(Math.max(x.current, 100), W - 100);
+      bubbleEl.current.style.left = `${bx}px`;
+      bubbleEl.current.style.setProperty('--tail', `${Math.max(-80, Math.min(80, x.current - bx))}px`);
+    }
   }, []);
 
   /** 지금 하던 일 + 남은 할 일을 저장 */
@@ -202,7 +223,15 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
 
       if (!cur.current) {
         if (queue.current.length === 0) {
-          const plan = planErrand(moodRef.current, spotsRef.current, x.current, Math.random, lastErrand.current, viewRef.current.place);
+          const plan = planErrand(
+            moodRef.current,
+            spotsRef.current,
+            x.current,
+            Math.random,
+            lastErrand.current,
+            viewRef.current.place,
+            paydayRef.current,
+          );
           lastErrand.current = plan.name;
           queue.current = plan.steps;
         }
@@ -216,6 +245,7 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
           saveSnapshot();
         } else if (step.t === 'act') {
           patch({ pose: step.pose, place: step.place });
+          if (step.rare && document.visibilityState === 'visible') onRareRef.current?.(step.rare);
           saveSnapshot();
         } else {
           const dir = step.to >= x.current ? 1 : -1;
@@ -284,7 +314,8 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
         ref={box}
         style={fit ? { width: W, height: BASE_H, margin: 0, transform: `scale(${zoom})`, transformOrigin: '0 0' } : undefined}
       >
-        <Window x={spots.bowl + (spots.bed - spots.bowl) / 2} now={now} />
+        <Window x={spots.window} now={now} />
+        {trophies.length > 0 && <TrophyShelf items={trophies} />}
         <WallClock x={spots.desk} now={now} />
         <Floor />
         <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />
@@ -320,6 +351,20 @@ export function Habitat({ custom, mood, name, now, fit = false }: Props) {
           )}
         </div>
 
+        {bubble && (
+          <div
+            key={bubble.key}
+            ref={(el) => {
+              bubbleEl.current = el;
+              placeActor();
+            }}
+            className="habitat-bubble"
+            style={{ bottom: 10 + 70 * SCALE[place] + LIFT[place] + 4 }}
+            role="status"
+          >
+            {bubble.text}
+          </div>
+        )}
         <Nest x={spots.bed} layer="front" />
         <DeskFront x={spots.desk} custom={custom} mugTaken={place === 'desk' && pose.action === 'sip'} />
         <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} />

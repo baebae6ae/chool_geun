@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
-import { ClockOutModal, GachaModal } from './components/Modals';
+import { ClockOutModal, GachaModal, PaydayModal } from './components/Modals';
 import { dateKey } from './domain/date';
-import { applySettings, clockOut, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
-import { dayBounds } from './domain/schedule';
+import { applySettings, clockOut, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
+import { paydaySummary } from './domain/records';
+import { dayBounds, earnedAt } from './domain/schedule';
 import type { AppState, Settings } from './domain/types';
 import { sendNotification } from './notify';
 import { Collection } from './screens/Collection';
@@ -107,6 +108,16 @@ export function App() {
   const pending = unseenGacha(state);
   const gacha = pending[0];
   const showClockOut = !gacha && today?.clockedOut && !today.celebrated;
+  const isPayday = daysUntilPayday(key, settings.payday) === 0;
+  const showPayday = !gacha && !showClockOut && !showSettings && isPayday && state.paydaySeen !== key;
+  const pay = showPayday
+    ? paydaySummary(
+        state.days,
+        key,
+        settings.payday,
+        today && !today.clockedOut ? earnedAt(key, today.schedule, today.hourly, now) : 0,
+      )
+    : null;
 
   const openRecord = (date?: string) => {
     setRecordFocus(date);
@@ -139,6 +150,9 @@ export function App() {
                 onClockOut={() => setState(clockOut(getState(), key, clockNow()))}
                 onOpenSettings={() => setShowSettings(true)}
                 onOpenRecord={() => openRecord(key)}
+                onRare={(id) =>
+                  setState((s) => (s.rare?.[id] ? s : { ...s, rare: { ...s.rare, [id]: clockNow() } }))
+                }
                 clock={clock}
               />
             )}
@@ -176,6 +190,15 @@ export function App() {
           isNew={state.collection[gacha.eventId]?.firstObtainedAt === gacha.at}
           remaining={pending.length - 1}
           onClose={() => setState((s) => markGachaSeen(s, gacha.date, gacha.eventId, gacha.at))}
+        />
+      )}
+      {pay && (
+        <PaydayModal
+          custom={state.custom}
+          total={pay.total}
+          workDays={pay.workDays}
+          name={settings.hamsterName}
+          onClose={() => setState((s) => ({ ...s, paydaySeen: key }))}
         />
       )}
       {showClockOut && today && (

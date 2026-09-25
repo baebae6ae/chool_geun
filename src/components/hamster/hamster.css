@@ -218,6 +218,91 @@
   animation: hs-float 2.4s ease-in-out infinite;
 }
 
+/* ---------- 희귀 행동 ---------- */
+/* 볼주머니 빵빵: 볼이 살짝 부풀었다 줄었다 */
+.hs-front.act-stuff .hs-bob { animation: hs-munch 0.4s ease-in-out infinite; }
+.hs-cheeks circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hs-puff 0.8s ease-in-out infinite alternate;
+}
+@keyframes hs-puff {
+  to { transform: scale(1.08); }
+}
+
+/* 에취: 숨 들이쉬고 → 에취! */
+.hs-front.act-sneeze .hs-bob { animation: hs-sneeze 1.6s ease-in infinite; }
+@keyframes hs-sneeze {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(0.98, 1.05) translateY(-1.5px); }
+  60% { transform: scale(1.05, 0.93) translateY(2px); }
+  72% { transform: scale(1, 1); }
+}
+.hs-achoo {
+  opacity: 0;
+  animation: hs-achoo 1.6s ease-out infinite;
+}
+@keyframes hs-achoo {
+  0%, 56% { opacity: 0; transform: translateX(-4px); }
+  62% { opacity: 1; transform: translateX(0); }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(4px); }
+}
+
+/* 꾸벅꾸벅 + 콧방울 */
+.hs-front.act-doze .hs-bob { animation: hs-nodoff 3s ease-in-out infinite; }
+@keyframes hs-nodoff {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  55% { transform: rotate(3deg) translateY(2px); }
+  62% { transform: rotate(-1deg) translateY(-1px); }
+}
+.hs-snot {
+  transform-box: fill-box;
+  transform-origin: 20% 50%;
+  animation: hs-snot 3s ease-in-out infinite;
+}
+@keyframes hs-snot {
+  0%, 100% { transform: scale(0.5); }
+  55% { transform: scale(1.9); }
+}
+
+/* 쳇바퀴 멀미: 휘청 + 머리 위 별 */
+.hs-front.act-dizzy .hs-bob { animation: hs-wobble 1.1s ease-in-out infinite; }
+@keyframes hs-wobble {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+.hs-stars {
+  transform-box: view-box;
+  transform-origin: 60px 10px;
+  animation: hs-spin 1.4s linear infinite;
+}
+@keyframes hs-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 춤: 통통 튀며 좌우로, 팔 번갈아 */
+.hs-front.act-dance .hs-bob { animation: hs-dance 0.5s ease-in-out infinite alternate; }
+@keyframes hs-dance {
+  from { transform: translateY(0) rotate(-5deg); }
+  to { transform: translateY(-5px) rotate(5deg); }
+}
+.hs-dance-l {
+  transform-origin: 25px 64px;
+  animation: hs-arm 0.5s ease-in-out infinite alternate;
+}
+.hs-dance-r {
+  transform-origin: 95px 64px;
+  animation: hs-arm 0.5s ease-in-out infinite alternate-reverse;
+}
+@keyframes hs-arm {
+  from { transform: rotate(-14deg); }
+  to { transform: rotate(14deg); }
+}
+.hs-notes {
+  animation: hs-float 1s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hs *, .hs { animation: none !important; }
 }

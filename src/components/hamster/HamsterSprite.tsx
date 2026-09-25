@@ -4,7 +4,23 @@ import type { Customization } from '../../domain/types';
 import { FRONT, SIDE } from './shapes';
 import './hamster.css';
 
-export type FrontAction = 'idle' | 'sniff' | 'groom' | 'nibble' | 'yawn' | 'sip' | 'look' | 'type' | 'typeFast' | 'wave';
+export type FrontAction =
+  | 'idle'
+  | 'sniff'
+  | 'groom'
+  | 'nibble'
+  | 'yawn'
+  | 'sip'
+  | 'look'
+  | 'type'
+  | 'typeFast'
+  | 'wave'
+  // 희귀 행동
+  | 'stuff'
+  | 'sneeze'
+  | 'doze'
+  | 'dizzy'
+  | 'dance';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -54,10 +70,30 @@ interface ViewProps<A> {
 /* ============================ 정면 (앉은 자세) ============================ */
 
 function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction>) {
-  const eyesClosed = action === 'groom' || action === 'yawn';
-  const happy = action === 'nibble' || action === 'sip';
+  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' =
+    action === 'groom' || action === 'yawn'
+      ? 'closed'
+      : action === 'doze'
+        ? 'sleepy'
+        : action === 'nibble' || action === 'sip' || action === 'dance'
+          ? 'happy'
+          : action === 'dizzy'
+            ? 'spiral'
+            : action === 'sneeze'
+              ? 'squeeze'
+              : 'open';
   const lookUp = action === 'look';
-  const smile = !eyesClosed && action !== 'nibble' && action !== 'sip' && action !== 'typeFast';
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' =
+    action === 'yawn'
+      ? 'yawn'
+      : action === 'dizzy'
+        ? 'wavy'
+        : action === 'sneeze'
+          ? 'o'
+          : ['idle', 'sniff', 'look', 'type', 'wave', 'dance'].includes(action)
+            ? 'smile'
+            : 'small';
+  const stuffed = action === 'stuff';
   return (
     <svg viewBox="0 0 120 120" className={`hs hs-front act-${action} ${className}`} aria-hidden>
       <clipPath id={clip}>
@@ -81,27 +117,52 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
           <circle className="hs-ear-r" cx="89" cy="26" r="9.5" />
         </g>
 
+        {/* 볼주머니 (몸 뒤에 먼저 그려서 바깥쪽 윤곽만 보이게) */}
+        {stuffed && (
+          <g className="hs-cheeks" fill={c.body} stroke={INK} strokeWidth={LINE}>
+            <circle cx="22" cy="70" r="14" />
+            <circle cx="98" cy="70" r="14" />
+          </g>
+        )}
+
         {/* 몸 */}
         <path d={FRONT.body} fill={c.body} />
         <g clipPath={`url(#${clip})`}>
           <FrontOutfit id={custom.outfit} />
         </g>
         <path d={FRONT.body} fill="none" stroke={INK} strokeWidth={LINE} />
-        <g stroke={INK} strokeWidth="2" fill="none">
-          {action !== 'yawn' && <path d={FRONT.ticksL} />}
-          {action !== 'yawn' && action !== 'wave' && <path d={FRONT.ticksR} />}
-        </g>
+        {stuffed ? (
+          <g className="hs-cheeks" fill={c.body}>
+            <circle cx="22" cy="70" r="12.6" />
+            <circle cx="98" cy="70" r="12.6" />
+          </g>
+        ) : (
+          <g stroke={INK} strokeWidth="2" fill="none">
+            {action !== 'yawn' && action !== 'dance' && <path d={FRONT.ticksL} />}
+            {action !== 'yawn' && action !== 'wave' && action !== 'dance' && action !== 'sneeze' && <path d={FRONT.ticksR} />}
+          </g>
+        )}
 
         {/* 볼터치 · 주둥이 */}
-        <ellipse cx="34" cy="67" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
-        <ellipse cx="86" cy="67" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
+        <ellipse cx={stuffed ? 24 : 34} cy="67" rx="5.5" ry="3" fill={BLUSH} opacity={stuffed ? 0.7 : 0.45} />
+        <ellipse cx={stuffed ? 96 : 86} cy="67" rx="5.5" ry="3" fill={BLUSH} opacity={stuffed ? 0.7 : 0.45} />
         <ellipse cx="60" cy="66" rx="10.5" ry="8" fill={c.cream} />
 
         {/* 눈 */}
-        {eyesClosed || happy ? (
+        {eyes === 'closed' || eyes === 'happy' || eyes === 'sleepy' ? (
           <g stroke={INK} strokeWidth="2.3" fill="none">
-            <path d={happy ? 'M39 59 q4 -5 8 0' : 'M39 57.5 q4 3.5 8 0'} />
-            <path d={happy ? 'M73 59 q4 -5 8 0' : 'M73 57.5 q4 3.5 8 0'} />
+            <path d={eyes === 'happy' ? 'M39 59 q4 -5 8 0' : eyes === 'sleepy' ? 'M39 58 h8' : 'M39 57.5 q4 3.5 8 0'} />
+            <path d={eyes === 'happy' ? 'M73 59 q4 -5 8 0' : eyes === 'sleepy' ? 'M73 58 h8' : 'M73 57.5 q4 3.5 8 0'} />
+          </g>
+        ) : eyes === 'spiral' ? (
+          <g stroke={INK} strokeWidth="1.6" fill="none">
+            <path d="M43 57 m0 0 a1.2 1.2 0 1 1 1.2 1.2 a2.4 2.4 0 1 1 -2.4 -2.4 a3.6 3.6 0 1 1 3.6 3.6" />
+            <path d="M77 57 m0 0 a1.2 1.2 0 1 1 1.2 1.2 a2.4 2.4 0 1 1 -2.4 -2.4 a3.6 3.6 0 1 1 3.6 3.6" />
+          </g>
+        ) : eyes === 'squeeze' ? (
+          <g stroke={INK} strokeWidth="2.3" fill="none">
+            <path d="M40 54 l6 3 -6 3" />
+            <path d="M80 54 l-6 3 6 3" />
           </g>
         ) : (
           <g className="hs-blink" fill={INK}>
@@ -114,9 +175,14 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
 
         {/* 코 · 입 */}
         <ellipse className="hs-nose" cx="60" cy="61.5" rx="2.9" ry="2.1" fill={NOSE} />
-        {action === 'yawn' ? (
+        {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
+        {mouth === 'yawn' ? (
           <ellipse className="hs-yawn-mouth" cx="60" cy="69" rx="4.2" ry="5" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
-        ) : smile ? (
+        ) : mouth === 'wavy' ? (
+          <path className="hs-mouth" d="M54.5 67 q2.75 -2.2 5.5 0 q2.75 2.2 5.5 0" stroke={INK} strokeWidth="1.7" fill="none" />
+        ) : mouth === 'o' ? (
+          <ellipse className="hs-mouth" cx="60" cy="67.5" rx="2.4" ry="2.8" fill={MOUTH} stroke={INK} strokeWidth="1.6" />
+        ) : mouth === 'smile' ? (
           <g className="hs-mouth">
             <path d="M54.2 64.6 Q60 66.8 65.8 64.6 Q65 71.4 60 71.4 Q55 71.4 54.2 64.6Z" fill={MOUTH} />
             <path d="M56.6 69.6 Q60 67.6 63.4 69.6 Q62 71.2 60 71.2 Q58 71.2 56.6 69.6Z" fill={TONGUE} />
@@ -153,6 +219,29 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
         </g>
       </g>
 
+      {action === 'dizzy' && (
+        <g className="hs-stars" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+          <path d={star(42, 12, 5)} />
+          <path d={star(78, 10, 4.2)} />
+          <path d={star(60, 4, 3.6)} />
+        </g>
+      )}
+      {action === 'dance' && (
+        <g className="hs-notes" fill={INK} fontFamily="system-ui, sans-serif" fontWeight="700">
+          <text x="96" y="30" fontSize="13">♪</text>
+          <text x="10" y="24" fontSize="11">♫</text>
+        </g>
+      )}
+      {action === 'sneeze' && (
+        <g className="hs-achoo">
+          <g fill="#fff" stroke={INK} strokeWidth="1.2">
+            <circle cx="112" cy="72" r="4" />
+            <circle cx="119" cy="66" r="5" />
+            <circle cx="122" cy="76" r="3.6" />
+          </g>
+          <text x="98" y="12" fontSize="11" fontWeight="800" fill={INK} fontFamily="system-ui, sans-serif">에취!</text>
+        </g>
+      )}
       {action === 'typeFast' && <path className="hs-sweat" d="M98 30 q4 6 0 9 q-4 -3 0 -9z" fill="#8fd0ff" stroke={INK} strokeWidth="1" />}
       {action === 'sip' && (
         <g className="hs-steam" stroke="#c8c0b8" strokeWidth="1.6" fill="none" strokeLinecap="round">
@@ -162,6 +251,15 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
       )}
     </svg>
   );
+}
+
+function star(cx: number, cy: number, r: number): string {
+  const pts = Array.from({ length: 10 }, (_, i) => {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = i % 2 ? r * 0.45 : r;
+    return `${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  });
+  return `M${pts.join(' L')}Z`;
 }
 
 function Paw({ x, y, rot = 0 }: { x: number; y: number; rot?: number }) {
@@ -191,6 +289,7 @@ function FrontHands({ action, c }: { action: FrontAction; c: Palette }) {
         </>
       );
     case 'nibble':
+    case 'stuff':
       return (
         <g className="hs-nibble">
           <Seed x={60} y={74} />
@@ -223,6 +322,20 @@ function FrontHands({ action, c }: { action: FrontAction; c: Palette }) {
         <>
           <g className="hs-hand hs-stretch-l"><Arm from={[25, 60]} to={[15, 45]} c={c} /></g>
           <g className="hs-hand hs-stretch-r"><Arm from={[95, 60]} to={[105, 45]} c={c} /></g>
+        </>
+      );
+    case 'dance':
+      return (
+        <>
+          <g className="hs-hand hs-dance-l"><Arm from={[25, 64]} to={[13, 46]} c={c} /></g>
+          <g className="hs-hand hs-dance-r"><Arm from={[95, 64]} to={[107, 46]} c={c} /></g>
+        </>
+      );
+    case 'sneeze':
+      return (
+        <>
+          <Paw x={51} y={74} rot={-25} />
+          <Paw x={69} y={74} rot={25} />
         </>
       );
     case 'wave':

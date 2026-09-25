@@ -1425,3 +1425,161 @@ select {
   font-weight: 700;
   text-decoration: underline;
 }
+
+/* ---------- 월급날 ---------- */
+.sheet.payday {
+  position: relative;
+  overflow: hidden;
+  animation: sheet-pop 0.55s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.sheet.payday .stagger {
+  animation: rise 0.4s ease-out both;
+}
+.sheet.payday h2 { animation-delay: 0.3s; }
+.sheet.payday p { animation-delay: 0.45s; }
+.sheet.payday .kv { animation-delay: 0.6s; }
+.payday-hamster {
+  width: 120px;
+  height: 120px;
+  margin: 4px auto 0;
+}
+.payday-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.payday-rain span {
+  position: absolute;
+  top: -30px;
+  font-size: 1.3rem;
+  animation: money-fall 2.6s linear infinite;
+}
+@keyframes money-fall {
+  from { transform: translateY(0) rotate(-15deg); opacity: 0; }
+  10% { opacity: 1; }
+  to { transform: translateY(420px) rotate(20deg); opacity: 0; }
+}
+
+/* ---------- 출근 도장 ---------- */
+.stamp-slam {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2.5px solid #d9534f;
+  color: #d9534f;
+  rotate: -12deg;
+  animation: stamp-slam 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) 0.9s both;
+}
+.stamp-slam span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.stamp-slam small {
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+@keyframes stamp-slam {
+  from { opacity: 0; scale: 2.2; }
+  to { opacity: 1; scale: 1; }
+}
+
+/* ---------- 출근 도장 (기록) ---------- */
+.stamp-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+.stamp-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.stamp-day {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.stamp-cell.today .stamp-day {
+  color: var(--ink);
+}
+.stamp {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px dashed var(--line);
+  font-size: 1.1rem;
+}
+.stamp.on {
+  border: 2.5px solid #d9534f;
+  background: color-mix(in srgb, #d9534f 8%, transparent);
+  rotate: -10deg;
+}
+.stamp-cell.future .stamp {
+  opacity: 0.4;
+}
+.stamp-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+.stamp-cal-head {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.stamp-cal-cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: var(--bg-2);
+  display: grid;
+  place-items: center;
+}
+.stamp-cal-cell small {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 0.6rem;
+  color: var(--ink-2);
+}
+.stamp-cal-cell.out {
+  opacity: 0.3;
+}
+.stamp-cal-cell.today {
+  outline: 2px solid var(--accent);
+}
+.stamp-cal-cell .stamp {
+  width: 26px;
+  height: 26px;
+  font-size: 0.8rem;
+  border-width: 2px;
+}
+.stamp-cal-cell i {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  font-style: normal;
+  font-size: 0.7rem;
+}
+
+/* 희귀 행동 도감 */
+.rare-dex {
+  --rarity: #e0a526;
+}
+.dex-date {
+  font-size: 0.68rem;
+  color: var(--ink-2);
+}
