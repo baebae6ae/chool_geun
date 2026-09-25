@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import { formatWon } from '../domain/records';
-import { hourlyWage, validateSchedule } from '../domain/schedule';
+import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
+import { estimateNet } from '../domain/tax';
 import type { Customization, Settings } from '../domain/types';
 
 export const DEFAULT_SETTINGS: Settings = {
   salary: 3_000_000,
+  payMode: 'annual',
+  annualSalary: 40_000_000,
+  dependents: 1,
+  mealAllowance: 200_000,
+  severanceIncluded: false,
+  netOverride: null,
+  showGross: false,
   payday: 25,
   monthWorkDays: 21,
   weekendWork: false,
@@ -31,12 +39,16 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
   const [s, setS] = useState<Settings>(initial ?? DEFAULT_SETTINGS);
   const [error, setError] = useState<string | null>(null);
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((prev) => ({ ...prev, [k]: v }));
+  /** 연봉·계산 조건이 바뀌면 직접 고친 세후 월급은 버리고 다시 자동 계산 */
+  const setPay = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((prev) => ({ ...prev, [k]: v, netOverride: null }));
+  const annual = s.payMode === 'annual';
+  const est = estimateNet(s.annualSalary ?? 0, netOptionsOf(s));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const err =
       validateSchedule(s) ??
-      (s.salary <= 0 ? '월급을 입력해 주세요.' : null) ??
+      (annual ? (!s.annualSalary || s.annualSalary <= 0 ? '연봉을 입력해 주세요.' : null) : s.salary <= 0 ? '월급을 입력해 주세요.' : null) ??
       (s.payday < 1 || s.payday > 31 ? '급여일은 1~31일 사이예요.' : null) ??
       (s.monthWorkDays < 1 || s.monthWorkDays > 31 ? '월 근무일수는 1~31일 사이예요.' : null);
     if (err) return setError(err);
@@ -72,17 +84,99 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
 
       <section className="card form">
         <div className="card-label">필수</div>
-        <label>
-          월급 (세후, 원)
-          <input
-            type="number"
-            inputMode="numeric"
-            min={0}
-            value={s.salary || ''}
-            onChange={(e) => set('salary', Number(e.target.value))}
-            required
-          />
-        </label>
+        <div className="seg" role="radiogroup" aria-label="급여 입력 방식">
+          <button type="button" role="radio" aria-checked={annual} className={annual ? 'on' : ''} onClick={() => set('payMode', 'annual')}>
+            연봉으로 입력
+          </button>
+          <button type="button" role="radio" aria-checked={!annual} className={!annual ? 'on' : ''} onClick={() => set('payMode', 'monthly')}>
+            월급으로 입력
+          </button>
+        </div>
+        {annual ? (
+          <>
+            <label>
+              연봉 (세전, 원)
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={s.annualSalary || ''}
+                onChange={(e) => setPay('annualSalary', Number(e.target.value))}
+                required
+              />
+            </label>
+            {(s.annualSalary ?? 0) > 0 && (
+              <div className="net-box">
+                <label>
+                  예상 세후 월급 {s.netOverride != null && <span className="muted small">(직접 입력)</span>}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={s.netOverride ?? est.netMonthly}
+                    onChange={(e) => set('netOverride', Number(e.target.value) || null)}
+                  />
+                </label>
+                <p className="muted small">
+                  세전 월 {formatWon(est.grossMonthly)} − 4대보험 {formatWon(est.pension + est.health + est.care + est.employment)} − 소득세{' '}
+                  {formatWon(est.incomeTax + est.localTax)}. 명세서와 다르면 숫자를 직접 고쳐도 돼요.
+                  {s.netOverride != null && (
+                    <>
+                      {' '}
+                      <button type="button" className="link-btn" onClick={() => set('netOverride', null)}>
+                        자동 계산으로 되돌리기
+                      </button>
+                    </>
+                  )}
+                </p>
+                <details className="net-opts">
+                  <summary>계산 조건</summary>
+                  <label>
+                    부양가족 수 (본인 포함)
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={11}
+                      value={s.dependents ?? 1}
+                      onChange={(e) => setPay('dependents', Math.max(1, Number(e.target.value) || 1))}
+                    />
+                  </label>
+                  <label>
+                    월 비과세 식대 (원)
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      value={s.mealAllowance ?? 200_000}
+                      onChange={(e) => setPay('mealAllowance', Math.max(0, Number(e.target.value) || 0))}
+                    />
+                  </label>
+                  <label className="toggle">
+                    <input
+                      type="checkbox"
+                      checked={s.severanceIncluded ?? false}
+                      onChange={(e) => setPay('severanceIncluded', e.target.checked)}
+                    />
+                    연봉에 퇴직금이 포함돼 있어요 (13으로 나눠요)
+                  </label>
+                </details>
+              </div>
+            )}
+          </>
+        ) : (
+          <label>
+            월급 (세후, 원)
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={s.salary || ''}
+              onChange={(e) => set('salary', Number(e.target.value))}
+              required
+            />
+          </label>
+        )}
         <label>
           급여일
           <select value={s.payday} onChange={(e) => set('payday', Number(e.target.value))}>
@@ -134,12 +228,18 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
           <input type="checkbox" checked={s.weekendWork} onChange={(e) => set('weekendWork', e.target.checked)} />
           주말에도 근무해요
         </label>
+        {annual && (
+          <label className="toggle">
+            <input type="checkbox" checked={s.showGross ?? false} onChange={(e) => set('showGross', e.target.checked)} />
+            번 돈을 세전 금액으로 보기
+          </label>
+        )}
         <label className="toggle">
           <input type="checkbox" checked={s.notifications} onChange={(e) => set('notifications', e.target.checked)} />
           알림 받기 (출근·가챠·퇴근, 하루 최대 3회)
         </label>
         {hourly > 0 && Number.isFinite(hourly) && (
-          <p className="muted small">시간당 급여 약 {formatWon(Math.round(hourly))} (월급 ÷ 월 근무시간)</p>
+          <p className="muted small">시간당 급여 약 {formatWon(Math.round(hourly))} ({annual ? (s.showGross ? '세전' : '세후') + ' ' : ''}월급 ÷ 월 근무시간)</p>
         )}
       </section>
 

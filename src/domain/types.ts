@@ -10,8 +10,22 @@ export interface Schedule {
 
 /** 기획서 17. User */
 export interface Settings extends Schedule {
-  /** 월급 (원) */
+  /** 월급 (원) — 월급으로 입력할 때 */
   salary: number;
+  /** 연봉으로 입력할지 월급으로 입력할지 (없으면 월급 — 예전 기록 호환) */
+  payMode?: 'annual' | 'monthly';
+  /** 연봉 (세전, 원) */
+  annualSalary?: number;
+  /** 부양가족 수 (본인 포함) */
+  dependents?: number;
+  /** 월 비과세 식대 (원) */
+  mealAllowance?: number;
+  /** 연봉에 퇴직금 포함 */
+  severanceIncluded?: boolean;
+  /** 사용자가 직접 고친 세후 월급 (없으면 자동 계산) */
+  netOverride?: number | null;
+  /** 번 돈을 세전으로 보기 */
+  showGross?: boolean;
   /** 급여일 (1~31) */
   payday: number;
   /** 월 근무일수 */

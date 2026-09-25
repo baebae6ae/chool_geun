@@ -1,3 +1,4 @@
+import { estimateNet } from './tax';
 import { atTime, toMinutes, weekday } from './date';
 import type { Schedule, Settings } from './types';
 
@@ -47,11 +48,25 @@ export function timeAtFraction(key: string, s: Schedule, f: number): number {
   return target < beforeLunch ? b.start + target : b.start + target + (b.lunchEnd - b.lunchStart);
 }
 
-/** MVP 공식: 월급 ÷ 월 근무시간 = 시간당 급여 */
+export const netOptionsOf = (s: Settings) => ({
+  dependents: s.dependents ?? 1,
+  mealAllowance: s.mealAllowance ?? 200_000,
+  severanceIncluded: s.severanceIncluded ?? false,
+});
+
+/** 화면에 쌓이는 기준 월급: 월급 입력이면 그대로, 연봉 입력이면 세후(기본) 또는 세전 */
+export function monthlyPay(s: Settings): number {
+  if (s.payMode !== 'annual') return s.salary;
+  const est = estimateNet(s.annualSalary ?? 0, netOptionsOf(s));
+  if (s.showGross) return est.grossMonthly;
+  return s.netOverride ?? est.netMonthly;
+}
+
+/** 월급 ÷ 월 근무시간 = 시간당 급여 */
 export function hourlyWage(settings: Settings): number {
   const dailyHours = scheduleDailyMs(settings) / (60 * MIN);
   const monthHours = dailyHours * settings.monthWorkDays;
-  return monthHours > 0 ? settings.salary / monthHours : 0;
+  return monthHours > 0 ? monthlyPay(settings) / monthHours : 0;
 }
 
 export function scheduleDailyMs(s: Schedule): number {

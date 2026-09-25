@@ -103,7 +103,9 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, clo
               <div className="hero-money-value" aria-live="off">
                 <MoneyTicker value={formatWon(earned, 2)} />
               </div>
-              <div className="hero-money-sub">시급 {formatWon(Math.round(day.hourly))} 기준</div>
+              <div className="hero-money-sub">
+                {settings.payMode === 'annual' ? (settings.showGross ? '세전 ' : '세후 ') : ''}시급 {formatWon(Math.round(day.hourly))} 기준
+              </div>
             </div>
 
             <div className={`task-row ${pct >= 100 ? 'done' : ''}`} title={`시즌 ${day.season} · Day ${day.workItemIndex + 1}/20`}>
