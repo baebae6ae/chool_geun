@@ -133,9 +133,11 @@ export function planErrand(
     const b = wanderTo();
     return [...travel(x, a, rnd, true), side('stand', 500), ...travel(a, b, rnd, true), front('look', 2000)];
   };
-  const sleepLong: Errand = () => [...go(s.bed, true), side('sleep', between(rnd, 15000, 30000), 'bed')];
+  const sleepLong: Errand = () => [...go(s.bed, true), side('sleep', between(rnd, 9000, 16000), 'bed')];
   const wakeUp: Errand = () => [...go(s.bed, true), side('sleep', 6000, 'bed'), front('yawn', 2800), front('groom', 3000)];
   const payDance: Errand = () => [...go(wanderTo()), front('dance', between(rnd, 3000, 5000))];
+  const windowGaze: Errand = () => [...go(s.window), front('look', between(rnd, 2800, 5000))];
+  const playWheel: Errand = () => [...go(s.wheel), side('run', between(rnd, 3500, 7000), 'wheel'), side('stand', 800, 'wheel')];
 
   // 희귀 행동
   const rare = (id: RareId, step: Step): Step => ({ ...step, rare: id }) as Step;
@@ -165,9 +167,15 @@ export function planErrand(
     case 'holiday':
     case 'off':
       list = [
-        ['sleep', 4, sleepLong],
-        ['wake', 1.2, wakeUp],
-        ['eat', 0.8, eat],
+        ['sleep', 2.2, sleepLong],
+        ['wake', 1, wakeUp],
+        ['eat', 1.3, eat],
+        ['wheel', 1.2, playWheel],
+        ['wander', 1.5, wander],
+        ['groom', 1.2, groom],
+        ['sip', 1, sipAtDesk],
+        ['window', 1.3, windowGaze],
+        ['stretch', 0.6, yawn],
       ];
       break;
     case 'arriving':

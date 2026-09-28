@@ -114,7 +114,7 @@ describe('habitat brain', () => {
     let last: string | undefined;
     for (let i = 0; i < 30; i++) {
       const plan = planErrand('off', S, S.bed, rnd, last, 'bed');
-      expect(['sleep', 'wake', 'eat']).toContain(plan.name);
+      expect(['sleep', 'wake', 'eat', 'wheel', 'wander', 'groom', 'sip', 'window', 'stretch']).toContain(plan.name);
       last = plan.name;
     }
   });
