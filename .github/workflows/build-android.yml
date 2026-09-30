@@ -16,8 +16,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Accept Android SDK licenses (already installed on this runner image)
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - name: Prepare Android SDK (cmdline-tools "latest" symlink + accept licenses)
+        run: |
+          if [ ! -e "$ANDROID_HOME/cmdline-tools/latest" ]; then
+            VER=$(ls "$ANDROID_HOME/cmdline-tools" | grep -v '^latest$' | sort -V | tail -1)
+            echo "linking cmdline-tools/$VER -> cmdline-tools/latest"
+            ln -s "$VER" "$ANDROID_HOME/cmdline-tools/latest"
+          fi
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list_installed
 
       - uses: actions/setup-node@v4
         with:
