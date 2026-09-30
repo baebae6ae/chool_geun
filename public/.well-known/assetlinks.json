@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.baebae6ae.chool_geun",
+      "sha256_cert_fingerprints": [
+        "CE:9E:51:6F:38:54:0C:3F:2D:5D:DF:F5:BC:0C:A2:26:3B:0C:C5:1D:BB:CA:F4:24:62:68:57:9C:42:F9:C9:74"
+      ]
+    }
+  }
+]

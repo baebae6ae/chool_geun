@@ -1,0 +1,41 @@
+{
+  "packageId": "io.github.baebae6ae.chool_geun",
+  "host": "baebae6ae.github.io",
+  "startUrl": "/chool_geun/",
+  "webManifestUrl": "https://baebae6ae.github.io/chool_geun/manifest.webmanifest",
+  "name": "햄스터 출근일지",
+  "launcherName": "출근일지",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#fff4e0",
+  "navigationColor": "#fff4e0",
+  "navigationColorDark": "#1c140c",
+  "navigationDividerColor": "#fff4e0",
+  "navigationDividerColorDark": "#1c140c",
+  "backgroundColor": "#fff4e0",
+  "enableNotifications": true,
+  "iconUrl": "https://baebae6ae.github.io/chool_geun/icon-512.png",
+  "maskableIconUrl": "https://baebae6ae.github.io/chool_geun/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://baebae6ae.github.io/chool_geun/",
+  "minSdkVersion": 21,
+  "shareTarget": null,
+  "protocolHandlers": [],
+  "retainedBundles": []
+}
