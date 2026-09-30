@@ -23,7 +23,13 @@ jobs:
             echo "linking cmdline-tools/$VER -> cmdline-tools/latest"
             ln -s "$VER" "$ANDROID_HOME/cmdline-tools/latest"
           fi
+          # bubblewrap's own SDK check only looks for $ANDROID_HOME/tools or $ANDROID_HOME/bin
+          if [ ! -e "$ANDROID_HOME/bin" ]; then
+            ln -s cmdline-tools/latest/bin "$ANDROID_HOME/bin"
+          fi
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-36" "build-tools;36.1.0" "platform-tools"
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list_installed
 
       - uses: actions/setup-node@v4
