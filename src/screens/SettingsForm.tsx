@@ -120,7 +120,7 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
                 </label>
                 <p className="muted small">
                   세전 월 {formatWon(est.grossMonthly)} − 4대보험 {formatWon(est.pension + est.health + est.care + est.employment)} − 소득세{' '}
-                  {formatWon(est.incomeTax + est.localTax)}. 명세서와 다르면 숫자를 직접 고쳐도 돼요.
+                  {formatWon(est.incomeTax + est.localTax)}. 참고용 추정치라 명세서와 다를 수 있어요. 다르면 숫자를 직접 고쳐도 돼요.
                   {s.netOverride != null && (
                     <>
                       {' '}
@@ -250,6 +250,20 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
 
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="btn primary big-btn">{onboarding ? '🐹 출근 시작하기' : '저장'}</button>
+
+      <footer className="app-info">
+        <p>
+          모든 기록은 이 기기 안에만 저장되고 어디로도 전송되지 않아요.
+          <br />
+          <a href="./privacy.html" target="_blank" rel="noopener noreferrer">
+            개인정보처리방침
+          </a>
+          {' · '}
+          <a href="https://github.com/baebae6ae/chool_geun/issues" target="_blank" rel="noopener noreferrer">
+            문의·제안
+          </a>
+        </p>
+      </footer>
 
       {onReset && (
         <button

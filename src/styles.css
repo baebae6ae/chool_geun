@@ -3,7 +3,8 @@
   --bg-2: #f1e8d9;
   --card: #ffffff;
   --ink: #362a20;
-  --ink-2: #8c7c6c;
+  --ink-2: #72634f;
+  --accent-text: #94591f;
   --line: #e9e0d1;
   --accent: #b97a41;
   --accent-ink: #ffffff;
@@ -31,6 +32,7 @@
     --card: #292019;
     --ink: #f1e6d9;
     --ink-2: #a3907c;
+    --accent-text: #d6a06a;
     --line: #3b3025;
     --accent: #d6a06a;
     --accent-ink: #241a10;
@@ -56,6 +58,22 @@ body {
   font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  /* 앱처럼: 당겨서 새로고침/스크롤 끝 튕김·더블탭 확대·길게 눌러 글자 선택을 막는다 */
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 button,
@@ -89,8 +107,9 @@ button {
   gap: 14px;
   animation: screen-in 0.22s ease-out;
 }
+/* 투명도 0에서 시작하면 첫 화면이 '그려졌다'고 집계되지 않아(FCP 누락) 0.3에서 시작 */
 @keyframes screen-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0.3; transform: translateY(6px); }
 }
 
 .screen-head {
@@ -566,7 +585,7 @@ button {
 .new-badge {
   align-self: center;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .rarity-LEGENDARY .gacha-emoji,
@@ -1421,7 +1440,7 @@ select {
   border: 0;
   background: none;
   padding: 0;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   text-decoration: underline;
 }
@@ -1633,4 +1652,33 @@ select {
 .stamp-cal-cell .ov.on {
   color: var(--ink);
   background: var(--card);
+}
+
+/* 설정 화면 맨 아래 앱 정보 */
+.app-info {
+  text-align: center;
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+.app-info p {
+  margin: 0;
+}
+.app-info a {
+  color: var(--ink-2);
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+/* 도감 머리줄: 배지는 한 줄로, 설명 글이 대신 줄바꿈 */
+.dex-head .rarity-badge {
+  white-space: nowrap;
+  flex: none;
+}
+
+/* 달력: 도장이 날짜 숫자를 가리지 않게 살짝 아래로 */
+.stamp-cal-cell .stamp {
+  width: 24px;
+  height: 24px;
+  margin-top: 9px;
 }

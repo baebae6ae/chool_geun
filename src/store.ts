@@ -30,16 +30,21 @@ export const inAppBrowser: string | null = (() => {
 })();
 
 /**
- * 기록은 세 군데에 나눠 저장한다. 어떤 브라우저(특히 iOS의 WebKit 계열)에서 한 곳이
- * 비워져도 나머지에서 되살린다.
- *  - localStorage: 전체 기록 (주 저장소, 동기)
- *  - IndexedDB   : 전체 기록 백업 (비동기)
- *  - 쿠키        : 설정·꾸미기·시드만 (작아서 쿠키에 들어감) — 최악의 경우에도 처음부터 다시 입력할 일은 없게
+ * 기록은 두 군데에 나눠 저장한다. 브라우저가 localStorage만 비워도 IndexedDB 백업에서 되살린다.
+ * 전부 기기 안에만 있고 서버로 전송되지 않는다 (쿠키는 요청마다 서버로 가므로 쓰지 않는다).
  */
-const COOKIE = 'hamster_core';
 const IDB_NAME = 'hamster-worklog';
 
-export type LoadSource = 'local' | 'cookie' | 'fresh';
+/** 예전 버전이 만든 백업 쿠키(월급 값 포함)를 지운다 */
+const LEGACY_COOKIE = 'hamster_core';
+try {
+  document.cookie = `${LEGACY_COOKIE}=; max-age=0`;
+  document.cookie = `${LEGACY_COOKIE}=; max-age=0; path=/`;
+} catch {
+  // 쿠키 차단
+}
+
+export type LoadSource = 'local' | 'fresh';
 export let loadSource: LoadSource = 'fresh';
 
 function parseState(raw: string | null | undefined): AppState | null {
@@ -50,27 +55,6 @@ function parseState(raw: string | null | undefined): AppState | null {
     return { ...createInitialState(parsed.seed), ...parsed, custom: { ...DEFAULT_CUSTOM, ...parsed.custom } };
   } catch {
     return null;
-  }
-}
-
-export function readCookie(): Pick<AppState, 'seed' | 'settings' | 'custom'> | null {
-  try {
-    const m = document.cookie.match(new RegExp(`(?:^|; )${COOKIE}=([^;]*)`));
-    return m ? JSON.parse(decodeURIComponent(m[1])) : null;
-  } catch {
-    return null;
-  }
-}
-
-let lastCookie = '';
-function writeCookie(s: AppState) {
-  try {
-    const v = encodeURIComponent(JSON.stringify({ seed: s.seed, settings: s.settings, custom: s.custom }));
-    if (v === lastCookie) return;
-    lastCookie = v;
-    document.cookie = `${COOKIE}=${v}; max-age=34560000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
-  } catch {
-    // 쿠키 차단
   }
 }
 
@@ -115,11 +99,6 @@ function load(): AppState {
   if (local) {
     loadSource = 'local';
     return local;
-  }
-  const core = readCookie();
-  if (core?.settings) {
-    loadSource = 'cookie';
-    return { ...createInitialState(core.seed), settings: core.settings, custom: { ...DEFAULT_CUSTOM, ...core.custom } };
   }
   return createInitialState();
 }
@@ -175,7 +154,6 @@ export function setState(next: AppState | ((s: AppState) => AppState)) {
   } catch {
     // 저장 실패해도 메모리 상태로 계속 동작 (쿠키·IndexedDB 백업이 남음)
   }
-  writeCookie(state);
   clearTimeout(idbTimer);
   idbTimer = setTimeout(flushIdb, 400);
   // 브라우저가 공간이 부족할 때 기록을 지우지 않도록 요청 (안드로이드 크롬 등)

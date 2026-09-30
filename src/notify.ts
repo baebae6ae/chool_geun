@@ -19,7 +19,7 @@ export function sendNotification(state: AppState, kind: keyof typeof MESSAGES, n
   const count = state.notif.date === today ? state.notif.count : 0;
   if (count >= DAILY_LIMIT) return state;
   const msg = MESSAGES[kind];
-  const opts = { body: msg.body, icon: './icon.svg', tag: `hamster-${kind}` };
+  const opts = { body: msg.body, icon: './icon-192.png', tag: `hamster-${kind}` };
   // 모바일 브라우저는 페이지 컨텍스트의 new Notification()을 막는 경우가 있어 서비스워커 우선
   if (navigator.serviceWorker?.controller) {
     navigator.serviceWorker.ready.then((reg) => reg.showNotification(msg.title, opts)).catch(() => {});

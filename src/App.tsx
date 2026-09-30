@@ -97,7 +97,9 @@ export function App() {
     return (
       <div className="app">
         <StorageNotice />
-        <SettingsForm initial={null} custom={state.custom} onSave={saveSettings} />
+        <main>
+          <SettingsForm initial={null} custom={state.custom} onSave={saveSettings} />
+        </main>
       </div>
     );
   }

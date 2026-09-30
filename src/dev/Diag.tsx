@@ -1,9 +1,8 @@
 import { Fragment, useEffect, useState } from 'react';
-import { idbGet, loadSource, readCookie } from '../store';
+import { idbGet, loadSource } from '../store';
 
 const SOURCE: Record<string, string> = {
   local: 'localStorage (정상)',
-  cookie: '쿠키 백업 — localStorage가 비어 있었음',
   fresh: '없음 — 모든 저장소가 비어 있었음',
 };
 
@@ -28,11 +27,9 @@ export function Diag() {
     else setPersisted('지원 안 함');
   }, []);
   const local = get(() => localStorage, 'hamster-worklog:v1');
-  const cookie = readCookie();
   const rows: [string, string][] = [
     ['이번에 불러온 곳', SOURCE[loadSource]],
     ['localStorage 기록', local ? (local.startsWith('오류') ? local : JSON.parse(local).settings ? '있음 (설정 포함)' : '있음 (설정 없음)') : '없음'],
-    ['쿠키 백업', cookie?.settings ? '있음' : '없음'],
     ['IndexedDB 백업', idb],
     ['켜진 횟수 (localStorage)', get(() => localStorage, 'hamster-diag:loads') ?? '-'],
     ['켜진 횟수 (이 탭)', get(() => sessionStorage, 'hamster-diag:loads') ?? '-'],

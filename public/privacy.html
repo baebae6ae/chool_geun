@@ -3,44 +3,96 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="index, follow" />
 <title>개인정보처리방침 — 햄스터 출근일지</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; line-height: 1.7; color: #2b1d16; }
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; max-width: 680px; margin: 40px auto; padding: 0 20px 60px; line-height: 1.75; }
   h1 { font-size: 1.4rem; }
   h2 { font-size: 1.1rem; margin-top: 2em; }
-  .updated { color: #8a7a6a; font-size: 0.85rem; }
+  li { margin: 0.3em 0; }
+  .updated { opacity: 0.6; font-size: 0.85rem; }
+  hr { margin: 3em 0 2em; opacity: 0.3; }
 </style>
 </head>
 <body>
 <h1>개인정보처리방침 — 햄스터 출근일지</h1>
-<p class="updated">최종 수정일: 2026-09-30</p>
+<p class="updated">최종 수정일: 2026-09-30 · 개발자: baebae6ae (개인)</p>
 
-<h2>수집하는 정보</h2>
 <p>
-  햄스터 출근일지(이하 "앱")는 별도의 서버를 두지 않습니다. 월급·근무시간·설정·꾸미기 등 앱에서 입력하거나 쌓이는 모든 기록은
-  이용자의 기기(브라우저의 localStorage·IndexedDB, 또는 안드로이드 앱 내부 저장소)에만 저장되며, 개발자를 포함한 어느 누구에게도
-  전송되지 않습니다. 회원가입, 이메일, 위치정보 등 개인을 식별할 수 있는 정보를 수집하지 않습니다.
+  「햄스터 출근일지」(이하 "앱")는 이용자의 개인정보를 수집하거나 서버로 전송하지 않습니다.
+  이 문서는 앱이 어떤 정보를 어디에 두는지 설명합니다.
 </p>
 
-<h2>기기 밖으로 나가는 정보</h2>
+<h2>1. 앱에 입력·저장되는 정보</h2>
+<p>이용자가 앱에서 직접 입력하거나 앱을 쓰면서 쌓이는 아래 정보는 <strong>이용자의 기기 안(브라우저 저장소: localStorage, IndexedDB)에만</strong> 저장됩니다.</p>
+<ul>
+  <li>월급 또는 연봉, 급여일, 출퇴근·점심 시간, 근무 요일 설정</li>
+  <li>햄스터 이름, 꾸미기 선택</li>
+  <li>일일 근무 기록(번 돈, 근무시간, 작업물), 도감 수집 기록, 희귀 행동 목격 기록</li>
+  <li>직접 지정한 쉬는 날·출근일</li>
+</ul>
 <p>
-  이용자가 앱을 삭제하거나 브라우저 저장공간을 지우면 모든 기록이 함께 사라지며, 개발자는 이를 복구할 수 없습니다.
-  기기 간 백업이나 동기화 기능은 없습니다.
+  이 정보는 개발자를 포함한 누구에게도 전송·공유·판매되지 않으며, 개발자는 이를 열람하거나 복구할 수 없습니다.
+  회원가입, 이메일, 전화번호, 위치, 연락처, 사진, 광고 식별자는 수집하지 않습니다.
 </p>
 
-<h2>알림</h2>
+<h2>2. 앱을 여는 과정에서 처리되는 정보</h2>
 <p>
-  출근·가챠·퇴근 알림은 기기 안에서만 동작하며, 알림 발송을 위해 외부 서버로 어떤 데이터도 전송하지 않습니다.
+  앱은 GitHub Pages(GitHub, Inc.)를 통해 제공되는 웹앱입니다. 앱을 열 때 화면을 구성하는 파일을 내려받는 과정에서,
+  호스팅 업체가 통상적인 접속 기록(IP 주소, 기기·브라우저 종류, 접속 시각)을 처리할 수 있습니다.
+  여기에 위 1항의 정보(월급·근무 기록 등)는 포함되지 않습니다. 자세한 내용은
+  <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub 개인정보 처리방침</a>을 참고하세요.
 </p>
 
-<h2>제3자 제공·광고</h2>
-<p>광고, 분석 도구, 제3자 SDK를 사용하지 않으며, 어떤 정보도 제3자에게 제공하지 않습니다.</p>
+<h2>3. 알림</h2>
+<p>
+  알림은 이용자가 설정에서 직접 켠 경우에만, 기기 안에서 만들어져 표시됩니다(출근·이벤트·퇴근 알림, 하루 최대 3회).
+  알림을 위해 외부 서버로 어떤 정보도 보내지 않으며, 권한은 기기 설정에서 언제든 끌 수 있습니다.
+</p>
 
-<h2>문의</h2>
-<p>이 방침이나 앱에 대해 문의할 사항이 있으면 아래로 연락해 주세요.</p>
-<p>[문의용 이메일 주소를 여기에 적어주세요]</p>
+<h2>4. 광고·분석·제3자 SDK</h2>
+<p>광고, 사용자 추적·분석 도구, 제3자 SDK를 사용하지 않으며, 어떤 정보도 제3자에게 제공하지 않습니다.</p>
 
-<h2>방침 변경</h2>
+<h2>5. 세금 계산에 대한 안내</h2>
+<p>
+  연봉을 입력하면 앱이 4대보험·소득세를 빼서 예상 세후 월급을 계산해 보여줍니다. 이 값은 기기 안에서 계산되는 참고용 추정치이며
+  세무·급여 상담이 아닙니다. 실제 급여와 다를 수 있고, 이용자가 직접 고칠 수 있습니다.
+</p>
+
+<h2>6. 보관과 삭제</h2>
+<ul>
+  <li>앱 안 <strong>설정 → 데이터 초기화</strong>를 누르면 저장된 모든 기록이 삭제됩니다.</li>
+  <li>앱을 삭제하거나 브라우저의 사이트 데이터를 지우면 모든 기록이 함께 사라지며, 복구할 수 없습니다.</li>
+  <li>기기 간 백업·동기화 기능은 없습니다.</li>
+</ul>
+
+<h2>7. 아동</h2>
+<p>이 앱은 만 14세 미만 아동을 대상으로 하지 않으며, 아동의 정보를 수집하지 않습니다.</p>
+
+<h2>8. 문의</h2>
+<p>
+  이 방침이나 앱에 대한 문의·요청은 아래로 남겨 주세요.<br />
+  <a href="https://github.com/baebae6ae/chool_geun/issues" target="_blank" rel="noopener noreferrer">https://github.com/baebae6ae/chool_geun/issues</a>
+</p>
+
+<h2>9. 방침 변경</h2>
 <p>이 방침이 바뀌면 이 페이지의 "최종 수정일"을 갱신합니다.</p>
+
+<p><a href="./">← 앱으로 돌아가기</a></p>
+
+<hr />
+
+<h1>Privacy Policy (English summary)</h1>
+<p>
+  Hamster Worklog does not collect, transmit, or share personal data. Everything you enter (salary or annual pay,
+  work schedule, hamster name, work records, collection progress) is stored only on your device in browser storage
+  (localStorage / IndexedDB) and never leaves it. The app has no accounts, ads, analytics, or third-party SDKs.
+  The web app is served from GitHub Pages, whose hosting provider may process standard server logs (such as IP address)
+  when the app's files are downloaded; your in-app data is not part of that. Notifications, if you enable them, are
+  generated locally on your device. You can delete all data at any time via Settings → Reset data, or by uninstalling
+  the app / clearing site data. The app is not directed at children under 14. Contact:
+  <a href="https://github.com/baebae6ae/chool_geun/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.
+</p>
 </body>
 </html>
