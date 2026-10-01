@@ -2420,11 +2420,8 @@ textarea {
   gap: 4px;
   text-align: center;
   color: var(--ink);
-  cursor: pointer;
 }
-.quote-card:active {
-  transform: scale(0.99);
-}
+.quote-card.comfort { cursor: pointer; }
 .quote-label {
   font-size: 0.72rem;
   font-weight: 800;

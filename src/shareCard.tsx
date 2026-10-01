@@ -88,6 +88,8 @@ export interface CardData {
 
 const W = 1080;
 const H = 1350;
+/** 저장 크기 배율: 그림은 1080×1350 좌표로 그리고 900×1125로 줄여 저장한다 (용량 절약) */
+const OUT_SCALE = 900 / 1080;
 const INK = '#362a20';
 const INK2 = '#675842';
 const PENCIL = '#c9985f';
@@ -161,7 +163,7 @@ function grain(ctx: CanvasRenderingContext2D, seed = 7) {
   let s = seed;
   const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
   ctx.save();
-  for (let i = 0; i < 9000; i++) {
+  for (let i = 0; i < 1800; i++) {
     ctx.globalAlpha = 0.05 + rnd() * 0.07;
     ctx.fillStyle = rnd() < 0.5 ? '#b98a5a' : '#ffffff';
     ctx.fillRect(rnd() * W, rnd() * H, 2 + rnd() * 2, 2 + rnd() * 2);
@@ -220,9 +222,10 @@ export async function renderCard(d: CardData): Promise<Blob> {
     // 폰트 로딩 실패 시 기본 글꼴로
   }
   const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = Math.round(W * OUT_SCALE);
+  canvas.height = Math.round(H * OUT_SCALE);
   const ctx = canvas.getContext('2d')!;
+  ctx.scale(OUT_SCALE, OUT_SCALE);
   const sans = `"Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif`;
 
   // 바탕: 크림색 종이 + 번지는 파스텔
@@ -341,12 +344,12 @@ export async function renderCard(d: CardData): Promise<Blob> {
     });
   }
 
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('이미지를 만들지 못했어요'))), 'image/png'));
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('이미지를 만들지 못했어요'))), 'image/jpeg', 0.86));
 }
 
 /** 만든 이미지를 공유(앱: 공유 창, 웹: 공유 창 또는 다운로드). 취소하면 false */
 export async function shareCardImage(blob: Blob, name: string): Promise<boolean> {
-  const file = new File([blob], name, { type: 'image/png' });
+  const file = new File([blob], name, { type: 'image/jpeg' });
   if (isNative) {
     try {
       const [{ Filesystem, Directory }, { Share }] = await Promise.all([import('@capacitor/filesystem'), import('@capacitor/share')]);

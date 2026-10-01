@@ -17,13 +17,12 @@ interface Props {
 /** 오늘의 카드: 구도·색·장식이 날마다 랜덤. 돈 정보는 담지 않는다. */
 export function ShareSheet({ custom, dateKey, dateText, phase, payday, nameTag, chips, onClose }: Props) {
   const [draws, setDraws] = useState(0);
-  const [salt, setSalt] = useState(0);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const blobRef = useRef<Blob | null>(null);
   const look = drawLook(dateKey, draws);
-  const quote = pickQuote({ key: dateKey, phase, payday, salt });
+  const quote = pickQuote({ key: dateKey, phase, payday });
   const chipsKey = chips.join('|');
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export function ShareSheet({ custom, dateKey, dateText, phase, payday, nameTag, 
     if (!blobRef.current || busy) return;
     setBusy(true);
     try {
-      await shareCardImage(blobRef.current, `햄스터출근일지-${dateKey}.png`);
+      await shareCardImage(blobRef.current, `햄스터출근일지-${dateKey}.jpg`);
     } catch {
       setError('공유하지 못했어요. 이미지를 길게 눌러 저장해 보세요.');
     }
@@ -66,9 +65,6 @@ export function ShareSheet({ custom, dateKey, dateText, phase, payday, nameTag, 
         <div className="share-actions">
           <button type="button" className="btn" onClick={() => setDraws((n) => n + 1)}>
             한 번 더 뽑기
-          </button>
-          <button type="button" className="btn" onClick={() => setSalt((n) => n + 1)}>
-            다른 한마디
           </button>
         </div>
         <button type="button" className="btn primary" onClick={share} disabled={!url || busy}>

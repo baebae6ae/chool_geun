@@ -117,7 +117,10 @@ export function BigClock({
   );
 }
 
-/** 오늘의 한마디: 상황에 맞는 직장인 멘트. 누르면 다른 문구로 바뀐다. 위로 버튼을 누르면 위로 문구가 뜬다. */
+/**
+ * 오늘의 한마디: 하루(그리고 시간대)마다 정해진 문구 하나. 눌러도 바뀌지 않는다.
+ * 위로 버튼을 누른 직후에만 위로 문구가 잠깐 뜨고, 카드를 누르면 원래 한마디로 돌아간다.
+ */
 export function QuoteCard({
   dateKey,
   phase,
@@ -130,25 +133,20 @@ export function QuoteCard({
   /** 올라갈 때마다 위로 문구를 보여준다 (0이면 일반 한마디) */
   comfort?: number;
 }) {
-  const [salt, setSalt] = useState(0);
   const [seenComfort, setSeenComfort] = useState(0);
-  // 위로 버튼이 눌린 직후에는 위로 문구, 카드를 누르면 다시 일반 한마디
   const showComfort = comfort > 0 && comfort !== seenComfort;
-  const text = showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, phase, payday, salt });
+  const text = showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, phase, payday });
   return (
-    <button
-      type="button"
+    <div
       className={`quote-card ${showComfort ? 'comfort' : ''}`}
-      onClick={() => {
-        if (showComfort) setSeenComfort(comfort);
-        setSalt((s) => s + 1);
-      }}
-      aria-label={showComfort ? '햄스터의 위로, 누르면 한마디로 돌아가요' : '오늘의 한마디, 누르면 다른 말로 바뀌어요'}
+      onClick={() => showComfort && setSeenComfort(comfort)}
+      role={showComfort ? 'button' : 'note'}
+      aria-label={showComfort ? '햄스터의 위로, 누르면 한마디로 돌아가요' : '오늘의 한마디'}
     >
       <span className="quote-label">{showComfort ? '햄스터의 위로' : '오늘의 한마디'}</span>
-      <span className="quote-text" key={`${phase}-${salt}-${showComfort ? comfort : 0}`}>
+      <span className="quote-text" key={`${phase}-${showComfort ? comfort : 0}`}>
         {text}
       </span>
-    </button>
+    </div>
   );
 }
