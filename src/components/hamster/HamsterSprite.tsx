@@ -30,13 +30,14 @@ interface Props {
   className?: string;
 }
 
-const INK = '#5a4034';
+const INK = '#85594a';
+const EYE = '#4d352b';
 const PINK = '#f7b4b6';
 const NOSE = '#f48f98';
 const MOUTH = '#e0625f';
 const TONGUE = '#ff9c96';
 const BLUSH = '#ff98a0';
-const LINE = 2.6;
+const LINE = 2.2;
 
 const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
   none: 'transparent',
@@ -67,7 +68,7 @@ interface ViewProps<A> {
   className: string;
 }
 
-/** 색연필로 칠한 몸: 종이 색이 비치는 가장자리, 털 색 진한 빗금 두 겹, 끊어진 보조 윤곽선 */
+/** 색연필로 칠한 몸: 빗금 대신 번지는 음영(아래·옆은 진하게, 위는 종이색으로 밝게)과 칠하다 만 가장자리 */
 function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
   return (
     <g>
@@ -75,21 +76,21 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
         <clipPath id={`${uid}-pb`}>
           <path d={d} />
         </clipPath>
-        <pattern id={`${uid}-h1`} width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(48)">
-          <line x1="0" y1="0" x2="0" y2="3.4" stroke={c.line} strokeWidth="1.1" strokeLinecap="round" />
-        </pattern>
-        <pattern id={`${uid}-h2`} width="4.6" height="4.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
-          <line x1="0" y1="0" x2="0" y2="4.6" stroke={c.line} strokeWidth="0.9" strokeLinecap="round" />
-        </pattern>
+        <radialGradient id={`${uid}-sh`} cx="0.36" cy="0.3" r="0.85">
+          <stop offset="0.35" stopColor={c.shade} stopOpacity="0" />
+          <stop offset="1" stopColor={c.shade} stopOpacity="0.4" />
+        </radialGradient>
+        <radialGradient id={`${uid}-hl`} cx="0.34" cy="0.26" r="0.4">
+          <stop offset="0" stopColor="#fffaf0" stopOpacity="0.8" />
+          <stop offset="1" stopColor="#fffaf0" stopOpacity="0" />
+        </radialGradient>
       </defs>
       <path d={d} fill={c.body} filter="url(#pencil-fur)" />
       <g clipPath={`url(#${uid}-pb)`}>
-        {/* 가장자리는 칠하다 만 것처럼 종이색이 비친다 */}
-        <path d={d} fill="none" stroke="#fffaf0" strokeWidth="6" opacity=".55" />
-        <path d={d} fill={`url(#${uid}-h1)`} mask="url(#pencil-shade)" opacity=".62" />
-        <path d={d} fill={`url(#${uid}-h2)`} mask="url(#pencil-shade)" opacity=".4" transform="translate(0 6)" />
+        <path d={d} fill={`url(#${uid}-sh)`} filter="url(#pencil-fur)" />
+        <path d={d} fill={`url(#${uid}-hl)`} />
+        <path d={d} fill="none" stroke="#fffaf0" strokeWidth="5" opacity=".4" />
       </g>
-      <path d={d} fill="none" stroke={INK} strokeWidth="1.1" strokeDasharray="16 3 7 2 11 4" opacity=".5" transform="translate(1 .9)" />
     </g>
   );
 }
@@ -192,7 +193,7 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
             <path d="M80 54 l-6 3 6 3" />
           </g>
         ) : (
-          <g className="hs-blink" fill={INK}>
+          <g className="hs-blink" fill={EYE}>
             <circle cx="43" cy={lookUp ? 55 : 57} r="3.5" />
             <circle cx="77" cy={lookUp ? 55 : 57} r="3.5" />
             <circle cx="44.2" cy={lookUp ? 53.8 : 55.8} r="1" fill="#fff" />
@@ -583,7 +584,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         {/* 눈 · 코 · 입 */}
         <ellipse cx="92" cy="66" rx="5" ry="2.8" fill={BLUSH} opacity=".45" />
         <ellipse cx="105" cy="66" rx="8.5" ry="7" fill={c.cream} />
-                  <g className="hs-blink" fill={INK}>
+                  <g className="hs-blink" fill={EYE}>
             <circle cx="97" cy="55" r="3.6" />
             <circle cx="98.2" cy="53.8" r="1" fill="#fff" />
           </g>

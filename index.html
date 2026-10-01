@@ -33,6 +33,15 @@
           <feBlend in="SourceGraphic" in2="sp" mode="multiply" result="p" />
           <feComposite in="p" in2="SourceGraphic" operator="in" />
         </filter>
+        <!-- 햄스터 전체: 선이 살짝 떨리고 종이 알갱이가 비치게 (모양·투명도는 유지) -->
+        <filter id="pencil-hs" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7" result="w" />
+          <feDisplacementMap in="SourceGraphic" in2="w" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="wob" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed="11" result="g" />
+          <feColorMatrix in="g" type="matrix" values="0.3 0 0 0 0.8  0.3 0 0 0 0.8  0.3 0 0 0 0.8  0 0 0 0 1" result="sp" />
+          <feBlend in="wob" in2="sp" mode="multiply" result="p" />
+          <feComposite in="p" in2="wob" operator="in" />
+        </filter>
         <!-- 이모지용: 윤곽만 살짝 떨리게 (칠은 그대로) -->
         <filter id="pencil-soft" x="-8%" y="-8%" width="116%" height="116%">
           <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="2" result="w" />

@@ -318,3 +318,8 @@
 @media (prefers-reduced-motion: reduce) {
   .hs *, .hs { animation: none !important; }
 }
+
+/* 색연필 느낌: 햄스터 전체의 선이 살짝 떨리고 종이 알갱이가 비친다 */
+.hs {
+  filter: url(#pencil-hs);
+}
