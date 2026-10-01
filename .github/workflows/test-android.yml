@@ -36,8 +36,8 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
 
-      - name: Playwright client (CDP only, no browser download)
-        run: npm i --no-save playwright-core
+      - name: Chrome DevTools Protocol client
+        run: npm i --no-save chrome-remote-interface
 
       - name: Enable KVM (hardware acceleration for the emulator)
         run: |
