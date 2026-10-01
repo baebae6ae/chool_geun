@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { lastBackupAt, loadBackupFile, saveBackup } from '../backup';
 import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import { formatWon } from '../domain/records';
 import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
@@ -251,6 +252,8 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="btn primary big-btn">{onboarding ? '🐹 출근 시작하기' : '저장'}</button>
 
+      <BackupCard onboarding={onboarding} />
+
       <footer className="app-info">
         <p>
           모든 기록은 이 기기 안에만 저장되고 어디로도 전송되지 않아요.
@@ -275,5 +278,58 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         </button>
       )}
     </form>
+  );
+}
+
+function BackupCard({ onboarding }: { onboarding: boolean }) {
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const last = lastBackupAt();
+  const pick = useRef<HTMLInputElement>(null);
+
+  const save = async () => {
+    try {
+      if (await saveBackup()) setMsg({ ok: true, text: '백업 파일을 저장했어요. 파일은 안전한 곳(드라이브·iCloud)에 보관하세요.' });
+    } catch {
+      setMsg({ ok: false, text: '저장하지 못했어요. 브라우저가 파일 저장을 막았을 수 있어요.' });
+    }
+  };
+  const load = async (f: File | undefined) => {
+    if (!f) return;
+    if (!onboarding && !confirm('지금 기록이 백업 파일 내용으로 바뀌어요. 계속할까요?')) return;
+    try {
+      await loadBackupFile(f);
+      setMsg({ ok: true, text: '불러왔어요!' });
+    } catch (e) {
+      setMsg({ ok: false, text: (e as Error).message });
+    }
+    if (pick.current) pick.current.value = '';
+  };
+
+  return (
+    <section className="card backup-card">
+      <div className="card-label">{onboarding ? '이전 기록이 있나요?' : '백업'}</div>
+      {!onboarding && (
+        <p className="muted small">
+          기록은 이 기기에만 저장돼서, 폰을 바꾸거나 브라우저 데이터를 지우면 사라져요. 파일로 저장해 두면 언제든 되살릴 수 있어요.
+          {last ? ` 마지막 백업: ${new Date(last).toLocaleDateString('ko-KR')}` : ' 아직 백업한 적이 없어요.'}
+        </p>
+      )}
+      <div className="backup-actions">
+        {!onboarding && (
+          <button type="button" className="btn" onClick={save}>
+            📤 백업 저장
+          </button>
+        )}
+        <button type="button" className="btn" onClick={() => pick.current?.click()}>
+          📥 백업 불러오기
+        </button>
+        <input ref={pick} type="file" accept="application/json,.json" hidden onChange={(e) => load(e.target.files?.[0])} />
+      </div>
+      {msg && (
+        <p className={msg.ok ? 'muted small' : 'error'} role={msg.ok ? 'status' : 'alert'}>
+          {msg.text}
+        </p>
+      )}
+    </section>
   );
 }

@@ -161,6 +161,23 @@ export function setState(next: AppState | ((s: AppState) => AppState)) {
   listeners.forEach((l) => l());
 }
 
+/** 백업 파일에서 복원. 형식이 맞지 않으면 이유를 담은 Error를 던진다 */
+export function restoreFromBackup(text: string): void {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('백업 파일이 아니에요 (읽을 수 없는 형식).');
+  }
+  const obj = data as { app?: string; state?: unknown; version?: unknown };
+  const candidate = obj && typeof obj === 'object' && 'state' in obj ? obj.state : data;
+  const parsed = parseState(JSON.stringify(candidate));
+  if (!parsed || !parsed.settings || typeof parsed.days !== 'object' || typeof parsed.collection !== 'object') {
+    throw new Error('햄스터 출근일지 백업 파일이 아니에요.');
+  }
+  setState(parsed);
+}
+
 export function resetState() {
   setState(createInitialState());
 }
