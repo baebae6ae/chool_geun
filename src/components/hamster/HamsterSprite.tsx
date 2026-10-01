@@ -85,9 +85,9 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
           <stop offset="1" stopColor="#fffaf0" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <path d={d} fill={c.body} filter="url(#pencil-fur)" />
+      <path d={d} fill={c.body} />
       <g clipPath={`url(#${uid}-pb)`}>
-        <path d={d} fill={`url(#${uid}-sh)`} filter="url(#pencil-fur)" />
+        <path d={d} fill={`url(#${uid}-sh)`} />
         <path d={d} fill={`url(#${uid}-hl)`} />
         <path d={d} fill="none" stroke="#fffaf0" strokeWidth="7" opacity=".5" />
       </g>
