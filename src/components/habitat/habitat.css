@@ -221,3 +221,16 @@
   height: 1.35em;
   vertical-align: top;
 }
+
+/* 해바라기씨 그릇: 눌러서 간식 주기 */
+.habitat-bowl-hit {
+  position: absolute;
+  bottom: 10px;
+  width: 48px;
+  height: 26px;
+  z-index: 6;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}

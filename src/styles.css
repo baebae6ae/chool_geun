@@ -2506,3 +2506,51 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .bc-cs { display: none; }
 }
+
+/* 남은 시간 카운트다운: 숫자 폭을 고정해 흔들리지 않게 */
+.bc-count { font-variant-numeric: tabular-nums; }
+.bc-count span { display: inline-block; text-align: right; }
+.bc-cs2 { color: var(--accent-text); font-size: 0.82em; margin-left: 1px; }
+.bc-cs2 span { min-width: 1.15em; text-align: left; }
+@media (prefers-reduced-motion: reduce) { .bc-cs2 { display: none; } }
+
+/* 공유 카드 시트 */
+.share-sheet { max-height: 92dvh; overflow-y: auto; }
+.share-preview {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+}
+.share-preview img {
+  width: min(72%, 300px);
+  aspect-ratio: 4 / 5;
+  border-radius: 14px;
+  border: 2px solid var(--pencil-edge);
+  box-shadow: 4px 5px 0 rgba(169, 121, 79, 0.3);
+}
+.share-poses { justify-content: center; }
+.share-actions { display: flex; gap: 10px; }
+.share-actions .btn { flex: 1; }
+
+/* 한마디 아래 작은 버튼들 */
+.chip-row { display: flex; gap: 10px; justify-content: center; }
+.chip-btn {
+  flex: 1;
+  max-width: 190px;
+  padding: 9px 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: #fff8e8;
+  border: 2px solid var(--pen);
+  border-radius: var(--wobble-s);
+  box-shadow: 2px 3px 0 rgba(169, 121, 79, 0.3);
+}
+.chip-btn:active { transform: translate(1px, 2px); box-shadow: none; }
+.quote-card.comfort { border-color: #e48fa3; background: rgba(255, 236, 241, 0.75); }
+.quote-card.comfort .quote-label { color: #b5476a; }
+.app.clock .chip-row { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .chip-btn { background: var(--card); }
+  :root:not([data-theme='light']) .quote-card.comfort { background: rgba(120, 50, 70, 0.25); }
+}

@@ -5,7 +5,7 @@ import { completedCount, daysUntilPayday } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
-import { completedInSeason, formatWon, itemOf } from '../domain/records';
+import { completedInSeason, formatWon, itemOf, monthSummary } from '../domain/records';
 import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
@@ -13,6 +13,7 @@ import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
 import { quotePhase } from '../domain/quotes';
+import { ShareSheet } from '../components/ShareSheet';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -81,6 +82,21 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
   const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
   const say = (text: string) => setBubble({ key: `${Date.now()}`, text });
 
+  // 햄스터와 놀기
+  const [comfort, setComfort] = useState(0);
+  const [reaction, setReaction] = useState<{ id: number; action: 'hug' } | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+  const handleInteract = (kind: 'pet' | 'feed' | 'hug') => {
+    if (kind === 'feed') say(pick(['냠냠! 해바라기씨 최고예요', '볼주머니에 쏙 넣어둘게요', '바삭바삭… 고마워요!', '더 주세요… 는 농담이에요']));
+    else if (kind === 'hug') say('꼬옥 안아줄게요 🤍');
+    else say(pick(['헤헤, 간지러워요', '더 쓰다듬어 주세요', '오늘도 고생했어요', '손이 따뜻해요', '찍찍!']));
+  };
+  const askComfort = () => {
+    setComfort((n) => n + 1);
+    setReaction({ id: Date.now(), action: 'hug' });
+  };
+
   const mi = milestoneIndex(earned);
   const msKey = `hamster-milestone:${key}`;
   const lastMs = useRef<number | null>(null);
@@ -130,6 +146,28 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
 
   const phase = quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut);
 
+  const monthEarned = monthSummary(Number(key.slice(0, 4)), Number(key.slice(5, 7)), state.days).earned + (day && !day.clockedOut ? earned : 0);
+  const working = !!day && !!item;
+  const shareLabel = working ? '오늘 번 돈' : '이번 달 번 돈';
+  const shareAmount = formatWon(Math.floor(working ? earned : monthEarned));
+  const shareSub = working
+    ? `${settings.payMode === 'annual' ? (settings.showGross ? '세전 ' : '세후 ') : ''}시급 ${formatWon(Math.round(day!.hourly))} 기준`
+    : `${settings.hamsterName || '햄스터'}와 함께 번 돈`;
+
+  const quoteBlock = (
+    <>
+      <QuoteCard dateKey={key} phase={phase} payday={payD === 0} comfort={comfort} />
+      <div className="chip-row">
+        <button type="button" className="chip-btn" onClick={askComfort}>
+          힘들어요
+        </button>
+        <button type="button" className="chip-btn" onClick={() => setSharing(true)}>
+          카드 공유
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <div className="screen ambient">
       <header className="ambient-head">
@@ -160,9 +198,22 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
           bubble={bubble}
           payday={payD === 0}
           onRare={handleRare}
+          onInteract={handleInteract}
+          reaction={reaction}
         />
 
-        <BigClock now={now} dateText={formatKoreanDate(key)} info={timeInfo || undefined} />
+        <BigClock
+          now={now}
+          dateText={formatKoreanDate(key)}
+          info={timeInfo || undefined}
+          countdown={
+            day && bounds && !day.clockedOut && now < bounds.end
+              ? now < bounds.start
+                ? { label: '출근까지', target: bounds.start }
+                : { label: '퇴근까지', target: bounds.end }
+              : undefined
+          }
+        />
 
         {!day || !item ? (
           <p className="rest-note">
@@ -199,11 +250,25 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
               <span className="task-pct">{pct}%</span>
             </div>
 
-            <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />
+            {quoteBlock}
           </>
         )}
-        {(!day || !item) && <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />}
+        {(!day || !item) && quoteBlock}
       </div>
+
+      {sharing && (
+        <ShareSheet
+          custom={custom}
+          dateKey={key}
+          dateText={formatKoreanDate(key)}
+          phase={phase}
+          payday={payD === 0}
+          label={shareLabel}
+          amount={shareAmount}
+          sub={shareSub}
+          onClose={() => setSharing(false)}
+        />
+      )}
     </div>
   );
 }

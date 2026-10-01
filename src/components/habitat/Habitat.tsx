@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { HamsterMood } from '../../domain/schedule';
 import type { Customization } from '../../domain/types';
-import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
-import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, type Place, type Step } from './brain';
+import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSprite';
+import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, type Place, type Step } from './brain';
 import { buzz } from '../../haptics';
 import type { RareId } from '../../domain/rare';
 import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, WallClock, Wheel, Window, type Trophy } from './props';
@@ -23,6 +23,10 @@ interface Props {
   payday?: boolean;
   /** 화면을 보고 있을 때 희귀 행동이 시작됨 */
   onRare?: (id: RareId) => void;
+  /** 사용자가 햄스터와 논다: 쓰다듬기·간식 주기·위로(안아주기) */
+  onInteract?: (kind: 'pet' | 'feed' | 'hug') => void;
+  /** id가 바뀔 때마다 햄스터가 해당 반응을 한다 (위로 버튼) */
+  reaction?: { id: number; action: 'hug' } | null;
 }
 
 interface View {
@@ -82,7 +86,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, reaction }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -108,9 +112,13 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   const lastErrand = useRef<string | undefined>(undefined);
   const paydayRef = useRef(payday);
   const onRareRef = useRef(onRare);
+  const onInteractRef = useRef(onInteract);
+  const taps = useRef<number[]>([]);
+  const feedUntil = useRef(0);
   spotsRef.current = spots;
   paydayRef.current = payday;
   onRareRef.current = onRare;
+  onInteractRef.current = onInteract;
 
   const patch = useCallback((p: Partial<View>) => {
     const next = { ...viewRef.current, ...p };
@@ -283,19 +291,65 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     };
   }, [patch, placeActor, saveSnapshot]);
 
-  // 쓰다듬기: 하던 일을 잠깐 멈추고 손 흔들기
+  /** 하던 일을 (이동 중이 아니면) 멈추고 주어진 동작을 먼저 한다 */
+  const inject = useCallback((steps: Step[]) => {
+    queue.current.unshift(...steps);
+    if (cur.current?.step.t !== 'move') cur.current = null;
+  }, []);
+  const act = (action: FrontAction, ms: number, pl: Place = 'floor'): Step => ({
+    t: 'act',
+    pose: { pose: 'front', action },
+    ms,
+    place: pl,
+  });
+
+  // 쓰다듬기: 누를 때마다 다른 반응 (손 흔들기·부끄·하트·응원). 연달아 누르면 신나서 춤
   const poke = () => {
     if (cur.current?.step.t === 'move') return;
-    const place = viewRef.current.place;
-    if (place === 'bed') {
-      queue.current.unshift({ t: 'act', pose: { pose: 'front', action: 'yawn' }, ms: 2800, place: 'floor' });
+    const pl = viewRef.current.place;
+    const t = Date.now();
+    taps.current = [...taps.current.filter((x) => t - x < 4000), t];
+    if (pl === 'bed') {
+      inject([act('yawn', 2800)]);
+    } else if (taps.current.length >= 6) {
+      taps.current = [];
+      inject([act('dance', 3200, pl)]);
     } else {
-      queue.current.unshift({ t: 'act', pose: { pose: 'front', action: 'wave' }, ms: 1500, place });
+      const picks = ['wave', 'shy', 'heart', 'cheer'] as const;
+      let a: (typeof picks)[number];
+      do a = picks[Math.floor(Math.random() * picks.length)];
+      while (a === viewRef.current.pose.action && picks.length > 1);
+      inject([act(a, a === 'wave' ? 1500 : 2000, pl)]);
     }
-    cur.current = null;
     setHeart((h) => h + 1);
+    onInteractRef.current?.('pet');
     buzz(8);
   };
+
+  // 간식 주기: 그릇 쪽으로 가서 냠냠 → 볼이 빵빵 → 고마워서 하트
+  const feed = () => {
+    const t = Date.now();
+    if (t < feedUntil.current) return;
+    feedUntil.current = t + 5000;
+    const s = spotsRef.current;
+    inject([
+      ...travel(x.current, s.eat, Math.random),
+      act('nibble', 3400),
+      act('stuff', 2200),
+      act('heart', 1800),
+    ]);
+    onInteractRef.current?.('feed');
+    buzz(10);
+  };
+
+  // 위로 버튼: 두 팔을 벌려 안아주기
+  const lastReaction = useRef(0);
+  useEffect(() => {
+    if (!reaction || reaction.id === lastReaction.current) return;
+    lastReaction.current = reaction.id;
+    inject([act('hug', 5200, viewRef.current.place === 'bed' ? 'floor' : viewRef.current.place)]);
+    onInteractRef.current?.('hug');
+  }, [reaction, inject]);
 
   const { pose, place, facing } = view;
   const onWheel = place === 'wheel';
@@ -322,6 +376,13 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
         <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />
         <Nest x={spots.bed} layer="back" />
         <Bowl x={spots.bowl} />
+        <button
+          type="button"
+          className="habitat-bowl-hit"
+          style={{ left: spots.bowl - 24 }}
+          onClick={feed}
+          aria-label="해바라기씨 주기"
+        />
         <DeskBack x={spots.desk} />
 
         <div

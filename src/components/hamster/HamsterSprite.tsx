@@ -20,7 +20,12 @@ export type FrontAction =
   | 'sneeze'
   | 'doze'
   | 'dizzy'
-  | 'dance';
+  | 'dance'
+  // 반응·공유 카드용 자세
+  | 'cheer'
+  | 'heart'
+  | 'shy'
+  | 'hug';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -28,6 +33,8 @@ interface Props {
   custom: Customization;
   pose: Pose;
   className?: string;
+  /** 움직이지 않는 그림(공유 카드 등)이면 씨앗처럼 움직여야 어울리는 소품을 뺀다 */
+  still?: boolean;
 }
 
 const INK = '#85594a';
@@ -52,17 +59,18 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
 
 type Palette = (typeof COLORS)[number];
 
-export function HamsterSprite({ custom, pose, className = '' }: Props) {
+export function HamsterSprite({ custom, pose, className = '', still = false }: Props) {
   const clip = `hc-${useId().replace(/:/g, '')}`;
   const c = COLORS.find((x) => x.id === custom.color) ?? COLORS[0];
   return pose.pose === 'side' ? (
     <SideView c={c} clip={clip} action={pose.action} custom={custom} className={className} />
   ) : (
-    <FrontView c={c} clip={clip} action={pose.action} custom={custom} className={className} />
+    <FrontView c={c} clip={clip} action={pose.action} custom={custom} className={className} still={still} />
   );
 }
 
 interface ViewProps<A> {
+  still?: boolean;
   c: Palette;
   clip: string;
   action: A;
@@ -99,13 +107,13 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
 
 /* ============================ 정면 (앉은 자세) ============================ */
 
-function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction>) {
+function FrontView({ c, clip, action, custom, className, still }: ViewProps<FrontAction>) {
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' =
     action === 'groom' || action === 'yawn'
       ? 'closed'
       : action === 'doze'
         ? 'sleepy'
-        : action === 'nibble' || action === 'sip' || action === 'dance'
+        : action === 'nibble' || action === 'sip' || action === 'dance' || action === 'cheer' || action === 'heart' || action === 'shy'
           ? 'happy'
           : action === 'dizzy'
             ? 'spiral'
@@ -120,7 +128,7 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
         ? 'wavy'
         : action === 'sneeze'
           ? 'o'
-          : ['idle', 'sniff', 'look', 'type', 'wave', 'dance'].includes(action)
+          : ['idle', 'sniff', 'look', 'type', 'wave', 'dance', 'cheer', 'heart', 'hug'].includes(action)
             ? 'smile'
             : 'small';
   const stuffed = action === 'stuff';
@@ -229,7 +237,7 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
           </g>
         ) : null}
 
-        <FrontHands action={action} c={c} />
+        <FrontHands action={action} c={c} still={still} />
 
         {/* 발 */}
         <g fill={PINK} stroke={INK} strokeWidth="2">
@@ -260,6 +268,19 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
         <g className="hs-notes" fill={INK} fontFamily="system-ui, sans-serif" fontWeight="700">
           <text x="96" y="30" fontSize="13">♪</text>
           <text x="10" y="24" fontSize="11">♫</text>
+        </g>
+      )}
+      {action === 'cheer' && (
+        <g className="hs-sparkle" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+          <path d={star(14, 14, 5)} />
+          <path d={star(106, 12, 4.4)} />
+          <path d={star(60, 5, 3.4)} />
+        </g>
+      )}
+      {(action === 'hug' || action === 'heart' || action === 'shy') && (
+        <g className="hs-hearts" fill="#ff8fa8" stroke={INK} strokeWidth="1" strokeLinejoin="round">
+          <path d="M101 24 c-6 -5 -7 -10 -3 -10 c2 0 3 1.2 3 2.6 c0 -1.4 1 -2.6 3 -2.6 c4 0 3 5 -3 10z" />
+          <path d="M16 30 c-4.4 -3.6 -5 -7.4 -2.2 -7.4 c1.6 0 2.2 .9 2.2 1.9 c0 -1 .6 -1.9 2.2 -1.9 c2.8 0 2.2 3.8 -2.2 7.4z" />
         </g>
       )}
       {action === 'sneeze' && (
@@ -309,7 +330,7 @@ function Arm({ from, to, c }: { from: [number, number]; to: [number, number]; c:
   );
 }
 
-function FrontHands({ action, c }: { action: FrontAction; c: Palette }) {
+function FrontHands({ action, c, still = false }: { action: FrontAction; c: Palette; still?: boolean }) {
   switch (action) {
     case 'groom':
       return (
@@ -322,7 +343,7 @@ function FrontHands({ action, c }: { action: FrontAction; c: Palette }) {
     case 'stuff':
       return (
         <g className="hs-nibble">
-          <Seed x={60} y={74} />
+          {!still && <Seed x={60} y={74} />}
           <Paw x={54} y={78} rot={-30} />
           <Paw x={66} y={78} rot={30} />
         </g>
@@ -367,6 +388,42 @@ function FrontHands({ action, c }: { action: FrontAction; c: Palette }) {
           <Paw x={51} y={74} rot={-25} />
           <Paw x={69} y={74} rot={25} />
         </>
+      );
+    case 'cheer':
+      return (
+        <>
+          <g className="hs-hand hs-cheer-l"><Arm from={[26, 62]} to={[9, 36]} c={c} /></g>
+          <g className="hs-hand hs-cheer-r"><Arm from={[94, 62]} to={[111, 36]} c={c} /></g>
+        </>
+      );
+    case 'hug':
+      return (
+        <>
+          <g className="hs-hand hs-hug-l"><Arm from={[26, 68]} to={[5, 60]} c={c} /></g>
+          <g className="hs-hand hs-hug-r"><Arm from={[94, 68]} to={[115, 60]} c={c} /></g>
+        </>
+      );
+    case 'shy':
+      return (
+        <>
+          <Paw x={38} y={68} rot={-30} />
+          <Paw x={82} y={68} rot={30} />
+        </>
+      );
+    case 'heart':
+      return (
+        <g className="hs-heart-hold">
+          <path
+            d="M60 99 C46 89 48 77 55 77 C58 77 60 79 60 81.5 C60 79 62 77 65 77 C72 77 74 89 60 99Z"
+            fill="#ff8fa8"
+            stroke={INK}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <path d="M54 82 q-1.6 2 -.4 4" stroke="#fff" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+          <Paw x={49} y={89} rot={-25} />
+          <Paw x={71} y={89} rot={25} />
+        </g>
       );
     case 'wave':
       return (

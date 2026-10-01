@@ -323,3 +323,44 @@
 .hs {
   filter: url(#pencil-hs);
 }
+
+/* 응원: 팔을 번쩍 들고 통통 */
+.hs-front.act-cheer .hs-bob { animation: hs-hop 0.55s ease-in-out infinite alternate; }
+@keyframes hs-hop {
+  from { transform: translateY(0); }
+  to { transform: translateY(-7px); }
+}
+.hs-cheer-l { transform-origin: 26px 62px; animation: hs-pump 0.55s ease-in-out infinite alternate; }
+.hs-cheer-r { transform-origin: 94px 62px; animation: hs-pump 0.55s ease-in-out infinite alternate-reverse; }
+@keyframes hs-pump {
+  from { transform: rotate(-8deg); }
+  to { transform: rotate(8deg); }
+}
+.hs-sparkle { animation: hs-twinkle 0.9s ease-in-out infinite alternate; }
+@keyframes hs-twinkle {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+/* 안아줘: 두 팔을 활짝, 몸을 살짝 좌우로 */
+.hs-front.act-hug .hs-bob { animation: hs-sway 1.6s ease-in-out infinite; }
+@keyframes hs-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+.hs-hug-l { transform-origin: 26px 68px; animation: hs-open 1.6s ease-in-out infinite alternate; }
+.hs-hug-r { transform-origin: 94px 68px; animation: hs-open 1.6s ease-in-out infinite alternate-reverse; }
+@keyframes hs-open {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(4deg); }
+}
+
+/* 하트 들기 / 부끄: 몸이 살랑살랑, 하트가 두근두근 */
+.hs-front.act-heart .hs-bob { animation: hs-sway 2.2s ease-in-out infinite; }
+.hs-front.act-shy .hs-bob { animation: hs-sway 1.2s ease-in-out infinite; }
+.hs-heart-hold { transform-origin: 60px 90px; animation: hs-beat 0.9s ease-in-out infinite; }
+@keyframes hs-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.hs-hearts { animation: hs-float 1.4s ease-in-out infinite; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ALL_QUOTES, pickQuote, QUOTE_COUNT, quotePhase } from './quotes';
+import { ALL_COMFORT, ALL_QUOTES, pickComfort, pickQuote, QUOTE_COUNT, quotePhase } from './quotes';
 import { atTime } from './date';
 
 const sched = { workStart: '09:00', workEnd: '18:00', lunchStart: '12:00', lunchEnd: '13:00' };
@@ -35,5 +35,13 @@ describe('오늘의 한마디', () => {
     }
     const hits = Array.from({ length: 60 }, (_, i) => pickQuote({ key: '2026-10-23', phase: 'afternoon', payday: true, salt: i }));
     expect(hits.some((q) => /월급/.test(q))).toBe(true);
+  });
+
+  it('위로 문구: 충분히 많고, 같은 번호면 같은 문구, 번호가 오르면 다른 문구가 나온다', () => {
+    expect(ALL_COMFORT.length).toBeGreaterThanOrEqual(30);
+    expect(new Set(ALL_COMFORT).size).toBe(ALL_COMFORT.length);
+    expect(pickComfort(k, 1)).toBe(pickComfort(k, 1));
+    const seen = new Set(Array.from({ length: 20 }, (_, i) => pickComfort(k, i + 1)));
+    expect(seen.size).toBeGreaterThan(8);
   });
 });
