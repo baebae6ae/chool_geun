@@ -2326,3 +2326,32 @@ textarea {
 .dex-emoji {
   font-size: 2.3rem;
 }
+
+/* 직접 그린 그림이 있는 물건은 색 단순화 없이 선만 살짝 떨리게 */
+.office-obj.drawn {
+  filter: url(#pencil-soft) drop-shadow(0 3px 2px rgba(120, 82, 56, 0.18));
+}
+.office-obj.drawn .ev-svg {
+  width: 1.4em;
+  height: 1.4em;
+  vertical-align: top;
+}
+.office-small .office-obj.drawn .ev-svg {
+  width: 1.5em;
+  height: 1.5em;
+}
+.item-emoji .ev-svg,
+.task-emoji .ev-svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+.task-emoji .ev-svg {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+.build-item .ev-svg,
+.clockout-item .ev-svg {
+  width: 1.1em;
+  height: 1.1em;
+}

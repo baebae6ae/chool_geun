@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { sampleShape, tuftPath, rand01 } from '../hamster/geometry';
 import type { Customization } from '../../domain/types';
 import { ItemIcon } from '../ItemIcon';
+import { hasItemIcon } from '../itemIcons';
 
 const place = (x: number, w: number, bottom = 14, z = 1): CSSProperties => ({
   position: 'absolute',
@@ -370,7 +371,7 @@ export function PlacedItems({ items }: { items: Trophy[] }) {
         return (
           <span
             key={it.name}
-            className={it.fresh ? 'fresh' : ''}
+            className={`${it.fresh ? 'fresh' : ''} ${hasItemIcon(it.name) ? 'drawn' : ''}`}
             title={it.name}
             style={{ left: `${x}%`, top: `${y}%`, fontSize: size }}
           >

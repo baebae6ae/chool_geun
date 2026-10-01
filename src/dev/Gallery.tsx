@@ -2,6 +2,8 @@ import { HamsterSprite, type FrontAction, type SideAction } from '../components/
 import { DEFAULT_CUSTOM } from '../domain/customization';
 import type { Customization } from '../domain/types';
 import { EventIcon } from '../components/EventIcon';
+import { ItemIcon } from '../components/ItemIcon';
+import { SEASONS } from '../domain/workItems';
 import { GACHA_EVENTS } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 
@@ -41,15 +43,18 @@ export function Gallery() {
 
 /** ?gallery&icons — 도감 이벤트 아이콘 전체 보기 */
 function IconSheet() {
-  const all = [...GACHA_EVENTS.map((e) => ({ id: e.id, emoji: e.emoji, name: e.name })), ...RARE_BEHAVIORS.map((r) => ({ id: r.id, emoji: r.emoji, name: r.name }))];
+  const items = new URLSearchParams(location.search).get('icons') === 'items';
+  const all = items
+    ? SEASONS.flatMap((s) => s.items.map((i) => ({ id: i.name, emoji: i.emoji, name: i.name })))
+    : [...GACHA_EVENTS.map((e) => ({ id: e.id, emoji: e.emoji, name: e.name })), ...RARE_BEHAVIORS.map((r) => ({ id: r.id, emoji: r.emoji, name: r.name }))];
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 10, padding: 12, background: '#fdf5e8', width: 1000 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: 10, padding: 12, background: '#fdf5e8', width: 1200 }}>
       {all.map((e) => (
         <div key={e.id} style={{ textAlign: 'center', fontSize: 12 }}>
           <div className="dex-emoji" style={{ fontSize: 64 }}>
-            <EventIcon id={e.id} emoji={e.emoji} />
+            {items ? <ItemIcon item={{ emoji: e.emoji, name: e.name }} /> : <EventIcon id={e.id} emoji={e.emoji} />}
           </div>
-          {e.id} {e.name}
+          {items ? e.name : `${e.id} ${e.name}`}
         </div>
       ))}
     </div>

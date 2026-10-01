@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
  * 도감 이벤트·희귀 행동 아이콘 — 이모지 대신 파스텔 색연필 느낌으로 직접 그린 그림.
  * 48×48 안에서 갈색 연필선 + 연한 칠. 없는 id는 이모지로 대체한다.
  */
-const K = '#8b5e3c';
-const C = {
+export const K = '#8b5e3c';
+export const C = {
   peach: '#ffd2a1',
   cream: '#fff4dc',
   white: '#ffffff',
@@ -21,7 +21,7 @@ const C = {
   dark: '#7d8290',
 };
 
-function S({ children }: { children: ReactNode }) {
+export function S({ children }: { children: ReactNode }) {
   return (
     <svg className="ev-svg" viewBox="0 0 48 48" fill="none" stroke={K} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {children}
@@ -29,7 +29,7 @@ function S({ children }: { children: ReactNode }) {
   );
 }
 
-const face = (cx: number, cy: number, r: number, fill: string = C.peach) => <circle cx={cx} cy={cy} r={r} fill={fill} />;
+export const face = (cx: number, cy: number, r: number, fill: string = C.peach) => <circle cx={cx} cy={cy} r={r} fill={fill} />;
 
 const Sneeze = (
   <S>

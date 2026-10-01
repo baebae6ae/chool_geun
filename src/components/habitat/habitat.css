@@ -213,3 +213,11 @@
   88% { opacity: 1; translate: 0 0; }
   100% { opacity: 0; translate: 0 -6px; }
 }
+.placed span.drawn {
+  filter: url(#pencil-soft);
+}
+.placed span.drawn .ev-svg {
+  width: 1.35em;
+  height: 1.35em;
+  vertical-align: top;
+}

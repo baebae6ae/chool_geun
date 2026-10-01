@@ -1,5 +1,6 @@
 import { seasonDef } from '../domain/workItems';
 import { ItemIcon } from './ItemIcon';
+import { hasItemIcon } from './itemIcons';
 
 /**
  * 완성한 작업물이 누적 배치되는 햄스터 사무실.
@@ -23,7 +24,7 @@ export function OfficeRoom({ done, highlight, small = false, season = 1 }: { don
         return (
           <span
             key={item.day}
-            className={`office-obj ${highlight === i ? 'pop' : ''}`}
+            className={`office-obj ${hasItemIcon(item.name) ? 'drawn' : ''} ${highlight === i ? 'pop' : ''}`}
             style={{ left: `${item.pos.x}%`, top: `${item.pos.y}%`, fontSize: `${item.pos.size}em` }}
             title={item.name}
           >
