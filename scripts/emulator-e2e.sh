@@ -28,5 +28,7 @@ node scripts/emulator-e2e.mjs || STATUS=$?
 
 adb exec-out screencap -p > "$OUT/99-device-final.png" || true
 adb logcat -d > "$OUT/logcat.txt" || true
-grep -E "FATAL EXCEPTION|AndroidRuntime|Capacitor" "$OUT/logcat.txt" | head -50 > "$OUT/logcat-important.txt" || true
+grep -E "FATAL EXCEPTION|AndroidRuntime|Capacitor|chromium.*(ERROR|Uncaught)|Console" "$OUT/logcat.txt" | head -60 > "$OUT/logcat-important.txt" || true
+echo "----- logcat (중요 줄) -----"
+cat "$OUT/logcat-important.txt" | cut -c1-300 || true
 exit $STATUS

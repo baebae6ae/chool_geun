@@ -40,7 +40,12 @@ const { Runtime, Page } = client;
 await Runtime.enable();
 await Page.enable();
 Runtime.exceptionThrown((e) => errors.push(`pageerror: ${e.exceptionDetails?.exception?.description ?? e.exceptionDetails?.text}`));
-Runtime.consoleAPICalled((e) => e.type === 'error' && errors.push(`console.error: ${e.args.map((a) => a.value ?? a.description).join(' ').slice(0, 200)}`));
+const show = (a) => {
+  if (a.value !== undefined) return String(a.value);
+  const props = a.preview?.properties?.map((p) => `${p.name}=${p.value}`).join(', ');
+  return props ? `${a.description ?? ''}{${props}}` : (a.description ?? a.type);
+};
+Runtime.consoleAPICalled((e) => e.type === 'error' && errors.push(`console.error: ${e.args.map(show).join(' ').slice(0, 400)}`));
 
 const ev = async (expression) => {
   const r = await Runtime.evaluate({ expression, awaitPromise: true, returnByValue: true });
