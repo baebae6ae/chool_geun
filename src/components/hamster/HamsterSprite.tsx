@@ -78,7 +78,7 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
         </clipPath>
         <radialGradient id={`${uid}-sh`} cx="0.36" cy="0.3" r="0.85">
           <stop offset="0.35" stopColor={c.shade} stopOpacity="0" />
-          <stop offset="1" stopColor={c.shade} stopOpacity="0.4" />
+          <stop offset="1" stopColor={c.shade} stopOpacity="0.5" />
         </radialGradient>
         <radialGradient id={`${uid}-hl`} cx="0.34" cy="0.26" r="0.4">
           <stop offset="0" stopColor="#fffaf0" stopOpacity="0.8" />
@@ -89,7 +89,7 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
       <g clipPath={`url(#${uid}-pb)`}>
         <path d={d} fill={`url(#${uid}-sh)`} filter="url(#pencil-fur)" />
         <path d={d} fill={`url(#${uid}-hl)`} />
-        <path d={d} fill="none" stroke="#fffaf0" strokeWidth="5" opacity=".4" />
+        <path d={d} fill="none" stroke="#fffaf0" strokeWidth="7" opacity=".5" />
       </g>
     </g>
   );

@@ -28,7 +28,7 @@ export interface FurPalette {
 }
 
 export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
-  { id: 'golden', label: '골든', emoji: '🟠', unlock: d, body: '#ffdcb8', light: '#ffe9d0', shade: '#eab07e', cream: '#fff7ec', ear: '#b07a52', line: '#a85f26' },
+  { id: 'golden', label: '골든', emoji: '🟠', unlock: d, body: '#ffe8cc', light: '#fff0da', shade: '#f6b98c', cream: '#fff7ec', ear: '#b07a52', line: '#a85f26' },
   { id: 'white', label: '화이트', emoji: '⚪', unlock: d, body: '#ffffff', light: '#ffffff', shade: '#e4ddd4', cream: '#ffffff', ear: '#cdc8c2', line: '#b3a28c' },
   { id: 'gray', label: '그레이', emoji: '🩶', unlock: { kind: 'completed', n: 3 }, body: '#d8d4cf', light: '#e8e5e1', shade: '#aaa39b', cream: '#f7f5f2', ear: '#aaa49f', line: '#6d665f' },
   { id: 'choco', label: '초코', emoji: '🟤', unlock: { kind: 'completed', n: 7 }, body: '#b98158', light: '#cf9c77', shade: '#8a5a3c', cream: '#f6e4cf', ear: '#855a3e', line: '#432818' },
