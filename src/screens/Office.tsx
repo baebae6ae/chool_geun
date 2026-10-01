@@ -5,6 +5,7 @@ import { completedCount } from '../domain/engine';
 import { completedInSeason, itemOf } from '../domain/records';
 import { SEASON_LENGTH, SEASON_TITLE, WORK_ITEMS } from '../domain/workItems';
 import type { AppState, DailyWork } from '../domain/types';
+import { ItemIcon } from '../components/ItemIcon';
 
 /** 기획서 6, 12. 누적 배치되는 사무실 + 주간 결과물 */
 export function Office({ state }: { state: AppState }) {
@@ -51,7 +52,7 @@ export function Office({ state }: { state: AppState }) {
             <div className="week-result-items">
               {list.map((d) => (
                 <span key={d.date}>
-                  <small>{WEEKDAY_EN[weekday(d.date)]}</small> {itemOf(d).emoji}
+                  <small>{WEEKDAY_EN[weekday(d.date)]}</small> <ItemIcon item={itemOf(d)} />
                 </span>
               ))}
             </div>
@@ -65,7 +66,7 @@ export function Office({ state }: { state: AppState }) {
           {WORK_ITEMS.map((it, i) => (
             <li key={it.day} className={done.has(i) ? 'done' : ''}>
               <span className="item-day">Day {it.day}</span>
-              <span className="item-emoji">{done.has(i) ? it.emoji : '❔'}</span>
+              <span className="item-emoji">{done.has(i) ? <ItemIcon item={it} /> : '❔'}</span>
               <span className="item-name">{done.has(i) ? it.name : '???'}</span>
               <span className="item-effect">{done.has(i) ? it.effect : ''}</span>
             </li>

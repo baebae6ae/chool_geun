@@ -1,15 +1,15 @@
 :root {
-  --bg: #faf6ef;
-  --bg-2: #f1e8d9;
-  --card: #ffffff;
+  --bg: #fcf4ea;
+  --bg-2: #f5e8d8;
+  --card: #fffcf6;
   --ink: #362a20;
   --ink-2: #72634f;
   --accent-text: #94591f;
-  --line: #e9e0d1;
+  --line: #e6d3bb;
   --accent: #b97a41;
   --accent-ink: #ffffff;
-  --accent-soft: #f1e3d0;
-  --good: #3fae7a;
+  --accent-soft: #f8e6d0;
+  --good: #5cbb90;
   --danger: #c1543f;
   --shadow: 0 2px 12px rgba(60, 42, 24, 0.06);
   --radius: 18px;
@@ -18,10 +18,10 @@
   --c-rare: #3d8bfd;
   --c-epic: #a45cf0;
   --c-legendary: #d69a1f;
-  --floor: #efe2cd;
-  --floor-2: #d9c29f;
-  --wall: #f7efe3;
-  --wall-2: #f3e8d8;
+  --floor: #f3e4cf;
+  --floor-2: #e2cba8;
+  --wall: #fdf2e4;
+  --wall-2: #f8e8d6;
   color-scheme: light;
 }
 
@@ -945,8 +945,8 @@ button {
   right: 0;
   bottom: 0;
   height: 42%;
-  background: repeating-linear-gradient(90deg, #d9a877 0 40px, #cf9c6a 40px 80px);
-  border-top: 4px solid #b98552;
+  background: repeating-linear-gradient(90deg, #f1d3ac 0 40px, #ebc89d 40px 80px);
+  border-top: 3px solid #d6a874;
 }
 
 .office-desk {
@@ -962,7 +962,7 @@ button {
   position: absolute;
   inset: 0 0 auto 0;
   height: 26%;
-  background: #a66b3d;
+  background: #cf9660;
   border-radius: 4px;
 }
 
@@ -973,7 +973,7 @@ button {
   top: 26%;
   bottom: 0;
   width: 8%;
-  background: #8b5530;
+  background: #b87d4c;
 }
 
 .office-desk::before {
@@ -1681,4 +1681,76 @@ select {
   width: 24px;
   height: 24px;
   margin-top: 9px;
+}
+
+/* 직접 그린 작업물 아이콘(책상) — 글자 옆에서 이모지처럼 */
+.item-svg {
+  width: 1.18em;
+  height: 1em;
+  vertical-align: -0.14em;
+  overflow: visible;
+}
+
+/* ============ 파스텔 색연필 손그림 톤 ============ */
+:root {
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .31 0 0 0 0 .2 0 0 0 1.5 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --pencil-edge: rgba(176, 128, 84, 0.55);
+  --pencil-shadow: 3px 4px 0 rgba(214, 178, 138, 0.28);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --pencil-edge: rgba(214, 160, 106, 0.4);
+    --pencil-shadow: 3px 4px 0 rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* 종이 질감: 화면 전체에 아주 옅은 결 (터치는 통과) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background-image: var(--paper-grain);
+  background-size: 240px 240px;
+  opacity: 0.2;
+  mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body::after {
+    mix-blend-mode: screen;
+    opacity: 0.1;
+  }
+}
+
+/* 카드·버튼 테두리: 컴퍼스로 그은 원 대신 손으로 그은 듯 삐뚤빼뚤 */
+.card,
+.sheet,
+.office,
+.btn {
+  border-radius: 20px 17px 21px 18px / 18px 21px 17px 20px;
+}
+.card {
+  border: 1.5px solid var(--line);
+  box-shadow: var(--pencil-shadow);
+}
+.btn {
+  border-width: 1.5px;
+}
+
+/* 서식지 벽: 색연필로 칠한 빗금 */
+.habitat {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(205, 160, 112, 0.07) 5px 6px),
+    linear-gradient(180deg, var(--wall) 0, var(--wall-2) 100%);
+  border: 1.5px solid var(--pencil-edge);
+  border-radius: 24px 20px 25px 21px / 21px 25px 20px 24px;
+}
+
+/* 소품: 선이 살짝 떨리고 칠이 거칠게 (움직이지 않는 것만 — 배터리 아끼려고) */
+.pencil {
+  filter: url(#pencil);
+}
+.office {
+  border: 1.5px solid var(--pencil-edge);
 }

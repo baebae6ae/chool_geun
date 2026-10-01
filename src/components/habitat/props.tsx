@@ -2,6 +2,7 @@
 import type { CSSProperties } from 'react';
 import { sampleShape, tuftPath, rand01 } from '../hamster/geometry';
 import type { Customization } from '../../domain/types';
+import { ItemIcon } from '../ItemIcon';
 
 const place = (x: number, w: number, bottom = 14, z = 1): CSSProperties => ({
   position: 'absolute',
@@ -64,7 +65,7 @@ export function Wheel({ x, layer, spinning, dir }: { x: number; layer: 'back' | 
 /* ---------- 책상 (의자 = 뒤, 책상·노트북 = 앞) ---------- */
 export function DeskBack({ x }: { x: number }) {
   return (
-    <svg viewBox="0 0 90 100" style={place(x, 90, 14, 2)} aria-hidden>
+    <svg className="pencil" viewBox="0 0 90 100" style={place(x, 90, 14, 2)} aria-hidden>
       <rect x="27" y="22" width="36" height="34" rx="9" fill="#9dbcd6" />
       <rect x="31" y="26" width="28" height="26" rx="7" fill="#b7d0e4" />
     </svg>
@@ -73,7 +74,7 @@ export function DeskBack({ x }: { x: number }) {
 
 export function DeskFront({ x, custom, mugTaken = false }: { x: number; custom: Customization; mugTaken?: boolean }) {
   return (
-    <svg viewBox="0 0 96 100" style={place(x, 96, 14, 6)} aria-hidden>
+    <svg className="pencil" viewBox="0 0 96 100" style={place(x, 96, 14, 6)} aria-hidden>
       {/* 다리 */}
       <rect x="8" y="58" width="6" height="42" rx="2" fill="#b07a4c" />
       <rect x="82" y="58" width="6" height="42" rx="2" fill="#b07a4c" />
@@ -152,7 +153,7 @@ const SEEDS = Array.from({ length: 9 }, (_, i) => ({
 
 export function Bowl({ x }: { x: number }) {
   return (
-    <svg viewBox="0 0 46 22" style={place(x, 46, 12, 2)} aria-hidden>
+    <svg className="pencil" viewBox="0 0 46 22" style={place(x, 46, 12, 2)} aria-hidden>
       <ellipse cx="23" cy="8" rx="20" ry="5" fill="#f0b8c0" />
       {SEEDS.map((s, i) => (
         <g key={i} transform={`translate(${s.x} ${s.y}) rotate(${s.r})`}>
@@ -180,7 +181,7 @@ const NEST_FRONT = tuftPath(
 
 export function Nest({ x, layer }: { x: number; layer: 'back' | 'front' }) {
   return (
-    <svg viewBox="0 0 90 38" style={place(x, 90, 8, layer === 'back' ? 1 : 4)} aria-hidden>
+    <svg className="pencil" viewBox="0 0 90 38" style={place(x, 90, 8, layer === 'back' ? 1 : 4)} aria-hidden>
       {layer === 'back' ? (
         <path d={NEST_BACK} fill="#fbf4e8" stroke="#e3d5bf" strokeWidth="1.2" />
       ) : (
@@ -296,7 +297,7 @@ export function WallClock({ x, now }: { x: number; now: number }) {
     return `M20 20 L${20 + len * Math.cos(a)} ${20 + len * Math.sin(a)}`;
   };
   return (
-    <svg viewBox="0 0 40 40" style={hang(x, 36, 20)} aria-hidden>
+    <svg className="pencil" viewBox="0 0 40 40" style={hang(x, 36, 20)} aria-hidden>
       <circle cx="20" cy="20" r="18" fill="#fffaf2" stroke="#c9a57c" strokeWidth="3" />
       {Array.from({ length: 12 }, (_, i) => {
         const a = (i * Math.PI) / 6;
@@ -328,7 +329,7 @@ export function TrophyShelf({ items }: { items: Trophy[] }) {
           <div className="shelf-items">
             {items.slice(r * SHELF_COLS, (r + 1) * SHELF_COLS).map((it) => (
               <span key={it.name} className={it.fresh ? 'fresh' : ''} title={it.name}>
-                {it.emoji}
+                <ItemIcon item={it} />
               </span>
             ))}
           </div>

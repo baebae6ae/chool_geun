@@ -6,6 +6,7 @@ import { formatWon, itemOf, monthSummary, weekSlots } from '../domain/records';
 import { holidayName } from '../domain/holidays';
 import { dayBounds, isWorkday } from '../domain/schedule';
 import type { AppState, DailyWork, Settings } from '../domain/types';
+import { ItemIcon } from '../components/ItemIcon';
 
 type Override = 'off' | 'on' | null;
 
@@ -85,7 +86,7 @@ function StampCalendar({
           >
             <small>{Number(d.slice(8))}</small>
             {on && <span className="stamp on">🐾</span>}
-            {on && day?.completed && <i title={itemOf(day).name}>{itemOf(day).emoji}</i>}
+            {on && day?.completed && <i title={itemOf(day).name}><ItemIcon item={itemOf(day)} /></i>}
             {inMonth && !on && ov && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
           </button>
         );
@@ -156,7 +157,7 @@ export function Records({
                 <li key={r.date}>
                   <button className={r.date === current?.date ? 'on' : ''} onClick={() => setSelected(r.date)}>
                     <span>{formatDotDate(r.date)} ({WEEKDAY_KO[weekday(r.date)]})</span>
-                    <span>{r.completed ? itemOf(r).emoji : '⏸️'} {Math.floor(r.progress * 100)}%</span>
+                    <span>{r.completed ? <ItemIcon item={itemOf(r)} /> : '⏸️'} {Math.floor(r.progress * 100)}%</span>
                     <span className="muted">{formatWon(Math.floor(r.earned))}</span>
                   </button>
                 </li>

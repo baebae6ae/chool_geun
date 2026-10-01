@@ -6,6 +6,7 @@ import type { Customization, DailyWork, Rarity } from '../domain/types';
 import { buzz } from '../haptics';
 import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
+import { ItemIcon } from './ItemIcon';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -82,13 +83,13 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
           <>
             <div className="confetti stagger" aria-hidden>🎉✨🎊✨🎉</div>
             <h2 className="stagger">✨ 오늘의 작업 완료! ✨</h2>
-            <div className="clockout-item stagger pop-late">{item.emoji}</div>
+            <div className="clockout-item stagger pop-late"><ItemIcon item={item} /></div>
             <p className="clockout-name stagger">{item.name} 완성</p>
           </>
         ) : (
           <>
             <h2>🐹 오늘은 여기까지!</h2>
-            <div className="clockout-item muted">{item.emoji}</div>
+            <div className="clockout-item muted"><ItemIcon item={item} /></div>
             <p className="clockout-name">{item.name}은 내일 이어서 만들어요</p>
           </>
         )}
@@ -175,7 +176,7 @@ export function DailyRecordCard({ day, hamsterName }: { day: DailyWork; hamsterN
         <dt>오늘 번 돈</dt>
         <dd>{formatWon(Math.floor(day.earned))}</dd>
         <dt>작업물</dt>
-        <dd>{item.emoji} {item.name}</dd>
+        <dd><ItemIcon item={item} /> {item.name}</dd>
         <dt>완성도</dt>
         <dd>{Math.floor(day.progress * 100)}%{day.early && !day.completed ? ' (조기 퇴근)' : ''}</dd>
         <dt>가챠 획득</dt>

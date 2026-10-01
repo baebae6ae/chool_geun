@@ -9,6 +9,7 @@ import { completedInSeason, formatWon, itemOf } from '../domain/records';
 import { SEASON_LENGTH, WORK_ITEMS } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
+import { ItemIcon } from '../components/ItemIcon';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -183,7 +184,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
 
             <div className={`task-row ${pct >= 100 ? 'done' : ''}`} title={`시즌 ${day.season} · Day ${day.workItemIndex + 1}/20`}>
               <span className={`task-emoji ${justDone ? 'pop' : ''}`} aria-hidden onAnimationEnd={() => setJustDone(false)}>
-                {item.emoji}
+                <ItemIcon item={item} />
               </span>
               <div className="task-body">
                 <div className="task-name">{item.name}</div>

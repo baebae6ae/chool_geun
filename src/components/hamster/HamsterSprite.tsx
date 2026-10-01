@@ -30,7 +30,7 @@ interface Props {
   className?: string;
 }
 
-const INK = '#3a2a22';
+const INK = '#5a4034';
 const PINK = '#f7b4b6';
 const NOSE = '#f48f98';
 const MOUTH = '#e0625f';

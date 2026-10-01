@@ -1,4 +1,5 @@
 import { stageOf, STAGES, type WorkItem } from '../domain/workItems';
+import { ItemIcon } from './ItemIcon';
 
 /** 작업물 제작 과정 시각화: 재료 블록이 쌓이고, 작업물이 흑백 → 컬러로 완성된다. */
 export function WorkBuild({ item, progress }: { item: WorkItem; progress: number }) {
@@ -29,7 +30,7 @@ export function WorkBuild({ item, progress }: { item: WorkItem; progress: number
             transform: `scale(${0.6 + progress * 0.4})`,
           }}
         >
-          {item.emoji}
+          <ItemIcon item={item} />
         </div>
       </div>
       <div className="build-label">
