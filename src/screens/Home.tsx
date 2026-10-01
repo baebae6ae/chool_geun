@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Habitat } from '../components/habitat/Habitat';
-import { dateKey, formatClock, formatKoreanDate, formatRemaining } from '../domain/date';
+import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
 import { completedCount, daysUntilPayday } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
@@ -11,6 +11,8 @@ import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule
 import type { AppState, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
+import { BigClock, QuoteCard } from '../components/AmbientExtras';
+import { quotePhase } from '../domain/quotes';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -129,6 +131,8 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
     else timeInfo = `퇴근까지 ${formatRemaining(bounds.end - now)}`;
   }
 
+  const phase = quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut);
+
   return (
     <div className="screen ambient">
       <header className="ambient-head">
@@ -160,6 +164,8 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
           payday={payD === 0}
           onRare={handleRare}
         />
+
+        <BigClock now={now} dateText={formatKoreanDate(key)} info={timeInfo || undefined} />
 
         {!day || !item ? (
           <p className="rest-note">
@@ -196,10 +202,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
               <span className="task-pct">{pct}%</span>
             </div>
 
-            <div className="time-row">
-              <span className="time-now">{formatClock(now, true)}</span>
-              <span className="time-left">{timeInfo}</span>
-            </div>
+            <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />
 
             {day.clockedOut ? (
               <button className="btn ambient-btn" onClick={onOpenRecord}>
@@ -212,6 +215,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
             )}
           </>
         )}
+        {(!day || !item) && <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />}
       </div>
 
       {confirming && bounds && (

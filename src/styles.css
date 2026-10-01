@@ -2361,3 +2361,127 @@ textarea {
   padding: 8px 14px 10px;
   transform: none;
 }
+
+/* ============ 큰 시계 · 오늘의 한마디 ============ */
+.big-clock {
+  text-align: center;
+  line-height: 1;
+}
+.bc-time {
+  font-family: 'Jua', 'Pretendard', system-ui, sans-serif;
+  font-size: clamp(3.4rem, 19vw, 5.2rem);
+  color: var(--ink);
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  letter-spacing: 0;
+  text-shadow: 3px 3px 0 rgba(236, 190, 140, 0.35);
+}
+.bc-d {
+  display: inline-block;
+  width: 0.62em;
+  text-align: center;
+}
+.bc-colon {
+  display: inline-block;
+  width: 0.3em;
+  text-align: center;
+  position: relative;
+  top: -0.06em;
+  animation: bc-blink 2s steps(1) infinite;
+}
+@keyframes bc-blink {
+  50% { opacity: 0.25; }
+}
+.bc-sec {
+  font-size: 0.4em;
+  margin-left: 0.3em;
+  color: var(--ink-2);
+  text-shadow: none;
+}
+.bc-sec .bc-d {
+  width: 0.62em;
+}
+.bc-info {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.quote-card {
+  width: 100%;
+  border: 2px dashed var(--pencil-edge);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: var(--wobble);
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  color: var(--ink);
+  cursor: pointer;
+}
+.quote-card:active {
+  transform: scale(0.99);
+}
+.quote-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--accent-text);
+  letter-spacing: 0.04em;
+}
+.quote-text {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: keep-all;
+  animation: quote-in 0.6s ease-out;
+}
+@keyframes quote-in {
+  from { opacity: 0.2; transform: translateY(4px); }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .quote-card { background: transparent; }
+  :root:not([data-theme='light']) .bc-time { text-shadow: none; }
+}
+
+/* 가로(탁상시계): 오른쪽 열을 시계·번 돈·한마디 중심으로 */
+.app.clock .ambient { grid-template-rows: auto auto auto auto auto; }
+.app.clock .big-clock { grid-column: 2; grid-row: 2; align-self: center; }
+.app.clock .bc-time { font-size: clamp(2.6rem, 8.2vw, 4.6rem); justify-content: flex-start; }
+.app.clock .bc-info { text-align: left; margin-top: 2px; font-size: 0.85rem; }
+.app.clock .hero-money { grid-row: 3; }
+.app.clock .rest-note { grid-row: 3; }
+.app.clock .task-row { grid-row: 4; }
+.app.clock .quote-card { grid-column: 2; grid-row: 5; padding: 6px 10px 8px; }
+.app.clock .quote-text { font-size: 0.82rem; line-height: 1.35; }
+.app.clock .quote-label { display: none; }
+.app.clock .ambient-btn { display: none; }
+.app.clock .ambient-head { display: none; }
+
+/* 세로 화면: 한 화면에 다 들어오게 간격을 줄인다 */
+.bc-date { display: none; }
+.ambient-body { gap: 10px; }
+.ambient .bc-time { font-size: clamp(2.9rem, 15.5vw, 4.3rem); }
+.ambient .bc-info { margin-top: 4px; font-size: 0.88rem; }
+.ambient .hero-money { padding: 8px 14px 10px; }
+.ambient .hero-money-value { font-size: clamp(2rem, 10.5vw, 2.8rem); }
+.ambient .task-row { padding: 8px 14px; }
+.ambient .quote-card { padding: 8px 14px 10px; }
+.ambient .ambient-btn { padding: 11px 14px; }
+@media (max-height: 700px) {
+  .ambient .bc-time { font-size: clamp(2.6rem, 13vw, 3.4rem); }
+  .ambient .hero-money-label, .ambient .hero-money-sub { font-size: 0.75rem; }
+}
+
+/* 가로(탁상시계): 날짜는 시계 위에 작게, 전체 화면 버튼은 오른쪽 위 모서리에 */
+.app.clock .ambient { position: relative; }
+.app.clock .bc-date { display: block; text-align: left; font-size: 0.78rem; font-weight: 700; color: var(--ink-2); margin-bottom: 2px; }
+.app.clock .ambient-head { display: block; position: absolute; top: 0; right: 0; z-index: 5; }
+.app.clock .ambient-date { display: none; }
+.app.clock .ambient .hero-money-value { font-size: clamp(1.6rem, 4.8vw, 2.8rem); }
+
+/* 서식지 높이를 조금 줄여 세로 화면에 한마디·퇴근 버튼까지 들어오게 */
+.ambient .habitat { height: clamp(176px, 24dvh, 214px); }
+.app.clock .ambient .habitat { height: auto; }
