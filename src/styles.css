@@ -1824,7 +1824,6 @@ body::after {
 .dex-emoji,
 .gacha-emoji,
 .clockout-item,
-.tab-icon,
 .build-item,
 .shelf-items span,
 .office-obj,
@@ -2270,4 +2269,49 @@ textarea {
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .career-grid > div { background: transparent; }
+}
+
+/* ============ 손그림 아이콘 · 둥근 숫자 글꼴 ============ */
+@font-face {
+  font-family: 'Jua';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/jua-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F, U+2212;
+}
+.draw-icon {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: -0.3em;
+  overflow: visible;
+}
+.tab-icon .draw-icon {
+  width: 28px;
+  height: 28px;
+  vertical-align: top;
+}
+.icon-btn .draw-icon {
+  width: 26px;
+  height: 26px;
+}
+.screen-head h1 .draw-icon {
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: -0.28em;
+}
+/* 큰 숫자: 둥글둥글한 글꼴 */
+.hero-money-value,
+.time-now,
+.career-grid b,
+.task-pct {
+  font-family: 'Jua', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.hero-money-value {
+  font-size: clamp(2.3rem, 12.5vw, 3.3rem);
+}
+.app.clock .hero-money-value {
+  font-size: clamp(1.6rem, 4.8vw, 2.8rem);
 }

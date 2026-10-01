@@ -10,6 +10,7 @@ import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
+import { TabIcon } from '../components/TabIcon';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -143,7 +144,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
             ⛶
           </button>
         ) : (
-          <button className="icon-btn quiet" onClick={onOpenSettings} aria-label="설정">⚙️</button>
+          <button className="icon-btn quiet" onClick={onOpenSettings} aria-label="설정"><TabIcon id="settings" /></button>
         )}
       </header>
 

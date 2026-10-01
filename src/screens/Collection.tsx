@@ -3,6 +3,7 @@ import { formatDotDate, dateKey } from '../domain/date';
 import { GACHA_EVENTS, RARITIES, RARITY_LABEL, RARITY_RATE, type GachaEvent } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import type { AppState } from '../domain/types';
+import { TabIcon } from '../components/TabIcon';
 
 /** 기획서 8. 직장인 가챠 도감 */
 export function Collection({ state }: { state: AppState }) {
@@ -12,7 +13,7 @@ export function Collection({ state }: { state: AppState }) {
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1>📖 직장인 도감</h1>
+        <h1><TabIcon id="dex" /> 직장인 도감</h1>
         <span className="count-chip">{owned} / {GACHA_EVENTS.length}</span>
       </header>
       <p className="muted">근무 중 하루 1~3번, 랜덤으로 직장인 이벤트가 발생해요.</p>

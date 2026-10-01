@@ -5,6 +5,7 @@ import { formatWon } from '../domain/records';
 import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
 import { estimateNet } from '../domain/tax';
 import type { Customization, Settings } from '../domain/types';
+import { TabIcon } from '../components/TabIcon';
 
 export const DEFAULT_SETTINGS: Settings = {
   salary: 3_000_000,
@@ -79,7 +80,7 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         </div>
       ) : (
         <header className="screen-head">
-          <h1>⚙️ 설정</h1>
+          <h1><TabIcon id="settings" /> 설정</h1>
           {onCancel && <button type="button" className="icon-btn" onClick={onCancel} aria-label="닫기">✕</button>}
         </header>
       )}

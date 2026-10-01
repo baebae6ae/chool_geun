@@ -6,6 +6,7 @@ import { completedInSeason, itemOf } from '../domain/records';
 import { SEASON_LENGTH, seasonDef, seasonTitle } from '../domain/workItems';
 import type { AppState, DailyWork } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
+import { TabIcon } from '../components/TabIcon';
 
 /** 기획서 6, 12. 누적 배치되는 사무실 + 주간 결과물 */
 export function Office({ state }: { state: AppState }) {
@@ -27,7 +28,7 @@ export function Office({ state }: { state: AppState }) {
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1>{seasonDef(season).icon} 햄스터 {seasonDef(season).room}</h1>
+        <h1>{seasonDef(season).theme === 'office' ? <TabIcon id="office" /> : seasonDef(season).icon} 햄스터 {seasonDef(season).room}</h1>
         {currentSeason > 1 && (
           <select value={season} onChange={(e) => setSeason(Number(e.target.value))} aria-label="시즌 선택">
             {Array.from({ length: currentSeason }, (_, i) => (

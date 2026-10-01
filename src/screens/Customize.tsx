@@ -14,6 +14,7 @@ import {
 } from '../domain/customization';
 import { playerProgress } from '../domain/engine';
 import type { AppState, Customization } from '../domain/types';
+import { TabIcon } from '../components/TabIcon';
 
 /** 기획서 15. 햄스터 커스터마이징 (진행 보상으로 해금) */
 export function Customize({ state, onChange }: { state: AppState; onChange: (c: Customization) => void }) {
@@ -25,7 +26,7 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1>🎀 꾸미기</h1>
+        <h1><TabIcon id="custom" /> 꾸미기</h1>
       </header>
       <div className="stage-card custom-preview">
         <div className="custom-preview-solo">

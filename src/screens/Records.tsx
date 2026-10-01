@@ -9,6 +9,7 @@ import { holidayName } from '../domain/holidays';
 import { dayBounds, isWorkday } from '../domain/schedule';
 import type { AppState, DailyWork, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
+import { TabIcon } from '../components/TabIcon';
 
 type Override = 'off' | 'on' | null;
 
@@ -137,7 +138,7 @@ export function Records({
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1>📒 기록</h1>
+        <h1><TabIcon id="records" /> 기록</h1>
       </header>
       <div className="segmented" role="tablist">
         <button role="tab" aria-selected={tab === 'daily'} className={tab === 'daily' ? 'on' : ''} onClick={() => setTab('daily')}>일일</button>

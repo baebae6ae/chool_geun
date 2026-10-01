@@ -14,15 +14,16 @@ import { Office } from './screens/Office';
 import { Records } from './screens/Records';
 import { SettingsForm } from './screens/SettingsForm';
 import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
+import { TabIcon, type IconId } from './components/TabIcon';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
-const TABS: { id: Tab; icon: string; label: string }[] = [
-  { id: 'home', icon: '🐹', label: '오늘' },
-  { id: 'office', icon: '🏢', label: '사무실' },
-  { id: 'dex', icon: '📖', label: '도감' },
-  { id: 'records', icon: '📒', label: '기록' },
-  { id: 'custom', icon: '🎀', label: '꾸미기' },
+const TABS: { id: Tab; icon: IconId; label: string }[] = [
+  { id: 'home', icon: 'home', label: '오늘' },
+  { id: 'office', icon: 'office', label: '사무실' },
+  { id: 'dex', icon: 'dex', label: '도감' },
+  { id: 'records', icon: 'records', label: '기록' },
+  { id: 'custom', icon: 'custom', label: '꾸미기' },
 ];
 
 const TAB_KEY = 'hamster-tab';
@@ -195,7 +196,7 @@ export function App() {
             }}
             aria-current={tab === t.id ? 'page' : undefined}
           >
-            <span className="tab-icon">{t.icon}</span>
+            <span className="tab-icon"><TabIcon id={t.icon} /></span>
             <span className="tab-label">{t.label}</span>
           </button>
         ))}
