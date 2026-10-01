@@ -22,8 +22,16 @@
           <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp" />
           <feDisplacementMap in="SourceGraphic" in2="warp" scale="3" xChannelSelector="R" yChannelSelector="G" result="wob" />
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="9" result="grain" />
-          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.9 1.75" result="holes" />
-          <feComposite in="wob" in2="holes" operator="in" />
+          <feColorMatrix in="grain" type="matrix" values="0.35 0 0 0 0.8  0.35 0 0 0 0.8  0.35 0 0 0 0.8  0 0 0 0 1" result="speckle" />
+          <feBlend in="wob" in2="speckle" mode="multiply" result="paint" />
+          <feComposite in="paint" in2="wob" operator="in" />
+        </filter>
+        <!-- 햄스터 털: 모양은 그대로, 색연필 칠한 알갱이만 -->
+        <filter id="pencil-fur" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="5" result="g" />
+          <feColorMatrix in="g" type="matrix" values="0.2 0 0 0 0.9  0.2 0 0 0 0.9  0.2 0 0 0 0.9  0 0 0 0 1" result="sp" />
+          <feBlend in="SourceGraphic" in2="sp" mode="multiply" result="p" />
+          <feComposite in="p" in2="SourceGraphic" operator="in" />
         </filter>
         <!-- 이모지용: 윤곽만 살짝 떨리게 (칠은 그대로) -->
         <filter id="pencil-soft" x="-8%" y="-8%" width="116%" height="116%">
