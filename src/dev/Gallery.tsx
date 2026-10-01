@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { COMPOSITIONS, drawLook, renderCard } from '../shareCard';
-import { HamsterSprite, type FrontAction, type SideAction } from '../components/hamster/HamsterSprite';
+import { HamsterSprite, type FrontAction, type Pose, type SideAction } from '../components/hamster/HamsterSprite';
+import { HANDS, HATS, OUTFITS } from '../domain/customization';
 import { DEFAULT_CUSTOM } from '../domain/customization';
 import type { Customization } from '../domain/types';
 import { EventIcon } from '../components/EventIcon';
@@ -17,6 +18,7 @@ export function Gallery() {
   const params = new URLSearchParams(location.search);
   if (params.has('icons')) return <IconSheet />;
   if (params.has('cards')) return <CardSheet />;
+  if (params.has('gear')) return <GearSheet />;
   const size = Number(params.get('size') || 220);
   const custom: Customization = {
     ...DEFAULT_CUSTOM,
@@ -105,4 +107,33 @@ function CardSheet() {
       ))}
     </div>
   );
+}
+
+/** ?gallery&gear — 사무용품 착용 아이템 전체 보기 */
+function GearSheet() {
+  const base = { ...DEFAULT_CUSTOM, outfit: 'none' as const };
+  const cell = (key: string, label: string, custom: Customization, pose: Pose) => (
+    <figure key={key} style={{ margin: 0, width: 150, textAlign: 'center', fontSize: 12 }}>
+      <div style={{ width: 150, height: pose.pose === 'side' ? 110 : 150 }}>
+        <HamsterSprite custom={custom} pose={pose} still />
+      </div>
+      {label}
+    </figure>
+  );
+  const f = (a: FrontAction): Pose => ({ pose: 'front', action: a });
+  const out: React.ReactNode[] = [];
+  HATS.forEach((h) => out.push(cell('h' + h.id, '머리 ' + h.label, { ...base, hat: h.id }, f('idle'))));
+  OUTFITS.forEach((o) => out.push(cell('o' + o.id, '몸 ' + o.label, { ...base, outfit: o.id }, f('idle'))));
+  HANDS.forEach((o) => out.push(cell('n' + o.id, '손 ' + o.label, { ...base, hand: o.id }, f('idle'))));
+  const mix: [string, Customization][] = [
+    ['포스트잇+뽁뽁이', { ...base, hat: 'postit', outfit: 'bubble', hand: 'pencil' }],
+    ['스테이플러+상자', { ...base, hat: 'stapler', outfit: 'box', hand: 'calculator' }],
+    ['마우스+사원증', { ...base, hat: 'mouse', outfit: 'badge', hand: 'stamp' }],
+  ];
+  mix.forEach(([l, c]) => {
+    out.push(cell('m' + l, l, c, f('idle')));
+    out.push(cell('s' + l, l + ' (옆)', c, { pose: 'side', action: 'stand' }));
+  });
+  HATS.forEach((h) => out.push(cell('z' + h.id, '자는 ' + h.label, { ...base, hat: h.id }, { pose: 'side', action: 'sleep' })));
+  return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 10, background: '#fdf5e8', width: 1260 }}>{out}</div>;
 }

@@ -5,6 +5,7 @@ import {
   COLORS,
   DECOS,
   GLASSES_UNLOCK,
+  HANDS,
   HATS,
   isUnlocked,
   OUTFITS,
@@ -58,8 +59,9 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
           />
         </div>
       </section>
-      <Picker title="헤어 / 모자" items={HATS} value={c.hat} isOpen={open} onPick={(hat) => set({ hat })} />
-      <Picker title="업무복" items={OUTFITS} value={c.outfit} isOpen={open} onPick={(outfit) => set({ outfit })} />
+      <Picker title="머리 위 (사무용품)" items={HATS} value={c.hat} isOpen={open} onPick={(hat) => set({ hat })} />
+      <Picker title="몸 (업무복·사무용품)" items={OUTFITS} value={c.outfit} isOpen={open} onPick={(outfit) => set({ outfit })} />
+      <Picker title="손에 든 것" items={HANDS} value={c.hand} isOpen={open} onPick={(hand) => set({ hand })} />
 
       <section className="card">
         <div className="card-label">책상</div>

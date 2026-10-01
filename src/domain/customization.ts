@@ -1,5 +1,5 @@
 /** 기획서 15. 햄스터 커스터마이징 — 기본 아이템 + 게임 진행 보상 */
-import type { AppState, Customization, DecoId, HamsterColor, HatId, OutfitId, Rarity, RoomBg } from './types';
+import type { AppState, Customization, DecoId, HamsterColor, HandId, HatId, OutfitId, Rarity, RoomBg } from './types';
 
 export type Unlock =
   | { kind: 'default' }
@@ -39,25 +39,31 @@ export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
 
 export const HATS: CatalogItem<HatId>[] = [
   { id: 'none', label: '없음', emoji: '🚫', unlock: d },
-  { id: 'cap', label: '야구모자', emoji: '🧢', unlock: d },
-  { id: 'beanie', label: '비니', emoji: '🧶', unlock: { kind: 'completed', n: 5 } },
-  { id: 'ribbon', label: '리본', emoji: '🎀', unlock: { kind: 'collected', n: 8 } },
+  { id: 'postit', label: '포스트잇', emoji: '📝', unlock: d },
+  { id: 'cup', label: '종이컵', emoji: '🥤', unlock: { kind: 'completed', n: 5 } },
+  { id: 'stapler', label: '스테이플러', emoji: '📎', unlock: { kind: 'completed', n: 10 } },
+  { id: 'mouse', label: '마우스', emoji: '🖱️', unlock: { kind: 'collected', n: 12 } },
   { id: 'headset', label: '헤드셋', emoji: '🎧', unlock: { kind: 'rarity', rarity: 'RARE' } },
-  { id: 'crown', label: '왕관', emoji: '👑', unlock: { kind: 'completed', n: 20 } },
-  { id: 'chef', label: '셰프 모자', emoji: '🧑‍🍳', unlock: { kind: 'completed', n: 40 } },
-  { id: 'straw', label: '밀짚모자', emoji: '👒', unlock: { kind: 'completed', n: 60 } },
-  { id: 'flower', label: '꽃 머리핀', emoji: '🌸', unlock: { kind: 'earned', won: 3_000_000 } },
+  { id: 'eraser', label: '지우개', emoji: '🧽', unlock: { kind: 'completed', n: 30 } },
+  { id: 'tape', label: '박스테이프', emoji: '📦', unlock: { kind: 'earned', won: 3_000_000 } },
 ];
 
 export const OUTFITS: CatalogItem<OutfitId>[] = [
   { id: 'none', label: '없음', emoji: '🚫', unlock: d },
   { id: 'tie', label: '넥타이', emoji: '👔', unlock: d },
-  { id: 'hoodie', label: '후드티', emoji: '🧥', unlock: { kind: 'completed', n: 2 } },
-  { id: 'cardigan', label: '카디건', emoji: '🧶', unlock: { kind: 'collected', n: 15 } },
+  { id: 'badge', label: '사원증', emoji: '🪪', unlock: { kind: 'completed', n: 2 } },
   { id: 'suit', label: '정장', emoji: '🤵', unlock: { kind: 'completed', n: 10 } },
-  { id: 'apron', label: '앞치마', emoji: '🍳', unlock: { kind: 'rarity', rarity: 'EPIC' } },
-  { id: 'scarf', label: '머플러', emoji: '🧣', unlock: { kind: 'completed', n: 50 } },
-  { id: 'cape', label: '망토', emoji: '🦸', unlock: { kind: 'earned', won: 10_000_000 } },
+  { id: 'cardigan', label: '카디건', emoji: '🧶', unlock: { kind: 'collected', n: 15 } },
+  { id: 'bubble', label: '뽁뽁이 망토', emoji: '🫧', unlock: { kind: 'completed', n: 25 } },
+  { id: 'box', label: '택배 상자', emoji: '📦', unlock: { kind: 'completed', n: 45 } },
+];
+
+export const HANDS: CatalogItem<HandId>[] = [
+  { id: 'none', label: '없음', emoji: '🚫', unlock: d },
+  { id: 'pencil', label: '연필', emoji: '✏️', unlock: d },
+  { id: 'highlighter', label: '형광펜', emoji: '🖍️', unlock: { kind: 'completed', n: 4 } },
+  { id: 'calculator', label: '계산기', emoji: '🧮', unlock: { kind: 'completed', n: 15 } },
+  { id: 'stamp', label: '결재 도장', emoji: '🔖', unlock: { kind: 'completed', n: 35 } },
 ];
 
 export const DECOS: CatalogItem<DecoId>[] = [
@@ -78,6 +84,21 @@ export const BACKGROUNDS: CatalogItem<RoomBg>[] = [
   { id: 'camp', label: '캠핑장', emoji: '⛺', unlock: { kind: 'completed', n: 80 } },
 ];
 
+/** 저장된 꾸미기에서 사라진 아이템(옛 모자·옷)은 '없음'으로 돌린다 */
+export function sanitizeCustom(c: Partial<Customization> | undefined): Customization {
+  const m = { ...DEFAULT_CUSTOM, ...c };
+  const ok = <T extends string>(list: { id: T }[], v: T, fallback: T): T => (list.some((i) => i.id === v) ? v : fallback);
+  return {
+    ...m,
+    color: ok(COLORS, m.color, 'golden'),
+    hat: ok(HATS, m.hat, 'none'),
+    outfit: ok(OUTFITS, m.outfit, 'none'),
+    hand: ok(HANDS, m.hand, 'none'),
+    deco: ok(DECOS, m.deco, 'none'),
+    bg: ok(BACKGROUNDS, m.bg ?? 'default', 'default'),
+  };
+}
+
 export const GLASSES_UNLOCK: Unlock = { kind: 'collected', n: 3 };
 
 export const DEFAULT_CUSTOM: Customization = {
@@ -85,6 +106,7 @@ export const DEFAULT_CUSTOM: Customization = {
   glasses: false,
   hat: 'none',
   outfit: 'tie',
+  hand: 'none',
   laptop: true,
   mug: true,
   deco: 'plant',
@@ -137,7 +159,7 @@ export function rarityIndex(r: Rarity): number {
 
 /** 가장 가까운 다음 해금 (작업물 개수 기준). 다 열었으면 null */
 export function nextUnlock(p: Progress): { label: string; emoji: string; remaining: number } | null {
-  const all: { label: string; emoji: string; unlock: Unlock }[] = [...COLORS, ...HATS, ...OUTFITS, ...DECOS, ...BACKGROUNDS];
+  const all: { label: string; emoji: string; unlock: Unlock }[] = [...COLORS, ...HATS, ...OUTFITS, ...HANDS, ...DECOS, ...BACKGROUNDS];
   let best: { label: string; emoji: string; remaining: number } | null = null;
   for (const it of all) {
     if (it.unlock.kind !== 'completed' || p.completed >= it.unlock.n) continue;

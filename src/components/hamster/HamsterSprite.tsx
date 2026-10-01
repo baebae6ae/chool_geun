@@ -49,12 +49,11 @@ const LINE = 2.2;
 const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
   none: 'transparent',
   tie: '#3d6fd8',
-  hoodie: '#8fd1b2',
   cardigan: '#f6c7d6',
   suit: '#3b3f4a',
-  apron: '#fffaf0',
-  scarf: '#ee8d72',
-  cape: '#9a82dc',
+  badge: 'transparent',
+  bubble: '#cfe8f7',
+  box: '#d9aa6e',
 };
 
 type Palette = (typeof COLORS)[number];
@@ -238,6 +237,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <FrontHands action={action} c={c} still={still} />
+        {custom.hand !== 'none' && ['idle', 'sniff', 'look', 'type', 'wave', 'cheer'].includes(action) && (
+          <g transform={action === 'wave' ? 'translate(106 56)' : action === 'cheer' ? 'translate(111 34)' : 'translate(71 84)'}>
+            <HandItem id={custom.hand} />
+            {action !== 'wave' && action !== 'cheer' && <ellipse cx="0" cy="0" rx="5" ry="4.2" transform="rotate(20)" fill={PINK} stroke={INK} strokeWidth="2" />}
+          </g>
+        )}
 
         {/* 발 */}
         <g fill={PINK} stroke={INK} strokeWidth="2">
@@ -454,13 +459,6 @@ function Seed({ x, y }: { x: number; y: number }) {
 function FrontOutfit({ id }: { id: Customization['outfit'] }) {
   const col = OUTFIT_COLOR[id];
   switch (id) {
-    case 'hoodie':
-      return (
-        <g>
-          <path d="M0 84 Q60 98 120 84 V120 H0Z" fill={col} stroke={INK} strokeWidth="2" />
-          <path d="M54 90 v9 M66 90 v9" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
-        </g>
-      );
     case 'cardigan':
       return (
         <g fill={col} stroke={INK} strokeWidth="2">
@@ -477,30 +475,35 @@ function FrontOutfit({ id }: { id: Customization['outfit'] }) {
           <path d="M120 78 Q86 88 68 80 L60 120 H120Z" />
         </g>
       );
-    case 'scarf':
+    case 'badge':
       return (
-        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
-          <path d="M24 84 Q60 100 96 84 L94 96 Q60 112 26 96Z" fill={col} />
-          <path d="M34 90 l3 11 M48 95 l3 11 M62 97 l3 11 M76 95 l3 11 M88 91 l3 10" stroke="#fff5e8" strokeWidth="2.2" strokeLinecap="round" />
-          <path d="M72 100 l12 20 -10 5 -9 -19z" fill={col} />
+        <g stroke={INK} strokeWidth="1.6" strokeLinejoin="round">
+          <path d="M42 78 L60 98 M78 78 L60 98" stroke="#3d6fd8" strokeWidth="4" fill="none" />
+          <rect x="46" y="96" width="28" height="22" rx="3.5" fill="#fff" />
+          <rect x="46" y="96" width="28" height="7" rx="2.5" fill="#3d6fd8" />
+          <circle cx="54" cy="110" r="3.4" fill="#f5c9a0" strokeWidth="1" />
+          <path d="M60 108.5h10M60 113h7" stroke="#9aa3b2" strokeWidth="1.3" strokeLinecap="round" />
         </g>
       );
-    case 'cape':
+    case 'bubble':
       return (
         <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
-          <path d="M2 82 Q60 100 118 82 L124 120 H-4Z" fill={col} />
-          <path d="M2 82 Q60 100 118 82" fill="none" stroke="#fff5d6" strokeWidth="3" opacity=".7" />
-          <circle cx="40" cy="91" r="3.4" fill="#ffd54a" />
-          <circle cx="80" cy="91" r="3.4" fill="#ffd54a" />
-          <path d="M43 92 Q60 99 77 92" fill="none" stroke="#ffd54a" strokeWidth="1.6" />
+          <path d="M-2 80 Q60 100 122 80 L128 124 H-8Z" fill="#a9d6f0" opacity=".95" />
+          <g fill="#e8f6ff" fillOpacity=".85" stroke="#6fa6c8" strokeWidth="1.3">
+            {[[12, 96], [28, 102], [44, 106], [60, 108], [76, 106], [92, 102], [108, 96], [20, 112], [38, 116], [56, 118], [74, 116], [92, 112], [104, 108]].map(([x, y]) => (
+              <circle key={`${x}-${y}`} cx={x} cy={y} r="6.4" />
+            ))}
+          </g>
         </g>
       );
-    case 'apron':
+    case 'box':
       return (
-        <g stroke={INK} strokeWidth="1.8">
-          <path d="M42 80 Q60 74 78 80" fill="none" />
-          <rect x="43" y="82" width="34" height="30" rx="7" fill={col} />
-          <rect x="52" y="95" width="16" height="8" rx="2.5" fill="none" strokeWidth="1.3" />
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M8 88 L112 88 L116 124 H4Z" fill={col} />
+          <path d="M8 88 L18 80 H102 L112 88Z" fill="#e8c18c" />
+          <path d="M60 80 V124" stroke="#f3e2c0" strokeWidth="9" />
+          <path d="M60 80 V124" stroke={INK} strokeWidth="1.2" opacity=".35" />
+          <path d="M22 108 h12 M26 104 v8" stroke="#8d5d36" strokeWidth="2" strokeLinecap="round" />
         </g>
       );
     default:
@@ -508,29 +511,59 @@ function FrontOutfit({ id }: { id: Customization['outfit'] }) {
   }
 }
 
+/** 머리 위에 올리는 사무용품. (0,0)은 머리 꼭대기 가운데, 위쪽이 -y */
 function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
   switch (id) {
-    case 'cap':
+    case 'postit':
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" transform="rotate(-7)">
+          <path d="M-12 -17 H12 V4 L5 10 H-12Z" fill="#ffe56b" />
+          <path d="M12 4 L5 4 L5 10Z" fill="#f2c94a" />
+          <path d="M-7 -10 H7 M-7 -5 H5" stroke="#d9a63a" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+      );
+    case 'cup':
       return (
         <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
-          <path d="M-21 2 Q0 -28 21 2Z" fill="#e8504b" />
-          <path d={side ? 'M16 1 h14 q3 0 1 4 h-15z' : 'M0 1 h24 q3 0 1 4 h-25z'} fill="#c63d39" />
-          <circle cy="-12" r="2.2" fill="#c63d39" stroke="none" />
+          <path d="M-10 -22 H10 L15 4 H-15Z" fill="#fff" />
+          <path d="M-12.5 -9 H12.5 L13.8 -2 H-13.8Z" fill="#e8504b" stroke="none" />
+          <path d="M-14 4 q14 5 28 0" fill="none" />
+          <ellipse cx="0" cy="-22" rx="10" ry="2.4" fill="#f4efe6" />
         </g>
       );
-    case 'beanie':
+    case 'stapler':
       return (
-        <g stroke={INK} strokeWidth="1.8">
-          <path d="M-21 3 Q0 -30 21 3Z" fill="#6b8cd6" />
-          <rect x="-22" y="-3" width="44" height="7" rx="3.5" fill="#5775bb" />
-          <circle cy="-18" r="5" fill="#fff" />
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" transform="translate(0 -4) rotate(-4)">
+          <rect x="-17" y="-8" width="34" height="12" rx="4.5" fill="#e8504b" />
+          <path d="M-17 -8 Q-16 -19 -4 -18 H17 L17 -9 Z" fill="#7a8190" />
+          <path d="M-12 -14 H8" stroke="#c9cdd4" strokeWidth="2" strokeLinecap="round" />
+          <rect x="-13" y="2" width="26" height="3.5" rx="1.7" fill="#d6d9e0" stroke="none" />
+          <path d="M11 -4 L16 -4" stroke="#fff" strokeWidth="2" opacity=".6" strokeLinecap="round" />
         </g>
       );
-    case 'ribbon':
+    case 'mouse':
       return (
-        <g transform={side ? 'translate(-2 -2)' : 'translate(20 2)'} stroke={INK} strokeWidth="1.4" strokeLinejoin="round">
-          <path d="M0 0 l-9 -6 v12z M0 0 l9 -6 v12z" fill="#ff7aa8" />
-          <circle r="3" fill="#e0548a" />
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" transform="translate(0 2) scale(1.25)">
+          <path d="M0 -28 q10 -10 18 -2 q4 5 -2 9" fill="none" stroke="#6f7480" strokeWidth="2" />
+          <path d="M-12 4 Q-14 -22 0 -22 Q14 -22 12 4 Q0 9 -12 4Z" fill="#f3f5fa" />
+          <path d="M0 -22 V-9 M-12.5 -10 Q0 -6 12.5 -10" fill="none" />
+          <path d="M-6 -21 Q-10 -14 -10 -10" fill="none" stroke="#fff" strokeWidth="2.4" opacity=".8" />
+        </g>
+      );
+    case 'eraser':
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" transform="rotate(5)">
+          <rect x="-16" y="-14" width="32" height="16" rx="4" fill="#ffb3c1" />
+          <path d="M3 -14 H12 Q16 -14 16 -10 V-2 Q16 2 12 2 H3Z" fill="#7fb4ea" />
+          <path d="M-10 -8 H-3" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".7" />
+        </g>
+      );
+    case 'tape':
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+          <ellipse cx="0" cy="-8" rx="17" ry="11" fill="#f2d08a" />
+          <ellipse cx="0" cy="-9" rx="9" ry="5.5" fill="#fff4dc" />
+          <path d="M-17 -8 q-6 6 -3 14 l9 -1" fill="#f6dfa8" />
         </g>
       );
     case 'headset':
@@ -546,36 +579,48 @@ function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
           <rect x="30" y="20" width="10" height="16" rx="4" fill="#555" />
         </g>
       );
-    case 'chef':
+    default:
+      return null;
+  }
+}
+
+/** 손에 든 사무용품. (0,0)이 쥐는 곳, 위쪽이 -y */
+function HandItem({ id }: { id: Customization['hand'] }) {
+  switch (id) {
+    case 'pencil':
       return (
-        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" fill="#fffdf6">
-          <circle cx="-11" cy="-9" r="9" />
-          <circle cx="0" cy="-16" r="10.5" />
-          <circle cx="11" cy="-9" r="9" />
-          <rect x="-17" y="-5" width="34" height="10" rx="3" />
-          <path d="M-8 -3 v6 M0 -3 v6 M8 -3 v6" stroke="#e6d8c2" strokeWidth="1.2" />
+        <g stroke={INK} strokeWidth="1.5" strokeLinejoin="round" transform="rotate(18)">
+          <rect x="-3" y="-30" width="6" height="28" rx="1" fill="#ffd23c" />
+          <path d="M-3 -30 L3 -30 L0 -37Z" fill="#f5d6b0" />
+          <path d="M-1 -34.5 L1 -34.5 L0 -37Z" fill="#555" stroke="none" />
+          <rect x="-3" y="-4" width="6" height="5" rx="1" fill="#ffb3c1" />
+          <path d="M-3 -4 H3" stroke="#c9cdd4" strokeWidth="2" />
         </g>
       );
-    case 'straw':
+    case 'highlighter':
       return (
-        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
-          <ellipse cx="0" cy="3" rx="29" ry="6.5" fill="#f1d58f" />
-          <path d="M-14 3 Q-14 -17 0 -17 Q14 -17 14 3Z" fill="#f7e3a8" />
-          <rect x="-14" y="-3.5" width="28" height="5.5" fill="#ee8d72" stroke="none" />
-          <path d="M-14 -3.5 H14 M-14 2 H14" stroke={INK} strokeWidth="1.2" fill="none" />
+        <g stroke={INK} strokeWidth="1.5" strokeLinejoin="round" transform="rotate(14)">
+          <rect x="-4.5" y="-26" width="9" height="24" rx="2" fill="#fff6a0" />
+          <path d="M-4.5 -26 L4.5 -26 L2.6 -32 H-2.6Z" fill="#ff7aa8" />
+          <rect x="-4.5" y="-8" width="9" height="8" rx="2" fill="#9aa3b2" />
         </g>
       );
-    case 'flower':
+    case 'calculator':
       return (
-        <g transform={side ? 'translate(-2 -2)' : 'translate(22 1)'} stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
-          {[0, 72, 144, 216, 288].map((a) => (
-            <ellipse key={a} cx="0" cy="-5.2" rx="3.4" ry="4.6" fill="#ffd1dc" transform={`rotate(${a})`} />
-          ))}
-          <circle r="3" fill="#ffd54a" />
+        <g stroke={INK} strokeWidth="1.5" strokeLinejoin="round" transform="rotate(-8)">
+          <rect x="-10" y="-24" width="20" height="26" rx="3" fill="#dfe3ea" />
+          <rect x="-7" y="-21" width="14" height="6" rx="1.2" fill="#b9e6c4" />
+          {[-6, 0, 6].flatMap((x) => [-9, -3, 3].map((y) => <circle key={`${x}${y}`} cx={x} cy={y} r="1.7" fill="#7d8290" stroke="none" />))}
         </g>
       );
-    case 'crown':
-      return <path d="M-13 2 l2.4 -15 7 7 3.6 -11 3.6 11 7 -7 2.4 15z" fill="#ffcd3c" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />;
+    case 'stamp':
+      return (
+        <g stroke={INK} strokeWidth="1.5" strokeLinejoin="round">
+          <rect x="-4" y="-30" width="8" height="15" rx="3.5" fill="#c46a4a" />
+          <rect x="-9" y="-15" width="18" height="7" rx="2" fill="#8d5d36" />
+          <rect x="-8" y="-8" width="16" height="6" rx="1.5" fill="#e8504b" />
+        </g>
+      );
     default:
       return null;
   }
@@ -606,7 +651,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
 
         <PencilBody d={LOAF.body} c={c} uid={clip} />
         <g clipPath={`url(#${clip})`}>
-          <SideOutfit id={custom.outfit === 'apron' ? 'none' : custom.outfit} />
+          <SideOutfit id={custom.outfit} />
         </g>
         <path d={LOAF.body} fill="none" stroke={INK} strokeWidth={LINE} />
 
@@ -700,6 +745,13 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           <path d="M98 79 l3 -1 1.6 9 -2.6 2.6 -2 -2.4z" fill={custom.outfit === 'suit' ? '#d84b4b' : '#3d6fd8'} stroke={INK} strokeWidth="1.2" />
         )}
 
+        {custom.hand !== 'none' && (action === 'stand' || action === 'walk') && (
+          <g transform="translate(101 84) scale(.85)">
+            <HandItem id={custom.hand} />
+            <ellipse cx="0" cy="0" rx="5" ry="4.2" fill={PINK} stroke={INK} strokeWidth="2" />
+          </g>
+        )}
+
         {/* 가까운 쪽 다리 */}
         {(
           <g fill={PINK} stroke={INK} strokeWidth="2">
@@ -725,21 +777,35 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 function SideOutfit({ id }: { id: Customization['outfit'] }) {
   if (id === 'none' || id === 'tie') return null;
   const col = OUTFIT_COLOR[id];
-  if (id === 'scarf') {
+  if (id === 'badge') {
     return (
-      <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
-        <path d="M4 70 Q66 86 138 66 V80 Q70 98 4 84Z" fill={col} />
-        <path d="M30 76 l2 11 M52 80 l2 11 M74 80 l2 11 M96 77 l2 11 M118 73 l2 10" stroke="#fff5e8" strokeWidth="2" strokeLinecap="round" />
+      <g stroke={INK} strokeWidth="1.4" strokeLinejoin="round">
+        <path d="M96 74 L100 96" stroke="#3d6fd8" strokeWidth="3" fill="none" />
+        <rect x="93" y="94" width="14" height="11" rx="2" fill="#fff" />
+        <rect x="93" y="94" width="14" height="4" rx="1.5" fill="#3d6fd8" />
       </g>
     );
   }
-  if (id === 'apron') {
-    return <path d="M78 74 Q94 72 108 78 L102 98 H70Z" fill={col} stroke={INK} strokeWidth="1.8" />;
+  if (id === 'box') {
+    return (
+      <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+        <path d="M22 70 H116 L120 100 H18Z" fill={col} />
+        <path d="M22 70 L28 63 H110 L116 70Z" fill="#e8c18c" />
+        <path d="M70 63 V100" stroke="#f3e2c0" strokeWidth="8" />
+      </g>
+    );
   }
   return (
     <g>
-      <path d="M0 72 Q66 88 140 68 V100 H0Z" fill={col} stroke={INK} strokeWidth="2" />
+      <path d="M0 72 Q66 88 140 68 V100 H0Z" fill={col} stroke={INK} strokeWidth="2" opacity={id === 'bubble' ? 0.92 : 1} />
       {id === 'suit' && <path d="M94 74 L108 76 L102 94Z" fill="#fff" stroke={INK} strokeWidth="1.2" />}
+      {id === 'bubble' && (
+        <g fill="#fff" fillOpacity=".7" stroke="#8fb9d6" strokeWidth="1">
+          {[[20, 82], [40, 86], [60, 88], [80, 86], [100, 82], [118, 78], [30, 94], [52, 96], [74, 95], [96, 92]].map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="4.4" />
+          ))}
+        </g>
+      )}
     </g>
   );
 }

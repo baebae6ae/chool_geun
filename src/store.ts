@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { createInitialState } from './domain/engine';
-import { DEFAULT_CUSTOM } from './domain/customization';
+import { sanitizeCustom } from './domain/customization';
 import type { AppState } from './domain/types';
 
 const KEY = 'hamster-worklog:v1';
@@ -52,7 +52,7 @@ function parseState(raw: string | null | undefined): AppState | null {
   try {
     const parsed = JSON.parse(raw) as AppState;
     if (parsed?.version !== 1) return null;
-    return { ...createInitialState(parsed.seed), ...parsed, custom: { ...DEFAULT_CUSTOM, ...parsed.custom } };
+    return { ...createInitialState(parsed.seed), ...parsed, custom: sanitizeCustom(parsed.custom) };
   } catch {
     return null;
   }

@@ -42,8 +42,12 @@ export interface Settings extends Schedule {
 }
 
 export type HamsterColor = 'golden' | 'white' | 'gray' | 'choco' | 'cream' | 'silver';
-export type HatId = 'none' | 'cap' | 'beanie' | 'ribbon' | 'headset' | 'crown' | 'chef' | 'straw' | 'flower';
-export type OutfitId = 'none' | 'tie' | 'hoodie' | 'cardigan' | 'suit' | 'apron' | 'scarf' | 'cape';
+/** 머리 위: 사무용품 */
+export type HatId = 'none' | 'headset' | 'postit' | 'cup' | 'stapler' | 'mouse' | 'eraser' | 'tape';
+/** 몸: 업무복·사무용품 */
+export type OutfitId = 'none' | 'tie' | 'suit' | 'cardigan' | 'badge' | 'bubble' | 'box';
+/** 손에 든 것 */
+export type HandId = 'none' | 'pencil' | 'highlighter' | 'calculator' | 'stamp';
 export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern';
 export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
@@ -52,6 +56,7 @@ export interface Customization {
   glasses: boolean;
   hat: HatId;
   outfit: OutfitId;
+  hand: HandId;
   laptop: boolean;
   mug: boolean;
   deco: DecoId;

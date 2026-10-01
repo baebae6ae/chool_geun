@@ -60,3 +60,16 @@ describe('해금·누적', () => {
     expect(careerStats(days).completedDays).toBe(4);
   });
 });
+
+describe('꾸미기 아이템', () => {
+  it('저장돼 있던 옛 아이템(야구모자·후드티 등)은 없음으로 돌아가고 새 설정은 유지된다', async () => {
+    const { sanitizeCustom } = await import('./customization');
+    const old = sanitizeCustom({ hat: 'crown', outfit: 'hoodie', glasses: true } as never);
+    expect(old.hat).toBe('none');
+    expect(old.outfit).toBe('none');
+    expect(old.glasses).toBe(true);
+    expect(old.hand).toBe('none');
+    const keep = sanitizeCustom({ hat: 'postit', outfit: 'bubble', hand: 'pencil' });
+    expect([keep.hat, keep.outfit, keep.hand]).toEqual(['postit', 'bubble', 'pencil']);
+  });
+});
