@@ -45,7 +45,9 @@ const show = (a) => {
   const props = a.preview?.properties?.map((p) => `${p.name}=${p.value}`).join(', ');
   return props ? `${a.description ?? ''}{${props}}` : (a.description ?? a.type);
 };
-Runtime.consoleAPICalled((e) => e.type === 'error' && errors.push(`console.error: ${e.args.map(show).join(' ').slice(0, 400)}`));
+// 점검 도구가 공유 창을 뒤로 가기로 닫으면 안드로이드가 'Share canceled'를 오류로 기록한다 — 앱 문제가 아님
+const IGNORED = /Share canceled/;
+Runtime.consoleAPICalled((e) => e.type === 'error' && !IGNORED.test(e.args.map(show).join(' ')) && errors.push(`console.error: ${e.args.map(show).join(' ').slice(0, 400)}`));
 
 const ev = async (expression) => {
   const r = await Runtime.evaluate({ expression, awaitPromise: true, returnByValue: true });
