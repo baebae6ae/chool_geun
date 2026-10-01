@@ -420,16 +420,21 @@ export interface QuoteContext {
   salt?: number;
 }
 
-/** 같은 상황(날짜·구간·salt)에서는 항상 같은 문구, 시간이 지나 구간이 바뀌면 다른 문구 */
-export function pickQuote(ctx: QuoteContext): string {
+/**
+ * 오늘의 한마디: 하루에 하나, 하루 종일 같은 문구. 날짜(와 쉬는 날·월급날 여부)로만 정해진다.
+ * 시간대 전용 문구(BY_PHASE)는 쓰지 않는다 — 그건 햄스터 말풍선(pickTimeBubble)에서 쓴다.
+ */
+export function pickQuote(ctx: { key: string; off: boolean; payday: boolean }): string {
   const wd = weekday(ctx.key);
-  const pools: [string[], number][] = [
-    [BY_PHASE[ctx.phase], 5],
-    [GENERAL, 4],
-  ];
-  if (WEEKDAY[wd] && ctx.phase !== 'off') pools.push([WEEKDAY[wd], 3]);
-  if (ctx.payday && ctx.phase !== 'off') pools.push([PAYDAY, 5]);
-  const seed = `${ctx.key}|${ctx.phase}|${ctx.salt ?? 0}`;
+  const pools: [string[], number][] = ctx.off
+    ? [
+        [OFF, 6],
+        [GENERAL, 3],
+      ]
+    : [[GENERAL, 5]];
+  if (!ctx.off && WEEKDAY[wd]) pools.push([WEEKDAY[wd], 3]);
+  if (!ctx.off && ctx.payday) pools.push([PAYDAY, 6]);
+  const seed = `${ctx.key}|daily-quote`;
   const total = pools.reduce((n, [, w]) => n + w, 0);
   let r = hash(seed + '|pool') % total;
   let pool = pools[0][0];
@@ -441,6 +446,12 @@ export function pickQuote(ctx: QuoteContext): string {
     r -= w;
   }
   return pool[hash(seed + '|idx') % pool.length];
+}
+
+/** 햄스터가 지금 시간대에 맞춰 가끔 하는 혼잣말 (말풍선) */
+export function pickTimeBubble(phase: QuotePhase, n: number): string {
+  const list = BY_PHASE[phase];
+  return list[hash(`bubble|${phase}|${n}`) % list.length];
 }
 
 export const ALL_QUOTES: string[] = [

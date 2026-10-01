@@ -13,7 +13,7 @@ import type { AppState, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
-import { quotePhase } from '../domain/quotes';
+import { pickTimeBubble, quotePhase } from '../domain/quotes';
 import { ShareSheet } from '../components/ShareSheet';
 
 interface Props {
@@ -83,6 +83,17 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
   const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
   const say = (text: string) => setBubble({ key: `${Date.now()}`, text });
 
+  // 시간대에 맞는 혼잣말: 시간대가 바뀐 뒤 잠시 지나서, 그리고 가끔 한 번씩 말풍선으로
+  const phaseRef = useRef(quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut));
+  const bubbleN = useRef(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      if (Math.random() < 0.35) say(pickTimeBubble(phaseRef.current, bubbleN.current++ + Math.floor(Date.now() / 600000)));
+    }, 70_000);
+    return () => clearInterval(id);
+  }, []);
+
   // 햄스터와 놀기
   const [comfort, setComfort] = useState(0);
   const [reaction, setReaction] = useState<{ id: number; action: 'hug' } | null>(null);
@@ -146,7 +157,9 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
   }
 
   const phase = quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut);
+  phaseRef.current = phase;
 
+  const working = !!day && !!item;
   // 공유 카드에 넣는 작은 정보 — 금액은 절대 넣지 않는다
   const career = careerStats(state.days, settings.dayOverrides);
   const shareChips = [
@@ -158,7 +171,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
 
   const quoteBlock = (
     <>
-      <QuoteCard dateKey={key} phase={phase} payday={payD === 0} comfort={comfort} />
+      <QuoteCard dateKey={key} off={!working} payday={payD === 0} comfort={comfort} />
       <div className="chip-row">
         <button type="button" className="chip-btn" onClick={askComfort}>
           힘들어요
@@ -263,7 +276,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
           custom={custom}
           dateKey={key}
           dateText={formatKoreanDate(key)}
-          phase={phase}
+          off={!working}
           payday={payD === 0}
           nameTag={shareNameTag}
           chips={shareChips}

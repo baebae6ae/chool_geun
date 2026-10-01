@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { drawLook, renderCard, shareCardImage, type CardData } from '../shareCard';
-import { pickQuote, type QuotePhase } from '../domain/quotes';
+import { pickQuote } from '../domain/quotes';
 import type { Customization } from '../domain/types';
 
 interface Props {
   custom: Customization;
   dateKey: string;
   dateText: string;
-  phase: QuotePhase;
+  off: boolean;
   payday: boolean;
   nameTag: string;
   chips: string[];
@@ -15,14 +15,14 @@ interface Props {
 }
 
 /** 오늘의 카드: 구도·색·장식이 날마다 랜덤. 돈 정보는 담지 않는다. */
-export function ShareSheet({ custom, dateKey, dateText, phase, payday, nameTag, chips, onClose }: Props) {
+export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, chips, onClose }: Props) {
   const [draws, setDraws] = useState(0);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const blobRef = useRef<Blob | null>(null);
   const look = drawLook(dateKey, draws);
-  const quote = pickQuote({ key: dateKey, phase, payday });
+  const quote = pickQuote({ key: dateKey, off, payday });
   const chipsKey = chips.join('|');
 
   useEffect(() => {

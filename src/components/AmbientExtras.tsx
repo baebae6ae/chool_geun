@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { now as clockNow } from '../store';
-import { pickComfort, pickQuote, type QuotePhase } from '../domain/quotes';
+import { pickComfort, pickQuote } from '../domain/quotes';
 
 const p2 = (n: number) => String(n).padStart(2, '0');
 
@@ -123,19 +123,19 @@ export function BigClock({
  */
 export function QuoteCard({
   dateKey,
-  phase,
+  off,
   payday,
   comfort = 0,
 }: {
   dateKey: string;
-  phase: QuotePhase;
+  off: boolean;
   payday: boolean;
   /** 올라갈 때마다 위로 문구를 보여준다 (0이면 일반 한마디) */
   comfort?: number;
 }) {
   const [seenComfort, setSeenComfort] = useState(0);
   const showComfort = comfort > 0 && comfort !== seenComfort;
-  const text = showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, phase, payday });
+  const text = showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, off, payday });
   return (
     <div
       className={`quote-card ${showComfort ? 'comfort' : ''}`}
@@ -144,7 +144,7 @@ export function QuoteCard({
       aria-label={showComfort ? '햄스터의 위로, 누르면 한마디로 돌아가요' : '오늘의 한마디'}
     >
       <span className="quote-label">{showComfort ? '햄스터의 위로' : '오늘의 한마디'}</span>
-      <span className="quote-text" key={`${phase}-${showComfort ? comfort : 0}`}>
+      <span className="quote-text" key={showComfort ? comfort : 0}>
         {text}
       </span>
     </div>
