@@ -2551,3 +2551,20 @@ textarea {
   :root:not([data-theme='light']) .chip-btn { background: var(--card); }
   :root:not([data-theme='light']) .quote-card.comfort { background: rgba(120, 50, 70, 0.25); }
 }
+
+/* 번 돈: 숫자 한 칸씩 고정 폭으로 굴러간다 */
+.money-live { display: inline-flex; align-items: baseline; justify-content: center; }
+.mn-d { display: inline-block; width: 0.62em; text-align: center; }
+.mn-s { display: inline-block; text-align: center; }
+.money-live .mn-s:not(.mn-cs .mn-s) { margin: 0 0.02em; }
+.mn-cs { font-size: 0.74em; color: var(--accent-text); display: inline-flex; align-items: baseline; margin-left: 0.04em; }
+.mn-cs .mn-s { width: 0.22em; }
+.money-tick { animation: none; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

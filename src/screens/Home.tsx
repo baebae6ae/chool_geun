@@ -9,7 +9,8 @@ import { careerStats, completedInSeason, formatWon, itemOf } from '../domain/rec
 import { careerTitle } from '../domain/customization';
 import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
-import type { AppState, Settings } from '../domain/types';
+import type { AppState, Schedule, Settings } from '../domain/types';
+import { now as clockNow } from '../store';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
@@ -26,22 +27,61 @@ interface Props {
   clock?: boolean;
 }
 
-/** 바뀐 자릿수만 살짝 밝아지며 들어온다 — 돈이 '방금' 쌓였다는 걸 조용히 알려줌 */
-function MoneyTicker({ value }: { value: string }) {
-  const last = useRef({ value, keep: value.length });
-  if (last.current.value !== value) {
-    const p = last.current.value;
-    let i = 0;
-    while (i < p.length && i < value.length && p[i] === value[i]) i++;
-    last.current = { value, keep: i };
-  }
-  const keep = last.current.keep;
+/**
+ * 번 돈을 시계의 1/100초처럼 촤라락 굴린다. requestAnimationFrame마다 지금 시각으로 다시 계산해
+ * 글자만 바꾸므로(React 재렌더링 없음) 가볍다. 숫자 칸 너비를 고정해 흔들리지 않는다.
+ * live가 없으면(퇴근 후·쉬는 날) 고정된 값을 보여준다. '동작 줄이기' 설정이면 1초에 한 번만 갱신.
+ */
+function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; schedule: Schedule; hourly: number } }) {
+  const box = useRef<HTMLSpanElement>(null);
+  const sr = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    let prev = '';
+    const paint = () => {
+      const v = live ? earnedAt(live.key, live.schedule, live.hourly, clockNow()) : fixed;
+      const str = formatWon(v, 2);
+      if (str === prev) return;
+      prev = str;
+      const dot = str.lastIndexOf('.');
+      const cell = (c: string) => (/\d/.test(c) ? `<span class="mn-d">${c}</span>` : `<span class="mn-s">${c === ' ' ? '&nbsp;' : c}</span>`);
+      el.innerHTML = [...str.slice(0, dot)].map(cell).join('') + `<span class="mn-cs">${[...str.slice(dot)].map(cell).join('')}</span>`;
+    };
+    paint();
+    const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    if (live) {
+      if (reduce) timer = setInterval(paint, 1000);
+      else {
+        const loop = () => {
+          paint();
+          raf = requestAnimationFrame(loop);
+        };
+        raf = requestAnimationFrame(loop);
+      }
+    }
+    // 화면 낭독기용: 원 단위로만 1초에 한 번
+    const speak = () => {
+      if (!sr.current) return;
+      const v = live ? earnedAt(live.key, live.schedule, live.hourly, clockNow()) : fixed;
+      sr.current.textContent = `오늘 번 돈 ${Math.floor(v).toLocaleString('ko-KR')}원`;
+    };
+    speak();
+    const srTimer = setInterval(speak, 5000);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (timer) clearInterval(timer);
+      clearInterval(srTimer);
+    };
+  }, [fixed, live?.key, live?.hourly, live?.schedule.workStart, live?.schedule.workEnd, live?.schedule.lunchStart, live?.schedule.lunchEnd]);
+
   return (
     <>
-      {value.slice(0, keep)}
-      <span key={value} className="money-tick">
-        {value.slice(keep)}
-      </span>
+      <span ref={box} aria-hidden className="money-live" />
+      <span ref={sr} className="sr-only" />
     </>
   );
 }
@@ -245,7 +285,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
             <div className="hero-money">
               <div className="hero-money-label">오늘 번 돈</div>
               <div className="hero-money-value" aria-live="off">
-                <MoneyTicker value={formatWon(earned, 2)} />
+                <MoneyTicker fixed={earned} live={day.clockedOut ? undefined : { key, schedule: day.schedule, hourly: day.hourly }} />
               </div>
               <div className="hero-money-sub">
                 {settings.payMode === 'annual' ? (settings.showGross ? '세전 ' : '세후 ') : ''}시급 {formatWon(Math.round(day.hourly))} 기준
