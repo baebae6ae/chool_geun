@@ -33,27 +33,27 @@ export function Wheel({ x, layer, spinning, dir }: { x: number; layer: 'back' | 
     <svg viewBox="0 0 100 108" style={place(x, 100, 14, layer === 'back' ? 1 : 7)} aria-hidden>
       {layer === 'back' ? (
         <g>
-          <path d="M50 52 L26 106 M50 52 L74 106" stroke="#b58d63" strokeWidth="5" strokeLinecap="round" />
-          <rect x="18" y="102" width="64" height="6" rx="3" fill="#a07a52" />
-          <circle cx="50" cy="52" r="45" fill="#f3eadc" opacity=".75" />
+          <path d="M50 52 L26 106 M50 52 L74 106" stroke="#d9ae82" strokeWidth="5" strokeLinecap="round" />
+          <rect x="18" y="102" width="64" height="6" rx="3" fill="#c99d70" />
+          <circle cx="50" cy="52" r="45" fill="#fff5e6" opacity=".75" />
           <g className={cls}>
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <path
                 key={i}
                 d={`M50 52 L${50 + 42 * Math.cos((i * Math.PI) / 3)} ${52 + 42 * Math.sin((i * Math.PI) / 3)}`}
-                stroke="#d9c3a5"
+                stroke="#ecd2b0"
                 strokeWidth="2"
               />
             ))}
           </g>
-          <circle cx="50" cy="52" r="4.5" fill="#b58d63" />
+          <circle cx="50" cy="52" r="4.5" fill="#d9ae82" />
         </g>
       ) : (
         <g>
-          <circle cx="50" cy="52" r="45" fill="none" stroke="#d6b48c" strokeWidth="4" />
+          <circle cx="50" cy="52" r="45" fill="none" stroke="#efc99a" strokeWidth="4" />
           <g className={cls}>
             {RUNGS.map((a, i) => (
-              <circle key={i} cx={50 + 45 * Math.cos(a)} cy={52 + 45 * Math.sin(a)} r="2.2" fill="#a47c52" />
+              <circle key={i} cx={50 + 45 * Math.cos(a)} cy={52 + 45 * Math.sin(a)} r="2.2" fill="#d3a26f" />
             ))}
           </g>
         </g>
@@ -66,8 +66,8 @@ export function Wheel({ x, layer, spinning, dir }: { x: number; layer: 'back' | 
 export function DeskBack({ x }: { x: number }) {
   return (
     <svg className="pencil" viewBox="0 0 90 100" style={place(x, 90, 14, 2)} aria-hidden>
-      <rect x="27" y="22" width="36" height="34" rx="9" fill="#9dbcd6" />
-      <rect x="31" y="26" width="28" height="26" rx="7" fill="#b7d0e4" />
+      <rect x="27" y="22" width="36" height="34" rx="9" fill="#b4d3ee" />
+      <rect x="31" y="26" width="28" height="26" rx="7" fill="#d3e6f6" />
     </svg>
   );
 }
@@ -76,16 +76,16 @@ export function DeskFront({ x, custom, mugTaken = false }: { x: number; custom: 
   return (
     <svg className="pencil" viewBox="0 0 96 100" style={place(x, 96, 14, 6)} aria-hidden>
       {/* 다리 */}
-      <rect x="8" y="58" width="6" height="42" rx="2" fill="#b07a4c" />
-      <rect x="82" y="58" width="6" height="42" rx="2" fill="#b07a4c" />
-      <rect x="10" y="80" width="76" height="4" rx="2" fill="#c08a5b" opacity=".6" />
+      <rect x="8" y="58" width="6" height="42" rx="2" fill="#d79d70" />
+      <rect x="82" y="58" width="6" height="42" rx="2" fill="#d79d70" />
+      <rect x="10" y="80" width="76" height="4" rx="2" fill="#e5b48a" opacity=".6" />
       {/* 상판 */}
-      <rect x="2" y="52" width="92" height="8" rx="3" fill="#d49a66" />
-      <rect x="2" y="58" width="92" height="3" fill="#b8804f" />
+      <rect x="2" y="52" width="92" height="8" rx="3" fill="#f0c08f" />
+      <rect x="2" y="58" width="92" height="3" fill="#d9a070" />
       {/* 노트북 뒷면 */}
       {custom.laptop && (
         <g>
-          <rect x="26" y="35" width="44" height="18" rx="3.5" fill="#cfd4db" stroke="#aeb5bf" strokeWidth="1.2" />
+          <rect x="26" y="35" width="44" height="18" rx="3.5" fill="#e4e8f0" stroke="#aeb5bf" strokeWidth="1.2" />
           <g transform="translate(48 44) rotate(-14)">
             <path d="M0 -5 Q4 -1 0 5 Q-4 -1 0 -5Z" fill="#aeb5bf" />
           </g>
@@ -136,7 +136,7 @@ function Deco({ id }: { id: Customization['deco'] }) {
           <rect x="10" y="22" width="9" height="24" rx="4.5" fill="#6fae73" />
           <rect x="4" y="30" width="7" height="5" rx="2.5" fill="#6fae73" />
           <rect x="4" y="26" width="5" height="9" rx="2.5" fill="#6fae73" />
-          <path d="M7 44 h15 l-2 8 h-11z" fill="#d9c3a5" />
+          <path d="M7 44 h15 l-2 8 h-11z" fill="#ecd2b0" />
         </g>
       );
     default:
@@ -249,7 +249,7 @@ export function Window({ x, now }: { x: number; now: number }) {
           <rect x="6" y="6" width="84" height="56" rx="3" />
         </clipPath>
       </defs>
-      <rect x="1" y="1" width="94" height="66" rx="7" fill="#e7d5bd" />
+      <rect x="1" y="1" width="94" height="66" rx="7" fill="#f6dfc4" />
       <g clipPath="url(#win)">
         <rect x="6" y="6" width="84" height="56" fill="url(#sky)" />
         {sky.night ? (
@@ -280,10 +280,10 @@ export function Window({ x, now }: { x: number; now: number }) {
             </g>
           </g>
         )}
-        <path d="M6 54 Q30 46 50 52 T90 48 V62 H6Z" fill={sky.night ? '#2c3558' : '#bfdcae'} opacity=".8" />
+        <path d="M6 54 Q30 46 50 52 T90 48 V62 H6Z" fill={sky.night ? '#2c3558' : '#c9eab8'} opacity=".8" />
       </g>
-      <path d="M48 6 V62 M6 34 H90" stroke="#e7d5bd" strokeWidth="3" />
-      <rect x="-2" y="63" width="100" height="6" rx="3" fill="#d9c3a5" />
+      <path d="M48 6 V62 M6 34 H90" stroke="#f6dfc4" strokeWidth="3" />
+      <rect x="-2" y="63" width="100" height="6" rx="3" fill="#ecd2b0" />
     </svg>
   );
 }

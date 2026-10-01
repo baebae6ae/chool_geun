@@ -127,6 +127,7 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
 
         {/* 몸 */}
         <path d={FRONT.body} fill={c.body} />
+        <path d={FRONT.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
         <g clipPath={`url(#${clip})`}>
           <FrontOutfit id={custom.outfit} />
         </g>
@@ -472,6 +473,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
         </g>
 
         <path d={LOAF.body} fill={c.body} />
+        <path d={LOAF.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
         <g clipPath={`url(#${clip})`}>
           <SideOutfit id={custom.outfit === 'apron' ? 'none' : custom.outfit} />
         </g>
@@ -547,6 +549,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 몸 */}
         <path d={SIDE.body} fill={c.body} />
+        <path d={SIDE.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
         <g clipPath={`url(#${clip})`}>
           <SideOutfit id={custom.outfit} />
         </g>

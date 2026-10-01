@@ -1,14 +1,14 @@
 :root {
-  --bg: #fcf4ea;
-  --bg-2: #f5e8d8;
-  --card: #fffcf6;
+  --bg: #fff2ea;
+  --bg-2: #fde4d6;
+  --card: #fffaf4;
   --ink: #362a20;
   --ink-2: #72634f;
   --accent-text: #94591f;
-  --line: #e6d3bb;
+  --line: #f1c9b3;
   --accent: #b97a41;
   --accent-ink: #ffffff;
-  --accent-soft: #f8e6d0;
+  --accent-soft: #ffd9c4;
   --good: #5cbb90;
   --danger: #c1543f;
   --shadow: 0 2px 12px rgba(60, 42, 24, 0.06);
@@ -18,10 +18,10 @@
   --c-rare: #3d8bfd;
   --c-epic: #a45cf0;
   --c-legendary: #d69a1f;
-  --floor: #f3e4cf;
-  --floor-2: #e2cba8;
-  --wall: #fdf2e4;
-  --wall-2: #f8e8d6;
+  --floor: #fff0c6;
+  --floor-2: #f0cf8e;
+  --wall: #ffe3dd;
+  --wall-2: #ffefd6;
   color-scheme: light;
 }
 
@@ -1694,8 +1694,8 @@ select {
 /* ============ 파스텔 색연필 손그림 톤 ============ */
 :root {
   --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .31 0 0 0 0 .2 0 0 0 1.5 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --pencil-edge: rgba(176, 128, 84, 0.55);
-  --pencil-shadow: 3px 4px 0 rgba(214, 178, 138, 0.28);
+  --pencil-edge: rgba(224, 138, 112, 0.7);
+  --pencil-shadow: 3px 4px 0 rgba(246, 168, 140, 0.32);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
@@ -1713,7 +1713,7 @@ body::after {
   pointer-events: none;
   background-image: var(--paper-grain);
   background-size: 240px 240px;
-  opacity: 0.2;
+  opacity: 0.3;
   mix-blend-mode: multiply;
 }
 @media (prefers-color-scheme: dark) {
@@ -1741,7 +1741,7 @@ body::after {
 /* 서식지 벽: 색연필로 칠한 빗금 */
 .habitat {
   background:
-    repeating-linear-gradient(118deg, transparent 0 5px, rgba(205, 160, 112, 0.07) 5px 6px),
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(236, 120, 110, 0.13) 4px 5.4px),
     linear-gradient(180deg, var(--wall) 0, var(--wall-2) 100%);
   border: 1.5px solid var(--pencil-edge);
   border-radius: 24px 20px 25px 21px / 21px 25px 20px 24px;
@@ -1753,4 +1753,55 @@ body::after {
 }
 .office {
   border: 1.5px solid var(--pencil-edge);
+}
+
+/* 소품 윤곽선: 색연필로 한 번 더 그은 선 (선이 따로 지정된 곳은 그대로) */
+.pencil :is(rect, path, circle, ellipse):not([stroke]) {
+  stroke: rgba(150, 100, 68, 0.75);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+
+/* 서식지 위에 종이 결 + 색연필 칠 자국을 한 겹 더 */
+.habitat::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--paper-grain);
+  background-size: 160px 160px;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+}
+
+/* 카드 위쪽에 연한 색연필 띠 */
+.card {
+  background-image: linear-gradient(180deg, rgba(255, 214, 196, 0.35), transparent 38px);
+}
+.btn.primary {
+  background: #f0a285;
+  color: #3a2216;
+  border: 1.5px solid rgba(150, 90, 60, 0.5);
+  box-shadow: 2px 3px 0 rgba(150, 90, 60, 0.28);
+}
+.tabbar {
+  background: #fff6ee;
+  border-top: 1.5px solid var(--line);
+}
+.tabbar button[aria-current='page'],
+.tabbar button.on,
+.tabbar button.active {
+  background: #ffd9c4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .btn.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  :root:not([data-theme='light']) .tabbar { background: var(--card); }
+  :root:not([data-theme='light']) .card { background-image: none; }
+  :root:not([data-theme='light']) .habitat { background: linear-gradient(180deg, var(--wall), var(--wall-2)); }
+  :root:not([data-theme='light']) .habitat::after { opacity: 0.12; mix-blend-mode: screen; }
 }

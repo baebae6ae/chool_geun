@@ -20,11 +20,22 @@
         <!-- 색연필로 그린 듯 선이 살짝 떨리고 칠이 거칠게 -->
         <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp" />
-          <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="wob" />
+          <feDisplacementMap in="SourceGraphic" in2="warp" scale="3" xChannelSelector="R" yChannelSelector="G" result="wob" />
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="9" result="grain" />
-          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 1.5" result="holes" />
+          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.9 1.75" result="holes" />
           <feComposite in="wob" in2="holes" operator="in" />
         </filter>
+        <!-- 색연필 빗금: 햄스터 몸 아래쪽과 그림자 쪽에만 진하게 -->
+        <pattern id="pencil-hatch" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(48)">
+          <line x1="0" y1="0" x2="0" y2="3.6" stroke="#b9743f" stroke-width="1.05" stroke-linecap="round" />
+        </pattern>
+        <linearGradient id="pencil-fade" x1="0" y1="0" x2="0.35" y2="1">
+          <stop offset="0.35" stop-color="#000" />
+          <stop offset="1" stop-color="#fff" />
+        </linearGradient>
+        <mask id="pencil-shade" maskContentUnits="objectBoundingBox">
+          <rect x="-0.1" y="-0.1" width="1.2" height="1.2" fill="url(#pencil-fade)" />
+        </mask>
       </defs>
     </svg>
     <div id="root"></div>
