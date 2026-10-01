@@ -2355,3 +2355,9 @@ textarea {
   width: 1.1em;
   height: 1.1em;
 }
+
+/* 가로(탁상시계) 화면: 노란 메모지 카드 안쪽 여백 */
+.app.clock .hero-money {
+  padding: 8px 14px 10px;
+  transform: none;
+}
