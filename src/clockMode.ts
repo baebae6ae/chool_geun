@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { isNative } from './platform';
 
 /** 폰을 가로로 눕히면 탁상시계 화면으로 */
 const CLOCK_QUERY = '(orientation: landscape) and (max-height: 540px)';
@@ -17,6 +18,17 @@ export function useClockMode(): boolean {
 /** 켜둔 동안 화면이 꺼지지 않게 (지원 브라우저만). 다른 앱에 갔다 오면 다시 요청 */
 export function useWakeLock(active: boolean) {
   useEffect(() => {
+    if (active && isNative) {
+      // 안드로이드 앱: 웹뷰는 Wake Lock을 지원하지 않아 네이티브 플러그인으로 화면을 켜 둔다
+      let off = false;
+      import('@capacitor-community/keep-awake')
+        .then(({ KeepAwake }) => (off ? undefined : KeepAwake.keepAwake()))
+        .catch(() => {});
+      return () => {
+        off = true;
+        import('@capacitor-community/keep-awake').then(({ KeepAwake }) => KeepAwake.allowSleep()).catch(() => {});
+      };
+    }
     if (!active || !('wakeLock' in navigator)) return;
     let lock: WakeLockSentinel | null = null;
     let done = false;

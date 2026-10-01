@@ -1,9 +1,13 @@
-name: Build Android app (TWA)
+name: Build Android app (Capacitor)
 
-# 플레이스토어에 올릴 안드로이드 앱(.aab)과 손으로 설치해 볼 .apk를 만든다.
-# 수동으로만 실행한다 (Actions 탭 > Build Android app (TWA) > Run workflow).
+# 플레이스토어에 올릴 안드로이드 앱(.aab)과 직접 설치해 볼 수 있는 .apk를 만든다.
+# 수동으로만 실행한다 (Actions 탭 > Build Android app (Capacitor) > Run workflow).
 on:
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: '앱 버전 이름 (예: 1.0.0)'
+        default: '1.0.0'
 
 jobs:
   build:
@@ -14,61 +18,50 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
-
-      - name: Prepare Android SDK (cmdline-tools "latest" symlink + accept licenses)
-        run: |
-          if [ ! -e "$ANDROID_HOME/cmdline-tools/latest" ]; then
-            VER=$(ls "$ANDROID_HOME/cmdline-tools" | grep -v '^latest$' | sort -V | tail -1)
-            echo "linking cmdline-tools/$VER -> cmdline-tools/latest"
-            ln -s "$VER" "$ANDROID_HOME/cmdline-tools/latest"
-          fi
-          # bubblewrap's own SDK check only looks for $ANDROID_HOME/tools or $ANDROID_HOME/bin
-          if [ ! -e "$ANDROID_HOME/bin" ]; then
-            ln -s cmdline-tools/latest/bin "$ANDROID_HOME/bin"
-          fi
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
-            "platforms;android-36" "build-tools;36.1.0" "platform-tools"
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list_installed
+          java-version: '21'
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
-      - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Point Bubblewrap at the runner's existing JDK/SDK (skip its interactive prompts)
+      - name: Build web app and copy it into the Android project
         run: |
-          mkdir -p "$HOME/.bubblewrap"
-          printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
-          cat "$HOME/.bubblewrap/config.json"
+          npm run build
+          npx cap sync android
+
+      - name: Prepare Android SDK (licenses + platform)
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "platform-tools"
 
       - name: Decode signing keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android.keystore
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/android.keystore"
 
-      - name: Build signed app bundle + apk
+      - name: Build signed app bundle (.aab) and apk
+        working-directory: android
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        # 프로젝트가 처음 생성될 때 "다시 만들까요?" 등 y/n으로 확인하는 프롬프트가 몇 번 뜬다 (전부 예로 답하면 됨)
-        run: yes | bubblewrap build --skipPwaValidation
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/android.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: upload
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: ./gradlew --no-daemon bundleRelease assembleRelease
 
       - name: Locate build output
-        run: |
-          echo "----- app-release-signed.aab -----"
-          find . -maxdepth 2 -iname "*.aab" -exec ls -la {} \;
-          echo "----- app-release-signed.apk -----"
-          find . -maxdepth 2 -iname "*.apk" -exec ls -la {} \;
+        run: find android/app/build/outputs -name "*.aab" -o -name "*.apk" | xargs ls -la
 
       - uses: actions/upload-artifact@v4
         with:
           name: hamster-worklog-android
           path: |
-            *.aab
-            *.apk
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 30

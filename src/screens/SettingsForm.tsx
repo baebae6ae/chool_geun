@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { lastBackupAt, loadBackupFile, saveBackup } from '../backup';
+import { isNative, PRIVACY_URL } from '../platform';
 import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import { formatWon } from '../domain/records';
 import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
@@ -56,7 +57,15 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
       (s.monthWorkDays < 1 || s.monthWorkDays > 31 ? '월 근무일수는 1~31일 사이예요.' : null);
     if (err) return setError(err);
     let next = s;
-    if (s.notifications && 'Notification' in window && Notification.permission === 'default') {
+    if (s.notifications && isNative) {
+      try {
+        const { LocalNotifications } = await import('@capacitor/local-notifications');
+        const r = await LocalNotifications.requestPermissions();
+        if (r.display !== 'granted') next = { ...s, notifications: false };
+      } catch {
+        next = { ...s, notifications: false };
+      }
+    } else if (s.notifications && 'Notification' in window && Notification.permission === 'default') {
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') next = { ...s, notifications: false };
     }
@@ -259,7 +268,7 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         <p>
           모든 기록은 이 기기 안에만 저장되고 어디로도 전송되지 않아요.
           <br />
-          <a href="./privacy.html" target="_blank" rel="noopener noreferrer">
+          <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
             개인정보처리방침
           </a>
           {' · '}

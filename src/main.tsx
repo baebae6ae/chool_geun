@@ -2,6 +2,7 @@ import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
+import { isNative } from './platform';
 
 const Gallery = lazy(() => import('./dev/Gallery').then((m) => ({ default: m.Gallery })));
 const Diag = lazy(() => import('./dev/Diag').then((m) => ({ default: m.Diag })));
@@ -19,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator && import.meta.env.PROD && !isNative) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   });

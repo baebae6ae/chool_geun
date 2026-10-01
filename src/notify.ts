@@ -1,6 +1,7 @@
 /** 기획서 16. 알림은 최소화 — 하루 최대 3회, 앱이 백그라운드일 때만 */
 import { dateKey } from './domain/date';
 import type { AppState } from './domain/types';
+import { isNative } from './platform';
 
 export const DAILY_LIMIT = 3;
 
@@ -13,12 +14,23 @@ export const MESSAGES = {
 /** 알림을 보낼 수 있으면 보내고, 카운트가 반영된 새 상태를 돌려준다. */
 export function sendNotification(state: AppState, kind: keyof typeof MESSAGES, now: number): AppState {
   if (!state.settings?.notifications) return state;
-  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return state;
+  if (!isNative && (typeof Notification === 'undefined' || Notification.permission !== 'granted')) return state;
   if (!document.hidden) return state;
   const today = dateKey(now);
   const count = state.notif.date === today ? state.notif.count : 0;
   if (count >= DAILY_LIMIT) return state;
   const msg = MESSAGES[kind];
+  if (isNative) {
+    // 안드로이드 앱: 기기 알림으로 바로 띄운다 (권한은 설정에서 켤 때 받아 둠)
+    import('@capacitor/local-notifications')
+      .then(({ LocalNotifications }) =>
+        LocalNotifications.schedule({
+          notifications: [{ id: Math.floor(now % 2_000_000_000), title: msg.title, body: msg.body, schedule: { at: new Date(Date.now() + 300) } }],
+        }),
+      )
+      .catch(() => {});
+    return { ...state, notif: { date: today, count: count + 1 } };
+  }
   const opts = { body: msg.body, icon: './icon-192.png', tag: `hamster-${kind}` };
   // 모바일 브라우저는 페이지 컨텍스트의 new Notification()을 막는 경우가 있어 서비스워커 우선
   if (navigator.serviceWorker?.controller) {

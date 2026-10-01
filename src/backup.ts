@@ -1,3 +1,4 @@
+import { isNative } from './platform';
 import { getState, restoreFromBackup } from './store';
 
 const LAST_KEY = 'hamster-backup:last';
@@ -25,6 +26,20 @@ export async function saveBackup(): Promise<boolean> {
   const body = JSON.stringify({ app: 'hamster-worklog', exportedAt: now.toISOString(), state: getState() }, null, 1);
   const name = fileName(now);
   const file = new File([body], name, { type: 'application/json' });
+
+  if (isNative) {
+    // 웹뷰는 blob 다운로드가 안 되므로 임시 파일로 쓴 뒤 공유 창(드라이브·파일 등)으로 내보낸다
+    try {
+      const [{ Filesystem, Directory, Encoding }, { Share }] = await Promise.all([import('@capacitor/filesystem'), import('@capacitor/share')]);
+      const w = await Filesystem.writeFile({ path: name, data: body, directory: Directory.Cache, encoding: Encoding.UTF8 });
+      await Share.share({ title: '햄스터 출근일지 백업', url: w.uri, dialogTitle: '백업 파일 저장' });
+      markDone(now);
+      return true;
+    } catch (e) {
+      if (/cancel/i.test(String((e as Error)?.message))) return false;
+      throw e;
+    }
+  }
 
   const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
   if (touch && navigator.canShare?.({ files: [file] })) {

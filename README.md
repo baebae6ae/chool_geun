@@ -92,16 +92,16 @@ public/          manifest, 아이콘, 서비스워커
 
 ## 안드로이드 앱 (구글 플레이스토어)
 
-웹앱을 그대로 감싼 TWA(Trusted Web Activity) 방식이라 웹을 배포하면 앱 사용자에게도 자동 반영됩니다. 앱 껍데기(`.aab`/`.apk`)는 이름·아이콘·주소가 바뀔 때만 다시 만들면 됩니다.
+[Capacitor](https://capacitorjs.com/)로 웹앱을 앱 안에 담아 만든 진짜 안드로이드 앱입니다(웹 파일이 앱 안에 들어 있어 오프라인에서도 열립니다). 광고(AdMob)·기기 알림 같은 앱 전용 기능을 쓸 수 있습니다.
 
-- **빌드**: Actions 탭 → `Build Android app (TWA)` → Run workflow. 결과물(`.aab` 스토어 업로드용, `.apk` 설치 테스트용)은 실행 결과 페이지의 Artifacts에서 내려받습니다. 설정은 `twa-manifest.json`.
+- **빌드**: Actions 탭 → `Build Android app (Capacitor)` → Run workflow. 결과물(`.aab` 스토어 업로드용, `.apk` 설치 테스트용)은 실행 결과 페이지의 Artifacts에서 내려받습니다. 안드로이드 프로젝트는 `android/`, 설정은 `capacitor.config.ts`, 앱 아이콘 원본은 `assets/`(`npx capacitor-assets generate --android --assetPath assets`로 다시 생성).
+- **웹 코드를 고치면**: 앱 안에 웹 파일이 들어 있으므로 **앱을 새 버전으로 다시 빌드·업로드해야** 사용자에게 반영됩니다(웹 배포만으로는 앱이 바뀌지 않음). 웹 버전(GitHub Pages)은 기존처럼 푸시하면 반영됩니다.
 - **필요한 저장소 시크릿**: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD` (업로드 키스토어는 저장소에 넣지 않음).
 - **스토어 등록 자료**: `store/` — 512px 아이콘, 1024×500 대표 이미지, 폰 스크린샷(1080×2160) 7장 + 가로 1장. 개인정보처리방침은 `public/privacy.html`(앱 설정 화면에서도 링크).
-- **주소창 표시**: `github.io` 하위 경로라서 도메인 소유 인증(`.well-known/assetlinks.json`을 도메인 루트에 두는 것)이 불가능해 앱 위쪽에 얇은 주소창이 보입니다. 직접 소유한 도메인을 연결하면 없앨 수 있습니다.
-- 품질 확인: Lighthouse(모바일) 성능·접근성·권장사항·SEO 모두 99~100, 오프라인 첫 실행 확인.
+- **앱 안에서 다르게 동작하는 것**: 백업은 공유 창으로 저장, 알림은 기기 알림, 가로 시계 모드의 화면 켜짐은 네이티브 플러그인(`src/platform.ts`로 구분).
 
 ## 한계 (MVP)
 
-- 웹 알림은 앱(탭)이 살아있을 때만 발송됩니다. 앱이 완전히 종료된 상태의 예약 알림은 네이티브 래핑(Capacitor 등)이나 푸시 서버가 필요합니다.
+- 알림은 앱이 켜져 있다가 화면 밖으로 간 상태에서만 발송됩니다. 앱이 완전히 종료된 상태의 예약 알림은 아직 없습니다.
 - 야간 근무(퇴근시간이 자정을 넘는 스케줄)는 지원하지 않습니다.
 - 데이터는 기기에만 저장되며 기기 간 백업/동기화는 없습니다.
