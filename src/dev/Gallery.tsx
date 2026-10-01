@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { COMPOSITIONS, drawLook, renderCard } from '../shareCard';
 import { HamsterSprite, type FrontAction, type SideAction } from '../components/hamster/HamsterSprite';
 import { DEFAULT_CUSTOM } from '../domain/customization';
 import type { Customization } from '../domain/types';
@@ -14,6 +16,7 @@ const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 export function Gallery() {
   const params = new URLSearchParams(location.search);
   if (params.has('icons')) return <IconSheet />;
+  if (params.has('cards')) return <CardSheet />;
   const size = Number(params.get('size') || 220);
   const custom: Customization = {
     ...DEFAULT_CUSTOM,
@@ -56,6 +59,49 @@ function IconSheet() {
           </div>
           {items ? e.name : `${e.id} ${e.name}`}
         </div>
+      ))}
+    </div>
+  );
+}
+
+/** ?gallery&cards — 공유 카드 구도 전체 보기 */
+function CardSheet() {
+  const [urls, setUrls] = useState<{ label: string; url: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const out: { label: string; url: string }[] = [];
+      for (let i = 0; i < COMPOSITIONS.length; i++) {
+        const look = drawLook('2026-10-02', 0);
+        const comp = COMPOSITIONS[i];
+        const theme = drawLook('2026-10-0' + (i % 9), 3).theme;
+        const blob = await renderCard({
+          custom: { ...DEFAULT_CUSTOM },
+          comp,
+          theme,
+          decor: look.decor,
+          seed: i + 1,
+          dateText: '10월 2일 금요일',
+          nameTag: '햄찌 · 신입 햄스터',
+          chips: ['출근 12일째', '월급날 D-21'],
+          quote: '금요일엔 마음이 이미 주말에 가 있어요.',
+        });
+        out.push({ label: comp.label, url: URL.createObjectURL(blob) });
+        if (!alive) return;
+        setUrls([...out]);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, padding: 10, background: '#fdf5e8', width: 1300 }}>
+      {urls.map((u) => (
+        <figure key={u.label} style={{ margin: 0, textAlign: 'center', fontSize: 12 }}>
+          <img src={u.url} alt={u.label} style={{ width: '100%', borderRadius: 8 }} />
+          {u.label}
+        </figure>
       ))}
     </div>
   );

@@ -5,7 +5,8 @@ import { completedCount, daysUntilPayday } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
-import { completedInSeason, formatWon, itemOf, monthSummary } from '../domain/records';
+import { careerStats, completedInSeason, formatWon, itemOf } from '../domain/records';
+import { careerTitle } from '../domain/customization';
 import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
@@ -146,13 +147,14 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
 
   const phase = quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut);
 
-  const monthEarned = monthSummary(Number(key.slice(0, 4)), Number(key.slice(5, 7)), state.days).earned + (day && !day.clockedOut ? earned : 0);
-  const working = !!day && !!item;
-  const shareLabel = working ? '오늘 번 돈' : '이번 달 번 돈';
-  const shareAmount = formatWon(Math.floor(working ? earned : monthEarned));
-  const shareSub = working
-    ? `${settings.payMode === 'annual' ? (settings.showGross ? '세전 ' : '세후 ') : ''}시급 ${formatWon(Math.round(day!.hourly))} 기준`
-    : `${settings.hamsterName || '햄스터'}와 함께 번 돈`;
+  // 공유 카드에 넣는 작은 정보 — 금액은 절대 넣지 않는다
+  const career = careerStats(state.days, settings.dayOverrides);
+  const shareChips = [
+    career.completedDays > 0 ? `출근 ${career.completedDays}일째` : '',
+    career.streak >= 3 ? `${career.streak}일 연속` : '',
+    payD === 0 ? '오늘은 월급날!' : `월급날 D-${payD}`,
+  ].filter(Boolean);
+  const shareNameTag = `${settings.hamsterName || '햄스터'} · ${careerTitle(career.completedDays)}`;
 
   const quoteBlock = (
     <>
@@ -263,9 +265,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
           dateText={formatKoreanDate(key)}
           phase={phase}
           payday={payD === 0}
-          label={shareLabel}
-          amount={shareAmount}
-          sub={shareSub}
+          nameTag={shareNameTag}
+          chips={shareChips}
           onClose={() => setSharing(false)}
         />
       )}

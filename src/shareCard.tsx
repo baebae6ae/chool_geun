@@ -1,29 +1,88 @@
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { HamsterSprite, type Pose } from './components/hamster/HamsterSprite';
+import { HamsterSprite, type FrontAction, type Pose, type SideAction } from './components/hamster/HamsterSprite';
 import type { Customization } from './domain/types';
 import { isNative } from './platform';
 
-/** 공유 카드 속 햄스터 자세. 앱 안에서 쓰는 자세 중 사진 찍기 좋은 것만 골랐다 */
-export const CARD_POSES: { id: string; label: string; pose: Pose }[] = [
-  { id: 'wave', label: '안녕!', pose: { pose: 'front', action: 'wave' } },
-  { id: 'cheer', label: '힘내라 힘', pose: { pose: 'front', action: 'cheer' } },
-  { id: 'heart', label: '하트', pose: { pose: 'front', action: 'heart' } },
-  { id: 'shy', label: '부끄', pose: { pose: 'front', action: 'shy' } },
-  { id: 'hug', label: '안아줘', pose: { pose: 'front', action: 'hug' } },
-  { id: 'stuff', label: '볼 빵빵', pose: { pose: 'front', action: 'stuff' } },
-  { id: 'dance', label: '신나는 춤', pose: { pose: 'front', action: 'dance' } },
-  { id: 'yawn', label: '하품', pose: { pose: 'front', action: 'yawn' } },
-  { id: 'sleep', label: '꿀잠', pose: { pose: 'side', action: 'sleep' } },
+/**
+ * 공유 카드의 구도. 같은 햄스터라도 날마다 다른 자세·크기·위치로 찍힌 사진처럼 나온다.
+ * scale은 전신이 액자 높이의 약 80%일 때를 1로 본다. x·y는 액자 크기 대비 치우침.
+ */
+export interface Composition {
+  id: string;
+  label: string;
+  pose: Pose;
+  scale: number;
+  x?: number;
+  y?: number;
+  rot?: number;
+  flip?: boolean;
+}
+const F = (action: FrontAction): Pose => ({ pose: 'front', action });
+const S = (action: SideAction): Pose => ({ pose: 'side', action });
+
+export const COMPOSITIONS: Composition[] = [
+  { id: 'wave', label: '안녕! 인사', pose: F('wave'), scale: 1 },
+  { id: 'close-smile', label: '얼빡샷', pose: F('idle'), scale: 1.9, y: 0.11 },
+  { id: 'side-stand', label: '옆모습', pose: S('stand'), scale: 1.2, y: 0.03 },
+  { id: 'side-stand-flip', label: '반대쪽 옆모습', pose: S('stand'), scale: 1.2, y: 0.03, flip: true },
+  { id: 'side-close', label: '옆얼굴 얼빡샷', pose: S('stand'), scale: 2.1, x: -0.22, y: 0.06 },
+  { id: 'peek-shy', label: '부끄 빼꼼', pose: F('shy'), scale: 1.5, x: -0.2, y: 0.4 },
+  { id: 'peek-wave', label: '빼꼼 인사', pose: F('wave'), scale: 1.5, x: 0.2, y: 0.4, flip: true },
+  { id: 'tilt-cheer', label: '기운 넘침', pose: F('cheer'), scale: 1.05, x: 0.1, rot: -9 },
+  { id: 'tiny', label: '작게 앉아서', pose: F('idle'), scale: 0.5, x: 0.27, y: 0.27 },
+  { id: 'tiny-left', label: '구석에 쏙', pose: F('sniff'), scale: 0.55, x: -0.28, y: 0.25 },
+  { id: 'heart', label: '마음을 전해요', pose: F('heart'), scale: 1.05 },
+  { id: 'hug', label: '안아줘', pose: F('hug'), scale: 1.05 },
+  { id: 'sleep', label: '꿀잠', pose: S('sleep'), scale: 1.2, y: 0.12 },
+  { id: 'dance', label: '신나는 춤', pose: F('dance'), scale: 1.05, rot: 7 },
+  { id: 'yawn-close', label: '하품 얼빡샷', pose: F('yawn'), scale: 1.7, y: 0.1 },
+  { id: 'groom-tilt', label: '세수하는 중', pose: F('groom'), scale: 1.1, rot: -7, x: -0.08 },
+  { id: 'look', label: '두리번', pose: F('look'), scale: 1.2, x: 0.1 },
+  { id: 'walk', label: '산책', pose: S('walk'), scale: 0.8, y: 0.2, x: -0.05 },
 ];
+
+const THEMES = [
+  { bg: ['#ffe9d6', '#ffd3b3'], line: '#d9985f' },
+  { bg: ['#e0f4e8', '#c5e9d3'], line: '#6fbb8c' },
+  { bg: ['#dfeefb', '#c4dcf3'], line: '#78a6d6' },
+  { bg: ['#ece2f9', '#d9caf0'], line: '#a284cf' },
+  { bg: ['#fff3c9', '#ffe49c'], line: '#d6ad3f' },
+  { bg: ['#ffe1e8', '#ffc9d6'], line: '#e48fa3' },
+];
+const DECORS = ['hearts', 'stars', 'dots', 'none'] as const;
+
+function hash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** 날짜(+다시 뽑기 횟수)마다 구도·색·장식이 정해진다. 같은 날 같은 번호면 항상 같다. */
+export function drawLook(dateKey: string, draws: number) {
+  const seed = `${dateKey}|card|${draws}`;
+  return {
+    comp: COMPOSITIONS[hash(seed + '|c') % COMPOSITIONS.length],
+    theme: THEMES[hash(seed + '|t') % THEMES.length],
+    decor: DECORS[hash(seed + '|d') % DECORS.length],
+    seed: hash(seed + '|s'),
+  };
+}
 
 export interface CardData {
   custom: Customization;
-  pose: Pose;
+  comp: Composition;
+  theme: (typeof THEMES)[number];
+  decor: (typeof DECORS)[number];
+  seed: number;
   dateText: string;
-  label: string;
-  amount: string;
-  sub: string;
+  /** "햄찌 · 신입 햄스터" */
+  nameTag: string;
+  /** 돈과 상관없는 작은 칩들 ("출근 12일째" 등) */
+  chips: string[];
   quote: string;
 }
 
@@ -110,6 +169,50 @@ function grain(ctx: CanvasRenderingContext2D, seed = 7) {
   ctx.restore();
 }
 
+function sparkle(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x, y - r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.quadraticCurveTo(x, y, x, y + r);
+  ctx.quadraticCurveTo(x, y, x - r, y);
+  ctx.quadraticCurveTo(x, y, x, y - r);
+  ctx.fill();
+}
+
+function heart(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + r * 0.9);
+  ctx.bezierCurveTo(x - r * 1.5, y - r * 0.1, x - r * 0.7, y - r * 1.2, x, y - r * 0.4);
+  ctx.bezierCurveTo(x + r * 0.7, y - r * 1.2, x + r * 1.5, y - r * 0.1, x, y + r * 0.9);
+  ctx.fill();
+}
+
+function decorate(ctx: CanvasRenderingContext2D, kind: CardData['decor'], seed: number, fx: number, fy: number, fw: number, fh: number) {
+  if (kind === 'none') return;
+  let st = seed % 2147483647 || 1;
+  const rnd = () => ((st = (st * 16807) % 2147483647) / 2147483647);
+  ctx.save();
+  for (let i = 0; i < 16; i++) {
+    const x = fx + 40 + rnd() * (fw - 80);
+    const y = fy + 40 + rnd() * (fh - 80);
+    const r = 10 + rnd() * 16;
+    ctx.globalAlpha = 0.35 + rnd() * 0.3;
+    if (kind === 'hearts') {
+      ctx.fillStyle = '#ff8fa8';
+      heart(ctx, x, y, r * 0.8);
+    } else if (kind === 'stars') {
+      ctx.fillStyle = '#ffd54a';
+      sparkle(ctx, x, y, r * 1.2);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 export async function renderCard(d: CardData): Promise<Blob> {
   try {
     await Promise.all([document.fonts.load('120px Jua'), document.fonts.load('700 40px Pretendard')]);
@@ -121,18 +224,17 @@ export async function renderCard(d: CardData): Promise<Blob> {
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
   const sans = `"Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif`;
-  const jua = `"Jua", ${sans}`;
 
-  // 배경: 크림색 종이 + 번지는 파스텔
+  // 바탕: 크림색 종이 + 번지는 파스텔
   const bg = ctx.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, '#fff7e8');
-  bg.addColorStop(1, '#ffe9d2');
+  bg.addColorStop(1, '#ffeedb');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
   for (const [x, y, r, c] of [
-    [W, 0, 520, 'rgba(190,230,208,0.75)'],
-    [0, 560, 460, 'rgba(255,222,190,0.75)'],
-    [W, H, 520, 'rgba(200,224,247,0.75)'],
+    [W, 0, 520, 'rgba(190,230,208,0.6)'],
+    [0, 700, 460, 'rgba(255,222,190,0.6)'],
+    [W, H, 520, 'rgba(200,224,247,0.6)'],
   ] as [number, number, number, string][]) {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, c);
@@ -142,7 +244,6 @@ export async function renderCard(d: CardData): Promise<Blob> {
   }
   grain(ctx);
 
-  // 바깥 점선 테두리
   ctx.strokeStyle = PENCIL;
   ctx.lineWidth = 5;
   ctx.setLineDash([22, 14]);
@@ -154,69 +255,91 @@ export async function renderCard(d: CardData): Promise<Blob> {
   ctx.fillStyle = INK2;
   ctx.font = `700 40px ${sans}`;
   ctx.textAlign = 'left';
-  ctx.fillText(d.dateText, 84, 120);
+  ctx.fillText(d.dateText, 84, 118);
   ctx.textAlign = 'right';
   ctx.fillStyle = '#a9794f';
-  ctx.fillText('햄스터 출근일지', W - 84, 120);
+  ctx.fillText('햄스터 출근일지', W - 84, 118);
 
-  // 햄스터 스티커
-  const cx = W / 2;
-  const cy = 405;
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.beginPath();
-  ctx.arc(cx, cy, 275, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = PENCIL;
-  ctx.lineWidth = 6;
-  ctx.setLineDash([26, 16]);
+  // 사진 액자: 구도에 따라 햄스터를 크게 자르거나 구석에 놓는다
+  const fx = 84;
+  const fy = 150;
+  const fw = W - 168;
+  const fh = 640;
+  ctx.save();
+  roundRect(ctx, fx, fy, fw, fh, 64);
+  ctx.clip();
+  const fg = ctx.createLinearGradient(0, fy, 0, fy + fh);
+  fg.addColorStop(0, d.theme.bg[0]);
+  fg.addColorStop(1, d.theme.bg[1]);
+  ctx.fillStyle = fg;
+  ctx.fillRect(fx, fy, fw, fh);
+  decorate(ctx, d.decor, d.seed, fx, fy, fw, fh);
+  // 바닥 느낌의 연한 띠
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.fillRect(fx, fy + fh - 90, fw, 90);
+
+  const c = d.comp;
+  const side = c.pose.pose === 'side';
+  const base = side ? 560 : 520;
+  const size = Math.round(base * c.scale);
+  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(hamsterSvg(d.custom, c.pose, size)));
+  ctx.translate(fx + fw / 2 + (c.x ?? 0) * fw, fy + fh / 2 + (c.y ?? 0) * fh + (side ? 20 : 0));
+  if (c.rot) ctx.rotate((c.rot * Math.PI) / 180);
+  if (c.flip) ctx.scale(-1, 1);
+  ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+  ctx.restore();
+
+  ctx.strokeStyle = d.theme.line;
+  ctx.lineWidth = 7;
+  ctx.setLineDash([26, 14]);
+  roundRect(ctx, fx, fy, fw, fh, 64);
   ctx.stroke();
   ctx.setLineDash([]);
-  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(hamsterSvg(d.custom, d.pose, d.pose.pose === 'side' ? 560 : 500)));
-  const sleeping = d.pose.pose === 'side';
-  ctx.drawImage(img, cx - img.width / 2, cy - img.height / 2 + (sleeping ? 40 : 6), img.width, img.height);
 
-  // 번 돈
+  // 이름표
   ctx.textAlign = 'center';
-  ctx.fillStyle = INK2;
-  ctx.font = `700 46px ${sans}`;
-  ctx.fillText(d.label, cx, 765);
-  const panel = { x: 90, y: 790, w: W - 180, h: 240 };
+  ctx.font = `800 40px ${sans}`;
+  const tagW = Math.min(W - 200, ctx.measureText(d.nameTag).width + 90);
   ctx.fillStyle = '#fff2c4';
-  roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 44);
+  roundRect(ctx, W / 2 - tagW / 2, 820, tagW, 74, 37);
   ctx.fill();
   ctx.strokeStyle = '#dcb455';
-  ctx.lineWidth = 7;
-  roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 44);
-  ctx.stroke();
-  ctx.fillStyle = INK;
-  let fs = 150;
-  ctx.font = `${fs}px ${jua}`;
-  while (ctx.measureText(d.amount).width > panel.w - 80 && fs > 60) {
-    fs -= 6;
-    ctx.font = `${fs}px ${jua}`;
-  }
-  ctx.fillText(d.amount, cx, panel.y + 145);
-  ctx.fillStyle = INK2;
-  ctx.font = `600 36px ${sans}`;
-  ctx.fillText(d.sub, cx, panel.y + 210);
-
-  // 한마디
-  ctx.font = `700 42px ${sans}`;
-  const lines = wrap(ctx, d.quote, W - 260).slice(0, 4);
-  const lh = 58;
-  const qh = 52 + lines.length * lh;
-  const qy = 1062 + Math.max(0, 4 - lines.length) * 14;
-  ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  roundRect(ctx, 90, qy, W - 180, qh, 36);
-  ctx.fill();
-  ctx.strokeStyle = PENCIL;
   ctx.lineWidth = 5;
-  ctx.setLineDash([20, 12]);
-  roundRect(ctx, 90, qy, W - 180, qh, 36);
+  roundRect(ctx, W / 2 - tagW / 2, 820, tagW, 74, 37);
   ctx.stroke();
-  ctx.setLineDash([]);
   ctx.fillStyle = INK;
-  lines.forEach((l, i) => ctx.fillText(l, cx, qy + 60 + i * lh));
+  ctx.fillText(d.nameTag, W / 2, 871);
+
+  // 오늘의 한마디 (카드의 주인공)
+  ctx.font = `800 54px ${sans}`;
+  const lines = wrap(ctx, d.quote, W - 240).slice(0, 4);
+  const lh = 76;
+  const top = 950;
+  ctx.fillStyle = INK;
+  lines.forEach((l, i) => ctx.fillText(l, W / 2, top + 50 + i * lh));
+
+  // 작은 칩들 (출근 일수, 월급날 등 — 금액 정보는 쓰지 않는다)
+  if (d.chips.length) {
+    ctx.font = `700 34px ${sans}`;
+    const widths = d.chips.map((t) => ctx.measureText(t).width + 56);
+    const total = widths.reduce((a, b) => a + b, 0) + 18 * (widths.length - 1);
+    let x = W / 2 - total / 2;
+    const y = 1215;
+    d.chips.forEach((t, i) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      roundRect(ctx, x, y, widths[i], 64, 32);
+      ctx.fill();
+      ctx.strokeStyle = PENCIL;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([14, 9]);
+      roundRect(ctx, x, y, widths[i], 64, 32);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = INK2;
+      ctx.fillText(t, x + widths[i] / 2, y + 43);
+      x += widths[i] + 18;
+    });
+  }
 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('이미지를 만들지 못했어요'))), 'image/png'));
 }
