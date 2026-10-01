@@ -1,27 +1,27 @@
 :root {
-  --bg: #fff2ea;
-  --bg-2: #fde4d6;
-  --card: #fffaf4;
+  --bg: #fdf5e8;
+  --bg-2: #f8e9d2;
+  --card: #fffbf3;
   --ink: #362a20;
   --ink-2: #72634f;
   --accent-text: #94591f;
-  --line: #f1c9b3;
+  --line: #ecd3b4;
   --accent: #b97a41;
   --accent-ink: #ffffff;
-  --accent-soft: #ffd9c4;
+  --accent-soft: #fde2c6;
   --good: #5cbb90;
   --danger: #c1543f;
   --shadow: 0 2px 12px rgba(60, 42, 24, 0.06);
   --radius: 18px;
-  --c-common: #9aa3ad;
-  --c-uncommon: #43b27f;
-  --c-rare: #3d8bfd;
-  --c-epic: #a45cf0;
-  --c-legendary: #d69a1f;
+  --c-common: #b4bcc6;
+  --c-uncommon: #86d6ae;
+  --c-rare: #86b8f7;
+  --c-epic: #c39bf2;
+  --c-legendary: #f4c862;
   --floor: #fff0c6;
   --floor-2: #f0cf8e;
-  --wall: #ffe3dd;
-  --wall-2: #ffefd6;
+  --wall: #ffeedd;
+  --wall-2: #fff3dc;
   color-scheme: light;
 }
 
@@ -1694,8 +1694,8 @@ select {
 /* ============ 파스텔 색연필 손그림 톤 ============ */
 :root {
   --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .31 0 0 0 0 .2 0 0 0 1.5 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --pencil-edge: rgba(224, 138, 112, 0.7);
-  --pencil-shadow: 3px 4px 0 rgba(246, 168, 140, 0.32);
+  --pencil-edge: rgba(205, 148, 100, 0.7);
+  --pencil-shadow: 3px 4px 0 rgba(236, 190, 140, 0.34);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
@@ -1741,7 +1741,7 @@ body::after {
 /* 서식지 벽: 색연필로 칠한 빗금 */
 .habitat {
   background:
-    repeating-linear-gradient(118deg, transparent 0 4px, rgba(236, 120, 110, 0.13) 4px 5.4px),
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(226, 150, 100, 0.12) 4px 5.4px),
     linear-gradient(180deg, var(--wall) 0, var(--wall-2) 100%);
   border: 1.5px solid var(--pencil-edge);
   border-radius: 24px 20px 25px 21px / 21px 25px 20px 24px;
@@ -1776,22 +1776,22 @@ body::after {
 
 /* 카드 위쪽에 연한 색연필 띠 */
 .card {
-  background-image: linear-gradient(180deg, rgba(255, 214, 196, 0.35), transparent 38px);
+  background-image: linear-gradient(180deg, rgba(255, 233, 190, 0.5), transparent 40px);
 }
 .btn.primary {
-  background: #f0a285;
+  background: #f7c08c;
   color: #3a2216;
-  border: 1.5px solid rgba(150, 90, 60, 0.5);
-  box-shadow: 2px 3px 0 rgba(150, 90, 60, 0.28);
+  border: 1.5px solid rgba(150, 100, 60, 0.5);
+  box-shadow: 2px 3px 0 rgba(150, 100, 60, 0.26);
 }
 .tabbar {
-  background: #fff6ee;
+  background: #fff8ec;
   border-top: 1.5px solid var(--line);
 }
 .tabbar button[aria-current='page'],
 .tabbar button.on,
 .tabbar button.active {
-  background: #ffd9c4;
+  background: #ffe7b8;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .btn.primary {
@@ -1804,4 +1804,137 @@ body::after {
   :root:not([data-theme='light']) .card { background-image: none; }
   :root:not([data-theme='light']) .habitat { background: linear-gradient(180deg, var(--wall), var(--wall-2)); }
   :root:not([data-theme='light']) .habitat::after { opacity: 0.12; mix-blend-mode: screen; }
+}
+
+/* ============ 모든 화면을 같은 파스텔 색연필 톤으로 ============ */
+:root {
+  --wobble: 16px 13px 17px 14px / 14px 17px 13px 16px;
+  --wobble-s: 11px 9px 12px 10px / 10px 12px 9px 11px;
+}
+
+/* 배지 글자: 파스텔 바탕이라 흰 글씨 대신 진한 갈색 */
+.rarity-badge {
+  color: #3a2a22;
+  border: 1.5px solid rgba(110, 80, 55, 0.35);
+}
+
+/* 이모지도 색연필로 다시 그린 듯: 채도를 살짝 빼고 선을 떨리게 */
+.task-emoji,
+.item-emoji,
+.dex-emoji,
+.gacha-emoji,
+.clockout-item,
+.tab-icon,
+.build-item,
+.shelf-items span,
+.office-obj,
+.stamp,
+.count-chip i,
+.record-cal i {
+  filter: url(#pencil-soft) saturate(0.78) brightness(1.04);
+}
+.rarity-LEGENDARY .gacha-emoji,
+.rarity-EPIC .gacha-emoji {
+  filter: url(#pencil-soft) saturate(0.85) drop-shadow(0 0 12px var(--rarity));
+}
+.office-obj {
+  filter: url(#pencil-soft) saturate(0.78) drop-shadow(0 3px 2px rgba(120, 80, 40, 0.15));
+}
+
+/* 손으로 그은 듯 삐뚤빼뚤한 테두리 */
+.kv,
+.record-comment,
+.record-list button,
+.dex-cell,
+.chip.locked,
+.banner,
+.form select,
+select {
+  border-radius: var(--wobble);
+}
+.segmented,
+.seg,
+.icon-btn {
+  border-radius: var(--wobble);
+}
+.segmented button,
+.tabbar button,
+.chip,
+.count-chip,
+.holiday-chip {
+  border-radius: var(--wobble-s);
+}
+.sheet {
+  border-radius: 26px 22px 0 0 / 22px 26px 0 0;
+  border-top: 2px solid var(--pencil-edge);
+}
+.dex-cell,
+.kv,
+.chip,
+.segmented,
+.seg {
+  border-color: var(--pencil-edge);
+}
+
+/* 진행 막대: 색연필로 빗금 쳐서 칠한 느낌 */
+.progress {
+  border: 1.5px solid var(--pencil-edge);
+}
+.progress-fill,
+.task-bar-fill {
+  background: repeating-linear-gradient(135deg, #f6bf8a 0 4px, #fad6ae 4px 7px);
+}
+.task-row.done .task-bar-fill {
+  background: repeating-linear-gradient(135deg, #8fd9b0 0 4px, #b4e8c8 4px 7px);
+}
+.task-bar {
+  background: color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+/* 입력칸 */
+input[type='number'],
+input[type='text'],
+input[type='time'],
+input[type='date'],
+textarea {
+  border-radius: var(--wobble-s);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .rarity-badge { color: #241a10; }
+  :root:not([data-theme='light']) .progress-fill,
+  :root:not([data-theme='light']) .task-bar-fill { background: repeating-linear-gradient(135deg, #c98d57 0 4px, #dba573 4px 7px); }
+  :root:not([data-theme='light']) .task-row.done .task-bar-fill { background: repeating-linear-gradient(135deg, #5da57f 0 4px, #79bd98 4px 7px); }
+}
+
+/* 도감: 빈 칸도 연필로 그은 점선 칸으로, 희귀도 띠는 유지 */
+.dex {
+  border-left: 7px solid var(--rarity);
+}
+.dex-cell {
+  background: color-mix(in srgb, var(--card) 70%, var(--bg-2));
+  border: 1.5px dashed var(--pencil-edge);
+}
+.dex-cell.locked {
+  opacity: 0.75;
+}
+.count-chip {
+  background: #ffe7b8;
+  color: #3a2a22;
+  border: 1.5px solid var(--pencil-edge);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .count-chip { background: var(--ink); color: var(--bg); }
+}
+
+.record-list button {
+  border: 1.5px dashed var(--pencil-edge);
+}
+.record-list button.on {
+  outline: 0;
+  border: 2px solid #f0b36a;
+  background: #fff1d3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .record-list button.on { background: var(--accent-soft); border-color: var(--accent); }
 }
