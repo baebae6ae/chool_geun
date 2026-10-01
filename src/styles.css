@@ -2315,3 +2315,14 @@ textarea {
 .app.clock .hero-money-value {
   font-size: clamp(1.6rem, 4.8vw, 2.8rem);
 }
+
+/* 직접 그린 이벤트 아이콘: 글자 크기에 맞춰 */
+.ev-svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+  overflow: visible;
+}
+.dex-emoji {
+  font-size: 2.3rem;
+}

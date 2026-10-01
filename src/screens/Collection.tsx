@@ -4,6 +4,7 @@ import { GACHA_EVENTS, RARITIES, RARITY_LABEL, RARITY_RATE, type GachaEvent } fr
 import { RARE_BEHAVIORS } from '../domain/rare';
 import type { AppState } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
+import { EventIcon } from '../components/EventIcon';
 
 /** 기획서 8. 직장인 가챠 도감 */
 export function Collection({ state }: { state: AppState }) {
@@ -30,7 +31,7 @@ export function Collection({ state }: { state: AppState }) {
             const at = state.rare?.[r.id];
             return (
               <div key={r.id} className={`dex-cell ${at ? 'got' : 'locked'}`} title={at ? r.description : undefined}>
-                <span className="dex-emoji">{at ? r.emoji : '❔'}</span>
+                <span className="dex-emoji">{at ? <EventIcon id={r.id} emoji={r.emoji} /> : '❔'}</span>
                 <span className="dex-name">{at ? r.name : '???'}</span>
                 {at && <span className="dex-date">{formatDotDate(dateKey(at))}</span>}
               </div>
@@ -53,7 +54,7 @@ export function Collection({ state }: { state: AppState }) {
                 const c = state.collection[e.id];
                 return (
                   <button key={e.id} className={`dex-cell ${c ? 'got' : 'locked'}`} onClick={() => c && setPicked(e)} disabled={!c}>
-                    <span className="dex-emoji">{c ? e.emoji : '❔'}</span>
+                    <span className="dex-emoji">{c ? <EventIcon id={e.id} emoji={e.emoji} /> : '❔'}</span>
                     <span className="dex-name">{c ? e.name : '???'}</span>
                     {c && c.count > 1 && <span className="dex-count">×{c.count}</span>}
                   </button>
@@ -68,7 +69,7 @@ export function Collection({ state }: { state: AppState }) {
         <div className="overlay" role="dialog" aria-modal="true" onClick={() => setPicked(null)}>
           <div className={`sheet gacha-card rarity-${picked.rarity}`} onClick={(e) => e.stopPropagation()}>
             <div className="rarity-badge">{picked.rarity}</div>
-            <div className="gacha-emoji">{picked.emoji}</div>
+            <div className="gacha-emoji"><EventIcon id={picked.id} emoji={picked.emoji} /></div>
             <div className="gacha-name">{picked.name}</div>
             <p className="gacha-desc">{picked.description}</p>
             <p className="muted small">

@@ -7,6 +7,7 @@ import { buzz } from '../haptics';
 import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
 import { ItemIcon } from './ItemIcon';
+import { EventIcon } from './EventIcon';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -44,7 +45,7 @@ export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: str
           <div className="gacha-reveal">
             <div className="rarity-badge">{e.rarity} · {RARITY_LABEL[e.rarity]}</div>
             <div className="gacha-emoji-wrap">
-              <div className="gacha-emoji">{e.emoji}</div>
+              <div className="gacha-emoji"><EventIcon id={e.id} emoji={e.emoji} /></div>
             </div>
             <div className="gacha-name">{e.name}</div>
             <p className="gacha-desc">{e.description}</p>
@@ -184,7 +185,7 @@ export function DailyRecordCard({ day, hamsterName }: { day: DailyWork; hamsterN
           {gachaCount}개{' '}
           <span className="record-gacha">
             {day.gacha.filter((g) => g.obtained).map((g, i) => (
-              <span key={i} title={GACHA_BY_ID[g.eventId]?.name}>{GACHA_BY_ID[g.eventId]?.emoji}</span>
+              <span key={i} title={GACHA_BY_ID[g.eventId]?.name}>{GACHA_BY_ID[g.eventId] && <EventIcon id={g.eventId} emoji={GACHA_BY_ID[g.eventId].emoji} />}</span>
             ))}
           </span>
         </dd>
