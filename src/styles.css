@@ -3,7 +3,7 @@
   --bg-2: #f8e9d2;
   --card: #fffbf3;
   --ink: #362a20;
-  --ink-2: #72634f;
+  --ink-2: #675842;
   --accent-text: #94591f;
   --line: #ecd3b4;
   --accent: #b97a41;
@@ -1937,4 +1937,191 @@ textarea {
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .record-list button.on { background: var(--accent-soft); border-color: var(--accent); }
+}
+
+/* =====================================================================
+   파스텔 색연필 톤 2차: 서식지 밖 화면도 '눈에 띄게' — 카드마다 다른 파스텔 칠 + 진한 연필 테두리
+   ===================================================================== */
+:root {
+  --t1: #ffe4cf; --e1: #d99a66;   /* 복숭아 */
+  --t2: #fff0bf; --e2: #d6ad3f;   /* 버터 */
+  --t3: #dcf3e1; --e3: #6fbb8c;   /* 민트 */
+  --t4: #dbebfb; --e4: #78a6d6;   /* 하늘 */
+  --t5: #eadff8; --e5: #a284cf;   /* 라벤더 */
+  --hatch: rgba(255, 255, 255, 0.6);
+  --paper: #fff8e8;
+  --pen: #a9794f;                 /* 연필심 갈색 */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --t1: #3a2c20; --e1: #6b5238;
+    --t2: #3a3320; --e2: #6b5f38;
+    --t3: #223328; --e3: #3f6b50;
+    --t4: #222f3d; --e4: #3f5f80;
+    --t5: #2f2740; --e5: #5d4c80;
+    --hatch: rgba(255, 255, 255, 0.03);
+    --paper: #292019;
+    --pen: #8a6a4c;
+  }
+}
+
+/* 배경: 종이 위에 파스텔로 슥슥 번진 색 */
+html,
+body {
+  background:
+    radial-gradient(420px 320px at 100% 0%, rgba(190, 230, 208, 0.7), transparent 70%),
+    radial-gradient(380px 320px at 0% 48%, rgba(255, 222, 190, 0.7), transparent 70%),
+    radial-gradient(440px 340px at 100% 100%, rgba(200, 224, 247, 0.7), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) html,
+  :root:not([data-theme='light']) body { background: var(--bg); }
+}
+
+/* 카드: 카드마다 다른 파스텔 + 흰 색연필 빗금 + 진한 테두리 + 손으로 눌러 그린 그림자 */
+.card {
+  --tint: var(--t3);
+  --edge: var(--e3);
+  background-color: var(--tint);
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, var(--hatch) 5px 6.6px);
+  border: 2.5px solid var(--edge);
+  border-radius: var(--wobble);
+  box-shadow: 4px 5px 0 color-mix(in srgb, var(--edge) 45%, transparent);
+}
+.screen > .card:nth-child(5n + 2) { --tint: var(--t1); --edge: var(--e1); }
+.screen > .card:nth-child(5n + 3) { --tint: var(--t2); --edge: var(--e2); }
+.screen > .card:nth-child(5n + 4) { --tint: var(--t3); --edge: var(--e3); }
+.screen > .card:nth-child(5n + 5) { --tint: var(--t4); --edge: var(--e4); }
+.screen > .card:nth-child(5n + 6) { --tint: var(--t5); --edge: var(--e5); }
+
+.card-label {
+  display: inline-block;
+  color: var(--ink);
+  border-bottom: 2.5px dashed var(--edge);
+  padding-bottom: 2px;
+  margin-bottom: 10px;
+}
+.card .dex-head .card-label,
+.card-label.sub { margin-bottom: 8px; }
+
+/* 화면 제목: 형광펜으로 칠한 듯 */
+.screen-head h1 {
+  display: inline-block;
+  padding: 0 8px;
+  margin-left: -4px;
+  background: linear-gradient(176deg, transparent 56%, #ffe28c 56% 94%, transparent 94%);
+  border-radius: 6px 12px 8px 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .screen-head h1 { background: none; }
+}
+
+/* 버튼: 연필로 윤곽을 꾹꾹 + 파스텔 칠 */
+.btn {
+  background-color: var(--paper);
+  border: 2.5px solid var(--pen);
+  box-shadow: 3px 4px 0 rgba(169, 121, 79, 0.35);
+  font-weight: 800;
+}
+.btn.primary {
+  background-color: #ffd29b;
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.45) 5px 6.6px);
+  color: #3a2216;
+  border: 2.5px solid #b87a45;
+  box-shadow: 3px 4px 0 rgba(184, 122, 69, 0.4);
+}
+.btn.danger {
+  background-color: #ffd9d2;
+  border-color: #cf7a6c;
+}
+.btn:active:not(:disabled) {
+  transform: translate(2px, 3px);
+  box-shadow: 1px 1px 0 rgba(169, 121, 79, 0.35);
+}
+
+/* 오늘 화면: 번 돈은 노란 메모지, 작업 진행은 민트 메모지 */
+.hero-money {
+  background-color: #fff2c4;
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.6) 5px 6.6px);
+  border: 2.5px solid #dcb455;
+  border-radius: var(--wobble);
+  box-shadow: 4px 5px 0 rgba(220, 180, 85, 0.4);
+  padding: 12px 16px 14px;
+  transform: rotate(-0.6deg);
+}
+.task-row {
+  background-color: #dcf3e1;
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.6) 5px 6.6px);
+  border: 2.5px solid #6fbb8c;
+  border-radius: var(--wobble);
+  box-shadow: 4px 5px 0 rgba(111, 187, 140, 0.4);
+  padding: 10px 14px;
+  transform: rotate(0.5deg);
+}
+.task-row .task-bar { background: rgba(255, 255, 255, 0.7); border: 1.5px solid #6fbb8c; height: 14px; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .hero-money,
+  :root:not([data-theme='light']) .task-row { background-color: var(--card); background-image: none; border-color: var(--line); box-shadow: none; transform: none; }
+}
+
+/* 하단 탭: 노트 아래 붙인 색종이 */
+.tabbar {
+  background-color: #fff0cf;
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.55) 5px 6.6px);
+  border-top: 3px solid #dfb677;
+  border-radius: 22px 18px 0 0 / 16px 20px 0 0;
+}
+.tabbar button.on {
+  background-color: #ffd9a6;
+  border: 2px solid #c9925a;
+  box-shadow: 2px 3px 0 rgba(201, 146, 90, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .tabbar { background-color: var(--card); background-image: none; border-top-color: var(--line); }
+  :root:not([data-theme='light']) .tabbar button.on { background-color: var(--accent-soft); border-color: var(--accent); box-shadow: none; }
+}
+
+/* 도감: 얻은 칸은 희귀도 색으로 칠하고 실선, 빈 칸은 점선 */
+.dex .dex-cell:not(.locked) {
+  background: color-mix(in srgb, var(--rarity) 24%, #fffdf6);
+  border: 2px solid var(--rarity);
+}
+.dex-cell.locked { background: rgba(255, 255, 255, 0.55); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .dex .dex-cell:not(.locked) { background: color-mix(in srgb, var(--rarity) 22%, var(--card)); }
+  :root:not([data-theme='light']) .dex-cell.locked { background: transparent; }
+}
+
+/* 바텀시트/팝업: 노트 종이 위에 파스텔 */
+.sheet {
+  background-color: #fff6df;
+  background-image: repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.6) 5px 6.6px);
+  border-top: 3px solid #dfb677;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sheet { background-color: var(--card); background-image: none; }
+}
+
+/* 선택 토글/칩/입력칸도 굵은 연필선 */
+.segmented,
+.seg { border: 2px solid var(--pen); background: var(--paper); }
+.segmented button.on,
+.seg button.on { background: #ffe39a; }
+input[type='number'],
+input[type='text'],
+input[type='time'],
+input[type='date'],
+select,
+textarea {
+  background-color: #fffdf4;
+  border: 2px solid var(--pen);
+}
+.chip { border: 2px solid var(--pen); background: var(--paper); }
+.chip.on,
+.chip.selected { background: #ffe39a; }
+.kv { background: rgba(255, 255, 255, 0.6); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .task-row .task-bar { background: var(--bg-2); border-color: var(--line); }
 }
