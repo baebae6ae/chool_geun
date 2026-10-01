@@ -25,7 +25,17 @@ const targets = await CDP.List({ port: 9222 });
 const pageTarget = targets.find((t) => t.type === 'page') ?? targets[0];
 if (!pageTarget) throw new Error('웹뷰 페이지를 찾지 못함: ' + JSON.stringify(targets));
 console.log('target:', pageTarget.type, pageTarget.url);
-const client = await CDP({ port: 9222, target: pageTarget });
+// local: true → 웹뷰가 응답하지 않는 /json/protocol 요청을 건너뛰고 내장 명령 목록을 쓴다
+let client;
+for (let i = 0; i < 4 && !client; i++) {
+  try {
+    client = await CDP({ port: 9222, target: pageTarget.webSocketDebuggerUrl, local: true });
+  } catch (e) {
+    console.log(`연결 재시도 ${i + 1}: ${e.message}`);
+    await sleep(2500);
+  }
+}
+if (!client) throw new Error('웹뷰 연결 실패');
 const { Runtime, Page } = client;
 await Runtime.enable();
 await Page.enable();
@@ -170,4 +180,5 @@ fs.writeFileSync(`${OUT}/results.json`, JSON.stringify({ results, errors }, null
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} 통과`);
 await client.close();
+console.log('\n' + JSON.stringify({ results, errors }, null, 1));
 process.exit(failed.length ? 1 : 0);
