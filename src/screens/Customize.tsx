@@ -1,6 +1,7 @@
 import { DeskBack, DeskFront } from '../components/habitat/props';
 import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import {
+  BACKGROUNDS,
   COLORS,
   DECOS,
   GLASSES_UNLOCK,
@@ -39,9 +40,10 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
         </div>
       </div>
       <p className="muted small center-text">
-        작업물 {p.completed}개 완성 · 도감 {p.collected}종 — 더 모으면 새 아이템이 열려요
+        작업물 {p.completed}개 완성 · 도감 {p.collected}종 · 누적 {Math.floor(p.earned / 10000).toLocaleString('ko-KR')}만 원 — 더 모으면 새 아이템이 열려요
       </p>
 
+      <Picker title="서식지 배경 (시즌을 끝내면 열려요)" items={BACKGROUNDS} value={c.bg ?? 'default'} isOpen={open} onPick={(bg) => set({ bg })} />
       <Picker title="햄스터 색상" items={COLORS} value={c.color} isOpen={open} onPick={(color) => set({ color })} />
       <section className="card">
         <div className="card-label">안경</div>

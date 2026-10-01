@@ -2186,3 +2186,88 @@ textarea {
 .backup-actions .btn {
   flex: 1 1 140px;
 }
+
+/* ============ 시즌별 방 테마 ============ */
+.office-theme-cafe.office-walled {
+  background-color: #fbe0c6;
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(226, 150, 100, 0.12) 4px 5.4px),
+    repeating-linear-gradient(90deg, rgba(220, 150, 110, 0.32) 0 14px, transparent 14px 28px),
+    linear-gradient(180deg, #fbe0c6 0 58%, transparent 58%);
+}
+.office-theme-cafe .office-floor {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.4) 5px 6.4px),
+    conic-gradient(#f6dcc0 25%, #ecc8a4 0 50%, #f6dcc0 0 75%, #ecc8a4 0) 0 0 / 56px 56px;
+  border-top-color: #b98a62;
+}
+.office-theme-garden.office-walled {
+  background-color: #d6ecfb;
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(255, 255, 255, 0.35) 4px 5.4px),
+    linear-gradient(180deg, #cfe8fa 0 40%, #e6f6e8 40% 58%, transparent 58%);
+}
+.office-theme-garden .office-floor {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.35) 5px 6.4px),
+    repeating-linear-gradient(90deg, #cdeeb4 0 38px, #c0e6a4 38px 76px);
+  border-top-color: #8cc07a;
+}
+.office-theme-camp.office-walled {
+  background-color: #d6d0f0;
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(255, 255, 255, 0.3) 4px 5.4px),
+    linear-gradient(180deg, #c4bde8 0 30%, #e3cfea 30% 58%, transparent 58%);
+}
+.office-theme-camp .office-floor {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.3) 5px 6.4px),
+    repeating-linear-gradient(90deg, #bfe0a4 0 36px, #b2d796 36px 72px);
+  border-top-color: #84b574;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .office-theme-cafe.office-walled,
+  :root:not([data-theme='light']) .office-theme-garden.office-walled,
+  :root:not([data-theme='light']) .office-theme-camp.office-walled { background-color: var(--wall); background-image: none; }
+  :root:not([data-theme='light']) .office-theme-cafe .office-floor,
+  :root:not([data-theme='light']) .office-theme-garden .office-floor,
+  :root:not([data-theme='light']) .office-theme-camp .office-floor { background: var(--floor-2); }
+}
+
+/* 누적 기록 카드 */
+.career-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+.career-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+.career-grid > div {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px dashed var(--pencil-edge);
+  border-radius: var(--wobble-s);
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+}
+.career-grid .wide {
+  grid-column: 1 / -1;
+}
+.career-grid b {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+.career-grid small {
+  color: var(--ink-2);
+  font-size: 0.74rem;
+}
+.career-next {
+  margin: 10px 0 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .career-grid > div { background: transparent; }
+}

@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { DailyRecordCard } from '../components/Modals';
 import { OfficeRoom } from '../components/OfficeRoom';
 import { addDays, dateKey, formatDotDate, formatKoreanDate, mondayOf, MONTH_EN, WEEKDAY_KO, weekday } from '../domain/date';
-import { formatWon, itemOf, monthSummary, weekSlots } from '../domain/records';
+import { careerStats, formatWon, itemOf, monthSummary, weekSlots } from '../domain/records';
+import { careerTitle, nextUnlock } from '../domain/customization';
+import { playerProgress } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { dayBounds, isWorkday } from '../domain/schedule';
 import type { AppState, DailyWork, Settings } from '../domain/types';
@@ -142,6 +144,7 @@ export function Records({
         <button role="tab" aria-selected={tab === 'monthly'} className={tab === 'monthly' ? 'on' : ''} onClick={() => setTab('monthly')}>월간</button>
       </div>
 
+      <CareerCard state={state} />
       {tab === 'daily' && <StampWeek state={state} now={now} />}
       {tab === 'daily' &&
         (records.length === 0 ? (
@@ -190,7 +193,7 @@ export function Records({
             <StampCalendar y={ym.y} m={ym.m} state={state} now={now} onPick={onDayOverride ? setPicked : undefined} />
             {onDayOverride && <p className="muted small">오늘 이후 날짜를 누르면 연차·회사 휴무나 출근일을 직접 정할 수 있어요.</p>}
           </section>
-          {lastSeason && <OfficeRoom done={officeDone} small />}
+          {lastSeason && <OfficeRoom done={officeDone} season={lastSeason} small />}
         </>
       )}
 
@@ -260,5 +263,40 @@ function DaySheet({
         </button>
       </div>
     </div>
+  );
+}
+
+/** 지금까지의 누적 — 오래 쓸수록 쌓이는 숫자와 다음 해금 */
+function CareerCard({ state }: { state: AppState }) {
+  const c = careerStats(state.days, state.settings?.dayOverrides);
+  const p = playerProgress(state);
+  const next = nextUnlock(p);
+  return (
+    <section className="card career">
+      <div className="career-title">🏅 {careerTitle(c.completedDays)}</div>
+      <div className="career-grid">
+        <div>
+          <b>{c.completedDays}</b>
+          <small>출근일</small>
+        </div>
+        <div>
+          <b>{c.streak}</b>
+          <small>연속 출근</small>
+        </div>
+        <div>
+          <b>{Math.round(c.workedHours)}</b>
+          <small>근무 시간</small>
+        </div>
+        <div className="wide">
+          <b>{formatWon(Math.floor(c.earned))}</b>
+          <small>지금까지 번 돈</small>
+        </div>
+      </div>
+      {next && (
+        <p className="muted small career-next">
+          다음 해금: {next.emoji} {next.label} — {next.remaining}일 더 출근하면 열려요
+        </p>
+      )}
+    </section>
   );
 }

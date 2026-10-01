@@ -46,6 +46,8 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
   cardigan: '#f6c7d6',
   suit: '#3b3f4a',
   apron: '#fffaf0',
+  scarf: '#ee8d72',
+  cape: '#9a82dc',
 };
 
 type Palette = (typeof COLORS)[number];
@@ -418,6 +420,24 @@ function FrontOutfit({ id }: { id: Customization['outfit'] }) {
           <path d="M120 78 Q86 88 68 80 L60 120 H120Z" />
         </g>
       );
+    case 'scarf':
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M24 84 Q60 100 96 84 L94 96 Q60 112 26 96Z" fill={col} />
+          <path d="M34 90 l3 11 M48 95 l3 11 M62 97 l3 11 M76 95 l3 11 M88 91 l3 10" stroke="#fff5e8" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M72 100 l12 20 -10 5 -9 -19z" fill={col} />
+        </g>
+      );
+    case 'cape':
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M2 82 Q60 100 118 82 L124 120 H-4Z" fill={col} />
+          <path d="M2 82 Q60 100 118 82" fill="none" stroke="#fff5d6" strokeWidth="3" opacity=".7" />
+          <circle cx="40" cy="91" r="3.4" fill="#ffd54a" />
+          <circle cx="80" cy="91" r="3.4" fill="#ffd54a" />
+          <path d="M43 92 Q60 99 77 92" fill="none" stroke="#ffd54a" strokeWidth="1.6" />
+        </g>
+      );
     case 'apron':
       return (
         <g stroke={INK} strokeWidth="1.8">
@@ -467,6 +487,34 @@ function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
           <path d="M-34 24 Q-34 -12 0 -12 Q34 -12 34 24" stroke="#333" strokeWidth="3.6" fill="none" />
           <rect x="-40" y="20" width="10" height="16" rx="4" fill="#555" />
           <rect x="30" y="20" width="10" height="16" rx="4" fill="#555" />
+        </g>
+      );
+    case 'chef':
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" fill="#fffdf6">
+          <circle cx="-11" cy="-9" r="9" />
+          <circle cx="0" cy="-16" r="10.5" />
+          <circle cx="11" cy="-9" r="9" />
+          <rect x="-17" y="-5" width="34" height="10" rx="3" />
+          <path d="M-8 -3 v6 M0 -3 v6 M8 -3 v6" stroke="#e6d8c2" strokeWidth="1.2" />
+        </g>
+      );
+    case 'straw':
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+          <ellipse cx="0" cy="3" rx="29" ry="6.5" fill="#f1d58f" />
+          <path d="M-14 3 Q-14 -17 0 -17 Q14 -17 14 3Z" fill="#f7e3a8" />
+          <rect x="-14" y="-3.5" width="28" height="5.5" fill="#ee8d72" stroke="none" />
+          <path d="M-14 -3.5 H14 M-14 2 H14" stroke={INK} strokeWidth="1.2" fill="none" />
+        </g>
+      );
+    case 'flower':
+      return (
+        <g transform={side ? 'translate(-2 -2)' : 'translate(22 1)'} stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
+          {[0, 72, 144, 216, 288].map((a) => (
+            <ellipse key={a} cx="0" cy="-5.2" rx="3.4" ry="4.6" fill="#ffd1dc" transform={`rotate(${a})`} />
+          ))}
+          <circle r="3" fill="#ffd54a" />
         </g>
       );
     case 'crown':
@@ -620,6 +668,14 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 function SideOutfit({ id }: { id: Customization['outfit'] }) {
   if (id === 'none' || id === 'tie') return null;
   const col = OUTFIT_COLOR[id];
+  if (id === 'scarf') {
+    return (
+      <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+        <path d="M4 70 Q66 86 138 66 V80 Q70 98 4 84Z" fill={col} />
+        <path d="M30 76 l2 11 M52 80 l2 11 M74 80 l2 11 M96 77 l2 11 M118 73 l2 10" stroke="#fff5e8" strokeWidth="2" strokeLinecap="round" />
+      </g>
+    );
+  }
   if (id === 'apron') {
     return <path d="M78 74 Q94 72 108 78 L102 98 H70Z" fill={col} stroke={INK} strokeWidth="1.8" />;
   }

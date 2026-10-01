@@ -1,11 +1,12 @@
 /** 기획서 11~13. 일일 / 주간 / 월간 기록 집계 */
 import { addDays, mondayOf } from './date';
 import { daysUntilPayday } from './engine';
-import { WORK_ITEMS } from './workItems';
+import { isBankDay } from './schedule';
+import { itemAt } from './workItems';
 import type { DailyWork } from './types';
 
-export function itemOf(day: Pick<DailyWork, 'workItemIndex'>) {
-  return WORK_ITEMS[day.workItemIndex];
+export function itemOf(day: Pick<DailyWork, 'season' | 'workItemIndex'>) {
+  return itemAt(day.season, day.workItemIndex);
 }
 
 export interface WeekSlot {
@@ -86,4 +87,40 @@ export function paydaySummary(
     }
   }
   return { total, workDays, since };
+}
+
+export interface CareerStats {
+  completedDays: number;
+  earned: number;
+  workedHours: number;
+  /** 연속 출근(쉬는 날은 끊지 않는다) */
+  streak: number;
+}
+
+export function careerStats(days: Record<string, DailyWork>, overrides: Record<string, 'off' | 'on'> = {}): CareerStats {
+  const done = Object.values(days)
+    .filter((d) => d.completed)
+    .map((d) => d.date)
+    .sort();
+  let earned = 0;
+  let worked = 0;
+  for (const d of Object.values(days)) {
+    earned += d.earned || 0;
+    worked += d.workedMs || 0;
+  }
+  let streak = 0;
+  for (let i = done.length - 1; i >= 0; i--) {
+    if (i < done.length - 1) {
+      // 두 출근일 사이의 날이 전부 쉬는 날이어야 이어진 것으로 본다
+      let k = addDays(done[i], 1);
+      let ok = true;
+      while (k < done[i + 1]) {
+        if (isBankDay(k) && overrides[k] !== 'off') ok = false;
+        k = addDays(k, 1);
+      }
+      if (!ok) break;
+    }
+    streak++;
+  }
+  return { completedDays: done.length, earned, workedHours: worked / 3_600_000, streak };
 }

@@ -5,7 +5,7 @@ import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, type Place, type Step } from './brain';
 import { buzz } from '../../haptics';
 import type { RareId } from '../../domain/rare';
-import { Bowl, DeskBack, DeskFront, Floor, Nest, TrophyShelf, WallClock, Wheel, Window, type Trophy } from './props';
+import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, WallClock, Wheel, Window, type Trophy } from './props';
 import './habitat.css';
 
 interface Props {
@@ -311,11 +311,12 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
       <div className="habitat-frame" ref={frame}>
       <div
         className="habitat"
+        data-bg={custom.bg ?? 'default'}
         ref={box}
         style={fit ? { width: W, height: BASE_H, margin: 0, transform: `scale(${zoom})`, transformOrigin: '0 0' } : undefined}
       >
         <Window x={spots.window} now={now} />
-        {trophies.length > 0 && <TrophyShelf items={trophies} />}
+        {trophies.length > 0 && <PlacedItems items={trophies} />}
         <WallClock x={spots.desk} now={now} />
         <Floor />
         <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />

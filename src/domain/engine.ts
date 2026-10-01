@@ -214,6 +214,7 @@ export function playerProgress(state: ProgressSource): Progress {
     completed: completedCount(state.days),
     collected: Object.keys(state.collection).filter((id) => GACHA_BY_ID[id]).length,
     bestRarity: best,
+    earned: Object.values(state.days).reduce((sum, d) => sum + (d.earned || 0), 0),
   };
 }
 

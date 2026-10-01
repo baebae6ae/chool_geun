@@ -1,11 +1,12 @@
 /** 기획서 15. 햄스터 커스터마이징 — 기본 아이템 + 게임 진행 보상 */
-import type { AppState, Customization, DecoId, HamsterColor, HatId, OutfitId, Rarity } from './types';
+import type { AppState, Customization, DecoId, HamsterColor, HatId, OutfitId, Rarity, RoomBg } from './types';
 
 export type Unlock =
   | { kind: 'default' }
   | { kind: 'completed'; n: number } // 작업물 n개 완성
   | { kind: 'collected'; n: number } // 도감 n종 수집
-  | { kind: 'rarity'; rarity: Rarity }; // 해당 등급 이상 1종 획득
+  | { kind: 'rarity'; rarity: Rarity } // 해당 등급 이상 1종 획득
+  | { kind: 'earned'; won: number }; // 지금까지 번 돈(누적)
 
 export interface CatalogItem<T extends string> {
   id: T;
@@ -32,6 +33,8 @@ export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
   { id: 'white', label: '화이트', emoji: '⚪', unlock: d, body: '#ffffff', light: '#ffffff', shade: '#e4ddd4', cream: '#ffffff', ear: '#cdc8c2', line: '#b3a28c' },
   { id: 'gray', label: '그레이', emoji: '🩶', unlock: { kind: 'completed', n: 3 }, body: '#d8d4cf', light: '#e8e5e1', shade: '#aaa39b', cream: '#f7f5f2', ear: '#aaa49f', line: '#6d665f' },
   { id: 'choco', label: '초코', emoji: '🟤', unlock: { kind: 'completed', n: 7 }, body: '#b98158', light: '#cf9c77', shade: '#8a5a3c', cream: '#f6e4cf', ear: '#855a3e', line: '#432818' },
+  { id: 'cream', label: '크림', emoji: '🍦', unlock: { kind: 'completed', n: 30 }, body: '#fff0d2', light: '#fff7e8', shade: '#f0cf9c', cream: '#fffaf0', ear: '#d9b78a', line: '#b08a55' },
+  { id: 'silver', label: '실버', emoji: '🩵', unlock: { kind: 'completed', n: 150 }, body: '#e6e3ee', light: '#f2f0f8', shade: '#b9b4cc', cream: '#f8f6fc', ear: '#a59fbd', line: '#6f6a88' },
 ];
 
 export const HATS: CatalogItem<HatId>[] = [
@@ -41,6 +44,9 @@ export const HATS: CatalogItem<HatId>[] = [
   { id: 'ribbon', label: '리본', emoji: '🎀', unlock: { kind: 'collected', n: 8 } },
   { id: 'headset', label: '헤드셋', emoji: '🎧', unlock: { kind: 'rarity', rarity: 'RARE' } },
   { id: 'crown', label: '왕관', emoji: '👑', unlock: { kind: 'completed', n: 20 } },
+  { id: 'chef', label: '셰프 모자', emoji: '🧑‍🍳', unlock: { kind: 'completed', n: 40 } },
+  { id: 'straw', label: '밀짚모자', emoji: '👒', unlock: { kind: 'completed', n: 60 } },
+  { id: 'flower', label: '꽃 머리핀', emoji: '🌸', unlock: { kind: 'earned', won: 3_000_000 } },
 ];
 
 export const OUTFITS: CatalogItem<OutfitId>[] = [
@@ -50,6 +56,8 @@ export const OUTFITS: CatalogItem<OutfitId>[] = [
   { id: 'cardigan', label: '카디건', emoji: '🧶', unlock: { kind: 'collected', n: 15 } },
   { id: 'suit', label: '정장', emoji: '🤵', unlock: { kind: 'completed', n: 10 } },
   { id: 'apron', label: '앞치마', emoji: '🍳', unlock: { kind: 'rarity', rarity: 'EPIC' } },
+  { id: 'scarf', label: '머플러', emoji: '🧣', unlock: { kind: 'completed', n: 50 } },
+  { id: 'cape', label: '망토', emoji: '🦸', unlock: { kind: 'earned', won: 10_000_000 } },
 ];
 
 export const DECOS: CatalogItem<DecoId>[] = [
@@ -57,6 +65,17 @@ export const DECOS: CatalogItem<DecoId>[] = [
   { id: 'plant', label: '화분', emoji: '🌱', unlock: d },
   { id: 'doll', label: '인형', emoji: '🧸', unlock: { kind: 'completed', n: 12 } },
   { id: 'cactus', label: '선인장', emoji: '🌵', unlock: { kind: 'collected', n: 25 } },
+  { id: 'cake', label: '케이크', emoji: '🍰', unlock: { kind: 'completed', n: 40 } },
+  { id: 'sunflower', label: '해바라기', emoji: '🌻', unlock: { kind: 'completed', n: 60 } },
+  { id: 'lantern', label: '랜턴', emoji: '🏮', unlock: { kind: 'completed', n: 80 } },
+];
+
+/** 서식지 배경 — 시즌을 끝낼 때마다 하나씩 열린다 */
+export const BACKGROUNDS: CatalogItem<RoomBg>[] = [
+  { id: 'default', label: '기본 방', emoji: '🏠', unlock: d },
+  { id: 'cafe', label: '카페', emoji: '☕', unlock: { kind: 'completed', n: 40 } },
+  { id: 'garden', label: '옥상 정원', emoji: '🌻', unlock: { kind: 'completed', n: 60 } },
+  { id: 'camp', label: '캠핑장', emoji: '⛺', unlock: { kind: 'completed', n: 80 } },
 ];
 
 export const GLASSES_UNLOCK: Unlock = { kind: 'collected', n: 3 };
@@ -69,6 +88,7 @@ export const DEFAULT_CUSTOM: Customization = {
   laptop: true,
   mug: true,
   deco: 'plant',
+  bg: 'default',
 };
 
 const RARITY_ORDER: Rarity[] = ['COMMON', 'UNCOMMON', 'RARE', 'EPIC', 'LEGENDARY'];
@@ -77,6 +97,8 @@ export interface Progress {
   completed: number;
   collected: number;
   bestRarity: number; // RARITY_ORDER 인덱스, 없으면 -1
+  /** 지금까지 번 돈 */
+  earned: number;
 }
 
 export function isUnlocked(u: Unlock, p: Progress): boolean {
@@ -89,6 +111,8 @@ export function isUnlocked(u: Unlock, p: Progress): boolean {
       return p.collected >= u.n;
     case 'rarity':
       return p.bestRarity >= RARITY_ORDER.indexOf(u.rarity);
+    case 'earned':
+      return p.earned >= u.won;
   }
 }
 
@@ -102,11 +126,43 @@ export function unlockText(u: Unlock): string {
       return `도감 ${u.n}종 수집`;
     case 'rarity':
       return `${u.rarity} 이상 획득`;
+    case 'earned':
+      return `누적 ${(u.won / 10000).toLocaleString('ko-KR')}만 원 벌기`;
   }
 }
 
 export function rarityIndex(r: Rarity): number {
   return RARITY_ORDER.indexOf(r);
+}
+
+/** 가장 가까운 다음 해금 (작업물 개수 기준). 다 열었으면 null */
+export function nextUnlock(p: Progress): { label: string; emoji: string; remaining: number } | null {
+  const all: { label: string; emoji: string; unlock: Unlock }[] = [...COLORS, ...HATS, ...OUTFITS, ...DECOS, ...BACKGROUNDS];
+  let best: { label: string; emoji: string; remaining: number } | null = null;
+  for (const it of all) {
+    if (it.unlock.kind !== 'completed' || p.completed >= it.unlock.n) continue;
+    const remaining = it.unlock.n - p.completed;
+    if (!best || remaining < best.remaining) best = { label: it.label, emoji: it.emoji, remaining };
+  }
+  return best;
+}
+
+/** 출근일수 칭호 */
+export const CAREER_TITLES: { n: number; title: string }[] = [
+  { n: 0, title: '수습 햄스터' },
+  { n: 10, title: '신입 햄스터' },
+  { n: 30, title: '적응 완료' },
+  { n: 60, title: '든든한 대리' },
+  { n: 100, title: '백일 기념 과장' },
+  { n: 200, title: '베테랑 차장' },
+  { n: 365, title: '1주년 부장' },
+  { n: 730, title: '전설의 임원' },
+];
+
+export function careerTitle(completed: number): string {
+  let t = CAREER_TITLES[0].title;
+  for (const c of CAREER_TITLES) if (completed >= c.n) t = c.title;
+  return t;
 }
 
 export type ProgressSource = Pick<AppState, 'days' | 'collection'>;

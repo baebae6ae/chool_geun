@@ -3,7 +3,7 @@ import { OfficeRoom } from '../components/OfficeRoom';
 import { mondayOf, WEEKDAY_EN, weekday } from '../domain/date';
 import { completedCount } from '../domain/engine';
 import { completedInSeason, itemOf } from '../domain/records';
-import { SEASON_LENGTH, SEASON_TITLE, WORK_ITEMS } from '../domain/workItems';
+import { SEASON_LENGTH, seasonDef, seasonTitle } from '../domain/workItems';
 import type { AppState, DailyWork } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 
@@ -27,7 +27,7 @@ export function Office({ state }: { state: AppState }) {
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1>🏢 햄스터 사무실</h1>
+        <h1>{seasonDef(season).icon} 햄스터 {seasonDef(season).room}</h1>
         {currentSeason > 1 && (
           <select value={season} onChange={(e) => setSeason(Number(e.target.value))} aria-label="시즌 선택">
             {Array.from({ length: currentSeason }, (_, i) => (
@@ -36,10 +36,10 @@ export function Office({ state }: { state: AppState }) {
           </select>
         )}
       </header>
-      <p className="muted">시즌 {season} 「{SEASON_TITLE}」 · {done.size} / {SEASON_LENGTH}</p>
+      <p className="muted">시즌 {season} 「{seasonTitle(season)}」 · {done.size} / {SEASON_LENGTH}</p>
 
-      <OfficeRoom done={done} />
-      {seasonDone && <div className="banner">🎉 시즌 {season} 완성! 완성된 햄스터 사무실이에요.</div>}
+      <OfficeRoom done={done} season={season} />
+      {seasonDone && <div className="banner">🎉 시즌 {season} 완성! 「{seasonTitle(season)}」을 모두 만들었어요.</div>}
 
       <section className="card">
         <div className="card-label">주간 결과물</div>
@@ -63,7 +63,7 @@ export function Office({ state }: { state: AppState }) {
       <section className="card">
         <div className="card-label">작업물 목록</div>
         <ul className="item-list">
-          {WORK_ITEMS.map((it, i) => (
+          {seasonDef(season).items.map((it, i) => (
             <li key={it.day} className={done.has(i) ? 'done' : ''}>
               <span className="item-day">Day {it.day}</span>
               <span className="item-emoji">{done.has(i) ? <ItemIcon item={it} /> : '❔'}</span>

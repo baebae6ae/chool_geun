@@ -139,6 +139,38 @@ function Deco({ id }: { id: Customization['deco'] }) {
           <path d="M7 44 h15 l-2 8 h-11z" fill="#ecd2b0" />
         </g>
       );
+    case 'cake':
+      return (
+        <g>
+          <ellipse cx="14" cy="50" rx="12" ry="3" fill="#fff" />
+          <rect x="5" y="37" width="18" height="13" rx="3.5" fill="#ffd9e0" />
+          <path d="M5 41 q2.2 3 4.5 0 q2.2 3 4.5 0 q2.2 3 4.5 0 q2.2 3 4.5 0 V37 H5z" fill="#fffaf0" />
+          <circle cx="14" cy="34.5" r="2.6" fill="#e8504b" />
+        </g>
+      );
+    case 'sunflower':
+      return (
+        <g>
+          <rect x="13" y="22" width="2" height="26" rx="1" fill="#6fae73" />
+          <path d="M14 36 C8 34 6 28 8 25 C12 27 14 31 14 36Z" fill="#95c994" />
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+            <ellipse key={a} cx="14" cy="13" rx="2.6" ry="5" fill="#ffd54a" transform={`rotate(${a} 14 19)`} />
+          ))}
+          <circle cx="14" cy="19" r="4.4" fill="#8a5a36" />
+          <path d="M7 44 h14 l-2 8 h-10z" fill="#e8a074" />
+        </g>
+      );
+    case 'lantern':
+      return (
+        <g>
+          <circle cx="14" cy="38" r="13" fill="#ffe28a" opacity=".35" />
+          <path d="M9 28 Q14 20 19 28" fill="none" stroke="#7a6a58" strokeWidth="1.6" />
+          <rect x="8" y="28" width="12" height="3" rx="1.5" fill="#7a6a58" />
+          <rect x="8" y="31" width="12" height="15" rx="3.5" fill="#ffd36e" />
+          <rect x="8" y="46" width="12" height="3" rx="1.5" fill="#7a6a58" />
+          <path d="M11 34 v9 M17 34 v9" stroke="#f0a63a" strokeWidth="1" />
+        </g>
+      );
     default:
       return null;
   }
@@ -310,32 +342,42 @@ export function WallClock({ x, now }: { x: number; now: number }) {
   );
 }
 
-/* ---------- 완성품 선반 (이번 시즌에 만든 작업물이 하나씩 올라간다) ---------- */
+/* ---------- 완성한 작업물 배치 (이번 시즌에 만든 물건이 햄스터 집 벽·바닥 곳곳에 놓인다) ---------- */
 export interface Trophy {
   emoji: string;
   name: string;
+  /** 시즌 안에서의 순번(0~19) — 놓일 자리를 정한다 */
+  index: number;
   /** 오늘 막 완성한 것 */
   fresh: boolean;
+  pos: { size: number };
 }
 
-const SHELF_COLS = 7;
-const SHELF_ROWS = 3;
+/** 창문·시계·쳇바퀴·책상을 피해 비어 있는 자리 20곳 (서식지 너비·높이의 %) */
+const SLOTS: [number, number][] = [
+  [8, 12], [18, 10], [28, 13], [9, 27], [19, 25], [29, 29],
+  [31, 51], [40, 58], [49, 56], [58, 58], [66, 52],
+  [69, 12], [77, 15], [70, 28], [79, 32], [66, 41], [75, 45],
+  [91, 38], [94, 51], [27, 45],
+];
 
-export function TrophyShelf({ items }: { items: Trophy[] }) {
+export function PlacedItems({ items }: { items: Trophy[] }) {
   return (
-    <div className="shelf" aria-label={`완성한 작업물 ${items.length}개`}>
-      {Array.from({ length: SHELF_ROWS }, (_, r) => (
-        <div key={r} className="shelf-row">
-          <div className="shelf-items">
-            {items.slice(r * SHELF_COLS, (r + 1) * SHELF_COLS).map((it) => (
-              <span key={it.name} className={it.fresh ? 'fresh' : ''} title={it.name}>
-                <ItemIcon item={it} />
-              </span>
-            ))}
-          </div>
-          <div className="shelf-plank" />
-        </div>
-      ))}
+    <div className="placed" aria-label={`완성한 작업물 ${items.length}개`}>
+      {items.map((it) => {
+        const [x, y] = SLOTS[it.index % SLOTS.length];
+        const size = Math.round(Math.min(22, Math.max(14, 11 + it.pos.size * 3.4)));
+        return (
+          <span
+            key={it.name}
+            className={it.fresh ? 'fresh' : ''}
+            title={it.name}
+            style={{ left: `${x}%`, top: `${y}%`, fontSize: size }}
+          >
+            <ItemIcon item={it} />
+          </span>
+        );
+      })}
     </div>
   );
 }

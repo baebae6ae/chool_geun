@@ -41,10 +41,11 @@ export interface Settings extends Schedule {
   notifications: boolean;
 }
 
-export type HamsterColor = 'golden' | 'white' | 'gray' | 'choco';
-export type HatId = 'none' | 'cap' | 'beanie' | 'ribbon' | 'headset' | 'crown';
-export type OutfitId = 'none' | 'tie' | 'hoodie' | 'cardigan' | 'suit' | 'apron';
-export type DecoId = 'none' | 'plant' | 'doll' | 'cactus';
+export type HamsterColor = 'golden' | 'white' | 'gray' | 'choco' | 'cream' | 'silver';
+export type HatId = 'none' | 'cap' | 'beanie' | 'ribbon' | 'headset' | 'crown' | 'chef' | 'straw' | 'flower';
+export type OutfitId = 'none' | 'tie' | 'hoodie' | 'cardigan' | 'suit' | 'apron' | 'scarf' | 'cape';
+export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern';
+export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
 export interface Customization {
   color: HamsterColor;
@@ -54,6 +55,8 @@ export interface Customization {
   laptop: boolean;
   mug: boolean;
   deco: DecoId;
+  /** 서식지 배경 (없으면 기본) */
+  bg?: RoomBg;
 }
 
 export interface GachaDraw {

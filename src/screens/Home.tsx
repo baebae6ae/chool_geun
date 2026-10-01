@@ -6,7 +6,7 @@ import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
 import { completedInSeason, formatWon, itemOf } from '../domain/records';
-import { SEASON_LENGTH, WORK_ITEMS } from '../domain/workItems';
+import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
@@ -75,7 +75,7 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
   const season = Math.floor(completedCount(state.days) / SEASON_LENGTH) + 1;
   const trophies = [...completedInSeason(state.days, season)]
     .sort((a, b) => a - b)
-    .map((i) => ({ ...WORK_ITEMS[i], fresh: !!day?.completed && day.season === season && day.workItemIndex === i }));
+    .map((i) => ({ ...itemAt(season, i), index: i, fresh: !!day?.completed && day.season === season && day.workItemIndex === i }));
 
   // 햄스터 말풍선: 번 돈 환산, 희귀 행동
   const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
