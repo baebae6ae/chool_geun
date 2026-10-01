@@ -2483,5 +2483,26 @@ textarea {
 .app.clock .ambient .hero-money-value { font-size: clamp(1.6rem, 4.8vw, 2.8rem); }
 
 /* 서식지 높이를 조금 줄여 세로 화면에 한마디·퇴근 버튼까지 들어오게 */
-.ambient .habitat { height: clamp(176px, 24dvh, 214px); }
+.ambient .habitat { height: clamp(196px, 27dvh, 236px); }
 .app.clock .ambient .habitat { height: auto; }
+
+/* 시계 크기를 줄이고 1/100초 칸 추가 */
+.ambient .bc-time { font-size: clamp(2.3rem, 12vw, 3.3rem); }
+.bc-sec { margin-left: 0.25em; }
+.bc-cs {
+  font-size: 0.78em;
+  color: var(--accent-text);
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: baseline;
+}
+.bc-dot { display: inline-block; width: 0.25em; text-align: center; }
+.bc-sec .bc-cs .bc-d { width: 0.62em; }
+@media (max-height: 700px) {
+  .ambient .bc-time { font-size: clamp(2.1rem, 11vw, 2.8rem); }
+}
+.app.clock .bc-time { font-size: clamp(2rem, 5.6vw, 3.3rem); }
+.app.clock .ambient .bc-time { font-size: clamp(2rem, 5.6vw, 3.3rem); }
+@media (prefers-reduced-motion: reduce) {
+  .bc-cs { display: none; }
+}

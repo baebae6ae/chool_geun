@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal, PaydayModal } from './components/Modals';
 import { dateKey } from './domain/date';
-import { applySettings, clockOut, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
+import { applySettings, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
 import { paydaySummary } from './domain/records';
 import { dayBounds, earnedAt } from './domain/schedule';
 import type { AppState, Settings } from './domain/types';
@@ -150,9 +150,7 @@ export function App() {
               <Home
                 state={{ ...state, settings }}
                 now={now}
-                onClockOut={() => setState(clockOut(getState(), key, clockNow()))}
                 onOpenSettings={() => setShowSettings(true)}
-                onOpenRecord={() => openRecord(key)}
                 onRare={(id) =>
                   setState((s) => (s.rare?.[id] ? s : { ...s, rare: { ...s.rare, [id]: clockNow() } }))
                 }

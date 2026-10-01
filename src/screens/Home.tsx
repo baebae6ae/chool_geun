@@ -17,9 +17,7 @@ import { quotePhase } from '../domain/quotes';
 interface Props {
   state: AppState & { settings: Settings };
   now: number;
-  onClockOut: () => void;
   onOpenSettings: () => void;
-  onOpenRecord: () => void;
   /** 희귀 행동 목격 (처음이면 도감에 등록) */
   onRare: (id: RareId) => void;
   /** 가로로 눕힌 탁상시계 화면 */
@@ -57,11 +55,10 @@ const toggleFullscreen = () => {
  * "그냥 켜놓는" 화면. 사용자가 조작할 게 거의 없고, 시간이 흐르는 대로
  * 번 돈과 작업 진행률, 햄스터의 행동이 저절로 바뀐다.
  */
-export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onRare, clock = false }: Props) {
+export function Home({ state, now, onOpenSettings, onRare, clock = false }: Props) {
   const { settings, custom } = state;
   const key = dateKey(now);
   const day = state.days[key];
-  const [confirming, setConfirming] = useState(false);
   const payD = daysUntilPayday(key, settings.payday);
   const override = settings.dayOverrides?.[key];
   const holiday =
@@ -203,43 +200,10 @@ export function Home({ state, now, onClockOut, onOpenSettings, onOpenRecord, onR
             </div>
 
             <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />
-
-            {day.clockedOut ? (
-              <button className="btn ambient-btn" onClick={onOpenRecord}>
-                오늘의 기록 보기
-              </button>
-            ) : (
-              <button className="btn ambient-btn" onClick={() => (progress >= 1 ? onClockOut() : setConfirming(true))}>
-                퇴근하기
-              </button>
-            )}
           </>
         )}
         {(!day || !item) && <QuoteCard dateKey={key} phase={phase} payday={payD === 0} />}
       </div>
-
-      {confirming && bounds && (
-        <div className="overlay" role="dialog" aria-modal="true">
-          <div className="sheet">
-            <h3>벌써 퇴근할까요?</h3>
-            <p>
-              작업이 아직 {pct}%예요. 지금 퇴근하면 <b>{item?.name}</b>은 미완성으로 저장되고 내일 이어서 만들어요.
-            </p>
-            <button
-              className="btn primary"
-              onClick={() => {
-                setConfirming(false);
-                onClockOut();
-              }}
-            >
-              네, 퇴근할래요
-            </button>
-            <button className="btn ghost" onClick={() => setConfirming(false)}>
-              조금 더 일할게요
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
