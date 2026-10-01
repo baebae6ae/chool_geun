@@ -38,6 +38,16 @@
           <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="2" result="w" />
           <feDisplacementMap in="SourceGraphic" in2="w" scale="2.2" xChannelSelector="R" yChannelSelector="G" />
         </filter>
+        <!-- 사무실 물건: 색을 단순화(포스터화) + 윤곽 떨림 -->
+        <filter id="pencil-emoji" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+          <feComponentTransfer result="flat">
+            <feFuncR type="discrete" tableValues="0.18 0.38 0.58 0.78 0.94 1" />
+            <feFuncG type="discrete" tableValues="0.18 0.38 0.58 0.78 0.94 1" />
+            <feFuncB type="discrete" tableValues="0.18 0.38 0.58 0.78 0.94 1" />
+          </feComponentTransfer>
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="3" result="w" />
+          <feDisplacementMap in="flat" in2="w" scale="2.6" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
         <!-- 색연필 빗금: 햄스터 몸 아래쪽과 그림자 쪽에만 진하게 -->
         <pattern id="pencil-hatch" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(48)">
           <line x1="0" y1="0" x2="0" y2="3.6" stroke="#b9743f" stroke-width="1.05" stroke-linecap="round" />

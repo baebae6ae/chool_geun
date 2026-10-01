@@ -2125,3 +2125,55 @@ textarea {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .task-row .task-bar { background: var(--bg-2); border-color: var(--line); }
 }
+
+/* ============ 사무실 방: 색연필로 칠한 방 ============ */
+.office-walled {
+  background-color: #fde7cc;
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(226, 150, 100, 0.14) 4px 5.4px),
+    repeating-linear-gradient(90deg, rgba(214, 160, 110, 0.35) 0 2px, transparent 2px 52px),
+    linear-gradient(180deg, #fde7cc 0 58%, transparent 58%);
+}
+.office {
+  border: 3px solid var(--pen);
+  box-shadow: 4px 5px 0 rgba(169, 121, 79, 0.3);
+}
+.office-walled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--paper-grain);
+  background-size: 160px 160px;
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+}
+.office-floor {
+  background:
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.4) 5px 6.4px),
+    repeating-linear-gradient(90deg, #f6d6a8 0 38px, #f0c993 38px 40px, #f6d6a8 40px 78px, #f0c993 78px 80px);
+  border-top: 3px solid #c99a62;
+  filter: url(#pencil);
+}
+.office-desk {
+  filter: url(#pencil);
+}
+.office-desk-top {
+  background: #d9a070;
+  border: 2.5px solid #8a5d3a;
+}
+.office-desk::before,
+.office-desk::after {
+  background: #cf9560;
+  border: 2.5px solid #8a5d3a;
+  border-top: 0;
+}
+/* 물건: 색을 몇 가지 덩어리로 단순화하고 연필 윤곽선을 둘러서 스티커 그림처럼 */
+.office-obj {
+  filter: saturate(0.8) url(#pencil-emoji) drop-shadow(1.4px 0 0 #8a5d3a) drop-shadow(-1.4px 0 0 #8a5d3a) drop-shadow(0 1.4px 0 #8a5d3a) drop-shadow(0 -1.4px 0 #8a5d3a);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .office-walled { background-color: var(--wall); background-image: none; }
+  :root:not([data-theme='light']) .office-walled::after { opacity: 0.12; mix-blend-mode: screen; }
+  :root:not([data-theme='light']) .office-floor { background: var(--floor-2); }
+}

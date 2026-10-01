@@ -67,6 +67,33 @@ interface ViewProps<A> {
   className: string;
 }
 
+/** 색연필로 칠한 몸: 종이 색이 비치는 가장자리, 털 색 진한 빗금 두 겹, 끊어진 보조 윤곽선 */
+function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
+  return (
+    <g>
+      <defs>
+        <clipPath id={`${uid}-pb`}>
+          <path d={d} />
+        </clipPath>
+        <pattern id={`${uid}-h1`} width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(48)">
+          <line x1="0" y1="0" x2="0" y2="3.4" stroke={c.line} strokeWidth="1.1" strokeLinecap="round" />
+        </pattern>
+        <pattern id={`${uid}-h2`} width="4.6" height="4.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
+          <line x1="0" y1="0" x2="0" y2="4.6" stroke={c.line} strokeWidth="0.9" strokeLinecap="round" />
+        </pattern>
+      </defs>
+      <path d={d} fill={c.body} filter="url(#pencil-fur)" />
+      <g clipPath={`url(#${uid}-pb)`}>
+        {/* 가장자리는 칠하다 만 것처럼 종이색이 비친다 */}
+        <path d={d} fill="none" stroke="#fffaf0" strokeWidth="6" opacity=".55" />
+        <path d={d} fill={`url(#${uid}-h1)`} mask="url(#pencil-shade)" opacity=".62" />
+        <path d={d} fill={`url(#${uid}-h2)`} mask="url(#pencil-shade)" opacity=".4" transform="translate(0 6)" />
+      </g>
+      <path d={d} fill="none" stroke={INK} strokeWidth="1.1" strokeDasharray="16 3 7 2 11 4" opacity=".5" transform="translate(1 .9)" />
+    </g>
+  );
+}
+
 /* ============================ 정면 (앉은 자세) ============================ */
 
 function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction>) {
@@ -126,8 +153,7 @@ function FrontView({ c, clip, action, custom, className }: ViewProps<FrontAction
         )}
 
         {/* 몸 */}
-        <path d={FRONT.body} fill={c.body} filter="url(#pencil-fur)" />
-        <path d={FRONT.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
+        <PencilBody d={FRONT.body} c={c} uid={clip} />
         <g clipPath={`url(#${clip})`}>
           <FrontOutfit id={custom.outfit} />
         </g>
@@ -472,8 +498,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
           <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
         </g>
 
-        <path d={LOAF.body} fill={c.body} filter="url(#pencil-fur)" />
-        <path d={LOAF.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
+        <PencilBody d={LOAF.body} c={c} uid={clip} />
         <g clipPath={`url(#${clip})`}>
           <SideOutfit id={custom.outfit === 'apron' ? 'none' : custom.outfit} />
         </g>
@@ -548,8 +573,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         </g>
 
         {/* 몸 */}
-        <path d={SIDE.body} fill={c.body} filter="url(#pencil-fur)" />
-        <path d={SIDE.body} fill="url(#pencil-hatch)" mask="url(#pencil-shade)" opacity=".42" />
+        <PencilBody d={SIDE.body} c={c} uid={clip} />
         <g clipPath={`url(#${clip})`}>
           <SideOutfit id={custom.outfit} />
         </g>
