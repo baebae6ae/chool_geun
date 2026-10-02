@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { drawLook, renderCard, shareCardImage, type CardData } from '../shareCard';
-import { pickQuote } from '../domain/quotes';
+import { pickQuote, pickTiredQuote } from '../domain/quotes';
 import type { Customization } from '../domain/types';
 
 interface Props {
@@ -11,24 +11,27 @@ interface Props {
   payday: boolean;
   nameTag: string;
   chips: string[];
+  /** 야근 중이면 녹초 버전부터 보여준다 */
+  defaultTired?: boolean;
   onClose: () => void;
 }
 
 /** 오늘의 카드: 구도·색·장식이 날마다 랜덤. 돈 정보는 담지 않는다. */
-export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, chips, onClose }: Props) {
+export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, chips, defaultTired = false, onClose }: Props) {
   const [draws, setDraws] = useState(0);
+  const [tired, setTired] = useState(defaultTired);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const blobRef = useRef<Blob | null>(null);
-  const look = drawLook(dateKey, draws);
-  const quote = pickQuote({ key: dateKey, off, payday });
+  const look = drawLook(dateKey, draws, tired);
+  const quote = tired ? pickTiredQuote(dateKey) : pickQuote({ key: dateKey, off, payday });
   const chipsKey = chips.join('|');
 
   useEffect(() => {
     let alive = true;
     let objUrl: string | null = null;
-    const data: CardData = { custom, ...drawLook(dateKey, draws), dateText, nameTag, chips: chipsKey ? chipsKey.split('|') : [], quote };
+    const data: CardData = { custom, ...drawLook(dateKey, draws, tired), tired, dateText, nameTag, chips: chipsKey ? chipsKey.split('|') : [], quote };
     renderCard(data)
       .then((b) => {
         if (!alive) return;
@@ -42,7 +45,7 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
       alive = false;
       if (objUrl) URL.revokeObjectURL(objUrl);
     };
-  }, [custom, dateKey, draws, dateText, nameTag, chipsKey, quote]);
+  }, [custom, dateKey, draws, tired, dateText, nameTag, chipsKey, quote]);
 
   const share = async () => {
     if (!blobRef.current || busy) return;
@@ -59,6 +62,14 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
     <div className="overlay" role="dialog" aria-modal="true" aria-label="오늘의 카드" onClick={onClose}>
       <div className="sheet share-sheet" onClick={(e) => e.stopPropagation()}>
         <h3>오늘의 카드</h3>
+        <div className="seg" role="radiogroup" aria-label="카드 버전">
+          <button type="button" role="radio" aria-checked={!tired} className={!tired ? 'on' : ''} onClick={() => setTired(false)}>
+            🐹 기본 버전
+          </button>
+          <button type="button" role="radio" aria-checked={tired} className={tired ? 'on' : ''} onClick={() => setTired(true)}>
+            😵 녹초 버전
+          </button>
+        </div>
         <div className="share-preview">{url ? <img src={url} alt="오늘의 햄스터 카드 미리보기" /> : <span className="muted">그리는 중…</span>}</div>
         <p className="muted small center-text">오늘의 컷: {look.comp.label}</p>
         {error && <p className="error" role="alert">{error}</p>}

@@ -42,6 +42,27 @@ export const COMPOSITIONS: Composition[] = [
   { id: 'walk', label: '산책', pose: S('walk'), scale: 0.8, y: 0.2, x: -0.05 },
 ];
 
+/** 녹초 버전 구도: 기운 없는 자세들 */
+export const TIRED_COMPOSITIONS: Composition[] = [
+  { id: 't-doom', label: '영혼 반쯤 가출', pose: F('doom'), scale: 1 },
+  { id: 't-doom-close', label: '죽상 얼빡샷', pose: F('doom'), scale: 1.9, y: 0.11 },
+  { id: 't-doom-tilt', label: '축 처진 어깨', pose: F('doom'), scale: 1.1, rot: 8, x: -0.1 },
+  { id: 't-doom-tiny', label: '구석에서 멍', pose: F('doom'), scale: 0.55, x: 0.26, y: 0.25 },
+  { id: 't-doze', label: '꾸벅꾸벅', pose: F('doze'), scale: 1.15, rot: -5 },
+  { id: 't-dizzy', label: '어질어질', pose: F('dizzy'), scale: 1.1, rot: -6 },
+  { id: 't-yawn', label: '하품 얼빡샷', pose: F('yawn'), scale: 1.7, y: 0.1 },
+  { id: 't-sleep', label: '쓰러져 꿀잠', pose: S('sleep'), scale: 1.2, y: 0.12, flip: true },
+  { id: 't-peek', label: '지친 빼꼼', pose: F('doom'), scale: 1.5, x: -0.2, y: 0.4 },
+];
+
+const TIRED_THEMES = [
+  { bg: ['#e3e8cf', '#cdd6b0'], line: '#7d8a55' },
+  { bg: ['#dcdfd0', '#c3c9b4'], line: '#8b9178' },
+  { bg: ['#e6e0cc', '#d2c9a6'], line: '#9a8b5a' },
+  { bg: ['#d9e0d8', '#bccabf'], line: '#6f8a7c' },
+];
+const TIRED_DECORS = ['mold', 'flies', 'drops', 'none'] as const;
+
 const THEMES = [
   { bg: ['#ffe9d6', '#ffd3b3'], line: '#d9985f' },
   { bg: ['#e0f4e8', '#c5e9d3'], line: '#6fbb8c' },
@@ -51,6 +72,7 @@ const THEMES = [
   { bg: ['#ffe1e8', '#ffc9d6'], line: '#e48fa3' },
 ];
 const DECORS = ['hearts', 'stars', 'dots', 'none'] as const;
+type Decor = (typeof DECORS)[number] | (typeof TIRED_DECORS)[number];
 
 function hash(str: string): number {
   let h = 2166136261;
@@ -62,12 +84,21 @@ function hash(str: string): number {
 }
 
 /** 날짜(+다시 뽑기 횟수)마다 구도·색·장식이 정해진다. 같은 날 같은 번호면 항상 같다. */
-export function drawLook(dateKey: string, draws: number) {
+export function drawLook(dateKey: string, draws: number, tired = false) {
   const seed = `${dateKey}|card|${draws}`;
+  if (tired) {
+    const t = `${dateKey}|tired|${draws}`;
+    return {
+      comp: TIRED_COMPOSITIONS[hash(t + '|c') % TIRED_COMPOSITIONS.length],
+      theme: TIRED_THEMES[hash(t + '|t') % TIRED_THEMES.length],
+      decor: TIRED_DECORS[hash(t + '|d') % TIRED_DECORS.length] as Decor,
+      seed: hash(t + '|s'),
+    };
+  }
   return {
     comp: COMPOSITIONS[hash(seed + '|c') % COMPOSITIONS.length],
     theme: THEMES[hash(seed + '|t') % THEMES.length],
-    decor: DECORS[hash(seed + '|d') % DECORS.length],
+    decor: DECORS[hash(seed + '|d') % DECORS.length] as Decor,
     seed: hash(seed + '|s'),
   };
 }
@@ -76,7 +107,9 @@ export interface CardData {
   custom: Customization;
   comp: Composition;
   theme: (typeof THEMES)[number];
-  decor: (typeof DECORS)[number];
+  decor: Decor;
+  /** 녹초 버전: 초록빛으로 시든 색, 죽상 햄스터 */
+  tired?: boolean;
   seed: number;
   dateText: string;
   /** "햄찌 · 신입 햄스터" */
@@ -103,7 +136,7 @@ const PENCIL_FILTER = `<defs><filter id="pencil-hs" x="-6%" y="-6%" width="112%"
 <feMerge><feMergeNode in="wob"/><feMergeNode in="paper"/></feMerge></filter></defs>`;
 
 /** 햄스터 스프라이트를 화면 밖에서 그려 독립된 SVG 문자열로 만든다 */
-function hamsterSvg(custom: Customization, pose: Pose, size: number): string {
+function hamsterSvg(custom: Customization, pose: Pose, size: number, tired = false): string {
   const host = document.createElement('div');
   const root = createRoot(host);
   flushSync(() => root.render(<HamsterSprite custom={custom} pose={pose} className="no-shadow" still />));
@@ -117,7 +150,10 @@ function hamsterSvg(custom: Customization, pose: Pose, size: number): string {
     svg.setAttribute('height', String(Math.round(ratio >= 1 ? size / ratio : size)));
     svg.removeAttribute('class');
     const inner = svg.innerHTML;
-    svg.innerHTML = `${PENCIL_FILTER}<g filter="url(#pencil-hs)">${inner}</g>`;
+    const tint = `<filter id="tired-tint" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0.5"/><feColorMatrix type="hueRotate" values="36"/><feComponentTransfer><feFuncR type="linear" slope="0.9"/><feFuncG type="linear" slope="0.9"/><feFuncB type="linear" slope="0.86"/></feComponentTransfer></filter>`;
+    svg.innerHTML = tired
+      ? `${PENCIL_FILTER}<defs>${tint}</defs><g filter="url(#tired-tint)"><g filter="url(#pencil-hs)">${inner}</g></g>`
+      : `${PENCIL_FILTER}<g filter="url(#pencil-hs)">${inner}</g>`;
     out = svg.outerHTML;
   }
   root.unmount();
@@ -199,7 +235,37 @@ function decorate(ctx: CanvasRenderingContext2D, kind: CardData['decor'], seed: 
     const y = fy + 40 + rnd() * (fh - 80);
     const r = 10 + rnd() * 16;
     ctx.globalAlpha = 0.35 + rnd() * 0.3;
-    if (kind === 'hearts') {
+    if (kind === 'mold') {
+      ctx.fillStyle = '#5b7a34';
+      ctx.globalAlpha = 0.18 + rnd() * 0.15;
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 2.2, r * 1.5, rnd() * 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#2f4a22';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.4, y, r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (kind === 'flies') {
+      if (i > 5) continue;
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = '#2b2b24';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 7, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#2b2b24';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x - 5, y - 7, 6, 3, -0.6, 0, Math.PI * 2);
+      ctx.ellipse(x + 5, y - 7, 6, 3, 0.6, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (kind === 'drops') {
+      ctx.fillStyle = '#8fd0ff';
+      ctx.beginPath();
+      ctx.moveTo(x, y - r);
+      ctx.quadraticCurveTo(x + r * 0.9, y + r * 0.2, x, y + r * 0.9);
+      ctx.quadraticCurveTo(x - r * 0.9, y + r * 0.2, x, y - r);
+      ctx.fill();
+    } else if (kind === 'hearts') {
       ctx.fillStyle = '#ff8fa8';
       heart(ctx, x, y, r * 0.8);
     } else if (kind === 'stars') {
@@ -230,14 +296,14 @@ export async function renderCard(d: CardData): Promise<Blob> {
 
   // 바탕: 크림색 종이 + 번지는 파스텔
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#fff7e8');
-  bg.addColorStop(1, '#ffeedb');
+  bg.addColorStop(0, d.tired ? '#eef0dc' : '#fff7e8');
+  bg.addColorStop(1, d.tired ? '#dfe3c6' : '#ffeedb');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
   for (const [x, y, r, c] of [
-    [W, 0, 520, 'rgba(190,230,208,0.6)'],
-    [0, 700, 460, 'rgba(255,222,190,0.6)'],
-    [W, H, 520, 'rgba(200,224,247,0.6)'],
+    [W, 0, 520, d.tired ? 'rgba(170,190,140,0.6)' : 'rgba(190,230,208,0.6)'],
+    [0, 700, 460, d.tired ? 'rgba(200,196,150,0.6)' : 'rgba(255,222,190,0.6)'],
+    [W, H, 520, d.tired ? 'rgba(150,170,150,0.6)' : 'rgba(200,224,247,0.6)'],
   ] as [number, number, number, string][]) {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, c);
@@ -247,7 +313,7 @@ export async function renderCard(d: CardData): Promise<Blob> {
   }
   grain(ctx);
 
-  ctx.strokeStyle = PENCIL;
+  ctx.strokeStyle = d.tired ? '#8b9367' : PENCIL;
   ctx.lineWidth = 5;
   ctx.setLineDash([22, 14]);
   roundRect(ctx, 34, 34, W - 68, H - 68, 56);
@@ -285,7 +351,7 @@ export async function renderCard(d: CardData): Promise<Blob> {
   const side = c.pose.pose === 'side';
   const base = side ? 560 : 520;
   const size = Math.round(base * c.scale);
-  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(hamsterSvg(d.custom, c.pose, size)));
+  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(hamsterSvg(d.custom, c.pose, size, d.tired)));
   ctx.translate(fx + fw / 2 + (c.x ?? 0) * fw, fy + fh / 2 + (c.y ?? 0) * fh + (side ? 20 : 0));
   if (c.rot) ctx.rotate((c.rot * Math.PI) / 180);
   if (c.flip) ctx.scale(-1, 1);

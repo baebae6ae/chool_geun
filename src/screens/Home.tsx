@@ -447,6 +447,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           payday={payD === 0}
           nameTag={shareNameTag}
           chips={shareChips}
+          defaultTired={otActive}
           onClose={() => setSharing(false)}
         />
       )}
