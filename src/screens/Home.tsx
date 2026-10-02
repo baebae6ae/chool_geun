@@ -18,7 +18,7 @@ import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
 import { pickOvertimeBubble, pickOvertimeQuote, pickTimeBubble, quotePhase } from '../domain/quotes';
-import { ShareSheet } from '../components/ShareSheet';
+import { ShareSheet, type TimeBand } from '../components/ShareSheet';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -267,6 +267,17 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
       ? { k: 1 - toEnd / BEAT_WINDOW, dur: 1.5 - 1.1 * (1 - toEnd / BEAT_WINDOW) }
       : null;
 
+  const working = !!day && !!item;
+  // 공유 카드 띠: 상황에 맞는 시간 문구
+  const timeBand: TimeBand =
+    otActive && state.overtime
+      ? { kind: 'up', at: state.overtime.startedAt, prefix: '야근', suffix: '째…' }
+      : !working || !bounds
+        ? { kind: 'text', text: holiday ? `오늘은 ${holiday}, 쉬는 날` : '오늘은 쉬는 날' }
+        : now < bounds.end
+          ? { kind: 'down', at: bounds.end, prefix: '퇴근까지' }
+          : { kind: 'up', at: bounds.end, prefix: '퇴근한 지' };
+
   let timeInfo = '';
   if (day && bounds) {
     if (otActive) timeInfo = `야근 중 · 퇴근 시각 ${hhmm(now)} 지남`;
@@ -278,7 +289,6 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const phase = quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut);
   phaseRef.current = phase;
 
-  const working = !!day && !!item;
   // 공유 카드에 넣는 작은 정보 — 금액은 절대 넣지 않는다
   const career = careerStats(state.days, settings.dayOverrides);
   const shareChips = [
@@ -397,6 +407,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
             <button type="button" className="btn homeward big-btn" onClick={() => onState((s) => endOvertime(s, clockNow()))}>
               🏃 진짜 퇴근하기
             </button>
+            <div className="chip-row">
+              <button type="button" className="chip-btn" onClick={() => setSharing(true)}>
+                카드 공유
+              </button>
+            </div>
           </>
         ) : (
           <>
@@ -448,7 +463,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           nameTag={shareNameTag}
           chips={shareChips}
           defaultTired={otActive}
-          leaveAt={day && bounds && !otActive && working && now < bounds.end ? bounds.end : null}
+          timeBand={timeBand}
           onClose={() => setSharing(false)}
         />
       )}

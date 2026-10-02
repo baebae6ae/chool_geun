@@ -4,6 +4,10 @@ import { now as clockNow } from '../store';
 import { pickQuote, pickTiredQuote } from '../domain/quotes';
 import type { Customization } from '../domain/types';
 
+export type TimeBand =
+  | { kind: 'down' | 'up'; at: number; prefix: string; suffix?: string }
+  | { kind: 'text'; text: string };
+
 interface Props {
   custom: Customization;
   dateKey: string;
@@ -14,13 +18,13 @@ interface Props {
   chips: string[];
   /** 야근 중이면 녹초 버전부터 보여준다 */
   defaultTired?: boolean;
-  /** 오늘 퇴근 시각(ms). 아직 안 지났을 때만 넘긴다 → 카드에 퇴근까지 남은 시간이 찍힌다 */
-  leaveAt?: number | null;
+  /** 카드 띠에 넣는 시간 문구. down: 남은 시간, up: 지난 시간, text: 그대로 */
+  timeBand?: TimeBand | null;
   onClose: () => void;
 }
 
 /** 오늘의 카드: 구도·색·장식이 날마다 랜덤. 돈 정보는 담지 않는다. */
-export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, chips, defaultTired = false, leaveAt = null, onClose }: Props) {
+export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, chips, defaultTired = false, timeBand = null, onClose }: Props) {
   const [draws, setDraws] = useState(0);
   const [tired, setTired] = useState(defaultTired);
   const [url, setUrl] = useState<string | null>(null);
@@ -35,12 +39,11 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
     let alive = true;
     let objUrl: string | null = null;
     let remaining: string | undefined;
-    if (leaveAt !== null) {
-      const ms = leaveAt - clockNow();
-      if (ms > 0) {
-        const cs = Math.floor(ms / 10);
-        remaining = `퇴근까지 ${Math.floor(cs / 360000)}시간${Math.floor(cs / 6000) % 60}분${Math.floor(cs / 100) % 60}.${String(cs % 100).padStart(2, '0')}초`;
-      }
+    if (timeBand?.kind === 'text') remaining = timeBand.text;
+    else if (timeBand) {
+      const ms = Math.abs(timeBand.at - clockNow());
+      const cs = Math.floor(ms / 10);
+      remaining = `${timeBand.prefix} ${Math.floor(cs / 360000)}시간${Math.floor(cs / 6000) % 60}분${Math.floor(cs / 100) % 60}.${String(cs % 100).padStart(2, '0')}초${timeBand.suffix ?? ''}`;
     }
     const data: CardData = { remaining, custom, ...drawLook(dateKey, draws, tired), tired, dateText, nameTag, chips: chipsKey ? chipsKey.split('|') : [], quote };
     renderCard(data)
@@ -56,7 +59,7 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
       alive = false;
       if (objUrl) URL.revokeObjectURL(objUrl);
     };
-  }, [custom, dateKey, draws, tired, leaveAt, dateText, nameTag, chipsKey, quote]);
+  }, [custom, dateKey, draws, tired, timeBand, dateText, nameTag, chipsKey, quote]);
 
   const share = async () => {
     if (!blobRef.current || busy) return;

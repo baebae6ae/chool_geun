@@ -335,7 +335,7 @@ export async function renderCard(d: CardData): Promise<Blob> {
   const fx = 84;
   const fy = 150;
   const fw = W - 168;
-  const fh = 640;
+  const fh = 600;
   ctx.save();
   roundRect(ctx, fx, fy, fw, fh, 64);
   ctx.clip();
@@ -360,11 +360,20 @@ export async function renderCard(d: CardData): Promise<Blob> {
   ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
   ctx.restore();
 
+  ctx.strokeStyle = d.theme.line;
+  ctx.lineWidth = 7;
+  ctx.setLineDash([26, 14]);
+  roundRect(ctx, fx, fy, fw, fh, 64);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
   if (d.remaining) {
-    ctx.font = `400 50px Jua, ${sans}`;
+    let fs = 50;
+    ctx.font = `400 ${fs}px Jua, ${sans}`;
+    while (fs > 30 && ctx.measureText(d.remaining).width + 80 > fw - 40) ctx.font = `400 ${--fs}px Jua, ${sans}`;
     ctx.textAlign = 'center';
     const rw = ctx.measureText(d.remaining).width + 80;
-    const ry = fy + fh - 98;
+    const ry = fy + fh - 38;
     ctx.fillStyle = 'rgba(255,255,255,0.82)';
     roundRect(ctx, W / 2 - rw / 2, ry, rw, 76, 38);
     ctx.fill();
@@ -378,12 +387,6 @@ export async function renderCard(d: CardData): Promise<Blob> {
     ctx.fillText(d.remaining, W / 2, ry + 54);
   }
 
-  ctx.strokeStyle = d.theme.line;
-  ctx.lineWidth = 7;
-  ctx.setLineDash([26, 14]);
-  roundRect(ctx, fx, fy, fw, fh, 64);
-  ctx.stroke();
-  ctx.setLineDash([]);
 
   // 이름표
   ctx.textAlign = 'center';
