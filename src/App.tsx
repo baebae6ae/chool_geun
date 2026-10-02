@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal, PaydayModal } from './components/Modals';
-import { dateKey } from './domain/date';
+import { addDays, atTime, dateKey } from './domain/date';
+import { endOvertime, recordLeft } from './domain/overtime';
 import { applySettings, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
 import { paydaySummary } from './domain/records';
 import { dayBounds, earnedAt } from './domain/schedule';
@@ -85,6 +86,8 @@ export function App() {
     }
     if (r.newGacha.length > 0) next = sendNotification(next, 'gacha', now);
     if (today && r.finalized.includes(today.date)) next = sendNotification(next, 'clockOut', now);
+    // 야근은 자정에 자동으로 끝낸다
+    if (next.overtime && now >= atTime(addDays(next.overtime.date, 1), '00:00')) next = endOvertime(next, now);
     setState(next);
   }, [now]);
 
@@ -155,6 +158,7 @@ export function App() {
                   setState((s) => (s.rare?.[id] ? s : { ...s, rare: { ...s.rare, [id]: clockNow() } }))
                 }
                 clock={clock}
+                onState={(fn) => setState(fn)}
               />
             )}
             {tab === 'office' && <Office state={state} />}
@@ -165,6 +169,7 @@ export function App() {
                 state={state}
                 now={now}
                 focusDate={recordFocus}
+                onLeft={(date, left) => setState((s) => recordLeft(s, date, left))}
                 onDayOverride={(date, v) =>
                   setState((s) => {
                     if (!s.settings) return s;

@@ -14,12 +14,15 @@ export function BigClock({
   info,
   dateText,
   countdown,
+  beat,
 }: {
   now: number;
   info?: string;
   dateText?: string;
   /** 있으면 info 대신 '퇴근까지 3시간 39분 42.57초'가 1/100초 단위로 줄어든다 */
   countdown?: { label: string; target: number };
+  /** 퇴근이 코앞이면 시간이 두근두근한다. dur: 한 번 뛰는 초, k: 0~1 얼마나 가까운지 */
+  beat?: { dur: number; k: number } | null;
 }) {
   const refs = useRef<(HTMLSpanElement | null)[]>([]);
   const cdRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -81,7 +84,11 @@ export function BigClock({
   const cur = new Date(now);
   const spoken = `현재 시각 ${cur.getHours()}시 ${cur.getMinutes()}분`;
   return (
-    <section className="big-clock" aria-label={spoken}>
+    <section
+      className={beat ? 'big-clock beating' : 'big-clock'}
+      aria-label={spoken}
+      style={beat ? ({ '--beat': `${beat.dur.toFixed(2)}s`, '--beat-k': beat.k.toFixed(2) } as React.CSSProperties) : undefined}
+    >
       {dateText && <div className="bc-date">{dateText}</div>}
       <div className="bc-time" aria-hidden>
         {digit(0)}

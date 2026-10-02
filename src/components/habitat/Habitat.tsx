@@ -5,6 +5,7 @@ import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSp
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, type Place, type Step } from './brain';
 import { buzz } from '../../haptics';
 import type { RareId } from '../../domain/rare';
+import { RotLayer, rotLevel } from './RotLayer';
 import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, WallClock, Wheel, Window, type Trophy } from './props';
 import './habitat.css';
 
@@ -27,6 +28,8 @@ interface Props {
   onInteract?: (kind: 'pet' | 'feed' | 'hug') => void;
   /** id가 바뀔 때마다 햄스터가 해당 반응을 한다 (위로 버튼) */
   reaction?: { id: number; action: 'hug' } | null;
+  /** 야근 중이면 지금까지의 야근 시간(분). 햄스터는 죽상이 되고 방은 썩어간다 */
+  overtimeMin?: number | null;
 }
 
 interface View {
@@ -86,7 +89,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, reaction }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -111,6 +114,9 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   const started = useRef(false);
   const lastErrand = useRef<string | undefined>(undefined);
   const paydayRef = useRef(payday);
+  const overtimeOn = overtimeMin !== null;
+  const overtimeRef = useRef(overtimeOn);
+  overtimeRef.current = overtimeOn;
   const onRareRef = useRef(onRare);
   const onInteractRef = useRef(onInteract);
   const taps = useRef<number[]>([]);
@@ -213,6 +219,15 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     if (cur.current?.step.t !== 'move') cur.current = null;
   }, [mood, logicalW]);
 
+  // 야근 시작·끝 → 하던 일을 접고 새로 짠다
+  const prevOvertime = useRef(overtimeOn);
+  useEffect(() => {
+    if (prevOvertime.current === overtimeOn) return;
+    prevOvertime.current = overtimeOn;
+    queue.current = [];
+    if (cur.current?.step.t !== 'move') cur.current = null;
+  }, [overtimeOn]);
+
   // 폭이 바뀌면 위치 보정
   useEffect(() => {
     x.current = Math.min(Math.max(x.current, -80), spots.W + 80);
@@ -230,6 +245,17 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
       last = now;
 
       if (!cur.current) {
+        if (queue.current.length === 0 && overtimeRef.current) {
+          // 야근: 책상에 붙박이. 가끔 커피로 연명하거나 졸다 깬다
+          const r = Math.random();
+          const hold = (action: FrontAction, ms: number): Step => ({ t: 'act', pose: { pose: 'front', action }, ms, place: 'desk' });
+          queue.current = [
+            ...travel(x.current, spotsRef.current.desk, Math.random),
+            r < 0.55 ? hold('doom', 7000 + Math.random() * 5000) : r < 0.72 ? hold('sip', 4500) : r < 0.88 ? hold('doze', 3200) : hold('dizzy', 2600),
+            hold('doom', 5000),
+          ];
+          lastErrand.current = 'overtime';
+        }
         if (queue.current.length === 0) {
           const plan = planErrand(
             moodRef.current,
@@ -364,10 +390,13 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     <div className="habitat-wrap">
       <div className="habitat-frame" ref={frame}>
       <div
-        className="habitat"
+        className={overtimeOn ? 'habitat rotting' : 'habitat'}
         data-bg={custom.bg ?? 'default'}
         ref={box}
-        style={fit ? { width: W, height: BASE_H, margin: 0, transform: `scale(${zoom})`, transformOrigin: '0 0' } : undefined}
+        style={{
+          ...(fit ? { width: W, height: BASE_H, margin: 0, transform: `scale(${zoom})`, transformOrigin: '0 0' } : null),
+          ...(overtimeOn ? ({ '--rot': rotLevel(overtimeMin ?? 0) } as React.CSSProperties) : null),
+        }}
       >
         <Window x={spots.window} now={now} />
         {trophies.length > 0 && <PlacedItems items={trophies} />}
@@ -431,6 +460,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
         <DeskFront x={spots.desk} custom={custom} mugTaken={place === 'desk' && pose.action === 'sip'} />
         <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} />
         {mood === 'oneMore' && <div className="habitat-speech">조금만 더...</div>}
+        {overtimeOn && <RotLayer />}
       </div>
       </div>
       <div className="habitat-status" aria-live="polite">

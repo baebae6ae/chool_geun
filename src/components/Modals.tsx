@@ -164,7 +164,7 @@ export function PaydayModal({
 }
 
 /** 기획서 11. Daily Record 카드 */
-export function DailyRecordCard({ day, hamsterName }: { day: DailyWork; hamsterName: string }) {
+export function DailyRecordCard({ day, hamsterName, onEditLeft }: { day: DailyWork; hamsterName: string; onEditLeft?: () => void }) {
   const item = itemOf(day);
   const gachaCount = day.gacha.filter((g) => g.obtained).length;
   return (
@@ -176,6 +176,24 @@ export function DailyRecordCard({ day, hamsterName }: { day: DailyWork; hamsterN
         <dd>{formatDuration(day.workedMs)}</dd>
         <dt>오늘 번 돈</dt>
         <dd>{formatWon(Math.floor(day.earned))}</dd>
+        {day.leftAsked && (
+          <>
+            <dt>퇴근 시각</dt>
+            <dd>{day.leftAt ?? day.schedule.workEnd}{day.overtimeMs ? ` (야근 ${formatDuration(day.overtimeMs)})` : ' (정시)'}</dd>
+          </>
+        )}
+        {!!day.overtimeOwed && (
+          <>
+            <dt>벌었어야 할 돈</dt>
+            <dd className="owed">{formatWon(Math.floor(day.overtimeOwed))}</dd>
+          </>
+        )}
+        {!!day.overtimePay && (
+          <>
+            <dt>야근수당</dt>
+            <dd>{formatWon(Math.floor(day.overtimePay))}</dd>
+          </>
+        )}
         <dt>작업물</dt>
         <dd><ItemIcon item={item} /> {item.name}</dd>
         <dt>완성도</dt>
@@ -190,6 +208,11 @@ export function DailyRecordCard({ day, hamsterName }: { day: DailyWork; hamsterN
           </span>
         </dd>
       </dl>
+      {onEditLeft && (
+        <button type="button" className="btn ghost small-btn" onClick={onEditLeft}>
+          퇴근 시각 {day.leftAsked ? '고치기' : '기록하기'}
+        </button>
+      )}
       <div className="record-comment">
         <span>오늘의 한마디</span>
         <p>"{day.completed ? day.comment : '내일 마저 만들어요.'}"</p>

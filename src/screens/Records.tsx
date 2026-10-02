@@ -4,6 +4,8 @@ import { OfficeRoom } from '../components/OfficeRoom';
 import { addDays, dateKey, formatDotDate, formatKoreanDate, mondayOf, MONTH_EN, WEEKDAY_KO, weekday } from '../domain/date';
 import { careerStats, formatWon, itemOf, monthSummary, weekSlots } from '../domain/records';
 import { careerTitle, nextUnlock } from '../domain/customization';
+import { overtimeTotals } from '../domain/overtime';
+import { LeftSheet } from '../components/LeftSheet';
 import { playerProgress } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { dayBounds, isWorkday } from '../domain/schedule';
@@ -104,12 +106,16 @@ export function Records({
   now,
   focusDate,
   onDayOverride,
+  onLeft,
 }: {
   state: AppState;
   now: number;
   focusDate?: string;
   onDayOverride?: (date: string, v: Override) => void;
+  /** 퇴근 시각 기록·수정 (null이면 정시 퇴근) */
+  onLeft?: (date: string, left: string | null) => void;
 }) {
+  const [editLeft, setEditLeft] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const [tab, setTab] = useState<'daily' | 'monthly'>('daily');
   const d = new Date(now);
@@ -122,6 +128,7 @@ export function Records({
   const current = records.find((r) => r.date === selected) ?? records[0];
 
   const summary = monthSummary(ym.y, ym.m, state.days);
+  const monthOt = overtimeTotals(state.days, `${ym.y}-${String(ym.m).padStart(2, '0')}`);
   const monthEnd = `${ym.y}-${String(ym.m).padStart(2, '0')}-31`;
   const lastSeason = summary.days.at(-1)?.season;
   const officeDone = new Set(
@@ -155,7 +162,7 @@ export function Records({
           </div>
         ) : (
           <>
-            {current && <DailyRecordCard day={current} hamsterName={state.settings?.hamsterName ?? ''} />}
+            {current && <DailyRecordCard day={current} hamsterName={state.settings?.hamsterName ?? ''} onEditLeft={onLeft ? () => setEditLeft(current.date) : undefined} />}
             <ul className="record-list">
               {records.map((r) => (
                 <li key={r.date}>
@@ -190,12 +197,42 @@ export function Records({
               <dd>{summary.gacha}개</dd>
               <dt>총 노동수익</dt>
               <dd>{formatWon(Math.floor(summary.earned))}</dd>
+              {monthOt.days > 0 && (
+                <>
+                  <dt>야근</dt>
+                  <dd>{monthOt.days}일 · {Math.round(monthOt.ms / 360_000) / 10}시간</dd>
+                </>
+              )}
+              {monthOt.owed > 0 && (
+                <>
+                  <dt>벌었어야 할 돈</dt>
+                  <dd className="owed">{formatWon(Math.floor(monthOt.owed))}</dd>
+                </>
+              )}
+              {monthOt.pay > 0 && (
+                <>
+                  <dt>야근수당</dt>
+                  <dd>{formatWon(Math.floor(monthOt.pay))}</dd>
+                </>
+              )}
             </dl>
             <StampCalendar y={ym.y} m={ym.m} state={state} now={now} onPick={onDayOverride ? setPicked : undefined} />
             {onDayOverride && <p className="muted small">오늘 이후 날짜를 누르면 연차·회사 휴무나 출근일을 직접 정할 수 있어요.</p>}
           </section>
           {lastSeason && <OfficeRoom done={officeDone} season={lastSeason} small />}
         </>
+      )}
+
+      {editLeft && state.days[editLeft] && onLeft && (
+        <LeftSheet
+          when={formatDotDate(editLeft)}
+          workEnd={state.days[editLeft].schedule.workEnd}
+          onPick={(left) => {
+            onLeft(editLeft, left);
+            setEditLeft(null);
+          }}
+          onLater={() => setEditLeft(null)}
+        />
       )}
 
       {picked && state.settings && onDayOverride && (
@@ -270,6 +307,7 @@ function DaySheet({
 /** 지금까지의 누적 — 오래 쓸수록 쌓이는 숫자와 다음 해금 */
 function CareerCard({ state }: { state: AppState }) {
   const c = careerStats(state.days, state.settings?.dayOverrides);
+  const ot = overtimeTotals(state.days);
   const p = playerProgress(state);
   const next = nextUnlock(p);
   return (
@@ -292,6 +330,18 @@ function CareerCard({ state }: { state: AppState }) {
           <b>{formatWon(Math.floor(c.earned))}</b>
           <small>지금까지 번 돈</small>
         </div>
+        {ot.owed > 0 && (
+          <div className="wide owed">
+            <b>{formatWon(Math.floor(ot.owed))}</b>
+            <small>벌었어야 할 돈 (야근 {Math.round(ot.ms / 360_000) / 10}시간)</small>
+          </div>
+        )}
+        {ot.pay > 0 && (
+          <div className="wide">
+            <b>{formatWon(Math.floor(ot.pay))}</b>
+            <small>야근수당 (야근 {Math.round(ot.ms / 360_000) / 10}시간)</small>
+          </div>
+        )}
       </div>
       {next && (
         <p className="muted small career-next">

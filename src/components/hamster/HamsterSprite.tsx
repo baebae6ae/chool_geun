@@ -25,7 +25,8 @@ export type FrontAction =
   | 'cheer'
   | 'heart'
   | 'shy'
-  | 'hug';
+  | 'hug'
+  | 'doom';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -107,8 +108,10 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
 /* ============================ 정면 (앉은 자세) ============================ */
 
 function FrontView({ c, clip, action, custom, className, still }: ViewProps<FrontAction>) {
-  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' =
-    action === 'groom' || action === 'yawn'
+  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' =
+    action === 'doom'
+      ? 'doom'
+      : action === 'groom' || action === 'yawn'
       ? 'closed'
       : action === 'doze'
         ? 'sleepy'
@@ -120,8 +123,10 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               ? 'squeeze'
               : 'open';
   const lookUp = action === 'look';
-  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' =
-    action === 'yawn'
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' =
+    action === 'doom'
+      ? 'frown'
+      : action === 'yawn'
       ? 'yawn'
       : action === 'dizzy'
         ? 'wavy'
@@ -191,6 +196,16 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d={eyes === 'happy' ? 'M39 59 q4 -5 8 0' : eyes === 'sleepy' ? 'M39 58 h8' : 'M39 57.5 q4 3.5 8 0'} />
             <path d={eyes === 'happy' ? 'M73 59 q4 -5 8 0' : eyes === 'sleepy' ? 'M73 58 h8' : 'M73 57.5 q4 3.5 8 0'} />
           </g>
+        ) : eyes === 'doom' ? (
+          <g className="hs-doom-eyes">
+            <ellipse cx="43" cy="58" rx="6" ry="5" fill="#f4f1e4" stroke={INK} strokeWidth="1.6" />
+            <ellipse cx="77" cy="58" rx="6" ry="5" fill="#f4f1e4" stroke={INK} strokeWidth="1.6" />
+            <circle cx="42" cy="60" r="1.5" fill={EYE} />
+            <circle cx="78" cy="60" r="1.5" fill={EYE} />
+            <path d="M36 55.6 h14 M70 55.6 h14" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+            <path d="M37.5 65 q5.5 3.2 11 0 M71.5 65 q5.5 3.2 11 0" stroke="#7a5d8c" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".75" />
+            <path d="M36 51 l9 2.4 M84 51 l-9 2.4" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
+          </g>
         ) : eyes === 'spiral' ? (
           <g stroke={INK} strokeWidth="1.6" fill="none">
             <path d="M43 57 m0 0 a1.2 1.2 0 1 1 1.2 1.2 a2.4 2.4 0 1 1 -2.4 -2.4 a3.6 3.6 0 1 1 3.6 3.6" />
@@ -215,6 +230,11 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
         {mouth === 'yawn' ? (
           <ellipse className="hs-yawn-mouth" cx="60" cy="69" rx="4.2" ry="5" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
+        ) : mouth === 'frown' ? (
+          <g className="hs-mouth">
+            <path d="M53.5 71.5 q6.5 -6 13 0" stroke={INK} strokeWidth="1.9" fill="none" strokeLinecap="round" />
+            <path d="M66 67 q1.6 3 0 5" stroke="#8fd0ff" strokeWidth="1.2" fill="none" />
+          </g>
         ) : mouth === 'wavy' ? (
           <path className="hs-mouth" d="M54.5 67 q2.75 -2.2 5.5 0 q2.75 2.2 5.5 0" stroke={INK} strokeWidth="1.7" fill="none" />
         ) : mouth === 'o' ? (
@@ -298,6 +318,20 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <text x="98" y="12" fontSize="11" fontWeight="800" fill={INK} fontFamily="system-ui, sans-serif">에취!</text>
         </g>
       )}
+      {action === 'doom' && (
+        <g>
+          <path className="hs-sweat" d="M100 34 q4 6 0 9 q-4 -3 0 -9z" fill="#8fd0ff" stroke={INK} strokeWidth="1" />
+          <g className="hs-soul" fill="#f2f2ea" stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
+            <path d="M18 30 q-7 -2 -6 -9 q1 -7 7 -6 q6 -1 7 6 q1 5 -3 7 l1 5 l-3 -3 l-3 3z" />
+            <circle cx="16.5" cy="20.5" r="1" fill={INK} stroke="none" />
+            <circle cx="21.5" cy="20.5" r="1" fill={INK} stroke="none" />
+          </g>
+          <g stroke={INK} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".7">
+            <path d="M34 12 q2 -3 0 -6" className="hs-fume" />
+            <path d="M86 12 q2 -3 0 -6" className="hs-fume" />
+          </g>
+        </g>
+      )}
       {action === 'typeFast' && <path className="hs-sweat" d="M98 30 q4 6 0 9 q-4 -3 0 -9z" fill="#8fd0ff" stroke={INK} strokeWidth="1" />}
       {action === 'sip' && (
         <g className="hs-steam" stroke="#c8c0b8" strokeWidth="1.6" fill="none" strokeLinecap="round">
@@ -364,6 +398,13 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           <Paw x={50} y={90} rot={-25} />
           <Paw x={70} y={90} rot={25} />
         </g>
+      );
+    case 'doom':
+      return (
+        <>
+          <g className="hs-hand hs-tap-slow-l"><Paw x={47} y={97} rot={-8} /></g>
+          <g className="hs-hand hs-tap-slow-r"><Paw x={73} y={97} rot={8} /></g>
+        </>
       );
     case 'type':
     case 'typeFast':

@@ -503,3 +503,43 @@ export function pickComfort(key: string, n: number): string {
 }
 
 export const ALL_COMFORT: string[] = COMFORT;
+
+/** 야근 중 햄스터가 가끔 하는 혼잣말 (말풍선) */
+const OVERTIME_BUBBLE = [
+  '…퇴근이라는 단어가 기억나지 않아요',
+  '제 영혼, 아까 먼저 퇴근했어요',
+  '형광등이 저보다 먼저 죽을 것 같아요',
+  '이 시간에 일하면 해바라기씨가 맛이 없어요',
+  '키보드가 눈물에 젖고 있어요… 아니 땀인가',
+  '곰팡이가 저보다 먼저 자리 잡았어요',
+  '파리가 동료처럼 느껴져요',
+  '집이 어디였더라… 쳇바퀴가 우리 집인가',
+  '저 지금 숨 쉬는 거 맞죠?',
+  '내일의 저에게 미안해요',
+  '커피가 피처럼 흘러요',
+  '이건 야근이 아니라 합숙이에요',
+  '포괄… 포괄… 포괄임금… 주문 외우는 중',
+  '이 돈은 어디로 가는 걸까요… 허공으로…',
+  '모니터가 저를 쳐다봐요. 저도 쳐다봐요',
+  '꿈이었으면 좋겠어요. 근데 깨어 있어요',
+  '시계 보지 마세요. 시계도 저를 안 봐요',
+  '제발… 아무나 "퇴근하세요" 한마디만',
+  '졸려서 환각이 보여요. 칼퇴하는 햄스터요',
+  '벽에 낀 이끼가 저보다 월급이 많을지도',
+];
+
+export function pickOvertimeBubble(n: number): string {
+  return OVERTIME_BUBBLE[hash(`overtime|${n}`) % OVERTIME_BUBBLE.length];
+}
+
+/** 야근 화면 한마디 (오늘의 한마디 자리를 대신한다) */
+const OVERTIME_QUOTE = [
+  '야근 중인 직장인에게: 당신의 시간은 공짜가 아닙니다.',
+  '이 시간에 일하는 건 열정이 아니라 사정입니다.',
+  '"조금만 더"는 보통 세 시간입니다.',
+  '일 잘하면 일이 더 옵니다. 알면서도 또 잘하는 우리.',
+  '퇴근 시간은 권리입니다. 야근은… 기록입니다.',
+  '아무도 안 알아주지만 햄스터는 압니다. 고생하셨어요.',
+  '이 야근, 어딘가에 기록되고 있습니다 (여기에).',
+];
+export const pickOvertimeQuote = (key: string): string => OVERTIME_QUOTE[hash(`${key}|overtime-quote`) % OVERTIME_QUOTE.length];

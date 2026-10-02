@@ -2568,3 +2568,69 @@ textarea {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* 퇴근 직전: 시간이 두근두근 (색은 붉어지고, 두 번 콩콩) */
+.big-clock.beating .bc-time {
+  transform-origin: 50% 60%;
+  animation: bc-thump var(--beat, 1.2s) ease-in-out infinite;
+  color: color-mix(in srgb, var(--ink) calc((1 - var(--beat-k, 0)) * 100%), #e2504a);
+}
+@keyframes bc-thump {
+  0%, 40%, 100% { transform: scale(1); }
+  10% { transform: scale(calc(1 + 0.045 * (0.5 + var(--beat-k, 0)))); }
+  20% { transform: scale(1); }
+  30% { transform: scale(calc(1 + 0.03 * (0.5 + var(--beat-k, 0)))); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .big-clock.beating .bc-time { animation: none; }
+}
+
+/* 퇴근 시각 묻기 */
+.left-quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.left-quick .chip-btn { max-width: none; display: flex; flex-direction: column; gap: 1px; }
+.left-quick .chip-btn small { font-weight: 600; color: var(--ink-2); font-size: 0.72rem; }
+.left-custom { display: flex; gap: 8px; align-items: end; text-align: left; }
+.left-custom label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--ink-2); }
+.left-custom input { padding: 9px 10px; border: 2px solid var(--pen); border-radius: 10px; background: var(--card); color: var(--ink); font: inherit; }
+.left-custom .btn { flex: 1; }
+
+/* 야근 화면: 시들한 초록·회색 톤, 붉은 "벌었어야 할 돈" */
+.ot-panel {
+  border: 2px dashed #6c7a4c;
+  border-radius: 18px;
+  padding: 10px 14px 12px;
+  background: rgba(150, 165, 110, 0.18);
+  text-align: center;
+  animation: ot-shiver 2.8s ease-in-out infinite;
+}
+@keyframes ot-shiver {
+  0%, 100% { transform: translate(0, 0); }
+  30% { transform: translate(-0.6px, 0.4px); }
+  60% { transform: translate(0.7px, -0.3px); }
+}
+.ot-title { font-weight: 800; font-size: 0.84rem; color: #5b6a3c; letter-spacing: -0.2px; }
+.ot-clock { font-family: 'Jua', 'Pretendard', system-ui, sans-serif; font-size: clamp(1.7rem, 9vw, 2.3rem); color: #4d5a30; font-variant-numeric: tabular-nums; }
+.ot-owed-label { margin-top: 6px; font-weight: 800; font-size: 0.8rem; color: #b13a32; }
+.ot-owed { font-family: 'Jua', 'Pretendard', system-ui, sans-serif; font-size: clamp(1.7rem, 9vw, 2.4rem); color: #c9372c; text-shadow: 2px 2px 0 rgba(120, 30, 20, 0.18); }
+.ot-owed.pay { color: #3f7c4b; text-shadow: none; }
+.ot-note { margin: 4px 0 0; font-size: 0.72rem; color: var(--ink-2); font-weight: 600; }
+.ot-frozen { margin-top: 6px; font-size: 0.82rem; font-weight: 700; color: var(--ink-2); }
+.btn.overtime { background: #e9efd6; border: 2px solid #6c7a4c; color: #46552c; font-weight: 800; }
+.btn.homeward { background: #ffe9c9; border: 2px solid #c28a3a; color: #6b4210; font-weight: 800; }
+
+/* 야근 중엔 화면 전체가 시든다. 탭바는 fixed라 .app이 아니라 안쪽에 필터를 건다 */
+html[data-overtime] .content,
+html[data-overtime] .tabbar {
+  filter: saturate(0.55) sepia(0.28) hue-rotate(40deg) brightness(0.86);
+  transition: filter 1.2s;
+}
+html[data-overtime] body, html[data-overtime] .app { background: #b9c19a; transition: background 1.2s; }
+@media (prefers-reduced-motion: reduce) {
+  .ot-panel { animation: none; }
+}
+.seg-label { font-size: 0.8rem; font-weight: 800; color: var(--ink-2); margin-top: 6px; }
+.record-grid dd.owed, .career-grid .owed b { color: #c9372c; }
+.small-btn { padding: 6px 12px; font-size: 0.82rem; align-self: flex-start; }
+.chip-btn.overtime { background: #e9efd6; border-color: #6c7a4c; color: #46552c; }
+.ot-panel { background: rgba(236, 242, 214, 0.78); }
+html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }

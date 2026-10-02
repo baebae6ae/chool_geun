@@ -273,6 +273,7 @@ export const ACTIVITY_LABEL: Record<FrontAction | SideAction, string> = {
   heart: '마음을 전하는 중',
   shy: '부끄부끄',
   hug: '안아주세요~',
+  doom: '영혼이 빠져나가는 중',
   stand: '두리번두리번',
   walk: '종종종 걷는 중',
   run: '뽈뽈뽈 달리는 중',

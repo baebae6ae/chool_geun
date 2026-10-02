@@ -254,6 +254,24 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
           <input type="checkbox" checked={s.notifications} onChange={(e) => set('notifications', e.target.checked)} />
           알림 받기 (출근·가챠·퇴근, 하루 최대 3회)
         </label>
+        <div className="seg-label">야근하면 어떻게 계산할까요? (참고용)</div>
+        <div className="seg" role="radiogroup" aria-label="야근 수당 방식">
+          <button type="button" role="radio" aria-checked={s.wageType !== 'inclusive'} className={s.wageType !== 'inclusive' ? 'on' : ''} onClick={() => set('wageType', 'overtime')}>
+            수당 지급 (1.5배)
+          </button>
+          <button type="button" role="radio" aria-checked={s.wageType === 'inclusive'} className={s.wageType === 'inclusive' ? 'on' : ''} onClick={() => set('wageType', 'inclusive')}>
+            포괄임금제
+          </button>
+        </div>
+        <p className="muted small">
+          {s.wageType === 'inclusive'
+            ? '야근 수당이 따로 없으니, 야근한 시간만큼 "벌었어야 할 돈"(시급×1.5)을 따로 쌓아 둘게요.'
+            : '야근한 시간만큼 시급×1.5배가 오늘 번 돈에 더해져요. 실제 급여와 다를 수 있는 참고용 계산이에요.'}
+        </p>
+        <label className="toggle">
+          <input type="checkbox" checked={s.askLeftTime !== false} onChange={(e) => set('askLeftTime', e.target.checked)} />
+          다음 날 "몇 시에 퇴근했어요?" 물어보기
+        </label>
         {hourly > 0 && Number.isFinite(hourly) && (
           <p className="muted small">시간당 급여 약 {formatWon(Math.round(hourly))} ({annual ? (s.showGross ? '세전' : '세후') + ' ' : ''}월급 ÷ 월 근무시간)</p>
         )}

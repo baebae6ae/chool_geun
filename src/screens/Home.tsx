@@ -9,12 +9,15 @@ import { careerStats, completedInSeason, formatWon, itemOf } from '../domain/rec
 import { careerTitle } from '../domain/customization';
 import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
-import type { AppState, Schedule, Settings } from '../domain/types';
+import type { AppState, Settings } from '../domain/types';
+import { endOvertime, hhmm, liveOvertime, pendingLeftAsk, recordLeft, startOvertime, wageTypeOf } from '../domain/overtime';
+import { addDays } from '../domain/date';
+import { LeftSheet } from '../components/LeftSheet';
 import { now as clockNow } from '../store';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
-import { pickTimeBubble, quotePhase } from '../domain/quotes';
+import { pickOvertimeBubble, pickOvertimeQuote, pickTimeBubble, quotePhase } from '../domain/quotes';
 import { ShareSheet } from '../components/ShareSheet';
 
 interface Props {
@@ -25,6 +28,8 @@ interface Props {
   onRare: (id: RareId) => void;
   /** 가로로 눕힌 탁상시계 화면 */
   clock?: boolean;
+  /** 상태를 바꾼다 (야근 시작·끝, 퇴근 시각 기록) */
+  onState: (fn: (s: AppState) => AppState) => void;
 }
 
 /**
@@ -32,17 +37,19 @@ interface Props {
  * 글자만 바꾸므로(React 재렌더링 없음) 가볍다. 숫자 칸 너비를 고정해 흔들리지 않는다.
  * live가 없으면(퇴근 후·쉬는 날) 고정된 값을 보여준다. '동작 줄이기' 설정이면 1초에 한 번만 갱신.
  */
-function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; schedule: Schedule; hourly: number } }) {
+function MoneyTicker({ fixed, fn, depKey = '', label = '오늘 번 돈' }: { fixed: number; fn?: () => number; depKey?: string; label?: string }) {
   const box = useRef<HTMLSpanElement>(null);
   const sr = useRef<HTMLSpanElement>(null);
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
 
   useEffect(() => {
     const el = box.current;
     if (!el) return;
+    const value = () => (fnRef.current ? fnRef.current() : fixed);
     let prev = '';
     const paint = () => {
-      const v = live ? earnedAt(live.key, live.schedule, live.hourly, clockNow()) : fixed;
-      const str = formatWon(v, 2);
+      const str = formatWon(value(), 2);
       if (str === prev) return;
       prev = str;
       const dot = str.lastIndexOf('.');
@@ -53,7 +60,7 @@ function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; sch
     const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     let raf = 0;
     let timer: ReturnType<typeof setInterval> | undefined;
-    if (live) {
+    if (fn) {
       if (reduce) timer = setInterval(paint, 1000);
       else {
         const loop = () => {
@@ -63,11 +70,9 @@ function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; sch
         raf = requestAnimationFrame(loop);
       }
     }
-    // 화면 낭독기용: 원 단위로만 1초에 한 번
+    // 화면 낭독기용: 원 단위로만 가끔
     const speak = () => {
-      if (!sr.current) return;
-      const v = live ? earnedAt(live.key, live.schedule, live.hourly, clockNow()) : fixed;
-      sr.current.textContent = `오늘 번 돈 ${Math.floor(v).toLocaleString('ko-KR')}원`;
+      if (sr.current) sr.current.textContent = `${label} ${Math.floor(value()).toLocaleString('ko-KR')}원`;
     };
     speak();
     const srTimer = setInterval(speak, 5000);
@@ -76,7 +81,7 @@ function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; sch
       if (timer) clearInterval(timer);
       clearInterval(srTimer);
     };
-  }, [fixed, live?.key, live?.hourly, live?.schedule.workStart, live?.schedule.workEnd, live?.schedule.lunchStart, live?.schedule.lunchEnd]);
+  }, [fixed, !!fn, depKey, label]);
 
   return (
     <>
@@ -84,6 +89,38 @@ function MoneyTicker({ fixed, live }: { fixed: number; live?: { key: string; sch
       <span ref={sr} className="sr-only" />
     </>
   );
+}
+
+/** 야근 시간을 1/100초까지 굴린다 */
+function OvertimeClock({ getMs }: { getMs: () => number }) {
+  const el = useRef<HTMLSpanElement>(null);
+  const ref = useRef(getMs);
+  ref.current = getMs;
+  useEffect(() => {
+    let raf = 0;
+    const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const paint = () => {
+      const ms = Math.max(0, ref.current());
+      const h = Math.floor(ms / 3_600_000);
+      const m = Math.floor(ms / 60_000) % 60;
+      const sec = Math.floor(ms / 1000) % 60;
+      const cs = Math.floor(ms / 10) % 100;
+      const p = (n: number) => String(n).padStart(2, '0');
+      if (el.current) el.current.textContent = `${h}:${p(m)}:${p(sec)}${reduce ? '' : '.' + p(cs)}`;
+    };
+    paint();
+    if (reduce) {
+      const t = setInterval(paint, 1000);
+      return () => clearInterval(t);
+    }
+    const loop = () => {
+      paint();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <span ref={el} className="ot-clock" aria-hidden />;
 }
 
 /** 안드로이드 크롬 등은 진짜 전체 화면 가능 (아이폰은 브라우저가 막음 → 홈 화면에 추가해야 함) */
@@ -97,7 +134,7 @@ const toggleFullscreen = () => {
  * "그냥 켜놓는" 화면. 사용자가 조작할 게 거의 없고, 시간이 흐르는 대로
  * 번 돈과 작업 진행률, 햄스터의 행동이 저절로 바뀐다.
  */
-export function Home({ state, now, onOpenSettings, onRare, clock = false }: Props) {
+export function Home({ state, now, onOpenSettings, onRare, clock = false, onState }: Props) {
   const { settings, custom } = state;
   const key = dateKey(now);
   const day = state.days[key];
@@ -124,12 +161,16 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
   const say = (text: string) => setBubble({ key: `${Date.now()}`, text });
 
   // 시간대에 맞는 혼잣말: 시간대가 바뀐 뒤 잠시 지나서, 그리고 가끔 한 번씩 말풍선으로
+  const overtimeRef = useRef(false);
   const phaseRef = useRef(quotePhase(now, key, day && !holiday ? day.schedule : null, !!day?.clockedOut));
   const bubbleN = useRef(0);
   useEffect(() => {
     const id = setInterval(() => {
       if (document.visibilityState !== 'visible') return;
-      if (Math.random() < 0.35) say(pickTimeBubble(phaseRef.current, bubbleN.current++ + Math.floor(Date.now() / 600000)));
+      const n = bubbleN.current++ + Math.floor(Date.now() / 600000);
+      if (overtimeRef.current) {
+        if (Math.random() < 0.6) say(pickOvertimeBubble(n));
+      } else if (Math.random() < 0.35) say(pickTimeBubble(phaseRef.current, n));
     }, 70_000);
     return () => clearInterval(id);
   }, []);
@@ -189,9 +230,47 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
     prevPct.current = pct;
   }, [pct]);
 
+  // 야근
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const otDate = state.overtime?.date;
+  const otActive = !!state.overtime && !!otDate && !!state.days[otDate];
+  overtimeRef.current = otActive;
+  const otDay = otDate ? state.days[otDate] : undefined;
+  const otNow = otActive && otDate ? liveOvertime(state, otDate, now) : null;
+  const inclusive = wageTypeOf(settings) === 'inclusive';
+  const canOvertime = !otActive && !!day && !!item && !!bounds && now >= bounds.end;
+  const otLiveFn = () => (otDate ? (liveOvertime(stateRef.current, otDate, clockNow()) ?? { ms: 0, pay: 0, owed: 0 }) : { ms: 0, pay: 0, owed: 0 });
+  useEffect(() => {
+    const root = document.documentElement;
+    if (otActive) root.setAttribute('data-overtime', '');
+    else root.removeAttribute('data-overtime');
+    return () => root.removeAttribute('data-overtime');
+  }, [otActive]);
+
+  // "어제 몇 시에 퇴근했어요?"
+  const [askDismissed, setAskDismissed] = useState<string | null>(null);
+  const askKey = settings.askLeftTime !== false && !otActive ? pendingLeftAsk(state, key) : null;
+  const askDay = askKey ? state.days[askKey] : undefined;
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  useEffect(() => {
+    setOverlayOpen(!!document.querySelector('.overlay:not(.left-overlay)'));
+  });
+  const showAsk = !!askKey && !!askDay && askKey !== askDismissed && !sharing && !overlayOpen;
+  const askWhen = askKey === addDays(key, -1) ? '어제' : askKey ? formatKoreanDate(askKey).replace(/ ?\(.*\)$/, '') : '';
+
+  // 퇴근이 코앞이면 시간이 두근두근 (30분 전부터 점점 빨라진다)
+  const toEnd = bounds ? bounds.end - now : Infinity;
+  const BEAT_WINDOW = 30 * 60_000;
+  const beat =
+    day && bounds && !day.clockedOut && now >= bounds.start && toEnd > 0 && toEnd <= BEAT_WINDOW && !!item
+      ? { k: 1 - toEnd / BEAT_WINDOW, dur: 1.5 - 1.1 * (1 - toEnd / BEAT_WINDOW) }
+      : null;
+
   let timeInfo = '';
   if (day && bounds) {
-    if (day.clockedOut) timeInfo = day.completed ? '오늘 업무 끝 · 푹 쉬어요' : '퇴근 완료';
+    if (otActive) timeInfo = `야근 중 · 퇴근 시각 ${hhmm(now)} 지남`;
+    else if (day.clockedOut) timeInfo = day.completed ? '오늘 업무 끝 · 푹 쉬어요' : '퇴근 완료';
     else if (now < bounds.start) timeInfo = `출근까지 ${formatRemaining(bounds.start - now)}`;
     else timeInfo = `퇴근까지 ${formatRemaining(bounds.end - now)}`;
   }
@@ -219,6 +298,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
         <button type="button" className="chip-btn" onClick={() => setSharing(true)}>
           카드 공유
         </button>
+        {canOvertime && (
+          <button type="button" className="chip-btn overtime" onClick={() => onState((s) => startOvertime(s, key, clockNow()))}>
+            🌙 야근하기
+          </button>
+        )}
       </div>
     </>
   );
@@ -255,12 +339,14 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
           onRare={handleRare}
           onInteract={handleInteract}
           reaction={reaction}
+          overtimeMin={otNow ? Math.floor(otNow.ms / 60_000) : null}
         />
 
         <BigClock
           now={now}
           dateText={formatKoreanDate(key)}
           info={timeInfo || undefined}
+          beat={beat}
           countdown={
             day && bounds && !day.clockedOut && now < bounds.end
               ? now < bounds.start
@@ -280,12 +366,44 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
                   ? `오늘은 ${holiday}, 쉬는 날이에요. 햄스터도 늦잠 자는 중.`
                   : '오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.'}
           </p>
+        ) : otActive && otNow ? (
+          <>
+            <div className="ot-panel">
+              <div className="ot-title">🧟 야근 중… 영혼은 이미 퇴근했어요</div>
+              <OvertimeClock getMs={() => otLiveFn().ms} />
+              {inclusive ? (
+                <>
+                  <div className="ot-frozen">오늘 번 돈 {formatWon(Math.floor(otDay?.earned ?? 0))} (더 안 올라요…)</div>
+                  <div className="ot-owed-label">벌었어야 할 돈</div>
+                  <div className="ot-owed" aria-live="off">
+                    <MoneyTicker fixed={0} fn={() => otLiveFn().owed} depKey={`owed|${otDate}`} label="벌었어야 할 돈" />
+                  </div>
+                  <p className="ot-note">포괄임금제라 이 돈은 안 들어와요 · 시급×1.5 참고용 계산</p>
+                </>
+              ) : (
+                <>
+                  <div className="ot-owed-label">야근수당 (시급×1.5)</div>
+                  <div className="ot-owed pay" aria-live="off">
+                    <MoneyTicker fixed={0} fn={() => otLiveFn().pay} depKey={`pay|${otDate}`} label="야근수당" />
+                  </div>
+                  <p className="ot-note">오늘 번 돈 {formatWon(Math.floor(otDay?.earned ?? 0))} 에 더해져요 · 참고용 계산</p>
+                </>
+              )}
+            </div>
+            <div className="quote-card" role="note">
+              <span className="quote-label">야근 한마디</span>
+              <span className="quote-text">{pickOvertimeQuote(otDate ?? key)}</span>
+            </div>
+            <button type="button" className="btn homeward big-btn" onClick={() => onState((s) => endOvertime(s, clockNow()))}>
+              🏃 진짜 퇴근하기
+            </button>
+          </>
         ) : (
           <>
             <div className="hero-money">
               <div className="hero-money-label">오늘 번 돈</div>
               <div className="hero-money-value" aria-live="off">
-                <MoneyTicker fixed={earned} live={day.clockedOut ? undefined : { key, schedule: day.schedule, hourly: day.hourly }} />
+                <MoneyTicker fixed={earned} fn={day.clockedOut ? undefined : () => earnedAt(key, day.schedule, day.hourly, clockNow())} depKey={`${key}|${day.hourly}|${day.schedule.workStart}|${day.schedule.workEnd}|${day.schedule.lunchStart}|${day.schedule.lunchEnd}`} />
               </div>
               <div className="hero-money-sub">
                 {settings.payMode === 'annual' ? (settings.showGross ? '세전 ' : '세후 ') : ''}시급 {formatWon(Math.round(day.hourly))} 기준
@@ -310,6 +428,15 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false }: Prop
         )}
         {(!day || !item) && quoteBlock}
       </div>
+
+      {showAsk && askKey && askDay && (
+        <LeftSheet
+          when={askWhen}
+          workEnd={askDay.schedule.workEnd}
+          onPick={(left) => onState((s) => recordLeft(s, askKey, left))}
+          onLater={() => setAskDismissed(askKey)}
+        />
+      )}
 
       {sharing && (
         <ShareSheet

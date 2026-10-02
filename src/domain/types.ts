@@ -36,6 +36,10 @@ export interface Settings extends Schedule {
   holidaysOff?: boolean;
   /** 날짜별로 직접 정한 쉬는 날(연차·회사 휴무·임시공휴일) / 출근하는 날 */
   dayOverrides?: Record<string, 'off' | 'on'>;
+  /** 임금 방식: 야근하면 수당(1.5배)을 받는지, 포괄임금제라 추가 수당이 없는지 (없으면 수당 지급) */
+  wageType?: 'overtime' | 'inclusive';
+  /** 어제 몇 시에 퇴근했는지 물어보기 (없으면 물어봄) */
+  askLeftTime?: boolean;
   hamsterName: string;
   /** 브라우저 알림 사용 */
   notifications: boolean;
@@ -98,6 +102,16 @@ export interface DailyWork {
   comment: string;
   /** 퇴근 연출을 이미 봤는지 */
   celebrated: boolean;
+  /** 실제로 퇴근한 시각 (HH:mm) — 야근 기록 */
+  leftAt?: string | null;
+  /** 퇴근 시각을 물어봤거나 기록했는지 */
+  leftAsked?: boolean;
+  /** 야근한 시간 (ms) */
+  overtimeMs?: number;
+  /** 야근으로 실제 더 받은 돈 (수당 지급 방식) */
+  overtimePay?: number;
+  /** 야근을 했지만 못 받은 돈 = 벌었어야 할 돈 (포괄임금제) */
+  overtimeOwed?: number;
 }
 
 /** 기획서 17. Collection */
@@ -120,4 +134,6 @@ export interface AppState {
   rare?: Partial<Record<string, number>>;
   /** 월급날 축하를 본 날짜 */
   paydaySeen?: string;
+  /** 지금 야근 중 (야근하기를 누른 뒤 진짜 퇴근을 누르기 전) */
+  overtime?: { date: string; startedAt: number };
 }
