@@ -448,6 +448,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           nameTag={shareNameTag}
           chips={shareChips}
           defaultTired={otActive}
+          leaveAt={day && bounds && !otActive && working && now < bounds.end ? bounds.end : null}
           onClose={() => setSharing(false)}
         />
       )}

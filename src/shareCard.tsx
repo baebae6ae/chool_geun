@@ -117,6 +117,8 @@ export interface CardData {
   /** 돈과 상관없는 작은 칩들 ("출근 12일째" 등) */
   chips: string[];
   quote: string;
+  /** "퇴근까지 3시간12분5.43초" — 카드를 만든 순간의 남은 시간. 없으면 그리지 않는다 */
+  remaining?: string;
 }
 
 const W = 1080;
@@ -357,6 +359,24 @@ export async function renderCard(d: CardData): Promise<Blob> {
   if (c.flip) ctx.scale(-1, 1);
   ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
   ctx.restore();
+
+  if (d.remaining) {
+    ctx.font = `400 50px Jua, ${sans}`;
+    ctx.textAlign = 'center';
+    const rw = ctx.measureText(d.remaining).width + 80;
+    const ry = fy + fh - 98;
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    roundRect(ctx, W / 2 - rw / 2, ry, rw, 76, 38);
+    ctx.fill();
+    ctx.strokeStyle = d.theme.line;
+    ctx.lineWidth = 4;
+    ctx.setLineDash([14, 9]);
+    roundRect(ctx, W / 2 - rw / 2, ry, rw, 76, 38);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = INK;
+    ctx.fillText(d.remaining, W / 2, ry + 54);
+  }
 
   ctx.strokeStyle = d.theme.line;
   ctx.lineWidth = 7;
