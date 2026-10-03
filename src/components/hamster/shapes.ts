@@ -193,9 +193,58 @@ export const SIDE_BY_SPECIES = {
   bird: sideShape(38, 37, 36, 33, 0.3, 91, 58, 89),
 };
 
-/** 샴고양이 옆모습 머리 (몸통 앞쪽 위에 얹는다) */
-export const CAT_SIDE_HEAD = fromPts(
-  sampleShape(30, (t) => [100 + 21 * spow(Math.cos(t), 0.9), 54 + 20 * spow(Math.sin(t), 0.9)]),
-  (_i, t) => 0.25 + 1.6 * bell(t, 2.2, 0.3),
-  97,
+/** 점 몇 개로 잡은 윤곽을 부드러운 곡선 위의 촘촘한 점들로 (Catmull-Rom) */
+function densify(pts: Pt[], per: number): Pt[] {
+  const n = pts.length;
+  const out: Pt[] = [];
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n];
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % n];
+    const p3 = pts[(i + 2) % n];
+    for (let k = 0; k < per; k++) {
+      const t = k / per;
+      const t2 = t * t;
+      const t3 = t2 * t;
+      const f = (a: number, b: number, c: number, d: number) =>
+        0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+      out.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+    }
+  }
+  return out;
+}
+
+/**
+ * 샴고양이 옆모습 머리: 둥근 이마 → 콧등 → 살짝 튀어나온 코끝 → 짧은 주둥이와 턱 → 뒤로 삐죽한 볼 털.
+ * (오른쪽을 보는 옆얼굴)
+ */
+const catSideHeadPts = densify(
+  [
+    [83, 38],
+    [95, 32],
+    [107, 35],
+    [114, 42],
+    [117.5, 50],
+    [121, 56.5],
+    [119.5, 61],
+    [115, 64],
+    [111, 69.5],
+    [102, 73],
+    [90, 73.5],
+    [81, 65],
+    [78.5, 51],
+  ],
+  4,
 );
+export const CAT_SIDE_HEAD = {
+  body: tuftPath(
+    catSideHeadPts,
+    (i) => {
+      // 볼 털(아래 뒤쪽)만 보송하게, 얼굴 앞쪽은 매끈하게
+      const cheek = i >= 36 && i <= 46 ? 1.6 : 0;
+      return (0.15 + cheek) * (0.5 + rand01(i + 97));
+    },
+    0,
+  ),
+  clip: smoothPath(catSideHeadPts),
+};
