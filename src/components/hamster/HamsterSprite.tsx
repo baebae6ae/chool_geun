@@ -1280,10 +1280,10 @@ function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
     return (
       <g className="hs-ears" strokeLinejoin="round">
         {/* 먼 쪽 귀 (살짝 앞, 조금 어둡게) */}
-        <path d="M100 35.5 C101 26 104 19 108 13 C110 19 111 26 110 35.5Z" fill={pc} stroke={INK} strokeWidth={LINE} opacity=".85" />
+        <path d="M100 35.5 C101 29 103.6 24 107 20 C109 24.5 110.6 29.5 110 35.5Z" fill={pc} stroke={INK} strokeWidth={LINE} opacity=".85" />
         <g className="hs-ear-r">
-          <path d="M88.5 40 C87.5 29 89 21 92 14 C97 18 101 24 103 34Z" fill={pc} stroke={INK} strokeWidth={LINE} />
-          <path d="M92 34 C91.5 28 92.5 23 94 19 C97 22 99 26 100 30Z" fill={PINK} opacity=".85" />
+          <path d="M88.5 40 C88 32 89.4 26 92 21 C96.6 24 100.6 28.6 103 34Z" fill={pc} stroke={INK} strokeWidth={LINE} />
+          <path d="M92 35 C91.6 30.5 92.4 27 93.8 24.4 C96.4 26.4 98.6 29 99.8 32Z" fill={PINK} opacity=".85" />
         </g>
       </g>
     );
