@@ -22,6 +22,7 @@ export function Gallery() {
   const size = Number(params.get('size') || 220);
   const custom: Customization = {
     ...DEFAULT_CUSTOM,
+    species: (params.get('species') as Customization['species']) || 'hamster',
     color: (params.get('color') as Customization['color']) || 'golden',
     outfit: (params.get('outfit') as Customization['outfit']) || 'none',
     hat: (params.get('hat') as Customization['hat']) || 'none',

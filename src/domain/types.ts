@@ -55,7 +55,11 @@ export type HandId = 'none' | 'pencil' | 'highlighter' | 'calculator' | 'stamp';
 export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern';
 export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
+export type Species = 'hamster' | 'rabbit' | 'bird' | 'cat';
+
 export interface Customization {
+  /** 캐릭터 (없으면 햄스터) */
+  species?: Species;
   color: HamsterColor;
   glasses: boolean;
   hat: HatId;

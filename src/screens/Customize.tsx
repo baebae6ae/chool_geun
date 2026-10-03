@@ -9,6 +9,7 @@ import {
   HATS,
   isUnlocked,
   OUTFITS,
+  SPECIES,
   unlockText,
   type CatalogItem,
   type Unlock,
@@ -45,8 +46,9 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
         작업물 {p.completed}개 완성 · 도감 {p.collected}종 · 누적 {Math.floor(p.earned / 10000).toLocaleString('ko-KR')}만 원 — 더 모으면 새 아이템이 열려요
       </p>
 
+      <Picker title="캐릭터" items={SPECIES} value={c.species ?? 'hamster'} isOpen={open} onPick={(species) => set({ species })} />
       <Picker title="서식지 배경 (시즌을 끝내면 열려요)" items={BACKGROUNDS} value={c.bg ?? 'default'} isOpen={open} onPick={(bg) => set({ bg })} />
-      <Picker title="햄스터 색상" items={COLORS} value={c.color} isOpen={open} onPick={(color) => set({ color })} />
+      <Picker title="털 색상" items={COLORS} value={c.color} isOpen={open} onPick={(color) => set({ color })} />
       <section className="card">
         <div className="card-label">안경</div>
         <div className="chips">

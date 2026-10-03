@@ -1,6 +1,6 @@
-import { useId } from 'react';
+import { createContext, useContext, useId } from 'react';
 import { COLORS } from '../../domain/customization';
-import type { Customization } from '../../domain/types';
+import type { Customization, Species } from '../../domain/types';
 import { FRONT, LOAF, SIDE } from './shapes';
 import './hamster.css';
 
@@ -59,13 +59,23 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
 
 type Palette = (typeof COLORS)[number];
 
+/** 손발 모양이 캐릭터마다 달라서 Paw·Arm이 알아야 한다 */
+const SpeciesCtx = createContext<Species>('hamster');
+const BEAK = '#f4a949';
+const BIRD_FOOT = '#f2a64a';
+const footFill = (sp: Species) => (sp === 'bird' ? BIRD_FOOT : PINK);
+
 export function HamsterSprite({ custom, pose, className = '', still = false }: Props) {
   const clip = `hc-${useId().replace(/:/g, '')}`;
   const c = COLORS.find((x) => x.id === custom.color) ?? COLORS[0];
-  return pose.pose === 'side' ? (
-    <SideView c={c} clip={clip} action={pose.action} custom={custom} className={className} />
-  ) : (
-    <FrontView c={c} clip={clip} action={pose.action} custom={custom} className={className} still={still} />
+  return (
+    <SpeciesCtx.Provider value={custom.species ?? 'hamster'}>
+      {pose.pose === 'side' ? (
+        <SideView c={c} clip={clip} action={pose.action} custom={custom} className={className} />
+      ) : (
+        <FrontView c={c} clip={clip} action={pose.action} custom={custom} className={className} still={still} />
+      )}
+    </SpeciesCtx.Provider>
   );
 }
 
@@ -108,6 +118,7 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
 /* ============================ 정면 (앉은 자세) ============================ */
 
 function FrontView({ c, clip, action, custom, className, still }: ViewProps<FrontAction>) {
+  const sp = custom.species ?? 'hamster';
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' =
     action === 'doom'
       ? 'doom'
@@ -135,7 +146,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           : ['idle', 'sniff', 'look', 'type', 'wave', 'dance', 'cheer', 'heart', 'hug'].includes(action)
             ? 'smile'
             : 'small';
-  const stuffed = action === 'stuff';
+  const stuffed = action === 'stuff' && sp !== 'bird';
   return (
     <svg viewBox="0 0 120 120" className={`hs hs-front act-${action} ${className}`} aria-hidden>
       <clipPath id={clip}>
@@ -147,17 +158,18 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
       <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
         {/* 다크 모드에서만 보이는 밝은 테두리 (어두운 배경에 윤곽이 묻히지 않게) */}
         <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
-          <circle cx="31" cy="26" r="9.5" />
-          <circle cx="89" cy="26" r="9.5" />
+          {sp === 'hamster' && (
+            <>
+              <circle cx="31" cy="26" r="9.5" />
+              <circle cx="89" cy="26" r="9.5" />
+            </>
+          )}
           <path d={FRONT.body} />
           <ellipse cx="45" cy="106.5" rx="7" ry="3.8" />
           <ellipse cx="75" cy="106.5" rx="7" ry="3.8" />
         </g>
         {/* 귀 */}
-        <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE}>
-          <circle className="hs-ear-l" cx="31" cy="26" r="9.5" />
-          <circle className="hs-ear-r" cx="89" cy="26" r="9.5" />
-        </g>
+        <FrontEars sp={sp} c={c} />
 
         {/* 볼주머니 (몸 뒤에 먼저 그려서 바깥쪽 윤곽만 보이게) */}
         {stuffed && (
@@ -173,6 +185,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <FrontOutfit id={custom.outfit} />
         </g>
         <path d={FRONT.body} fill="none" stroke={INK} strokeWidth={LINE} />
+        {sp === 'bird' && (
+          <g clipPath={`url(#${clip})`} fill="#5b4852">
+            <ellipse cx="36" cy="43.5" rx="14" ry="3.9" transform="rotate(-9 36 43.5)" />
+            <ellipse cx="84" cy="43.5" rx="14" ry="3.9" transform="rotate(9 84 43.5)" />
+          </g>
+        )}
         {stuffed ? (
           <g className="hs-cheeks" fill={c.body}>
             <circle cx="22" cy="70" r="12.6" />
@@ -180,15 +198,15 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           </g>
         ) : (
           <g stroke={INK} strokeWidth="2" fill="none">
-            {action !== 'yawn' && action !== 'dance' && <path d={FRONT.ticksL} />}
-            {action !== 'yawn' && action !== 'wave' && action !== 'dance' && action !== 'sneeze' && <path d={FRONT.ticksR} />}
+            {sp === 'hamster' && action !== 'yawn' && action !== 'dance' && <path d={FRONT.ticksL} />}
+            {sp === 'hamster' && action !== 'yawn' && action !== 'wave' && action !== 'dance' && action !== 'sneeze' && <path d={FRONT.ticksR} />}
           </g>
         )}
 
         {/* 볼터치 · 주둥이 */}
         <ellipse cx={stuffed ? 24 : 34} cy="67" rx="5.5" ry="3" fill={BLUSH} opacity={stuffed ? 0.7 : 0.45} />
         <ellipse cx={stuffed ? 96 : 86} cy="67" rx="5.5" ry="3" fill={BLUSH} opacity={stuffed ? 0.7 : 0.45} />
-        <ellipse cx="60" cy="66" rx="10.5" ry="8" fill={c.cream} />
+        {sp !== 'bird' && <ellipse cx="60" cy="66" rx="10.5" ry="8" fill={c.cream} />}
 
         {/* 눈 */}
         {eyes === 'closed' || eyes === 'happy' || eyes === 'sleepy' ? (
@@ -226,8 +244,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         )}
 
         {/* 코 · 입 */}
-        <ellipse className="hs-nose" cx="60" cy="61.5" rx="2.9" ry="2.1" fill={NOSE} />
+        {sp !== 'bird' && <ellipse className="hs-nose" cx="60" cy="61.5" rx="2.9" ry="2.1" fill={NOSE} />}
         {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
+        {sp === 'bird' ? (
+          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o'} />
+        ) : (
+          <>
         {mouth === 'yawn' ? (
           <ellipse className="hs-yawn-mouth" cx="60" cy="69" rx="4.2" ry="5" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
         ) : mouth === 'frown' ? (
@@ -248,6 +270,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : (
           <path className="hs-mouth" d="M60 64 v1.6 M56.4 65.4 q1.8 2 3.6 .2 q1.8 1.8 3.6 -.2" stroke={INK} strokeWidth="1.6" fill="none" />
         )}
+          </>
+        )}
+        {(sp === 'cat' || sp === 'rabbit') && <Whiskers />}
+        {sp === 'rabbit' && (mouth === 'smile' || mouth === 'small' || mouth === 'frown') && (
+          <path d="M57 71.2 h6 v4.6 q-3 1.6 -6 0z M60 71.4 v4.6" fill="#fff" stroke={INK} strokeWidth="1.3" strokeLinejoin="round" />
+        )}
 
         {custom.outfit === 'tie' || custom.outfit === 'suit' ? (
           <g stroke={INK} strokeWidth="1.3">
@@ -265,7 +293,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         )}
 
         {/* 발 */}
-        <g fill={PINK} stroke={INK} strokeWidth="2">
+        <g fill={footFill(sp)} stroke={INK} strokeWidth="2">
           <ellipse cx="45" cy="106.5" rx="7" ry="3.8" />
           <ellipse cx="75" cy="106.5" rx="7" ry="3.8" />
         </g>
@@ -353,7 +381,77 @@ function star(cx: number, cy: number, r: number): string {
 }
 
 function Paw({ x, y, rot = 0 }: { x: number; y: number; rot?: number }) {
-  return <ellipse cx={x} cy={y} rx="5" ry="4.2" transform={`rotate(${rot} ${x} ${y})`} fill={PINK} stroke={INK} strokeWidth="2" />;
+  const sp = useContext(SpeciesCtx);
+  return <ellipse cx={x} cy={y} rx="5" ry="4.2" transform={`rotate(${rot} ${x} ${y})`} fill={sp === 'bird' ? '#f6dcc6' : PINK} stroke={INK} strokeWidth="2" />;
+}
+
+/** 정면 귀: 캐릭터마다 모양이 다르다 (새는 귀 없음) */
+function FrontEars({ sp, c }: { sp: Species; c: Palette }) {
+  if (sp === 'bird') return null;
+  if (sp === 'rabbit') {
+    return (
+      <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE}>
+        <g transform="rotate(-9 42 24)">
+          <g className="hs-ear-l">
+            <ellipse cx="42" cy="12" rx="7.6" ry="15.5" />
+            <ellipse cx="42" cy="14" rx="3.4" ry="10" fill={PINK} stroke="none" opacity=".85" />
+          </g>
+        </g>
+        <g transform="rotate(9 78 24)">
+          <g className="hs-ear-r">
+            <ellipse cx="78" cy="12" rx="7.6" ry="15.5" />
+            <ellipse cx="78" cy="14" rx="3.4" ry="10" fill={PINK} stroke="none" opacity=".85" />
+          </g>
+        </g>
+      </g>
+    );
+  }
+  if (sp === 'cat') {
+    return (
+      <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
+        <g className="hs-ear-l">
+          <path d="M16 40 L19 7 L48 25 Z" />
+          <path d="M23 32 L24.5 16 L38 25 Z" fill={PINK} stroke="none" opacity=".85" />
+        </g>
+        <g className="hs-ear-r">
+          <path d="M104 40 L101 7 L72 25 Z" />
+          <path d="M97 32 L95.5 16 L82 25 Z" fill={PINK} stroke="none" opacity=".85" />
+        </g>
+      </g>
+    );
+  }
+  return (
+    <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE}>
+      <circle className="hs-ear-l" cx="31" cy="26" r="9.5" />
+      <circle className="hs-ear-r" cx="89" cy="26" r="9.5" />
+    </g>
+  );
+}
+
+/** 고양이·토끼 수염 (정면) */
+function Whiskers() {
+  return (
+    <g stroke={INK} strokeWidth="1.4" strokeLinecap="round" opacity=".6" fill="none">
+      <path d="M46 64 L25 60 M46 68 L25 70" />
+      <path d="M74 64 L95 60 M74 68 L95 70" />
+    </g>
+  );
+}
+
+/** 새 부리 (정면). open이면 입을 벌린다 */
+function Beak({ open }: { open: boolean }) {
+  return open ? (
+    <g className="hs-nose" stroke={INK} strokeWidth="1.7" strokeLinejoin="round">
+      <path d="M54.5 66 Q60 79 65.5 66 Q60 69 54.5 66Z" fill="#e8744f" />
+      <path d="M55.6 71 Q60 66.6 64.4 71 Q60 75 55.6 71Z" fill="#ff9c96" stroke="none" />
+      <path d="M53 62 Q60 53.5 67 62 Q60 67.6 53 62Z" fill={BEAK} />
+    </g>
+  ) : (
+    <g className="hs-nose" stroke={INK} strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M53 62 Q60 54 67 62 Q60 71.5 53 62Z" fill={BEAK} />
+      <path d="M55.4 63.6 Q60 66 64.6 63.6" fill="none" strokeWidth="1.4" />
+    </g>
+  );
 }
 
 /** 몸 옆에서 뻗어 나온 짧은 팔 (몸 색 + 분홍 손) */
@@ -671,6 +769,7 @@ function HandItem({ id }: { id: Customization['hand'] }) {
 
 /** 자는 자세: 앞을 보고 납작 엎드려 눈 감고, 앞발은 턱 밑에 */
 function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, 'action'>) {
+  const sp = custom.species ?? 'hamster';
   return (
     <svg viewBox="0 0 140 100" className={`hs hs-side act-sleep ${className}`} aria-hidden>
       <clipPath id={clip}>
@@ -680,15 +779,36 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
 
       <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
         <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
-          <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
-          <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
+          {sp === 'hamster' && (
+            <>
+              <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
+              <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
+            </>
+          )}
           <path d={LOAF.body} />
         </g>
         {/* 귀는 살짝 눕힘 */}
-        <g fill={c.ear} stroke={INK} strokeWidth={LINE}>
-          <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
-          <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
-        </g>
+        {sp === 'hamster' && (
+          <g fill={c.ear} stroke={INK} strokeWidth={LINE}>
+            <ellipse cx="35" cy="47" rx="9.5" ry="7.5" transform="rotate(-35 35 47)" />
+            <ellipse cx="105" cy="47" rx="9.5" ry="7.5" transform="rotate(35 105 47)" />
+          </g>
+        )}
+        {sp === 'rabbit' && (
+          <g fill={c.ear} stroke={INK} strokeWidth={LINE}>
+            <ellipse cx="38" cy="43" rx="18" ry="6.6" transform="rotate(-24 38 43)" />
+            <ellipse cx="102" cy="43" rx="18" ry="6.6" transform="rotate(24 102 43)" />
+            <ellipse cx="38" cy="43" rx="11" ry="2.6" transform="rotate(-24 38 43)" fill={PINK} stroke="none" opacity=".85" />
+            <ellipse cx="102" cy="43" rx="11" ry="2.6" transform="rotate(24 102 43)" fill={PINK} stroke="none" opacity=".85" />
+          </g>
+        )}
+        {sp === 'cat' && (
+          <g fill={c.ear} stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
+            <path d="M24 58 L27 31 L52 46Z" />
+            <path d="M116 58 L113 31 L88 46Z" />
+            <path d="M30 51 L31 38 L43 46Z M110 51 L109 38 L97 46Z" fill={PINK} stroke="none" opacity=".85" />
+          </g>
+        )}
 
         <PencilBody d={LOAF.body} c={c} uid={clip} />
         <g clipPath={`url(#${clip})`}>
@@ -699,16 +819,33 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
         {/* 얼굴 */}
         <ellipse cx="47" cy="71" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
         <ellipse cx="93" cy="71" rx="5.5" ry="3" fill={BLUSH} opacity=".45" />
-        <ellipse cx="70" cy="72" rx="10" ry="7" fill={c.cream} />
+        {sp !== 'bird' && <ellipse cx="70" cy="72" rx="10" ry="7" fill={c.cream} />}
+        {sp === 'bird' && (
+          <g clipPath={`url(#${clip})`} fill="#5b4852">
+            <ellipse cx="49" cy="55" rx="12" ry="3.6" transform="rotate(-8 49 55)" />
+            <ellipse cx="91" cy="55" rx="12" ry="3.6" transform="rotate(8 91 55)" />
+          </g>
+        )}
         <g stroke={INK} strokeWidth="2.3" fill="none">
           <path d="M52 64 q5 4.5 10 0" />
           <path d="M78 64 q5 4.5 10 0" />
         </g>
-        <ellipse cx="70" cy="68.5" rx="2.7" ry="2" fill={NOSE} />
-        <path d="M70 70.4 v1.4 M66.6 72 q1.7 1.8 3.4 .2 q1.7 1.6 3.4 -.2" stroke={INK} strokeWidth="1.5" fill="none" />
+        {sp === 'bird' ? (
+          <path d="M64 69 Q70 62.5 76 69 Q70 76.5 64 69Z M66 70.4 Q70 72.4 74 70.4" fill={BEAK} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+        ) : (
+          <>
+            <ellipse cx="70" cy="68.5" rx="2.7" ry="2" fill={NOSE} />
+            <path d="M70 70.4 v1.4 M66.6 72 q1.7 1.8 3.4 .2 q1.7 1.6 3.4 -.2" stroke={INK} strokeWidth="1.5" fill="none" />
+          </>
+        )}
+        {(sp === 'cat' || sp === 'rabbit') && (
+          <g stroke={INK} strokeWidth="1.3" strokeLinecap="round" opacity=".6" fill="none">
+            <path d="M58 70 L40 66 M58 73 L40 76 M82 70 L100 66 M82 73 L100 76" />
+          </g>
+        )}
 
         {/* 턱 밑에 모은 앞발 */}
-        <g fill={PINK} stroke={INK} strokeWidth="2">
+        <g fill={sp === 'bird' ? '#f6dcc6' : PINK} stroke={INK} strokeWidth="2">
           <ellipse cx="61" cy="85" rx="5.6" ry="4" />
           <ellipse cx="79" cy="85" rx="5.6" ry="4" />
         </g>
@@ -735,6 +872,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
 
 function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>) {
   if (action === 'sleep') return <SleepView c={c} clip={clip} custom={custom} className={className} />;
+  const sp = custom.species ?? 'hamster';
   const legClass = action === 'walk' || action === 'run' ? 'hs-leg moving' : 'hs-leg';
   return (
     <svg viewBox="0 0 140 100" className={`hs hs-side act-${action} ${className}`} aria-hidden>
@@ -746,23 +884,21 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
       <g className="hs-bob" strokeLinecap="round" strokeLinejoin="round">
         <g className="hs-halo" fill="none" strokeWidth={LINE + 4}>
-          <circle cx="80" cy="34" r="9.5" />
-          <ellipse cx="31" cy="72" rx="4.4" ry="3.4" />
+          {sp === 'hamster' && <circle cx="80" cy="34" r="9.5" />}
+          {sp === 'hamster' && <ellipse cx="31" cy="72" rx="4.4" ry="3.4" />}
           <path d={SIDE.body} />
         </g>
         {/* 먼 쪽 다리 */}
         {(
-          <g fill="#e89ea2" stroke={INK} strokeWidth="2">
+          <g fill={sp === 'bird' ? '#e0953c' : '#e89ea2'} stroke={INK} strokeWidth="2">
             <g className={`${legClass} leg-fb`}><ellipse cx="44" cy="91" rx="6" ry="3.4" /></g>
             <g className={`${legClass} leg-ff`}><ellipse cx="94" cy="91" rx="5.2" ry="3.2" /></g>
           </g>
         )}
 
         {/* 꼬리 · 귀 */}
-        <ellipse cx="31" cy="72" rx="4.4" ry="3.4" fill={c.body} stroke={INK} strokeWidth="2" />
-        <g className="hs-ears">
-          <circle className="hs-ear-r" cx="80" cy="34" r="9.5" fill={c.ear} stroke={INK} strokeWidth={LINE} />
-        </g>
+        <SideTail sp={sp} c={c} />
+        <SideEar sp={sp} c={c} />
 
         {/* 몸 */}
         <PencilBody d={SIDE.body} c={c} uid={clip} />
@@ -774,13 +910,33 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 눈 · 코 · 입 */}
         <ellipse cx="92" cy="66" rx="5" ry="2.8" fill={BLUSH} opacity=".45" />
-        <ellipse cx="105" cy="66" rx="8.5" ry="7" fill={c.cream} />
-                  <g className="hs-blink" fill={EYE}>
-            <circle cx="97" cy="55" r="3.6" />
-            <circle cx="98.2" cy="53.8" r="1" fill="#fff" />
+        {sp !== 'bird' && <ellipse cx="105" cy="66" rx="8.5" ry="7" fill={c.cream} />}
+        {sp === 'bird' && (
+          <g clipPath={`url(#${clip})`} fill="#5b4852">
+            <ellipse cx="94" cy="45" rx="11" ry="3.5" transform="rotate(14 94 45)" />
           </g>
-        <ellipse className="hs-nose" cx="110" cy="62.5" rx="2.6" ry="2.1" fill={NOSE} />
-        <path d="M108.6 66.4 q-1.4 2.6 -4.6 1.6" stroke={INK} strokeWidth="1.6" fill="none" />
+        )}
+        <g className="hs-blink" fill={EYE}>
+          <circle cx="97" cy="55" r="3.6" />
+          <circle cx="98.2" cy="53.8" r="1" fill="#fff" />
+        </g>
+        {sp === 'bird' ? (
+          <g className="hs-nose" stroke={INK} strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round">
+            <path d="M107 56.5 L126 64 L107 71Z" fill={BEAK} />
+            <path d="M108 64 L124 64.3" fill="none" strokeWidth="1.4" />
+          </g>
+        ) : (
+          <>
+            <ellipse className="hs-nose" cx="110" cy="62.5" rx="2.6" ry="2.1" fill={NOSE} />
+            <path d="M108.6 66.4 q-1.4 2.6 -4.6 1.6" stroke={INK} strokeWidth="1.6" fill="none" />
+          </>
+        )}
+        {(sp === 'cat' || sp === 'rabbit') && (
+          <g stroke={INK} strokeWidth="1.3" strokeLinecap="round" opacity=".6" fill="none">
+            <path d="M108 66 L127 62 M108 68.5 L127 72" />
+          </g>
+        )}
+        {sp === 'rabbit' && <path d="M106.6 68.4 h4.4 v4 q-2.2 1.2 -4.4 0z" fill="#fff" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />}
 
         {(custom.outfit === 'tie' || custom.outfit === 'suit') && (
           <path d="M98 79 l3 -1 1.6 9 -2.6 2.6 -2 -2.4z" fill={custom.outfit === 'suit' ? '#d84b4b' : '#3d6fd8'} stroke={INK} strokeWidth="1.2" />
@@ -795,7 +951,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 가까운 쪽 다리 */}
         {(
-          <g fill={PINK} stroke={INK} strokeWidth="2">
+          <g fill={sp === 'bird' ? BIRD_FOOT : PINK} stroke={INK} strokeWidth="2">
             <g className={`${legClass} leg-nb`}><ellipse cx="53" cy="91.5" rx="6.6" ry="3.6" /></g>
             <g className={`${legClass} leg-nf`}><ellipse cx="86" cy="91.5" rx="5.6" ry="3.4" /></g>
           </g>
@@ -812,6 +968,59 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         </g>
       </g>
     </svg>
+  );
+}
+
+/** 옆모습 꼬리: 햄스터 점꼬리 / 토끼 솜꼬리 / 고양이 긴 꼬리 / 새 꽁지깃 */
+function SideTail({ sp, c }: { sp: Species; c: Palette }) {
+  if (sp === 'rabbit') return <circle cx="29" cy="70" r="7.4" fill="#fffdf8" stroke={INK} strokeWidth="2" />;
+  if (sp === 'cat') {
+    return (
+      <g className="hs-tail" fill="none" strokeLinecap="round">
+        <path d="M36 78 Q8 84 10 54 Q11 44 20 46" stroke={INK} strokeWidth="10.4" />
+        <path d="M36 78 Q8 84 10 54 Q11 44 20 46" stroke={c.body} strokeWidth="6.4" />
+      </g>
+    );
+  }
+  if (sp === 'bird') {
+    return (
+      <g fill={c.ear} stroke={INK} strokeWidth="2">
+        <ellipse cx="22" cy="68" rx="15" ry="4.2" transform="rotate(-14 22 68)" />
+        <ellipse cx="22" cy="75" rx="15" ry="4.2" transform="rotate(10 22 75)" />
+      </g>
+    );
+  }
+  return <ellipse cx="31" cy="72" rx="4.4" ry="3.4" fill={c.body} stroke={INK} strokeWidth="2" />;
+}
+
+function SideEar({ sp, c }: { sp: Species; c: Palette }) {
+  if (sp === 'bird') return null;
+  if (sp === 'rabbit') {
+    return (
+      <g className="hs-ears">
+        <g transform="rotate(-26 76 34)">
+          <g className="hs-ear-r">
+            <ellipse cx="76" cy="18" rx="7" ry="16" fill={c.ear} stroke={INK} strokeWidth={LINE} />
+            <ellipse cx="76" cy="20" rx="3" ry="10" fill={PINK} opacity=".85" />
+          </g>
+        </g>
+      </g>
+    );
+  }
+  if (sp === 'cat') {
+    return (
+      <g className="hs-ears">
+        <g className="hs-ear-r">
+          <path d="M68 42 L72 12 L97 32Z" fill={c.ear} stroke={INK} strokeWidth={LINE} strokeLinejoin="round" />
+          <path d="M74 36 L75.6 21 L88 32Z" fill={PINK} opacity=".85" />
+        </g>
+      </g>
+    );
+  }
+  return (
+    <g className="hs-ears">
+      <circle className="hs-ear-r" cx="80" cy="34" r="9.5" fill={c.ear} stroke={INK} strokeWidth={LINE} />
+    </g>
   );
 }
 

@@ -1,5 +1,5 @@
 /** 기획서 15. 햄스터 커스터마이징 — 기본 아이템 + 게임 진행 보상 */
-import type { AppState, Customization, DecoId, HamsterColor, HandId, HatId, OutfitId, Rarity, RoomBg } from './types';
+import type { AppState, Customization, DecoId, HamsterColor, HandId, HatId, OutfitId, Rarity, RoomBg, Species } from './types';
 
 export type Unlock =
   | { kind: 'default' }
@@ -35,6 +35,13 @@ export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
   { id: 'choco', label: '초코', emoji: '🟤', unlock: { kind: 'completed', n: 7 }, body: '#b98158', light: '#cf9c77', shade: '#8a5a3c', cream: '#f6e4cf', ear: '#855a3e', line: '#432818' },
   { id: 'cream', label: '크림', emoji: '🍦', unlock: { kind: 'completed', n: 30 }, body: '#fff0d2', light: '#fff7e8', shade: '#f0cf9c', cream: '#fffaf0', ear: '#d9b78a', line: '#b08a55' },
   { id: 'silver', label: '실버', emoji: '🩵', unlock: { kind: 'completed', n: 150 }, body: '#e6e3ee', light: '#f2f0f8', shade: '#b9b4cc', cream: '#f8f6fc', ear: '#a59fbd', line: '#6f6a88' },
+];
+
+export const SPECIES: CatalogItem<Species>[] = [
+  { id: 'hamster', label: '햄스터', emoji: '🐹', unlock: d },
+  { id: 'rabbit', label: '토끼', emoji: '🐰', unlock: d },
+  { id: 'bird', label: '오목눈이', emoji: '🐦', unlock: d },
+  { id: 'cat', label: '고양이', emoji: '🐱', unlock: d },
 ];
 
 export const HATS: CatalogItem<HatId>[] = [
@@ -90,6 +97,7 @@ export function sanitizeCustom(c: Partial<Customization> | undefined): Customiza
   const ok = <T extends string>(list: { id: T }[], v: T, fallback: T): T => (list.some((i) => i.id === v) ? v : fallback);
   return {
     ...m,
+    species: ok(SPECIES, m.species ?? 'hamster', 'hamster'),
     color: ok(COLORS, m.color, 'golden'),
     hat: ok(HATS, m.hat, 'none'),
     outfit: ok(OUTFITS, m.outfit, 'none'),
@@ -102,6 +110,7 @@ export function sanitizeCustom(c: Partial<Customization> | undefined): Customiza
 export const GLASSES_UNLOCK: Unlock = { kind: 'collected', n: 3 };
 
 export const DEFAULT_CUSTOM: Customization = {
+  species: 'hamster',
   color: 'golden',
   glasses: false,
   hat: 'none',
