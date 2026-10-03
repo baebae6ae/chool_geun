@@ -1158,7 +1158,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           <>
             <PencilBody d={CAT_SIDE_HEAD.body} c={bc} uid={`${clip}-h`} />
             <path d={CAT_SIDE_HEAD.body} fill="none" stroke={INK} strokeWidth={LINE} />
-            <SideMask uid={clip} c={c} cx={113} cy={58} rx={12} ry={11} />
+            <SideMask uid={clip} c={c} cx={116} cy={59} rx={8.5} ry={7.5} />
           </>
         )}
 
@@ -1169,9 +1169,9 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         {sp === 'cat' && <ellipse cx="112" cy="67.4" rx="4.6" ry="2.8" fill={c.cream} opacity=".92" />}
         {sp === 'cat' ? (
           <g className="hs-blink">
-            <path d="M100.4 51.4 Q105.6 44 111 50.6 Q106 57.6 100.4 51.4Z" fill={BLUE_EYE} stroke={INK} strokeWidth="1" />
-            <ellipse cx="106.6" cy="51" rx="1.5" ry="3.6" fill={EYE} />
-            <circle cx="108" cy="49.2" r="1.2" fill="#fff" />
+            <circle cx="104.6" cy="51" r="4.5" fill={BLUE_EYE} stroke={INK} strokeWidth="0.9" />
+            <ellipse cx="105.4" cy="51" rx="1.4" ry="3.3" fill={EYE} />
+            <circle cx="106.6" cy="49.6" r="1.1" fill="#fff" />
           </g>
         ) : (
           <g className="hs-blink" fill={EYE}>

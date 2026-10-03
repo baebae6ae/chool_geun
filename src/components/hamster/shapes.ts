@@ -241,7 +241,7 @@ export const CAT_SIDE_HEAD = {
     catSideHeadPts,
     (i) => {
       // 볼 털(아래 뒤쪽)만 보송하게, 얼굴 앞쪽은 매끈하게
-      const cheek = i >= 36 && i <= 46 ? 1.6 : 0;
+      const cheek = i >= 37 && i <= 45 ? 0.7 : 0;
       return (0.15 + cheek) * (0.5 + rand01(i + 97));
     },
     0,
