@@ -1,7 +1,7 @@
 import { createContext, useContext, useId } from 'react';
 import { COLORS } from '../../domain/customization';
 import type { Customization, Species } from '../../domain/types';
-import { CAT, FRONT, FRONT_BY_SPECIES, LOAF, SIDE, SIDE_BY_SPECIES } from './shapes';
+import { CAT, CAT_SIDE_HEAD, FRONT, FRONT_BY_SPECIES, LOAF, SIDE, SIDE_BY_SPECIES } from './shapes';
 import './hamster.css';
 
 export type FrontAction =
@@ -1128,11 +1128,12 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           {sp === 'hamster' && <circle cx="80" cy="34" r="9.5" />}
           {sp === 'hamster' && <ellipse cx="31" cy="72" rx="4.4" ry="3.4" />}
           <path d={shape.body} />
+          {sp === 'cat' && <path d={CAT_SIDE_HEAD.body} />}
         </g>
         {/* 먼 쪽 다리 */}
         <g fill={farLeg} stroke={INK} strokeWidth="2">
           <g className={`${legClass} leg-fb`}><ellipse cx={sp === 'cat' ? 40 : 44} cy="91" rx="6" ry="3.4" /></g>
-          <g className={`${legClass} leg-ff`}><ellipse cx={sp === 'cat' ? 100 : 94} cy="91" rx="5.2" ry="3.2" /></g>
+          <g className={`${legClass} leg-ff`}><ellipse cx={sp === 'cat' ? 96 : 94} cy="91" rx="5.2" ry="3.2" /></g>
         </g>
 
         {/* 꼬리 · 귀 */}
@@ -1153,18 +1154,24 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           </g>
         )}
         {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} />}
-        {sp === 'cat' && <SideMask uid={clip} c={c} cx={115} cy={44} rx={8} ry={8} />}
+        {sp === 'cat' && (
+          <>
+            <PencilBody d={CAT_SIDE_HEAD.body} c={bc} uid={`${clip}-h`} />
+            <path d={CAT_SIDE_HEAD.body} fill="none" stroke={INK} strokeWidth={LINE} />
+            <SideMask uid={clip} c={c} cx={113} cy={52} rx={8} ry={8} />
+          </>
+        )}
 
         {/* 눈 · 코 · 입 */}
-        <ellipse cx={sp === 'cat' ? 104 : 92} cy={sp === 'cat' ? 45 : 66} rx="4.4" ry="2.5" fill={BLUSH} opacity=".45" />
+        <ellipse cx={sp === 'cat' ? 103 : 92} cy={sp === 'cat' ? 55 : 66} rx="4.4" ry="2.5" fill={BLUSH} opacity=".45" />
         {sp === 'hamster' && <ellipse cx="105" cy="66" rx="8.5" ry="7" fill={c.cream} />}
         {sp === 'rabbit' && <ellipse cx="107" cy="67.5" rx="5" ry="3.6" fill="#fff" opacity=".7" />}
-        {sp === 'cat' && <ellipse cx="111.5" cy="51.5" rx="4" ry="2.4" fill={c.cream} opacity=".92" />}
+        {sp === 'cat' && <ellipse cx="111" cy="59.6" rx="3.6" ry="2.2" fill={c.cream} opacity=".92" />}
         {sp === 'cat' ? (
           <g className="hs-blink">
-            <circle cx="109" cy="35" r="3.9" fill={BLUE_EYE} stroke={INK} strokeWidth="0.9" />
-            <ellipse cx="109.8" cy="35" rx="1.2" ry="2.9" fill={EYE} />
-            <circle cx="110.8" cy="33.7" r="1" fill="#fff" />
+            <circle cx="108.4" cy="45.5" r="3.9" fill={BLUE_EYE} stroke={INK} strokeWidth="0.9" />
+            <ellipse cx="109.2" cy="45.5" rx="1.2" ry="2.9" fill={EYE} />
+            <circle cx="110.2" cy="44.2" r="1" fill="#fff" />
           </g>
         ) : (
           <g className="hs-blink" fill={EYE}>
@@ -1179,8 +1186,8 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           </g>
         ) : sp === 'cat' ? (
           <>
-            <path className="hs-nose" d="M117.6 40.8 l3.4 1 -2.2 3z" fill="#e8899a" stroke={INK} strokeWidth="1.1" strokeLinejoin="round" />
-            <path d="M118.6 45 q-.4 2.4 -3 2.4 M115.6 47.4 q-.8 1.6 -2.6 1.4" stroke={INK} strokeWidth="1.3" fill="none" />
+            <path className="hs-nose" d="M116 50 l3.2 1.2 -2.4 2.8z" fill="#e8899a" stroke={INK} strokeWidth="1.1" strokeLinejoin="round" />
+            <path d="M117.4 54.4 q-.6 2.4 -3 2.6" stroke={INK} strokeWidth="1.3" fill="none" />
           </>
         ) : (
           <>
@@ -1190,7 +1197,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         )}
         {sp === 'cat' && (
           <g stroke={INK} strokeWidth="1.3" strokeLinecap="round" opacity=".55" fill="none">
-            <path d="M113 44.5 L133 40 M113 47 L133 48" />
+            <path d="M112 53.5 L132 49.5 M112 56 L132 57" />
           </g>
         )}
 
@@ -1208,16 +1215,16 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
         {/* 가까운 쪽 다리 */}
         <g fill={nearLeg} stroke={INK} strokeWidth="2">
           <g className={`${legClass} leg-nb`}><ellipse cx={sp === 'cat' ? 50 : 53} cy="91.5" rx="6.6" ry="3.6" /></g>
-          <g className={`${legClass} leg-nf`}><ellipse cx={sp === 'cat' ? 93 : 86} cy="91.5" rx="5.6" ry="3.4" /></g>
+          <g className={`${legClass} leg-nf`}><ellipse cx={sp === 'cat' ? 88 : 86} cy="91.5" rx="5.6" ry="3.4" /></g>
         </g>
 
         {custom.glasses && (
-          <g stroke={INK} strokeWidth="1.8" fill="#ffffff" fillOpacity=".2" transform={sp === 'cat' ? 'translate(12 -20)' : undefined}>
+          <g stroke={INK} strokeWidth="1.8" fill="#ffffff" fillOpacity=".2" transform={sp === 'cat' ? 'translate(11.4 -9.5)' : undefined}>
             <circle cx="97" cy="55" r="7.5" />
             <path d="M89.5 54 L78 50" fill="none" />
           </g>
         )}
-        <g transform={sp === 'cat' ? 'translate(101 23) rotate(8) scale(.75)' : 'translate(86 32) rotate(12) scale(.8)'}>
+        <g transform={sp === 'cat' ? 'translate(99 33) rotate(6) scale(.75)' : 'translate(86 32) rotate(12) scale(.8)'}>
           <Hat id={custom.hat} side />
         </g>
       </g>
@@ -1273,10 +1280,10 @@ function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
     return (
       <g className="hs-ears" strokeLinejoin="round">
         {/* 먼 쪽 귀 (살짝 앞, 조금 어둡게) */}
-        <path d="M102 26 C103 17 106 10 110 5 C112 11 113 18 112 27Z" fill={pc} stroke={INK} strokeWidth={LINE} opacity=".85" />
+        <path d="M100 35.5 C101 26 104 19 108 13 C110 19 111 26 110 35.5Z" fill={pc} stroke={INK} strokeWidth={LINE} opacity=".85" />
         <g className="hs-ear-r">
-          <path d="M90.5 31 C89.5 21 91 12 94 5 C99 9 103 15 105.5 23Z" fill={pc} stroke={INK} strokeWidth={LINE} />
-          <path d="M94 25 C93.5 19 94.5 14 96 10 C99 13 101 17 102 21Z" fill={PINK} opacity=".85" />
+          <path d="M88.5 40 C87.5 29 89 21 92 14 C97 18 101 24 103 34Z" fill={pc} stroke={INK} strokeWidth={LINE} />
+          <path d="M92 34 C91.5 28 92.5 23 94 19 C97 22 99 26 100 30Z" fill={PINK} opacity=".85" />
         </g>
       </g>
     );
