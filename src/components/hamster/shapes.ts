@@ -134,18 +134,32 @@ const rabbitFront = fromPts(
   41,
 );
 
-/** 샴고양이: 둥근 머리 + 아래로 살짝 넓어지는 배 (앉은 고양이의 종 모양 실루엣) */
-const CN = 36;
-const catFront = fromPts(
-  sampleShape(CN, (t) => {
-    const s = Math.sin(t);
-    const c = Math.cos(t);
-    if (s < 0) return [60 + 40 * spow(c, 0.88), 56 + 36 * spow(s, 0.86)];
-    return [60 + (40 + 3 * s ** 0.8) * spow(c, 0.85), Math.min(56 + 51 * spow(s, 0.8), 107)];
-  }),
-  (_i, t) => 0.3 + 1.3 * (bell(t, 0.1, 0.25) + bell(t, Math.PI - 0.1, 0.25)) - 0.3 * bell(t, Math.PI / 2, 0.5),
+/**
+ * 샴고양이: 햄스터처럼 한 덩어리가 아니라 "넓적한 머리 + 앉은 몸통"으로 나눠 그린다.
+ * 머리는 볼 털이 옆으로 삐죽한 가로로 넓은 모양, 몸통은 아래로 퍼지는 앉은 자세.
+ */
+const catHeadPts = sampleShape(36, (t) => {
+  const s = Math.sin(t);
+  const c = Math.cos(t);
+  if (s < 0) return [60 + 38 * spow(c, 0.82), 48 + 30 * spow(s, 0.9)];
+  return [60 + 38 * spow(c, 0.66), 48 + 28 * spow(s, 0.85)];
+});
+const catHead = fromPts(
+  catHeadPts,
+  (_i, t) => 0.25 + 2.0 * (bell(t, 0.42, 0.22) + bell(t, Math.PI - 0.42, 0.22)) - 0.2 * bell(t, -Math.PI / 2, 0.6),
   57,
 );
+const catTorso = fromPts(
+  sampleShape(30, (t) => {
+    const s = Math.sin(t);
+    const c = Math.cos(t);
+    if (s < 0) return [60 + 27 * spow(c, 0.9), 86 + 22 * spow(s, 0.9)];
+    return [60 + (27 + 9 * s ** 0.6) * spow(c, 0.7), Math.min(86 + 21 * spow(s, 0.8), 107)];
+  }),
+  () => 0.5,
+  59,
+);
+export const CAT = { head: catHead, torso: catTorso };
 
 /** 오목눈이: 거의 완벽한 공 모양에 보송한 솜털 */
 const BN = 34;
@@ -155,7 +169,7 @@ const birdFront = fromPts(
   73,
 );
 
-export const FRONT_BY_SPECIES = { hamster: { body: FRONT.body, clip: FRONT.clip }, rabbit: rabbitFront, cat: catFront, bird: birdFront };
+export const FRONT_BY_SPECIES = { hamster: { body: FRONT.body, clip: FRONT.clip }, rabbit: rabbitFront, cat: catTorso, bird: birdFront };
 
 function sideShape(rxF: number, rxB: number, ryU: number, ryD: number, bumpK: number, yMax: number, cy: number, seed: number) {
   const pts = sampleShape(SN, (t) => {
@@ -171,6 +185,17 @@ function sideShape(rxF: number, rxB: number, ryU: number, ryD: number, bumpK: nu
 export const SIDE_BY_SPECIES = {
   hamster: { body: SIDE.body, clip: SIDE.clip },
   rabbit: sideShape(37, 38, 31, 29, 0.9, 91, 62, 81),
-  cat: sideShape(40, 38, 27, 26, 0.5, 91, 64, 83),
+  cat: fromPts(
+    sampleShape(SN, (t) => [64 + (Math.cos(t) > 0 ? 34 : 36) * spow(Math.cos(t), 0.8), Math.min(70 + 20 * spow(Math.sin(t), 0.8), 91)]),
+    (_i, t) => 0.4 + 0.8 * bell(t, Math.PI, 0.6) - 0.6 * bell(t, Math.PI / 2, 0.5),
+    83,
+  ),
   bird: sideShape(38, 37, 36, 33, 0.3, 91, 58, 89),
 };
+
+/** 샴고양이 옆모습 머리 (몸통 앞쪽 위에 얹는다) */
+export const CAT_SIDE_HEAD = fromPts(
+  sampleShape(30, (t) => [100 + 21 * spow(Math.cos(t), 0.9), 54 + 20 * spow(Math.sin(t), 0.9)]),
+  (_i, t) => 0.25 + 1.6 * bell(t, 2.2, 0.3),
+  97,
+);

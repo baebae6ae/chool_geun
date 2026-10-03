@@ -1,7 +1,7 @@
 import { createContext, useContext, useId } from 'react';
 import { COLORS } from '../../domain/customization';
 import type { Customization, Species } from '../../domain/types';
-import { FRONT, FRONT_BY_SPECIES, LOAF, SIDE, SIDE_BY_SPECIES } from './shapes';
+import { CAT, CAT_SIDE_HEAD, FRONT, FRONT_BY_SPECIES, LOAF, SIDE, SIDE_BY_SPECIES } from './shapes';
 import './hamster.css';
 
 export type FrontAction =
@@ -175,6 +175,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             </>
           )}
           <path d={shape.body} />
+          {sp === 'cat' && <path d={CAT.head.body} />}
           <ellipse cx="45" cy="106.5" rx="7" ry="3.8" />
           <ellipse cx="75" cy="106.5" rx="7" ry="3.8" />
         </g>
@@ -195,6 +196,18 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <FrontOutfit id={custom.outfit} />
         </g>
         <path d={shape.body} fill="none" stroke={INK} strokeWidth={LINE} />
+        {sp === 'cat' && (
+          <>
+            {/* 앉은 앞다리 (손을 쓰는 동작에선 들어 올린다) */}
+            {!handsBusy && (
+              <g stroke={INK} strokeWidth="1.8" fill="none" opacity=".7">
+                <path d="M45 90 Q44 97 44 102 M57 88 Q58 96 58 103 M63 88 Q62 96 62 103 M75 90 Q76 97 76 102" />
+              </g>
+            )}
+            <PencilBody d={CAT.head.body} c={bc} uid={`${clip}-h`} />
+            <path d={CAT.head.body} fill="none" stroke={INK} strokeWidth={LINE} />
+          </>
+        )}
         <FrontOver sp={sp} c={c} uid={clip} />
         {stuffed ? (
           <g className="hs-cheeks" fill={bc.body}>
@@ -287,7 +300,9 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           </g>
         ) : null}
 
-        <FrontHands action={action} c={c} still={still} />
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'wave'].includes(action) ? 'translate(0 14)' : undefined}>
+          <FrontHands action={action} c={c} still={still} />
+        </g>
         {holding && (
           <g transform={action === 'wave' ? 'translate(106 56)' : action === 'cheer' ? 'translate(111 34)' : 'translate(71 84)'}>
             <HandItem id={custom.hand} />
@@ -312,6 +327,17 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
                     <path d="M69.4 101.6 v3 M75 101.6 v3" strokeWidth="1.2" opacity=".55" />
                   </>
                 )}
+              </>
+            )}
+          </g>
+        ) : sp === 'cat' ? (
+          <g fill={points(c)} stroke={INK} strokeWidth="2">
+            <ellipse cx="31" cy="104.5" rx="8" ry="4" />
+            <ellipse cx="89" cy="104.5" rx="8" ry="4" />
+            {!handsBusy && (
+              <>
+                <ellipse cx="51" cy="104.5" rx="7.4" ry="4.4" />
+                {!holding && <ellipse cx="69" cy="104.5" rx="7.4" ry="4.4" />}
               </>
             )}
           </g>
@@ -426,14 +452,21 @@ function FrontBack({ sp, c }: { sp: Species; c: Palette }) {
   if (sp === 'cat') {
     const pc = points(c);
     return (
-      <g className="hs-ears" strokeLinejoin="round">
-        <g className="hs-ear-l">
-          <path d="M25 45 C21 29 20 14 22 4 C32 8 42 15 50 25Z" fill={pc} stroke={INK} strokeWidth={LINE} />
-          <path d="M27.5 35 C25.5 26 25.5 17 27 11 C33 14 38 18 42 24Z" fill={PINK} opacity=".85" />
+      <g strokeLinejoin="round">
+        {/* 몸 오른쪽에서 말려 올라간 꼬리 */}
+        <g className="hs-tail" fill="none" strokeLinecap="round">
+          <path d="M84 100 Q108 104 108 82 Q108 70 100 68" stroke={INK} strokeWidth="10.4" />
+          <path d="M84 100 Q108 104 108 82 Q108 70 100 68" stroke={pc} strokeWidth="6.4" />
         </g>
-        <g className="hs-ear-r">
-          <path d="M95 45 C99 29 100 14 98 4 C88 8 78 15 70 25Z" fill={pc} stroke={INK} strokeWidth={LINE} />
-          <path d="M92.5 35 C94.5 26 94.5 17 93 11 C87 14 82 18 78 24Z" fill={PINK} opacity=".85" />
+        <g className="hs-ears">
+          <g className="hs-ear-l">
+            <path d="M26 38 C23 26 23 14 26 5 C35 9 44 15 50 23Z" fill={pc} stroke={INK} strokeWidth={LINE} />
+            <path d="M29.5 30 C28 23 28 16 30 11 C35 14 40 18 44 23Z" fill={PINK} opacity=".85" />
+          </g>
+          <g className="hs-ear-r">
+            <path d="M94 38 C97 26 97 14 94 5 C85 9 76 15 70 23Z" fill={pc} stroke={INK} strokeWidth={LINE} />
+            <path d="M90.5 30 C92 23 92 16 90 11 C85 14 80 18 76 23Z" fill={PINK} opacity=".85" />
+          </g>
         </g>
       </g>
     );
@@ -685,7 +718,7 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
       );
     default:
       // 토끼는 앞발이 바닥에 있어서 가만히 있을 땐 손을 따로 그리지 않는다
-      if (sp === 'rabbit') return null;
+      if (sp === 'rabbit' || sp === 'cat') return null;
       return (
         <>
           <Paw x={53} y={81} rot={-20} />
@@ -1095,6 +1128,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           {sp === 'hamster' && <circle cx="80" cy="34" r="9.5" />}
           {sp === 'hamster' && <ellipse cx="31" cy="72" rx="4.4" ry="3.4" />}
           <path d={shape.body} />
+          {sp === 'cat' && <path d={CAT_SIDE_HEAD.body} />}
         </g>
         {/* 먼 쪽 다리 */}
         <g fill={farLeg} stroke={INK} strokeWidth="2">
@@ -1120,7 +1154,13 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           </g>
         )}
         {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} />}
-        {sp === 'cat' && <SideMask uid={clip} c={c} cx={106} cy={63} rx={16} ry={12} />}
+        {sp === 'cat' && (
+          <>
+            <PencilBody d={CAT_SIDE_HEAD.body} c={bc} uid={`${clip}-h`} />
+            <path d={CAT_SIDE_HEAD.body} fill="none" stroke={INK} strokeWidth={LINE} />
+            <SideMask uid={clip} c={c} cx={106} cy={63} rx={16} ry={12} />
+          </>
+        )}
 
         {/* 눈 · 코 · 입 */}
         <ellipse cx="92" cy="66" rx="5" ry="2.8" fill={BLUSH} opacity=".45" />
@@ -1239,8 +1279,8 @@ function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
     return (
       <g className="hs-ears">
         <g className="hs-ear-r">
-          <path d="M68 44 C67 29 71 17 78 11 C85 15 91 24 93 41Z" fill={points(c)} stroke={INK} strokeWidth={LINE} strokeLinejoin="round" />
-          <path d="M73 38 C72 30 74 23 78 18 C83 21 87 27 88 34Z" fill={PINK} opacity=".85" />
+          <path d="M84 44 C83 30 85 20 90 13 C97 18 103 26 106 36Z" fill={points(c)} stroke={INK} strokeWidth={LINE} strokeLinejoin="round" />
+          <path d="M88 38 C88 30 89 24 91 19 C95 23 99 28 101 34Z" fill={PINK} opacity=".85" />
         </g>
       </g>
     );
