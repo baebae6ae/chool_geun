@@ -154,6 +154,9 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             ? 'smile'
             : 'small';
   const stuffed = action === 'stuff' && sp !== 'bird';
+  /** 손(앞발)을 쓰는 동작인지: 이때 토끼는 바닥의 앞발을 들어 올린다 */
+  const handsBusy = !['idle', 'sniff', 'look', 'doze', 'dizzy'].includes(action);
+  const holding = custom.hand !== 'none' && sp !== 'bird' && ['idle', 'sniff', 'look', 'type', 'wave', 'cheer'].includes(action);
   return (
     <svg viewBox="0 0 120 120" className={`hs hs-front act-${action} ${className}`} aria-hidden>
       <clipPath id={clip}>
@@ -285,7 +288,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <FrontHands action={action} c={c} still={still} />
-        {custom.hand !== 'none' && sp !== 'bird' && ['idle', 'sniff', 'look', 'type', 'wave', 'cheer'].includes(action) && (
+        {holding && (
           <g transform={action === 'wave' ? 'translate(106 56)' : action === 'cheer' ? 'translate(111 34)' : 'translate(71 84)'}>
             <HandItem id={custom.hand} />
             {action !== 'wave' && action !== 'cheer' && <ellipse cx="0" cy="0" rx="5" ry="4.2" transform="rotate(20)" fill={sp === 'rabbit' ? c.body : footFill(sp, c)} stroke={INK} strokeWidth="2" />}
@@ -294,12 +297,23 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
 
         {/* 발 */}
         {sp === 'rabbit' ? (
+          // 뒷발은 늘 바닥에. 앞발은 손을 쓰지 않을 때만 바닥에 내려놓는다 (발이 여섯 개가 되지 않게)
           <g fill={c.body} stroke={INK} strokeWidth="2">
             <ellipse cx="19" cy="103" rx="10" ry="5.4" />
             <ellipse cx="101" cy="103" rx="10" ry="5.4" />
-            <ellipse cx="48" cy="104" rx="8.4" ry="5.2" />
-            <ellipse cx="72" cy="104" rx="8.4" ry="5.2" />
-            <path d="M45 101.6 v3 M50.6 101.6 v3 M69.4 101.6 v3 M75 101.6 v3 M14 101 v3 M106 101 v3" strokeWidth="1.2" opacity=".55" />
+            <path d="M14 101 v3 M106 101 v3" strokeWidth="1.2" opacity=".55" />
+            {!handsBusy && (
+              <>
+                <ellipse cx="48" cy="104" rx="8.4" ry="5.2" />
+                <path d="M45 101.6 v3 M50.6 101.6 v3" strokeWidth="1.2" opacity=".55" />
+                {!holding && (
+                  <>
+                    <ellipse cx="72" cy="104" rx="8.4" ry="5.2" />
+                    <path d="M69.4 101.6 v3 M75 101.6 v3" strokeWidth="1.2" opacity=".55" />
+                  </>
+                )}
+              </>
+            )}
           </g>
         ) : (
           <g fill={footFill(sp, c)} stroke={INK} strokeWidth="2">
@@ -1214,7 +1228,7 @@ function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
   if (sp === 'rabbit-front') {
     return (
       <g className="hs-ears" strokeLinejoin="round">
-        <g className="hs-lop-r">
+        <g className="hs-lop-s">
           <path d="M86 30 C77 28 70 40 68 54 C66 64 67 72 72 74 C77 75 80 68 81 60 C82 50 86 40 89 33Z" fill={c.ear} stroke={INK} strokeWidth={LINE} />
           <path d="M80 40 C76 48 73 58 73 68" fill="none" stroke="#fff" strokeWidth="2" opacity=".35" />
         </g>
