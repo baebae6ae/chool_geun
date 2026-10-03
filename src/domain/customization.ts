@@ -107,6 +107,37 @@ export function sanitizeCustom(c: Partial<Customization> | undefined): Customiza
   };
 }
 
+/** 문구 속 '햄스터'를 지금 키우는 캐릭터 이름으로 바꾼다 (토끼·오목눈이·고양이 모두 받침이 없어 조사는 그대로 맞는다) */
+export function speciesWord(text: string, species: Species | undefined): string {
+  if (!species || species === 'hamster') return text;
+  const name = SPECIES.find((x) => x.id === species)?.label ?? '햄스터';
+  return text.replaceAll('햄스터', name);
+}
+
+/** 쓰다듬거나 간식을 줄 때 캐릭터마다 다른 반응 말풍선 */
+export const REACTION_LINES: Record<Species, { pet: string[]; feed: string[]; hug: string[] }> = {
+  hamster: {
+    pet: ['헤헤, 간지러워요', '더 쓰다듬어 주세요', '오늘도 고생했어요', '손이 따뜻해요', '찍찍!'],
+    feed: ['냠냠! 해바라기씨 최고예요', '볼주머니에 쏙 넣어둘게요', '바삭바삭… 고마워요!', '더 주세요… 는 농담이에요'],
+    hug: ['꼬옥 안아줄게요 🤍'],
+  },
+  rabbit: {
+    pet: ['귀 만지면 간지러워요', '더 쓰다듬어 주세요', '쫑긋쫑긋!', '손이 따뜻해요', '푸르르~ 기분 좋아요'],
+    feed: ['아삭아삭! 최고예요', '당근이면 더 좋은데… 농담이에요', '냠냠, 오물오물…', '고마워요, 깡총!'],
+    hug: ['폭신하게 안아줄게요 🤍'],
+  },
+  bird: {
+    pet: ['짹짹! 간지러워요', '쪼로롱~ 기분 좋아요', '깃털이 부풀었어요', '손이 따뜻해요', '포르르~'],
+    feed: ['콕콕! 맛있어요', '모이 고마워요, 짹짹!', '쪼옥쪼옥… 냠냠', '더 주세요… 는 농담이에요'],
+    hug: ['깃털로 폭 감싸줄게요 🤍'],
+  },
+  cat: {
+    pet: ['골골골~', '야옹~ 더 긁어주세요', '그르릉… 기분 좋아요', '손이 따뜻해서 졸려요', '냥!'],
+    feed: ['츄릅… 간식이다냥', '냠냠! 맛있다냥', '고마워요, 골골~', '더 주세요… 는 농담이에요'],
+    hug: ['골골골… 꼬옥 안아줄게요 🤍'],
+  },
+};
+
 export const GLASSES_UNLOCK: Unlock = { kind: 'collected', n: 3 };
 
 export const DEFAULT_CUSTOM: Customization = {

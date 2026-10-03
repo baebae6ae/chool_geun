@@ -6,7 +6,7 @@ import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
 import { careerStats, completedInSeason, formatWon, itemOf } from '../domain/records';
-import { careerTitle } from '../domain/customization';
+import { careerTitle, REACTION_LINES, speciesWord } from '../domain/customization';
 import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
@@ -158,7 +158,9 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
 
   // 햄스터 말풍선: 번 돈 환산, 희귀 행동
   const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
-  const say = (text: string) => setBubble({ key: `${Date.now()}`, text });
+  const spRef = useRef(custom.species);
+  spRef.current = custom.species;
+  const say = (text: string) => setBubble({ key: `${Date.now()}`, text: speciesWord(text, spRef.current) });
 
   // 시간대에 맞는 혼잣말: 시간대가 바뀐 뒤 잠시 지나서, 그리고 가끔 한 번씩 말풍선으로
   const overtimeRef = useRef(false);
@@ -181,9 +183,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const [sharing, setSharing] = useState(false);
   const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
   const handleInteract = (kind: 'pet' | 'feed' | 'hug') => {
-    if (kind === 'feed') say(pick(['냠냠! 해바라기씨 최고예요', '볼주머니에 쏙 넣어둘게요', '바삭바삭… 고마워요!', '더 주세요… 는 농담이에요']));
-    else if (kind === 'hug') say('꼬옥 안아줄게요 🤍');
-    else say(pick(['헤헤, 간지러워요', '더 쓰다듬어 주세요', '오늘도 고생했어요', '손이 따뜻해요', '찍찍!']));
+    const lines = REACTION_LINES[custom.species ?? 'hamster'];
+    say(pick(lines[kind]));
   };
   const askComfort = () => {
     setComfort((n) => n + 1);
@@ -300,7 +301,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
 
   const quoteBlock = (
     <>
-      <QuoteCard dateKey={key} off={!working} payday={payD === 0} comfort={comfort} />
+      <QuoteCard dateKey={key} off={!working} payday={payD === 0} comfort={comfort} species={custom.species} />
       <div className="chip-row">
         <button type="button" className="chip-btn" onClick={askComfort}>
           힘들어요
@@ -369,12 +370,12 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         {!day || !item ? (
           <p className="rest-note">
             {holiday?.includes('추석')
-              ? '🎑 즐거운 추석! 햄스터도 송편 먹으며 쉬는 중.'
+              ? speciesWord('🎑 즐거운 추석! 햄스터도 송편 먹으며 쉬는 중.', custom.species)
               : holiday?.includes('설날')
-                ? '🧧 새해 복 많이 받으세요! 햄스터도 떡국 먹으며 쉬는 중.'
+                ? speciesWord('🧧 새해 복 많이 받으세요! 햄스터도 떡국 먹으며 쉬는 중.', custom.species)
                 : holiday
-                  ? `오늘은 ${holiday}, 쉬는 날이에요. 햄스터도 늦잠 자는 중.`
-                  : '오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.'}
+                  ? speciesWord(`오늘은 ${holiday}, 쉬는 날이에요. 햄스터도 늦잠 자는 중.`, custom.species)
+                  : speciesWord('오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.', custom.species)}
           </p>
         ) : otActive && otNow ? (
           <>
@@ -402,7 +403,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
             </div>
             <div className="quote-card" role="note">
               <span className="quote-label">야근 한마디</span>
-              <span className="quote-text">{pickOvertimeQuote(otDate ?? key)}</span>
+              <span className="quote-text">{speciesWord(pickOvertimeQuote(otDate ?? key), custom.species)}</span>
             </div>
             <button type="button" className="btn homeward big-btn" onClick={() => onState((s) => endOvertime(s, clockNow()))}>
               🏃 진짜 퇴근하기

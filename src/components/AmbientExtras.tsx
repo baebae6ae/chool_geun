@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { now as clockNow } from '../store';
 import { pickComfort, pickQuote } from '../domain/quotes';
+import { speciesWord } from '../domain/customization';
+import type { Species } from '../domain/types';
 
 const p2 = (n: number) => String(n).padStart(2, '0');
 
@@ -133,7 +135,9 @@ export function QuoteCard({
   off,
   payday,
   comfort = 0,
+  species,
 }: {
+  species?: Species;
   dateKey: string;
   off: boolean;
   payday: boolean;
@@ -142,7 +146,7 @@ export function QuoteCard({
 }) {
   const [seenComfort, setSeenComfort] = useState(0);
   const showComfort = comfort > 0 && comfort !== seenComfort;
-  const text = showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, off, payday });
+  const text = speciesWord(showComfort ? pickComfort(dateKey, comfort) : pickQuote({ key: dateKey, off, payday }), species);
   return (
     <div
       className={`quote-card ${showComfort ? 'comfort' : ''}`}

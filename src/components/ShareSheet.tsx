@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { drawLook, renderCard, shareCardImage, type CardData } from '../shareCard';
 import { now as clockNow } from '../store';
 import { pickQuote, pickTiredQuote } from '../domain/quotes';
+import { speciesWord } from '../domain/customization';
 import type { Customization } from '../domain/types';
 
 export type TimeBand =
@@ -32,7 +33,7 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
   const [busy, setBusy] = useState(false);
   const blobRef = useRef<Blob | null>(null);
   const look = drawLook(dateKey, draws, tired);
-  const quote = tired ? pickTiredQuote(dateKey) : pickQuote({ key: dateKey, off, payday });
+  const quote = speciesWord(tired ? pickTiredQuote(dateKey) : pickQuote({ key: dateKey, off, payday }), custom.species);
   const chipsKey = chips.join('|');
 
   useEffect(() => {
