@@ -1139,10 +1139,17 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
           {sp === 'cat' && <path d={CAT_SIDE_HEAD.body} />}
         </g>
         {/* 먼 쪽 다리 */}
-        <g fill={farLeg} stroke={INK} strokeWidth="2">
-          <g className={`${legClass} leg-fb`}><ellipse cx={sp === 'cat' ? 40 : 44} cy="91" rx="6" ry="3.4" /></g>
-          <g className={`${legClass} leg-ff`}><ellipse cx={sp === 'cat' ? 96 : 94} cy="91" rx="5.2" ry="3.2" /></g>
-        </g>
+        {sp === 'bird' ? (
+          // 새는 다리가 두 개: 먼 쪽 하나(뒤에)와 가까운 쪽 하나(앞에)
+          <g fill={farLeg} stroke={INK} strokeWidth="2">
+            <g className={`${legClass} leg-fb`}><ellipse cx="62" cy="91" rx="5.8" ry="3.2" /></g>
+          </g>
+        ) : (
+          <g fill={farLeg} stroke={INK} strokeWidth="2">
+            <g className={`${legClass} leg-fb`}><ellipse cx={sp === 'cat' ? 40 : 44} cy="91" rx="6" ry="3.4" /></g>
+            <g className={`${legClass} leg-ff`}><ellipse cx={sp === 'cat' ? 96 : 94} cy="91" rx="5.2" ry="3.2" /></g>
+          </g>
+        )}
 
         {/* 꼬리 · 귀 */}
         <SideTail sp={sp} c={c} />
@@ -1222,8 +1229,8 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 가까운 쪽 다리 */}
         <g fill={nearLeg} stroke={INK} strokeWidth="2">
-          <g className={`${legClass} leg-nb`}><ellipse cx={sp === 'cat' ? 50 : 53} cy="91.5" rx="6.6" ry="3.6" /></g>
-          <g className={`${legClass} leg-nf`}><ellipse cx={sp === 'cat' ? 88 : 86} cy="91.5" rx="5.6" ry="3.4" /></g>
+          {sp !== 'bird' && <g className={`${legClass} leg-nb`}><ellipse cx={sp === 'cat' ? 50 : 53} cy="91.5" rx="6.6" ry="3.6" /></g>}
+          <g className={`${legClass} leg-nf`}><ellipse cx={sp === 'bird' ? 78 : sp === 'cat' ? 88 : 86} cy="91.5" rx="5.6" ry="3.4" /></g>
         </g>
 
         {custom.glasses && (
