@@ -300,7 +300,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           </g>
         ) : null}
 
-        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'wave'].includes(action) ? 'translate(0 14)' : undefined}>
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
         {holding && (
@@ -711,10 +711,18 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
       );
     case 'wave':
       return (
-        <>
-          <Paw x={53} y={81} rot={-20} />
-          <g className="hs-wave"><Arm from={[93, 73]} to={[106, 58]} c={c} /></g>
-        </>
+        sp === 'cat' ? (
+          // 고양이는 어깨(몸통 윗부분)에서 팔을 들어 올리고, 반대 손은 바닥에 짚는다
+          <>
+            <Paw x={51} y={101} rot={-10} />
+            <g className="hs-wave"><Arm from={[83, 84]} to={[100, 58]} c={c} /></g>
+          </>
+        ) : (
+          <>
+            <Paw x={53} y={81} rot={-20} />
+            <g className="hs-wave"><Arm from={[93, 73]} to={[106, 58]} c={c} /></g>
+          </>
+        )
       );
     default:
       // 토끼는 앞발이 바닥에 있어서 가만히 있을 땐 손을 따로 그리지 않는다
