@@ -190,10 +190,11 @@ export const CAREER_TITLES: { n: number; title: string }[] = [
   { n: 730, title: '전설의 임원' },
 ];
 
-export function careerTitle(completed: number): string {
+export function careerTitle(completed: number, species: Species = 'hamster'): string {
   let t = CAREER_TITLES[0].title;
   for (const c of CAREER_TITLES) if (completed >= c.n) t = c.title;
-  return t;
+  const name = SPECIES.find((x) => x.id === species)?.label ?? '햄스터';
+  return t.replace('햄스터', name);
 }
 
 export type ProgressSource = Pick<AppState, 'days' | 'collection'>;

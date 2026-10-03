@@ -109,3 +109,68 @@ export const LOAF = {
   ),
   clip: smoothPath(loafPts),
 };
+
+/* ================= 다른 캐릭터들: 햄스터 몸에 귀만 붙이지 않고 몸 윤곽부터 따로 그린다 ================= */
+
+function fromPts(pts: Pt[], amp: (i: number, t: number) => number, seed: number) {
+  const n = pts.length;
+  const th = thetaOf(n);
+  return {
+    body: tuftPath(pts, (i) => Math.max(0, amp(i, th(i)) * (0.35 + 1.1 * rand01(i + seed))), 0),
+    clip: smoothPath(pts),
+  };
+}
+
+/** 롭이어 토끼: 둥근 머리가 그대로 옆으로 퍼진 엉덩이까지 이어지는 찹쌀떡 돔. 바닥은 넓고 평평하다 */
+const RN = 36;
+const rabbitFront = fromPts(
+  sampleShape(RN, (t) => {
+    const s = Math.sin(t);
+    const c = Math.cos(t);
+    if (s < 0) return [60 + 41 * spow(c, 0.95), 68 + 47 * spow(s, 0.98)];
+    return [60 + (41 + 6 * Math.min(1, s * 1.6)) * spow(c, 0.7), Math.min(68 + 40 * spow(s, 0.72), 107)];
+  }),
+  (_i, t) => 0.55 + 0.6 * (bell(t, 0.3, 0.5) + bell(t, Math.PI - 0.3, 0.5)) - 0.5 * bell(t, Math.PI / 2, 0.45),
+  41,
+);
+
+/** 샴고양이: 둥근 머리 + 아래로 살짝 넓어지는 배 (앉은 고양이의 종 모양 실루엣) */
+const CN = 36;
+const catFront = fromPts(
+  sampleShape(CN, (t) => {
+    const s = Math.sin(t);
+    const c = Math.cos(t);
+    if (s < 0) return [60 + 40 * spow(c, 0.88), 56 + 36 * spow(s, 0.86)];
+    return [60 + (40 + 3 * s ** 0.8) * spow(c, 0.85), Math.min(56 + 51 * spow(s, 0.8), 107)];
+  }),
+  (_i, t) => 0.3 + 1.3 * (bell(t, 0.1, 0.25) + bell(t, Math.PI - 0.1, 0.25)) - 0.3 * bell(t, Math.PI / 2, 0.5),
+  57,
+);
+
+/** 오목눈이: 거의 완벽한 공 모양에 보송한 솜털 */
+const BN = 34;
+const birdFront = fromPts(
+  sampleShape(BN, (t) => [60 + 45 * spow(Math.cos(t), 0.95), Math.min(64 + 43 * spow(Math.sin(t), 0.95), 107)]),
+  () => 0.9,
+  73,
+);
+
+export const FRONT_BY_SPECIES = { hamster: { body: FRONT.body, clip: FRONT.clip }, rabbit: rabbitFront, cat: catFront, bird: birdFront };
+
+function sideShape(rxF: number, rxB: number, ryU: number, ryD: number, bumpK: number, yMax: number, cy: number, seed: number) {
+  const pts = sampleShape(SN, (t) => {
+    const s = Math.sin(t);
+    const c = Math.cos(t);
+    const rx = c > 0 ? rxF : rxB;
+    const ry = s < 0 ? ryU : ryD;
+    const bump = bumpK * (6 * bell(t, -0.9, 0.45) + 3 * bell(t, 0.1, 0.22) - 2 * bell(t, -1.6, 0.3));
+    return [68 + (rx + bump) * spow(c, 0.88), Math.min(cy + (ry + bump) * spow(s, 0.82), yMax)];
+  });
+  return fromPts(pts, (_i, t) => 0.35 + 1.0 * bell(t, Math.PI, 0.6) - 0.8 * bell(t, 0.1, 0.2) - 1.2 * bell(t, Math.PI / 2, 0.5), seed);
+}
+export const SIDE_BY_SPECIES = {
+  hamster: { body: SIDE.body, clip: SIDE.clip },
+  rabbit: sideShape(37, 38, 31, 29, 0.9, 91, 62, 81),
+  cat: sideShape(40, 38, 27, 26, 0.5, 91, 64, 83),
+  bird: sideShape(38, 37, 36, 33, 0.3, 91, 58, 89),
+};

@@ -296,7 +296,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     career.streak >= 3 ? `${career.streak}일 연속` : '',
     payD === 0 ? '오늘은 월급날!' : `월급날 D-${payD}`,
   ].filter(Boolean);
-  const shareNameTag = `${settings.hamsterName || '햄스터'} · ${careerTitle(career.completedDays)}`;
+  const shareNameTag = `${settings.hamsterName || '햄스터'} · ${careerTitle(career.completedDays, custom.species)}`;
 
   const quoteBlock = (
     <>

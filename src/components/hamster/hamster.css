@@ -387,3 +387,24 @@
   from { opacity: 0.2; transform: translateY(2px); }
   to { opacity: 0.85; transform: translateY(-2px); }
 }
+
+/* 롭이어 토끼 귀: 뿌리(위)를 축으로 살랑 */
+.hs-lop-l, .hs-lop-r { transform-box: fill-box; animation: hs-lop 5.5s ease-in-out infinite; }
+.hs-lop-l { transform-origin: 80% 4%; }
+.hs-lop-r { transform-origin: 20% 4%; animation-delay: 0.4s; }
+@keyframes hs-lop {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+.hs-lop-r { animation-name: hs-lop-r; }
+@keyframes hs-lop-r {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-3deg); }
+}
+
+/* 오목눈이 날개 파닥 */
+.hs-flap-l, .hs-flap-r { transform-box: view-box; animation: hs-flap 0.32s ease-in-out infinite alternate; }
+.hs-flap-l { transform-origin: 30px 64px; }
+.hs-flap-r { transform-origin: 90px 64px; animation-name: hs-flap-r; }
+@keyframes hs-flap { from { transform: rotate(-12deg); } to { transform: rotate(10deg); } }
+@keyframes hs-flap-r { from { transform: rotate(12deg); } to { transform: rotate(-10deg); } }

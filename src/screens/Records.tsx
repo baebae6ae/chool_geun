@@ -312,7 +312,7 @@ function CareerCard({ state }: { state: AppState }) {
   const next = nextUnlock(p);
   return (
     <section className="card career">
-      <div className="career-title">🏅 {careerTitle(c.completedDays)}</div>
+      <div className="career-title">🏅 {careerTitle(c.completedDays, state.custom.species)}</div>
       <div className="career-grid">
         <div>
           <b>{c.completedDays}</b>
