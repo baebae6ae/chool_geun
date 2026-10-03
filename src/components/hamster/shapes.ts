@@ -185,11 +185,9 @@ function sideShape(rxF: number, rxB: number, ryU: number, ryD: number, bumpK: nu
 export const SIDE_BY_SPECIES = {
   hamster: { body: SIDE.body, clip: SIDE.clip },
   rabbit: sideShape(37, 38, 31, 29, 0.9, 91, 62, 81),
-  cat: fromPts(
-    sampleShape(SN, (t) => [64 + (Math.cos(t) > 0 ? 34 : 36) * spow(Math.cos(t), 0.8), Math.min(70 + 20 * spow(Math.sin(t), 0.8), 91)]),
-    (_i, t) => 0.4 + 0.8 * bell(t, Math.PI, 0.6) - 0.6 * bell(t, Math.PI / 2, 0.5),
-    83,
-  ),
+  get cat() {
+    return CAT_SIDE;
+  },
   bird: sideShape(38, 37, 36, 33, 0.3, 91, 58, 89),
 };
 
@@ -215,36 +213,39 @@ function densify(pts: Pt[], per: number): Pt[] {
 }
 
 /**
- * 샴고양이 옆모습 머리: 둥근 이마 → 콧등 → 살짝 튀어나온 코끝 → 짧은 주둥이와 턱 → 뒤로 삐죽한 볼 털.
- * (오른쪽을 보는 옆얼굴)
+ * 샴고양이 옆모습: 머리를 따로 얹지 않고 등 → 목덜미 → 정수리 → 이마 → 콧등 → 코끝 → 턱 → 목 → 가슴 → 배 → 엉덩이가
+ * 한 줄로 이어지는 실루엣 (오른쪽을 본다). 얼굴 앞선은 거의 곧게, 코끝만 살짝 나온다.
  */
-const catSideHeadPts = densify(
+const catSidePts = densify(
   [
-    [83, 38],
-    [95, 32],
-    [107, 35],
-    [114, 42],
-    [117.5, 50],
-    [121, 56.5],
-    [119.5, 61],
-    [115, 64],
-    [111, 69.5],
-    [102, 73],
-    [90, 73.5],
-    [81, 65],
-    [78.5, 51],
+    [34, 60],
+    [50, 55],
+    [68, 55],
+    [80, 50],
+    [86, 39],
+    [91, 28],
+    [100, 21.5],
+    [109, 23],
+    [115, 29.5],
+    [118, 36.5],
+    [120.5, 41.5],
+    [119.6, 45.5],
+    [116.5, 49],
+    [112, 53],
+    [106.5, 56.5],
+    [103.5, 62],
+    [103, 71],
+    [101, 81],
+    [96, 88.5],
+    [80, 89.5],
+    [58, 89.5],
+    [40, 88],
+    [30.5, 80],
+    [29, 68],
   ],
-  4,
+  3,
 );
-export const CAT_SIDE_HEAD = {
-  body: tuftPath(
-    catSideHeadPts,
-    (i) => {
-      // 볼 털(아래 뒤쪽)만 보송하게, 얼굴 앞쪽은 매끈하게
-      const cheek = i >= 37 && i <= 45 ? 0.7 : 0;
-      return (0.15 + cheek) * (0.5 + rand01(i + 97));
-    },
-    0,
-  ),
-  clip: smoothPath(catSideHeadPts),
+export const CAT_SIDE = {
+  body: tuftPath(catSidePts, (i) => 0.35 * (0.4 + rand01(i + 97)), 0),
+  clip: smoothPath(catSidePts),
 };
