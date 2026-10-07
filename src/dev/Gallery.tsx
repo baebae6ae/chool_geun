@@ -10,7 +10,7 @@ import { SEASONS } from '../domain/workItems';
 import { GACHA_EVENTS } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 
-const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug'];
+const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 
 /** 개발용: `?gallery` 로 모든 자세를 한눈에 본다 */

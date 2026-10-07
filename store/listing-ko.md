@@ -63,12 +63,14 @@ https://baebae6ae.github.io/chool_geun/privacy.html
 - 전송 중 암호화/삭제 요청: 해당 없음 (서버 없음)
 - ※ 광고(AdMob)를 붙이는 업데이트부터는 "기기 ID 수집, 광고 목적, 제3자 공유"로 바꿔야 함
 
-## 스크린샷 순서 제안
-1. 01-home — 오늘 번 돈과 햄스터
-2. 02-gacha — 직장인 이벤트
-3. 03-office — 사무실이 꾸며지는 모습
-4. 04-collection — 도감
-5. 05-records — 기록과 출근 도장
-6. 07-customize — 꾸미기
-7. 06-setup — 연봉만 넣으면 시작
-8. 08-clock-landscape — 탁상시계 모드
+## 스크린샷 순서 제안 (1080×1920, 홍보 문구가 들어간 이미지)
+1. 01-home — 월급이 촤르르 쌓여요
+2. 02-characters — 캐릭터 4종
+3. 03-events — 직장인 이벤트 50종
+4. 04-overtime — 야근하면 방이 썩어가요
+5. 05-office — 사무실이 하나씩 채워져요
+6. 06-customize — 사무용품 꾸미기
+7. 07-share-card — 날마다 다른 오늘의 카드
+8. 08-clock-landscape — 눕히면 탁상시계
+
+그래픽 이미지(1024×500): store/feature-graphic-1024x500.png, 앱 아이콘(512): store/icon-512.png
