@@ -1,0 +1,90 @@
+{
+  "results": [
+    {
+      "name": "앱 안에서 실행 중 (Capacitor 네이티브)",
+      "ok": true,
+      "detail": "https://localhost/ · 412x818"
+    },
+    {
+      "name": "첫 설정 화면과 백업 불러오기 버튼",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "연봉 입력 후 출근 시작",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "햄스터가 화면에 그려짐",
+      "ok": true,
+      "detail": "svg 11개"
+    },
+    {
+      "name": "글꼴(Jua) 적용",
+      "ok": true,
+      "detail": "Jua, Pretendard, \"Apple SD Got · 로드 true"
+    },
+    {
+      "name": "탭 이동: 사무실",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "탭 이동: 도감",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "탭 이동: 기록",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "탭 이동: 꾸미기",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "설정 화면 열기와 백업 카드",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "백업 저장 (공유 창이 뜨고 오류 문구가 없음)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "새로고침해도 기록이 남음",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "위젯에 상태 넘기기",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "위젯 미리보기 (상태별)",
+      "ok": true,
+      "detail": "20장"
+    },
+    {
+      "name": "위젯 미리보기 모음 한 장으로",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "홈 화면에 위젯 놓기 (런처가 허용하면)",
+      "ok": true,
+      "detail": "\"ADD TO HOME SCREEN\" 눌러 추가"
+    },
+    {
+      "name": "웹 오류 없음",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}
