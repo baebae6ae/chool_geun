@@ -67,7 +67,8 @@ public class WidgetBridgePlugin extends Plugin {
         final int hDp = call.getInt("height", wide ? 100 : 170);
         getBridge().executeOnMainThread(() -> {
             try {
-                Context c = getContext();
+                // 액티비티의 AppCompat 인플레이터를 피하려고 앱 컨텍스트로 그린다 (런처와 같은 조건)
+                Context c = getContext().getApplicationContext();
                 JSONArray tl = tlStr != null ? new JSONArray(tlStr) : WidgetRenderer.load(c);
                 RemoteViews rv = WidgetRenderer.build(c, wide, tl, now);
                 FrameLayout parent = new FrameLayout(c);

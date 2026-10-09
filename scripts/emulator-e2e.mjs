@@ -121,7 +121,8 @@ await step('연봉 입력 후 출근 시작', async () => {
   await click('button', '출근 시작하기');
   await sleep(2500);
   await closeDialogs();
-  await waitFor(hasText('오늘 번 돈'), 8000, '오늘 번 돈');
+  // 쉬는 날(공휴일)에 돌리면 '오늘 번 돈' 대신 쉬는 날 화면이 나온다
+  await waitFor(`!!document.querySelector('nav.tabbar')`, 8000, '홈 화면');
 });
 await sleep(3500);
 await shot('20-home');
@@ -133,7 +134,7 @@ await step('햄스터가 화면에 그려짐', async () => {
 });
 
 await step('글꼴(Jua) 적용', async () => {
-  const f = await ev(`getComputedStyle(document.querySelector('.hero-money-value')).fontFamily`);
+  const f = await ev(`getComputedStyle(document.querySelector('.hero-money-value') || document.querySelector('nav.tabbar')).fontFamily`);
   const ok = await ev(`document.fonts.check('16px Jua')`);
   return `${f.slice(0, 30)} · 로드 ${ok}`;
 });
@@ -175,7 +176,7 @@ await step('새로고침해도 기록이 남음', async () => {
   await sleep(3500);
   await waitFor(`!!document.querySelector('#root *')`, 10000, '다시 렌더링');
   const onboarding = await ev(`!!document.querySelector('input[type=number]')`);
-  const home = await ev(hasText('오늘 번 돈'));
+  const home = await ev(`!!document.querySelector('nav.tabbar')`);
   if (!home || onboarding) throw new Error('기록이 사라져 첫 화면으로 돌아감');
 });
 
@@ -258,7 +259,7 @@ await step('홈 화면에 위젯 놓기 (런처가 허용하면)', async () => {
   try {
     fs.writeFileSync(`${OUT}/widget-pin-dialog.png`, execSync('adb exec-out screencap -p', { maxBuffer: 1e8 }));
     const xml = execSync('adb exec-out uiautomator dump /dev/tty', { maxBuffer: 1e8 }).toString();
-    const m = [...xml.matchAll(/<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/g)].find((x) => /^(추가|자동으로 추가|Add|Add automatically|ADD)$/i.test(x[1]));
+    const m = [...xml.matchAll(/<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/g)].find((x) => /^(추가|자동으로 추가|홈 화면에 추가|Add|Add automatically|Add to home screen)$/i.test(x[1]));
     if (!m) {
       execSync('adb shell input keyevent 4');
       return '추가 버튼을 찾지 못함';
