@@ -37,7 +37,9 @@ describe('위젯 타임라인', () => {
     expect(at(tl, atTime(DAY, '12:30'))).toMatchObject({ img: 'nibble' });
     expect(at(tl, atTime(DAY, '12:30')).side.money?.perMin).toBe(0);
     expect(at(tl, atTime(DAY, '17:45')).img).toBe('typeFast');
-    expect(at(tl, atTime(DAY, '19:00'))).toMatchObject({ theme: 'night', big: '퇴근 완료' });
+    expect(at(tl, atTime(DAY, '19:00'))).toMatchObject({ theme: 'night', big: '퇴근 완료', img: 'meal' });
+    expect(at(tl, atTime(DAY, '21:00'))).toMatchObject({ big: '퇴근 완료', img: 'phone' });
+    expect(at(tl, atTime(DAY, '23:30'))).toMatchObject({ big: '퇴근 완료', img: 'sleep' });
   });
 
   it('돈은 구간 시작 금액에서 분당 금액만큼 늘고, 다음 구간 금액을 넘지 않는다', () => {
@@ -48,9 +50,14 @@ describe('위젯 타임라인', () => {
     expect(m.cap).toBeGreaterThan(m.base);
   });
 
-  it('주말은 쉬는 날 하나로 표시된다', () => {
+  it('주말은 쉬는 날: 시간대마다 하는 일이 바뀌고 누워서 번 돈이 쌓인다', () => {
     const sat = at(tl, atTime('2026-09-26', '11:00'));
-    expect(sat).toMatchObject({ theme: 'off', big: '쉬는 날' });
+    expect(sat).toMatchObject({ theme: 'off', big: '쉬는 날', img: 'meal' });
+    expect(sat.side.label).toBe('누워서 번 돈');
+    expect(sat.side.money!.perMin).toBeCloseTo(3_000_000 / 30 / 1440);
+    expect(at(tl, atTime('2026-09-26', '08:00')).img).toBe('sleep');
+    expect(at(tl, atTime('2026-09-26', '15:00')).img).toBe('game');
+    expect(at(tl, atTime('2026-09-26', '21:00')).img).toBe('phone');
   });
 
   it('추석 연휴는 공휴일 이름과 함께 쉬는 날', () => {

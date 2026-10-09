@@ -19,6 +19,7 @@ import { TabIcon } from '../components/TabIcon';
 import { BigClock, QuoteCard } from '../components/AmbientExtras';
 import { pickOvertimeBubble, pickOvertimeQuote, pickTimeBubble, quotePhase } from '../domain/quotes';
 import { ShareSheet, type TimeBand } from '../components/ShareSheet';
+import { restDailyPay, restEarnedAt } from '../domain/rest';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -368,15 +369,30 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         />
 
         {!day || !item ? (
-          <p className="rest-note">
-            {holiday?.includes('추석')
-              ? speciesWord('🎑 즐거운 추석! 햄스터도 송편 먹으며 쉬는 중.', custom.species)
-              : holiday?.includes('설날')
-                ? speciesWord('🧧 새해 복 많이 받으세요! 햄스터도 떡국 먹으며 쉬는 중.', custom.species)
-                : holiday
-                  ? speciesWord(`오늘은 ${holiday}, 쉬는 날이에요. 햄스터도 늦잠 자는 중.`, custom.species)
-                  : speciesWord('오늘은 쉬는 날이에요. 햄스터도 해바라기씨 먹으며 쉬는 중.', custom.species)}
-          </p>
+          <>
+            {/* 월급은 쉬는 날에도 흘러간다 (재미용 숫자 · 기록에는 더하지 않음) */}
+            <div className="hero-money rest">
+              <div className="hero-money-label">누워서 번 돈</div>
+              <div className="hero-money-value" aria-live="off">
+                <MoneyTicker
+                  fixed={restEarnedAt(settings, key, now)}
+                  fn={() => restEarnedAt(settings, key, clockNow())}
+                  depKey={`rest|${key}|${restDailyPay(settings, key)}`}
+                  label="누워서 번 돈"
+                />
+              </div>
+              <div className="hero-money-sub">월급은 쉬는 날에도 흘러가요 · 하루치 {formatWon(Math.floor(restDailyPay(settings, key)))}</div>
+            </div>
+            <p className="rest-note">
+              {holiday?.includes('추석')
+                ? speciesWord('🎑 즐거운 추석! 햄스터도 송편 먹으며 쉬는 중.', custom.species)
+                : holiday?.includes('설날')
+                  ? speciesWord('🧧 새해 복 많이 받으세요! 햄스터도 떡국 먹으며 쉬는 중.', custom.species)
+                  : holiday
+                    ? speciesWord(`오늘은 ${holiday}, 쉬는 날! 햄스터도 맘껏 노는 중.`, custom.species)
+                    : speciesWord('오늘은 쉬는 날! 햄스터도 맘껏 노는 중.', custom.species)}
+            </p>
+          </>
         ) : otActive && otNow ? (
           <>
             <div className="ot-panel">

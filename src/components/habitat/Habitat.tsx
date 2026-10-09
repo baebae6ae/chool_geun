@@ -114,6 +114,8 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   const started = useRef(false);
   const lastErrand = useRef<string | undefined>(undefined);
   const paydayRef = useRef(payday);
+  const hourRef = useRef(new Date(now).getHours());
+  hourRef.current = new Date(now).getHours();
   const overtimeOn = overtimeMin !== null;
   const overtimeRef = useRef(overtimeOn);
   overtimeRef.current = overtimeOn;
@@ -200,7 +202,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     if (!started.current) {
       started.current = true;
       const snap = readSnapshot(mood, W0);
-      queue.current = snap ? snap.queue : initialScene(mood, s);
+      queue.current = snap ? snap.queue : initialScene(mood, s, Math.random, hourRef.current);
       lastErrand.current = snap?.last;
       cur.current = null;
       return;
@@ -265,6 +267,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
             lastErrand.current,
             viewRef.current.place,
             paydayRef.current,
+            hourRef.current,
           );
           lastErrand.current = plan.name;
           queue.current = plan.steps;
@@ -379,12 +382,21 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
 
   const { pose, place, facing } = view;
   const onWheel = place === 'wheel';
+  const hour = new Date(now).getHours();
   const label =
     onWheel && pose.action === 'run'
       ? '쳇바퀴 도는 중'
       : pose.action === 'sleep'
-        ? (SLEEP_LABEL[mood] ?? ACTIVITY_LABEL.sleep)
-        : ACTIVITY_LABEL[pose.action];
+        ? mood === 'holiday' && hour >= 12
+          ? hour < 19 ? '낮잠 자는 중' : ACTIVITY_LABEL.sleep
+          : (SLEEP_LABEL[mood] ?? ACTIVITY_LABEL.sleep)
+        : pose.action === 'meal'
+          ? hour < 10
+            ? '아침 먹는 중'
+            : hour < 15
+              ? mood === 'holiday' ? '브런치 먹는 중' : '점심 먹는 중'
+              : '저녁 먹는 중'
+          : ACTIVITY_LABEL[pose.action];
 
   return (
     <div className="habitat-wrap">

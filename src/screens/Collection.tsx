@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { formatDotDate, dateKey } from '../domain/date';
-import { GACHA_EVENTS, RARITIES, RARITY_LABEL, RARITY_RATE, type GachaEvent } from '../domain/gacha';
+import { GACHA_EVENTS, HOLIDAY_EVENTS, RARITIES, RARITY_LABEL, RARITY_RATE, type GachaEvent } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import type { AppState } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
@@ -64,6 +64,27 @@ export function Collection({ state }: { state: AppState }) {
           </section>
         );
       })}
+
+      <section className="card dex holiday-dex">
+        <div className="dex-head">
+          <span className="rarity-badge">🏖️ 휴일 이벤트</span>
+          <span className="muted small">
+            {HOLIDAY_EVENTS.filter((e) => state.collection[e.id]).length}/{HOLIDAY_EVENTS.length} · 쉬는 날 낮에 하루 1~3번
+          </span>
+        </div>
+        <div className="dex-grid">
+          {HOLIDAY_EVENTS.map((e) => {
+            const c = state.collection[e.id];
+            return (
+              <button key={e.id} className={`dex-cell rarity-${e.rarity} ${c ? 'got' : 'locked'}`} onClick={() => c && setPicked(e)} disabled={!c}>
+                <span className="dex-emoji">{c ? <EventIcon id={e.id} emoji={e.emoji} /> : '❔'}</span>
+                <span className="dex-name">{c ? e.name : '???'}</span>
+                {c && c.count > 1 && <span className="dex-count">×{c.count}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {picked && (
         <div className="overlay" role="dialog" aria-modal="true" onClick={() => setPicked(null)}>

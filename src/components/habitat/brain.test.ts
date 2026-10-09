@@ -109,19 +109,50 @@ describe('habitat brain', () => {
     expect(end.at(-1)).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
   });
 
-  it('퇴근 후엔 계속 솜 이불 근처에서 지낸다', () => {
-    const rnd = seeded(9);
+  const namesAt = (mood: HamsterMood, hour: number, n = 80) => {
+    const rnd = seeded(hour * 31 + 5);
+    const names = new Set<string>();
     let last: string | undefined;
-    for (let i = 0; i < 30; i++) {
-      const plan = planErrand('off', S, S.bed, rnd, last, 'bed');
-      expect(['sleep', 'wake', 'eat', 'wheel', 'wander', 'groom', 'sip', 'window', 'stretch']).toContain(plan.name);
+    for (let i = 0; i < n; i++) {
+      const plan = planErrand(mood, S, S.bed, rnd, last, 'floor', false, hour);
+      names.add(plan.name);
       last = plan.name;
     }
+    return names;
+  };
+
+  it('밤에는 쉬는 날이든 퇴근 후든 거의 잠만 잔다', () => {
+    for (const mood of ['holiday', 'off', 'beforeWork'] as HamsterMood[]) {
+      for (const n of namesAt(mood, 3)) expect(['sleep', 'groom', 'eat']).toContain(n);
+    }
+  });
+
+  it('쉬는 날엔 시간대마다 하는 일이 다르다 (브런치 → 게임·책 → 간식·드라마)', () => {
+    const lunch = namesAt('holiday', 12);
+    expect(lunch.has('meal')).toBe(true);
+    expect(lunch.has('game')).toBe(false);
+    const afternoon = namesAt('holiday', 15);
+    expect(afternoon.has('game') && afternoon.has('read')).toBe(true);
+    expect(afternoon.has('sleep')).toBe(false);
+    const evening = namesAt('holiday', 21);
+    expect(evening.has('phone') && evening.has('snack')).toBe(true);
+  });
+
+  it('평일 퇴근 후: 저녁 먹고, 밤엔 드라마·게임, 늦으면 씻고 잔다', () => {
+    expect(namesAt('off', 19).has('meal')).toBe(true);
+    const night = namesAt('off', 21);
+    expect(night.has('phone') && night.has('game')).toBe(true);
+    expect(night.has('sleep')).toBe(false);
+    expect(namesAt('off', 23).has('sleep')).toBe(true);
   });
 
   it('처음 열었을 때: 출근 전·퇴근 후엔 이불에서 자고, 근무 중엔 책상에 있다', () => {
     expect(initialScene('beforeWork', S)[1]).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
     expect(initialScene('off', S)[1]).toMatchObject({ t: 'act', place: 'bed', pose: { pose: 'side', action: 'sleep' } });
+    // 쉬는 날 낮·퇴근 후 저녁엔 깨어 있다
+    expect(initialScene('holiday', S, Math.random, 14)[1]).toMatchObject({ t: 'act', pose: { pose: 'front' } });
+    expect(initialScene('off', S, Math.random, 20)[1]).toMatchObject({ t: 'act', pose: { pose: 'front' } });
+    expect(initialScene('holiday', S, Math.random, 8)[1]).toMatchObject({ pose: { action: 'sleep' } });
     expect(initialScene('working', S)[1]).toMatchObject({ t: 'act', place: 'desk', pose: { action: 'type' } });
   });
 });

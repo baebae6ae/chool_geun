@@ -96,6 +96,51 @@ export const GACHA_EVENTS: GachaEvent[] = [
 
 export const GACHA_BY_ID: Record<string, GachaEvent> = Object.fromEntries(GACHA_EVENTS.map((e) => [e.id, e]));
 
+/** 쉬는 날에만 나오는 휴일 이벤트. 다음 날도 쉬는 날일 때만 나오는 것도 있다 */
+export interface HolidayEvent extends GachaEvent {
+  /** 내일도 쉬는 날일 때만 발생 */
+  beforeOff?: boolean;
+}
+
+const hev = (id: string, rarity: Rarity, emoji: string, name: string, description: string, beforeOff?: boolean): HolidayEvent => ({
+  id, rarity, emoji, name, description, ...(beforeOff ? { beforeOff } : {}),
+});
+
+export const HOLIDAY_EVENTS: HolidayEvent[] = [
+  // COMMON (8)
+  hev('h01', 'COMMON', '🛌', '정오 기상', '눈 떠보니 12시. 아침은 건너뛰었습니다.'),
+  hev('h02', 'COMMON', '📱', '배달앱 세 번 열기', '고민 끝에 라면을 끓였습니다.'),
+  hev('h03', 'COMMON', '📺', '정주행 시작', '"한 편만 더"가 벌써 다섯 편째.'),
+  hev('h04', 'COMMON', '👕', '잠옷 하루 종일', '오늘은 옷을 갈아입지 않기로 했습니다.'),
+  hev('h05', 'COMMON', '🍜', '라면에 계란', '계란을 넣었으니 요리입니다.'),
+  hev('h06', 'COMMON', '🛋️', '소파와 한 몸', '소파가 놓아주지 않습니다.'),
+  hev('h07', 'COMMON', '🧺', '밀린 빨래', '세탁기가 대신 열일하는 중.'),
+  hev('h08', 'COMMON', '📦', '택배 언박싱', '내가 이걸 언제 샀더라?'),
+  // UNCOMMON (6)
+  hev('h09', 'UNCOMMON', '😴', '낮잠 세 시간', '잠깐 눈만 감았는데 해가 졌습니다.'),
+  hev('h10', 'UNCOMMON', '🧋', '카페 나들이', '창가 자리를 차지했습니다.'),
+  hev('h11', 'UNCOMMON', '🍳', '브런치 성공', '프렌치토스트가 그럴듯하게 나왔습니다.'),
+  hev('h12', 'UNCOMMON', '🎮', '딱 한 판만', '한 판이 열 판이 되었습니다.'),
+  hev('h13', 'UNCOMMON', '🧹', '대청소 각성', '갑자기 방 정리가 하고 싶어졌습니다.'),
+  hev('h14', 'UNCOMMON', '🚶', '동네 산책', '몰랐던 골목을 발견했습니다.'),
+  // RARE (3)
+  hev('h15', 'RARE', '🔕', '업무 연락 0건', '휴대폰이 하루 종일 조용했습니다.'),
+  hev('h16', 'RARE', '🍗', '치킨 기프티콘', '친구가 갑자기 치킨을 보내줬습니다.'),
+  hev('h17', 'RARE', '🌸', '완벽한 날씨', '나가기 딱 좋은 날씨입니다.'),
+  // EPIC (2)
+  hev('h18', 'EPIC', '🛁', '완벽한 반신욕', '몸도 마음도 녹아내렸습니다.'),
+  hev('h19', 'EPIC', '⏰', '알람 없이 개운', '열 시간 푹 자고 개운하게 일어났습니다.'),
+  // LEGENDARY (1)
+  hev('h20', 'LEGENDARY', '🎊', '내일도 쉬는 날', '세상에, 내일도 쉰다고요?', true),
+];
+
+export const HOLIDAY_BY_ID: Record<string, HolidayEvent> = Object.fromEntries(HOLIDAY_EVENTS.map((e) => [e.id, e]));
+
+/** 직장인 이벤트 + 휴일 이벤트 */
+export const EVENT_BY_ID: Record<string, GachaEvent> = { ...GACHA_BY_ID, ...HOLIDAY_BY_ID };
+
+export const isHolidayEvent = (id: string) => id in HOLIDAY_BY_ID;
+
 export function rollRarity(r: number): Rarity {
   let acc = 0;
   for (const rarity of RARITIES) {
@@ -121,6 +166,27 @@ export function planDailyGacha(seed: number, key: string): { eventId: string; fr
   const plan = [];
   for (let i = 0; i < count; i++) {
     plan.push({ eventId: pickEvent(rng, weekday(key)).id, fraction: 0.05 + rng() * 0.9 });
+  }
+  return plan.sort((a, b) => a.fraction - b.fraction);
+}
+
+/** 휴일 이벤트가 나오는 시간: 10시~21시 */
+export const HOLIDAY_GACHA_FROM = 10;
+export const HOLIDAY_GACHA_TO = 21;
+
+/**
+ * 쉬는 날 하루치 휴일 이벤트. 평일 가챠처럼 날짜 + 기기 시드로 정해진다.
+ * @returns 이벤트 id와 그날 10시~21시 사이의 비율(0~1) 위치
+ */
+export function planHolidayGacha(seed: number, key: string, tomorrowOff: boolean): { eventId: string; fraction: number }[] {
+  const rng = createRng(`${seed}:${key}:holiday`);
+  const count = 1 + Math.floor(rng() * 3); // 하루 1~3회
+  const plan: { eventId: string; fraction: number }[] = [];
+  for (let i = 0; i < count; i++) {
+    const rarity = rollRarity(rng());
+    let pool = HOLIDAY_EVENTS.filter((e) => e.rarity === rarity && (!e.beforeOff || tomorrowOff));
+    if (pool.length === 0) pool = HOLIDAY_EVENTS.filter((e) => e.rarity === 'EPIC');
+    plan.push({ eventId: pool[Math.floor(rng() * pool.length)].id, fraction: rng() });
   }
   return plan.sort((a, b) => a.fraction - b.fraction);
 }

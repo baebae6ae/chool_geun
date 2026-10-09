@@ -7,10 +7,10 @@ import type { Customization } from '../domain/types';
 import { EventIcon } from '../components/EventIcon';
 import { ItemIcon } from '../components/ItemIcon';
 import { SEASONS } from '../domain/workItems';
-import { GACHA_EVENTS } from '../domain/gacha';
+import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 
-const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom'];
+const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 
 /** 개발용: `?gallery` 로 모든 자세를 한눈에 본다 */
@@ -49,8 +49,11 @@ export function Gallery() {
 
 /** ?gallery&icons — 도감 이벤트 아이콘 전체 보기 */
 function IconSheet() {
-  const items = new URLSearchParams(location.search).get('icons') === 'items';
-  const all = items
+  const which = new URLSearchParams(location.search).get('icons');
+  const items = which === 'items';
+  const all = which === 'holiday'
+    ? HOLIDAY_EVENTS.map((e) => ({ id: e.id, emoji: e.emoji, name: e.name }))
+    : items
     ? SEASONS.flatMap((s) => s.items.map((i) => ({ id: i.name, emoji: i.emoji, name: i.name })))
     : [...GACHA_EVENTS.map((e) => ({ id: e.id, emoji: e.emoji, name: e.name })), ...RARE_BEHAVIORS.map((r) => ({ id: r.id, emoji: r.emoji, name: r.name }))];
   return (

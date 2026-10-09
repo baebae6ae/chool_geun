@@ -12,11 +12,20 @@ import { dayBounds, isWorkday } from '../domain/schedule';
 import type { AppState, DailyWork, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
+import { EventIcon } from '../components/EventIcon';
+import { HOLIDAY_BY_ID } from '../domain/gacha';
 
 type Override = 'off' | 'on' | null;
 
 /** 출근한 날: 퇴근했거나, 출근시간이 지난 오늘 */
 const worked = (d: DailyWork | undefined, now: number) => !!d && (d.clockedOut || now >= dayBounds(d.date, d.schedule).start);
+
+/** 쉬는 날에 얻은 휴일 이벤트 중 첫 번째 (기록 도장에 작게 찍는다) */
+function holidayStamp(state: AppState, date: string) {
+  const g = state.holidays?.[date]?.gacha.find((x) => x.obtained);
+  const e = g && HOLIDAY_BY_ID[g.eventId];
+  return e ? <EventIcon id={e.id} emoji={e.emoji} /> : null;
+}
 
 /** 이번 주 출근 도장 — 빠진 날은 그냥 비어 있을 뿐, 벌칙 없음 */
 function StampWeek({ state, now }: { state: AppState; now: number }) {
@@ -32,9 +41,10 @@ function StampWeek({ state, now }: { state: AppState; now: number }) {
             <span className="stamp-day">{WEEKDAY_KO[weekday(date)]}</span>
             {(() => {
               const off = !worked(day, now) && !!state.settings && !isWorkday(date, state.settings);
+              const hol = off ? holidayStamp(state, date) : null;
               return (
-                <span className={`stamp ${worked(day, now) ? 'on' : off ? 'off' : ''}`} title={holidayName(date)}>
-                  {worked(day, now) ? '🐾' : off ? '휴' : ''}
+                <span className={`stamp ${worked(day, now) ? 'on' : off ? 'off' : ''} ${hol ? 'hol' : ''}`} title={holidayName(date)}>
+                  {worked(day, now) ? '🐾' : off ? (hol ?? '휴') : ''}
                 </span>
               );
             })()}
@@ -93,6 +103,7 @@ function StampCalendar({
             {on && <span className="stamp on">🐾</span>}
             {on && day?.completed && <i title={itemOf(day).name}><ItemIcon item={itemOf(day)} /></i>}
             {inMonth && !on && ov && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
+            {inMonth && !on && !ov && holidayStamp(state, d) && <i className="hol">{holidayStamp(state, d)}</i>}
           </button>
         );
       })}

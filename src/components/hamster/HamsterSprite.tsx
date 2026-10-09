@@ -26,7 +26,14 @@ export type FrontAction =
   | 'heart'
   | 'shy'
   | 'hug'
-  | 'doom';
+  | 'doom'
+  // 쉬는 날·퇴근 후 일과
+  | 'meal'
+  | 'game'
+  | 'phone'
+  | 'read'
+  | 'shower'
+  | 'snack';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -129,11 +136,11 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' =
     action === 'doom'
       ? 'doom'
-      : action === 'groom' || action === 'yawn'
+      : action === 'groom' || action === 'yawn' || action === 'shower'
       ? 'closed'
       : action === 'doze'
         ? 'sleepy'
-        : action === 'nibble' || action === 'sip' || action === 'dance' || action === 'cheer' || action === 'heart' || action === 'shy'
+        : action === 'nibble' || action === 'sip' || action === 'dance' || action === 'cheer' || action === 'heart' || action === 'shy' || action === 'meal' || action === 'snack' || action === 'phone'
           ? 'happy'
           : action === 'dizzy'
             ? 'spiral'
@@ -150,7 +157,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ? 'wavy'
         : action === 'sneeze'
           ? 'o'
-          : (sp === 'rabbit' ? ['dance', 'cheer', 'wave'] : ['idle', 'sniff', 'look', 'type', 'wave', 'dance', 'cheer', 'heart', 'hug']).includes(action)
+          : (sp === 'rabbit' ? ['dance', 'cheer', 'wave', 'shower'] : ['idle', 'sniff', 'look', 'type', 'wave', 'dance', 'cheer', 'heart', 'hug', 'shower', 'game']).includes(action)
             ? 'smile'
             : 'small';
   const stuffed = action === 'stuff' && sp !== 'bird';
@@ -300,6 +307,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           </g>
         ) : null}
 
+        <HeldProp action={action} />
         <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
@@ -358,6 +366,18 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <g transform="translate(60 20)">
           <Hat id={custom.hat} side={false} />
         </g>
+        {action === 'shower' && (
+          // 머리 위 거품
+          <g fill="#ffffff" stroke={INK} strokeWidth="1.3">
+            <circle cx="39" cy="31" r="5.5" />
+            <circle cx="44" cy="23" r="7.5" />
+            <circle cx="55" cy="17" r="8.5" />
+            <circle cx="67" cy="16" r="8" />
+            <circle cx="77" cy="22" r="7.5" />
+            <circle cx="82" cy="31" r="5.5" />
+            <path d="M50 14 q3 -3 6 -1 M70 13 q3 -2 5 0" fill="none" stroke="#bfe3f7" strokeWidth="1.4" />
+          </g>
+        )}
       </g>
 
       {action === 'dizzy' && (
@@ -384,6 +404,31 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <g className="hs-hearts" fill="#ff8fa8" stroke={INK} strokeWidth="1" strokeLinejoin="round">
           <path d="M101 24 c-6 -5 -7 -10 -3 -10 c2 0 3 1.2 3 2.6 c0 -1.4 1 -2.6 3 -2.6 c4 0 3 5 -3 10z" />
           <path d="M16 30 c-4.4 -3.6 -5 -7.4 -2.2 -7.4 c1.6 0 2.2 .9 2.2 1.9 c0 -1 .6 -1.9 2.2 -1.9 c2.8 0 2.2 3.8 -2.2 7.4z" />
+        </g>
+      )}
+      {action === 'shower' && (
+        <g className="hs-bubbles" fill="#e9f7ff" stroke="#8cc3e6" strokeWidth="1">
+          <circle cx="104" cy="44" r="3.4" />
+          <circle cx="111" cy="32" r="2.4" />
+          <circle cx="14" cy="46" r="2.8" />
+          <circle cx="9" cy="34" r="1.8" />
+        </g>
+      )}
+      {action === 'phone' && (
+        <g className="hs-hearts" fill="#ff8fa8" stroke={INK} strokeWidth="1" strokeLinejoin="round">
+          <path d="M101 24 c-6 -5 -7 -10 -3 -10 c2 0 3 1.2 3 2.6 c0 -1.4 1 -2.6 3 -2.6 c4 0 3 5 -3 10z" />
+        </g>
+      )}
+      {action === 'game' && (
+        <g className="hs-sparkle" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+          <path d={star(104, 20, 4.4)} />
+        </g>
+      )}
+      {action === 'meal' && (
+        <g className="hs-steam" stroke="#c8c0b8" strokeWidth="1.6" fill="none" strokeLinecap="round">
+          <path d="M53 80 q-2 -3 0 -6" />
+          <path d="M60 79 q-2 -3 0 -6" />
+          <path d="M67 80 q-2 -3 0 -6" />
         </g>
       )}
       {action === 'sneeze' && (
@@ -644,6 +689,48 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           <g className="hs-hand hs-tap-slow-r"><Paw x={73} y={97} rot={8} /></g>
         </>
       );
+    case 'meal':
+      return (
+        <g className="hs-eat">
+          <Paw x={45} y={93} rot={-20} />
+          <Paw x={76} y={89} rot={25} />
+        </g>
+      );
+    case 'game':
+      return (
+        <>
+          <g className="hs-hand hs-tap-l"><Paw x={42} y={98} rot={-10} /></g>
+          <g className="hs-hand hs-tap-r"><Paw x={78} y={98} rot={10} /></g>
+        </>
+      );
+    case 'phone':
+      return (
+        <>
+          <Paw x={50} y={96} rot={-20} />
+          <Paw x={70} y={96} rot={20} />
+        </>
+      );
+    case 'read':
+      return (
+        <>
+          <Paw x={41} y={93} rot={-15} />
+          <Paw x={79} y={93} rot={15} />
+        </>
+      );
+    case 'shower':
+      return (
+        <>
+          <g className="hs-hand hs-groom-l"><Paw x={40} y={40} rot={-30} /></g>
+          <g className="hs-hand hs-groom-r"><Paw x={80} y={40} rot={30} /></g>
+        </>
+      );
+    case 'snack':
+      return (
+        <>
+          <Paw x={46} y={97} rot={-20} />
+          <g className="hs-nibble"><Paw x={70} y={77} rot={30} /></g>
+        </>
+      );
     case 'type':
     case 'typeFast':
       return (
@@ -790,6 +877,69 @@ function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; stil
       )}
     </g>
   );
+}
+
+/** 쉬는 날 일과에서 손에 든 물건 (손·날개는 이 위에 그린다) */
+function HeldProp({ action }: { action: FrontAction }) {
+  switch (action) {
+    case 'meal':
+      // 밥그릇과 젓가락
+      return (
+        <g className="hs-eat" stroke={INK} strokeLinejoin="round">
+          <path d="M72 93 L83 70 M75 94 L87 72" stroke="#b07a4a" strokeWidth="2.2" />
+          <path d="M44 84 h32 q-1.5 14 -16 14 q-14.5 0 -16 -14z" fill="#f4f7fb" strokeWidth="1.8" />
+          <path d="M46.5 90 h27" stroke="#7fb3e0" strokeWidth="2" />
+          <path d="M45 84 q15 -10 30 0z" fill="#fffdf6" strokeWidth="1.6" />
+        </g>
+      );
+    case 'game':
+      // 휴대용 게임기
+      return (
+        <g stroke={INK} strokeLinejoin="round">
+          <rect x="37" y="84" width="46" height="17" rx="7" fill="#8d97e6" strokeWidth="1.8" />
+          <rect x="51" y="86.5" width="18" height="12" rx="2" fill="#c9f0d2" strokeWidth="1.3" />
+          <path d="M57 94 h2.6 v-2.6 h2.6 v2.6" fill="none" stroke="#4a8f5a" strokeWidth="1.4" />
+          <path d="M42.5 92.5 h6 M45.5 89.5 v6" strokeWidth="2" />
+          <circle cx="74.5" cy="90" r="1.9" fill="#ff8fa8" strokeWidth="1" />
+          <circle cx="78" cy="94" r="1.9" fill="#ffd23c" strokeWidth="1" />
+        </g>
+      );
+    case 'phone':
+      // 휴대폰 (뒷면이 보인다)
+      return (
+        <g stroke={INK} strokeLinejoin="round">
+          <rect x="50.5" y="75" width="19" height="27" rx="4" fill="#f3b8c8" strokeWidth="1.8" />
+          <rect x="54" y="78.5" width="6" height="6" rx="2" fill="#5c5560" strokeWidth="1" />
+          <circle cx="57" cy="81.5" r="1.3" fill="#9aa4b8" stroke="none" />
+        </g>
+      );
+    case 'read':
+      // 펼친 책 (표지가 보인다)
+      return (
+        <g stroke={INK} strokeLinejoin="round">
+          <path d="M40 78 q10 -3 20 4 q10 -7 20 -4" fill="#fffdf6" strokeWidth="1.5" />
+          <path d="M60 82 L40 78 L40 98 L60 102z" fill="#7fb3e0" strokeWidth="1.8" />
+          <path d="M60 82 L80 78 L80 98 L60 102z" fill="#6aa0d2" strokeWidth="1.8" />
+          <path d="M45 85 l9 1.8 M66 86.8 l9 -1.8" stroke="#fffdf6" strokeWidth="1.6" strokeLinecap="round" />
+        </g>
+      );
+    case 'snack':
+      // 과자 봉지와 입에 넣는 과자 한 조각
+      return (
+        <g stroke={INK} strokeLinejoin="round">
+          <g transform="rotate(-8 54 92)">
+            <path d="M42 81 h24 l-2 21 h-20z" fill="#ffcf4a" strokeWidth="1.8" />
+            <path d="M42 81 l2 -3 2 3 2 -3 2 3 2 -3 2 3 2 -3 2 3 2 -3 2 3 2 -3 2 3" fill="#ffe08a" strokeWidth="1.2" />
+            <circle cx="54" cy="92" r="4.6" fill="#ff8a5c" strokeWidth="1.2" />
+          </g>
+          <g className="hs-nibble">
+            <path d="M64 72 q4 -4 9 -1 q-3 5 -9 1z" fill="#f6d06a" strokeWidth="1.2" />
+          </g>
+        </g>
+      );
+    default:
+      return null;
+  }
 }
 
 function Seed({ x, y }: { x: number; y: number }) {

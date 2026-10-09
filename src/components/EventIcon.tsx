@@ -491,6 +491,213 @@ const ICONS: Record<string, ReactNode> = {
     </S>
   ),
   dance: Notes,
+  // ---- 휴일 이벤트 ----
+  h01: (
+    <S>
+      <ellipse cx="14" cy="25" rx="10" ry="6" fill={C.white} />
+      {face(16, 23, 7)}
+      <path d="M12.5 22.5q1.6 1.4 3.2 0M18 22.5q1.6 1.4 3.2 0" />
+      <rect x="4" y="28" width="40" height="13" rx="5" fill={C.blue} />
+      <path d="M10 34h28" stroke={C.white} strokeWidth="1.6" />
+      <circle cx="36" cy="13" r="8" fill={C.cream} />
+      <path d="M36 13V7.5" stroke={C.red} strokeWidth="2.4" />
+      <path d="M36 13V9" />
+    </S>
+  ),
+  h02: (
+    <S>
+      <rect x="7" y="5" width="20" height="34" rx="4" fill={C.white} />
+      <rect x="11" y="10" width="5" height="5" rx="1.5" fill={C.orange} strokeWidth="1.4" />
+      <rect x="18" y="10" width="5" height="5" rx="1.5" fill={C.green} strokeWidth="1.4" />
+      <rect x="11" y="17" width="5" height="5" rx="1.5" fill={C.pink} strokeWidth="1.4" />
+      <path d="M14 33h6" />
+      <path d="M28 31h16l-2.4 9a2 2 0 0 1-2 1.5h-7.2a2 2 0 0 1-2-1.5z" fill={C.red} />
+      <path d="M26 31h20" />
+      <path d="M32 27q2-2.5 0-5M38 27q2-2.5 0-5" stroke={C.dark} />
+    </S>
+  ),
+  h03: (
+    <S>
+      <rect x="5" y="9" width="38" height="26" rx="4" fill={C.purple} />
+      <rect x="9" y="13" width="30" height="18" rx="2" fill={C.cream} />
+      <path d="M21 17l8 5-8 5z" fill={C.red} />
+      <path d="M17 41l7-6 7 6" />
+    </S>
+  ),
+  h04: (
+    <S>
+      <path d="M17 7h14l10 7-4 7-4-3v23H15V18l-4 3-4-7z" fill={C.blue} />
+      <path d="M17 7q7 6 14 0" fill={C.white} />
+      <path d="M20 25l1 2 2 .3-1.5 1.5.4 2-1.9-1-1.9 1 .4-2L17 27.3l2-.3zM29 32l.8 1.6 1.7.3-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.3z" fill={C.yellow} strokeWidth="1.2" />
+      <circle cx="28" cy="20" r="1.4" fill={C.white} stroke="none" />
+      <circle cx="21" cy="35" r="1.4" fill={C.white} stroke="none" />
+    </S>
+  ),
+  h05: (
+    <S>
+      <path d="M6 22h36a18 16 0 0 1-36 0z" fill={C.red} />
+      <path d="M9 22q3-6 6 0q3-6 6 0q3-6 6 0q3-6 6 0q3-6 6 0" stroke={C.yellow} strokeWidth="2.6" />
+      <ellipse cx="30" cy="19" rx="8" ry="5" fill={C.white} />
+      <circle cx="30" cy="19" r="3" fill={C.orange} />
+      <path d="M12 6l10 14M17 5l8 14" stroke={C.brown} strokeWidth="2.4" />
+    </S>
+  ),
+  h06: (
+    <S>
+      <path d="M8 18h32a4 4 0 0 1 4 4v12H4V22a4 4 0 0 1 4-4z" fill={C.pink} />
+      <rect x="3" y="26" width="7" height="12" rx="3" fill={C.pink} />
+      <rect x="38" y="26" width="7" height="12" rx="3" fill={C.pink} />
+      <path d="M8 38v4M40 38v4" />
+      <ellipse cx="25" cy="25" rx="11" ry="5.5" fill={C.peach} />
+      <circle cx="15" cy="23" r="5.5" fill={C.peach} />
+      <path d="M12.6 22.6q1.2 1 2.4 0M16 22.6q1.2 1 2.4 0" strokeWidth="1.6" />
+      <path d="M33 12l3-3h-3l3-3" stroke={C.purple} />
+    </S>
+  ),
+  h07: (
+    <S>
+      <rect x="8" y="5" width="32" height="38" rx="4" fill={C.white} />
+      <path d="M8 13h32" />
+      <circle cx="14" cy="9" r="1.6" fill={C.red} strokeWidth="1.2" />
+      <circle cx="24" cy="28" r="10" fill={C.blue} />
+      <path d="M17 29q3.5 3 7 0t7 0" stroke={C.white} strokeWidth="1.8" />
+      <circle cx="21" cy="24" r="1.6" fill={C.white} strokeWidth="1" />
+      <circle cx="27" cy="22" r="1.1" fill={C.white} strokeWidth="1" />
+    </S>
+  ),
+  h08: (
+    <S>
+      <path d="M7 18l17-6 17 6v20l-17 6-17-6z" fill={C.brown} />
+      <path d="M7 18l17 6 17-6M24 24v20" />
+      <path d="M7 18l-3-6 17-6 3 6M41 18l3-6-17-6" fill={C.orange} />
+      <path d="M15 21l-1 4M33 21l1 4" stroke={C.cream} strokeWidth="2.6" />
+      <path d="M33 3q0-3 3.5-3t3.5 3q0 2.4-3 3v1.6" stroke={C.purple} />
+    </S>
+  ),
+  h09: (
+    <S>
+      {face(20, 28, 13)}
+      <path d="M12 27q3 2 6 0M22 27q3 2 6 0" />
+      <path d="M18 34q2 1.4 4 0" />
+      <path d="M31 8h7l-7 8h7M38 20h4l-4 5h4" stroke={C.purple} strokeWidth="2.2" />
+      <path d="M40 38a7 7 0 1 1-6-11 5.6 5.6 0 0 0 6 11z" fill={C.yellow} />
+    </S>
+  ),
+  h10: (
+    <S>
+      <path d="M13 15h22l-3 27H16z" fill={C.cream} />
+      <path d="M14 22h20l-2.2 20H16.2z" fill={C.brown} />
+      <rect x="11" y="11" width="26" height="5" rx="2" fill={C.pink} />
+      <path d="M26 11l5-9" stroke={C.red} strokeWidth="3" />
+      <circle cx="20" cy="37" r="1.8" fill={K} stroke="none" />
+      <circle cx="25" cy="38" r="1.8" fill={K} stroke="none" />
+      <circle cx="28" cy="34" r="1.8" fill={K} stroke="none" />
+    </S>
+  ),
+  h11: (
+    <S>
+      <ellipse cx="22" cy="35" rx="19" ry="7" fill={C.white} />
+      <path d="M11 34V21a6 6 0 0 1-1-11q12-6 24 0a6 6 0 0 1-1 11v13z" fill={C.orange} />
+      <path d="M14.5 31V19.5a3 3 0 0 1-.5-6q8-3.6 16 0a3 3 0 0 1-.5 6V31z" fill={C.yellow} strokeWidth="1.4" />
+      <rect x="18.5" y="18" width="7" height="5" rx="1.2" fill={C.cream} strokeWidth="1.4" />
+      <path d="M41 8v26M38 8v6a3 3 0 0 0 6 0V8" />
+    </S>
+  ),
+  h12: (
+    <S>
+      <path d="M12 16h24a8 8 0 0 1 7.6 5.6l2 7a6 6 0 0 1-10.4 5.2L32 30H16l-3.2 3.8a6 6 0 0 1-10.4-5.2l2-7A8 8 0 0 1 12 16z" fill={C.purple} />
+      <path d="M10 23h7M13.5 19.5v7" />
+      <circle cx="33" cy="21" r="1.8" fill={C.red} strokeWidth="1.2" />
+      <circle cx="37" cy="25" r="1.8" fill={C.yellow} strokeWidth="1.2" />
+      <path d="M21 24h6" stroke={C.dark} />
+    </S>
+  ),
+  h13: (
+    <S>
+      <path d="M30 4L20 26" stroke={C.brown} strokeWidth="3" />
+      <path d="M14 24l12 6-6 14-12-2-2-4z" fill={C.yellow} />
+      <path d="M10 36l8 2M13 30l9 4" stroke={C.brown} strokeWidth="1.4" />
+      <path d="M36 22l1.4 3.2 3.4.4-2.6 2.2.8 3.4-3-1.8-3 1.8.8-3.4-2.6-2.2 3.4-.4z" fill={C.yellow} strokeWidth="1.4" />
+      <path d="M40 38l.9 2 2.1.3-1.6 1.4.5 2.1-1.9-1.1-1.9 1.1.5-2.1-1.6-1.4 2.1-.3z" fill={C.yellow} strokeWidth="1.2" />
+    </S>
+  ),
+  h14: (
+    <S>
+      <path d="M5 30l2-12q1-3 4-2l5 3q3 2 6 0l4-3q3-1 4 2q6 6 13 7a4 4 0 0 1 3 4v1z" fill={C.green} />
+      <path d="M4 30h42v4a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z" fill={C.white} />
+      <path d="M17 22l5 3M20 19l5 3M23 17l4 2" />
+      <path d="M8 43h5M20 43h5M32 43h5" stroke={C.dark} strokeWidth="1.6" />
+    </S>
+  ),
+  h15: (
+    <S>
+      <rect x="12" y="5" width="22" height="36" rx="4" fill={C.white} />
+      <path d="M17 26q0-9 6-9t6 9l2 3H15z" fill={C.yellow} />
+      <path d="M21 31a2 2 0 0 0 4 0" />
+      <path d="M13 36L34 12" stroke={C.red} strokeWidth="2.8" />
+      <path d="M38 8q3 0 3 3M38 3q8 0 8 8" stroke={C.dark} opacity=".5" />
+    </S>
+  ),
+  h16: (
+    <S>
+      <path d="M26 8a10 10 0 0 1 8 16L20 34l-6-6L24 14a10 10 0 0 1 2-6z" fill={C.orange} />
+      <path d="M20 34l-6 6M14 28l-6 6" stroke={C.cream} strokeWidth="5" />
+      <path d="M20 34l-6 6M14 28l-6 6" />
+      <circle cx="9" cy="39" r="3" fill={C.cream} />
+      <rect x="28" y="30" width="16" height="12" rx="2" fill={C.pink} />
+      <path d="M33 30v12" strokeDasharray="2 2" />
+    </S>
+  ),
+  h17: (
+    <S>
+      <circle cx="14" cy="14" r="6" fill={C.yellow} />
+      <path d="M14 3v3M14 22v3M3 14h3M22 14h3M6 6l2 2M20 20l2 2M6 22l2-2M20 8l2-2" stroke={C.orange} />
+      <g fill={C.pink}>
+        <ellipse cx="32" cy="24" rx="4" ry="6" />
+        <ellipse cx="32" cy="24" rx="4" ry="6" transform="rotate(72 32 31)" />
+        <ellipse cx="32" cy="24" rx="4" ry="6" transform="rotate(144 32 31)" />
+        <ellipse cx="32" cy="24" rx="4" ry="6" transform="rotate(216 32 31)" />
+        <ellipse cx="32" cy="24" rx="4" ry="6" transform="rotate(288 32 31)" />
+      </g>
+      <circle cx="32" cy="31" r="2.6" fill={C.yellow} />
+    </S>
+  ),
+  h18: (
+    <S>
+      {face(24, 22, 9)}
+      <path d="M19 21q2 1.6 4 0M26 21q2 1.6 4 0" />
+      <ellipse cx="19" cy="25" rx="2" ry="1.2" fill={C.red} stroke="none" opacity=".6" />
+      <ellipse cx="30" cy="25" rx="2" ry="1.2" fill={C.red} stroke="none" opacity=".6" />
+      <path d="M4 26h40v6a8 8 0 0 1-8 8H12a8 8 0 0 1-8-8z" fill={C.blue} />
+      <path d="M10 40l-2 4M38 40l2 4" />
+      <circle cx="12" cy="24" r="3" fill={C.white} />
+      <circle cx="36" cy="23" r="3.6" fill={C.white} />
+      <circle cx="31" cy="26" r="2.4" fill={C.white} />
+      <path d="M20 9q-2-3 0-6M28 9q-2-3 0-6" stroke={C.dark} opacity=".6" />
+    </S>
+  ),
+  h19: (
+    <S>
+      <path d="M8 40a16 16 0 0 1 32 0z" fill={C.yellow} />
+      <path d="M24 16v-6M10 22l-4-4M38 22l4-4M4 33H0M44 33h4" stroke={C.orange} />
+      {face(24, 33, 9)}
+      <path d="M19 32q2-2 4 0M25 32q2-2 4 0" />
+      <path d="M22 36q2 1.6 4 0" />
+      <path d="M4 40h40" />
+    </S>
+  ),
+  h20: (
+    <S>
+      <rect x="6" y="10" width="36" height="32" rx="4" fill={C.white} />
+      <path d="M6 18h36" />
+      <rect x="6" y="10" width="36" height="8" rx="4" fill={C.red} />
+      <path d="M14 6v7M34 6v7" />
+      <rect x="11" y="23" width="11" height="13" rx="2" fill={C.pink} />
+      <rect x="26" y="23" width="11" height="13" rx="2" fill={C.pink} />
+      <path d="M14 30l2.4 2.4 4-5M29 30l2.4 2.4 4-5" stroke={C.red} />
+      <path d="M2 6l3 3M44 4l-2 4M46 14h-3" stroke={C.purple} />
+    </S>
+  ),
 };
 export const hasEventIcon = (id: string) => id in ICONS;
 

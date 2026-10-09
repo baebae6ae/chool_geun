@@ -27,10 +27,14 @@ const POSE: Record<WidgetPose, { pose: Pose; tired?: boolean }> = {
   nibble: { pose: { pose: 'front', action: 'nibble' } },
   typeFast: { pose: { pose: 'front', action: 'typeFast' } },
   doom: { pose: { pose: 'front', action: 'doom' }, tired: true },
+  meal: { pose: { pose: 'front', action: 'meal' } },
+  game: { pose: { pose: 'front', action: 'game' } },
+  phone: { pose: { pose: 'front', action: 'phone' } },
+  snack: { pose: { pose: 'front', action: 'snack' } },
 };
 
 const IMG_KEY = 'hamster-widget-img';
-const IMG_VERSION = 1;
+const IMG_VERSION = 2;
 
 async function renderImages(custom: Customization): Promise<Record<string, string>> {
   const { posePng } = await import('./shareCard');

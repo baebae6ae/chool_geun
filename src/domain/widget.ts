@@ -7,11 +7,12 @@ import { addDays, atTime, dateKey, pad } from './date';
 import { daysUntilPayday } from './engine';
 import { holidayName } from './holidays';
 import { overtimeMoney, OVERTIME_RATE, wageTypeOf } from './overtime';
+import { restDailyPay, restEarnedAt } from './rest';
 import { dayBounds, earnedAt, hourlyWage, isWorkday } from './schedule';
 import type { AppState, Schedule, Settings } from './types';
 
-export type WidgetPose = 'sleep' | 'yawn' | 'type' | 'nibble' | 'typeFast' | 'doom';
-export const WIDGET_POSES: WidgetPose[] = ['sleep', 'yawn', 'type', 'nibble', 'typeFast', 'doom'];
+export type WidgetPose = 'sleep' | 'yawn' | 'type' | 'nibble' | 'typeFast' | 'doom' | 'meal' | 'game' | 'phone' | 'snack';
+export const WIDGET_POSES: WidgetPose[] = ['sleep', 'yawn', 'type', 'nibble', 'typeFast', 'doom', 'meal', 'game', 'phone', 'snack'];
 
 export type WidgetTheme = 'morning' | 'day' | 'night' | 'off' | 'rot1' | 'rot2' | 'rot3' | 'rot4';
 
@@ -66,10 +67,22 @@ function workdayEntries(key: string, schedule: Schedule, hourly: number, name: s
   const cuts = [midnight, b.start, b.start + 30 * MIN, b.end - 30 * MIN, b.end];
   if (hasLunch) cuts.push(b.lunchStart, b.lunchEnd);
   const times = [...new Set(cuts.filter((t) => t >= midnight && t <= b.end))].sort((a, z) => a - z);
+  // 퇴근 후 저녁 일과 (앱 속 햄스터와 같은 순서)
+  const evening = EVENING.map(([h, img, status]) => ({ t: atTime(key, h), img, status })).filter((e) => e.t > b.end);
+  const eveningAt = (t: number) => [...EVENING].reverse().find(([h]) => atTime(key, h) <= t) ?? EVENING[0];
   const rate = hourly / 60;
   const pay = paydayText(key, payday);
 
-  return times.map((t, i) => {
+  const done = (t: number, img: WidgetPose, status: string): WidgetEntry => ({
+    at: t,
+    theme: 'night',
+    img,
+    label: '오늘도 수고했어요',
+    big: '퇴근 완료',
+    status: `${name} · ${status}`,
+    side: { label: '오늘 번 돈', value: won(earnedAt(key, schedule, hourly, b.end)), note: pay },
+  });
+  const work = times.map((t, i): WidgetEntry => {
     const next = times[i + 1] ?? b.end;
     if (t < b.start) {
       return {
@@ -83,15 +96,8 @@ function workdayEntries(key: string, schedule: Schedule, hourly: number, name: s
       };
     }
     if (t >= b.end) {
-      return {
-        at: t,
-        theme: 'night',
-        img: 'sleep',
-        label: '오늘도 수고했어요',
-        big: '퇴근 완료',
-        status: `${name} · 퇴근하고 꿀잠 중`,
-        side: { label: '오늘 번 돈', value: won(earnedAt(key, schedule, hourly, b.end)), note: pay },
-      };
+      const [, img, status] = eveningAt(t);
+      return done(t, img, status);
     }
     const lunch = hasLunch && t >= b.lunchStart && t < b.lunchEnd;
     const img: WidgetPose = lunch ? 'nibble' : t < b.start + 30 * MIN ? 'yawn' : t >= b.end - 30 * MIN ? 'typeFast' : 'type';
@@ -115,19 +121,48 @@ function workdayEntries(key: string, schedule: Schedule, hourly: number, name: s
       progress: { from: b.start, to: b.end },
     } satisfies WidgetEntry;
   });
+  return [...work, ...evening.map((e) => done(e.t, e.img, e.status))];
 }
 
-function offEntry(key: string, name: string, payday: number): WidgetEntry {
+/** 퇴근 후 저녁: 시각(이때부터), 그림, 상태 문구 */
+const EVENING: [string, WidgetPose, string][] = [
+  ['00:00', 'meal', '저녁 먹는 중'],
+  ['20:00', 'phone', '드라마 정주행 중'],
+  ['23:00', 'sleep', '퇴근하고 꿀잠 중'],
+];
+
+/** 쉬는 날 하루 (앱 속 햄스터와 같은 순서) */
+const HOLIDAY: [string, WidgetPose, string][] = [
+  ['00:00', 'sleep', '쉬는 날 늦잠 중'],
+  ['10:00', 'meal', '브런치 먹는 중'],
+  ['14:00', 'game', '게임하는 중'],
+  ['17:00', 'snack', '과자 먹는 중'],
+  ['20:00', 'phone', '드라마 정주행 중'],
+  ['23:00', 'sleep', '쿨쿨 자는 중'],
+];
+
+/** 쉬는 날: 시간대마다 하는 일이 바뀌고, 오른쪽엔 "누워서 번 돈"이 쌓인다 (월급 ÷ 그 달 날짜 수) */
+function offEntries(key: string, settings: Settings, name: string): WidgetEntry[] {
   const holiday = holidayName(key);
-  return {
-    at: atTime(key, '00:00'),
-    theme: 'off',
-    img: 'sleep',
-    label: holiday ? `오늘은 ${holiday}` : '오늘은',
-    big: '쉬는 날',
-    status: `${name} · 늦잠 자는 중`,
-    side: { label: '다음 월급', value: paydayText(key, payday).replace('월급날 ', '') },
-  };
+  const perMin = restDailyPay(settings, key) / 1440;
+  return HOLIDAY.map(([h, img, status], i) => {
+    const t = atTime(key, h);
+    const next = i + 1 < HOLIDAY.length ? atTime(key, HOLIDAY[i + 1][0]) : atTime(addDays(key, 1), '00:00');
+    return {
+      at: t,
+      theme: 'off',
+      img,
+      label: holiday ? `오늘은 ${holiday}` : '오늘은',
+      big: '쉬는 날',
+      status: `${name} · ${status}`,
+      side: {
+        label: '누워서 번 돈',
+        money: { base: restEarnedAt(settings, key, t), at: t, perMin, cap: restEarnedAt(settings, key, next) },
+        note: paydayText(key, settings.payday),
+        stamp: true,
+      },
+    } satisfies WidgetEntry;
+  });
 }
 
 /** 야근 중이면 그날 퇴근 이후를 썩어가는 방으로 바꾼다 (30분·1시간·2시간·3시간째마다 한 단계씩) */
@@ -181,7 +216,7 @@ export function buildWidgetTimeline(state: AppState, now: number, days = 14): Wi
     const key = addDays(today, i);
     const day = state.days[key];
     if (!day && !isWorkday(key, settings)) {
-      out.push(offEntry(key, name, settings.payday));
+      out.push(...offEntries(key, settings, name));
       continue;
     }
     const schedule = day?.schedule ?? scheduleOf(settings);

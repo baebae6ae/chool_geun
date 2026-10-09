@@ -2,13 +2,13 @@
  * 상태 엔진 — 순수 함수. 현재 시각을 받아 상태를 "실제 시간 기준"으로 맞춘다.
  * 앱을 켜지 않았던 동안의 진행/가챠/퇴근도 다음 실행 때 한 번에 반영된다.
  */
-import { addDays, dateKey } from './date';
-import { GACHA_BY_ID, planDailyGacha } from './gacha';
+import { addDays, atTime, dateKey, pad } from './date';
+import { GACHA_BY_ID, HOLIDAY_GACHA_FROM, HOLIDAY_GACHA_TO, planDailyGacha, planHolidayGacha } from './gacha';
 import { createRng } from './random';
 import { dayBounds, earnedAt, hourlyWage, isBankDay, isWorkday, progressAt, timeAtFraction, workedMs } from './schedule';
 import { DEFAULT_CUSTOM, isUnlocked, rarityIndex, type Progress, type ProgressSource, type Unlock } from './customization';
 import { itemForCompletedCount } from './workItems';
-import type { AppState, DailyWork, Settings } from './types';
+import type { AppState, DailyWork, GachaDraw, Settings } from './types';
 
 export const COMMENTS = [
   '오늘도 하나 만들었습니다.',
@@ -163,8 +163,45 @@ export function reconcile(state: AppState, now: number): ReconcileResult {
     process(today);
   }
 
+  // 쉬는 날: 그날 처음 열면 휴일 이벤트를 정해 두고, 시간이 지난 것은 도감에 넣는다
+  let holidays = state.holidays;
+  if (!isWorkday(today, settings) && !days[today] && !holidays?.[today]) {
+    const start = atTime(today, `${pad(HOLIDAY_GACHA_FROM)}:00`);
+    const span = (HOLIDAY_GACHA_TO - HOLIDAY_GACHA_FROM) * 3_600_000;
+    const tomorrowOff = !isWorkday(addDays(today, 1), settings);
+    const gacha: GachaDraw[] = planHolidayGacha(state.seed, today, tomorrowOff).map((p) => ({
+      eventId: p.eventId,
+      at: Math.round(start + p.fraction * span),
+      obtained: false,
+      seen: false,
+    }));
+    holidays = { ...holidays, [today]: { gacha } };
+    changed = true;
+  }
+  if (holidays) {
+    for (const [key, h] of Object.entries(holidays)) {
+      // 나중에 출근하는 날로 바꿨다면 남은 휴일 이벤트는 없던 일로
+      if (days[key] || !h.gacha.some((g) => !g.obtained && g.at <= now)) continue;
+      holidays = {
+        ...holidays,
+        [key]: {
+          gacha: h.gacha.map((g) => {
+            if (g.obtained || g.at > now) return g;
+            const prev = collection[g.eventId];
+            collection[g.eventId] = prev
+              ? { firstObtainedAt: Math.min(prev.firstObtainedAt, g.at), count: prev.count + 1 }
+              : { firstObtainedAt: g.at, count: 1 };
+            result.newGacha.push({ date: key, eventId: g.eventId });
+            return { ...g, obtained: true };
+          }),
+        },
+      };
+      changed = true;
+    }
+  }
+
   if (!changed) return result;
-  return { ...result, changed, state: { ...state, days, collection } };
+  return { ...result, changed, state: { ...state, days, collection, ...(holidays ? { holidays } : {}) } };
 }
 
 /** 사용자가 직접 퇴근하기 버튼을 누름 */
@@ -178,6 +215,11 @@ export function clockOut(state: AppState, key: string, now: number): AppState {
 }
 
 export function markGachaSeen(state: AppState, key: string, eventId: string, at: number): AppState {
+  const match = (g: GachaDraw) => g.eventId === eventId && g.at === at;
+  const h = state.holidays?.[key];
+  if (h?.gacha.some(match)) {
+    return { ...state, holidays: { ...state.holidays, [key]: { gacha: h.gacha.map((g) => (match(g) ? { ...g, seen: true } : g)) } } };
+  }
   const day = state.days[key];
   if (!day) return state;
   return {
@@ -200,6 +242,9 @@ export function unseenGacha(state: AppState) {
   const out: { date: string; eventId: string; at: number }[] = [];
   for (const day of Object.values(state.days)) {
     for (const g of day.gacha) if (g.obtained && !g.seen) out.push({ date: day.date, eventId: g.eventId, at: g.at });
+  }
+  for (const [date, h] of Object.entries(state.holidays ?? {})) {
+    for (const g of h.gacha) if (g.obtained && !g.seen) out.push({ date, eventId: g.eventId, at: g.at });
   }
   return out.sort((a, b) => a.at - b.at);
 }

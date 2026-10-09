@@ -413,3 +413,16 @@
 .hs-flap-r { transform-origin: 90px 64px; animation-name: hs-flap-r; }
 @keyframes hs-flap { from { transform: rotate(-12deg); } to { transform: rotate(10deg); } }
 @keyframes hs-flap-r { from { transform: rotate(12deg); } to { transform: rotate(-10deg); } }
+
+/* 쉬는 날 일과 */
+.hs-eat {
+  transform-box: view-box;
+  animation: hs-chew 0.3s ease-in-out infinite;
+}
+.hs-front.act-meal .hs-bob,
+.hs-front.act-snack .hs-bob { animation: hs-munch 0.4s ease-in-out infinite; }
+.hs-front.act-game .hs-bob { animation: hs-nod 1.2s ease-in-out infinite; }
+.hs-front.act-read .hs-bob,
+.hs-front.act-phone .hs-bob { animation: hs-nod 3.2s ease-in-out infinite; }
+.hs-front.act-shower .hs-bob { animation: hs-groombob 0.72s ease-in-out infinite; }
+.hs-bubbles { animation: hs-float 2.4s ease-in-out infinite; }

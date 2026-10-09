@@ -8,6 +8,7 @@ export const DAILY_LIMIT = 3;
 export const MESSAGES = {
   clockIn: { title: '🐹 출근했습니다.', body: '오늘도 하나 만들어볼까요?' },
   gacha: { title: '🎰 직장인 이벤트가 발생했습니다!', body: '어떤 이벤트인지 확인해 보세요.' },
+  holidayGacha: { title: '🏖️ 휴일 이벤트가 발생했습니다!', body: '쉬는 날엔 무슨 일이 있었을까요?' },
   clockOut: { title: '🐹 퇴근시간입니다.', body: '오늘의 작업이 완성됐어요.' },
 } as const;
 

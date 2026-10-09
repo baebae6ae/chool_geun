@@ -96,6 +96,92 @@ function weighted(rnd: Rnd, list: Choice[], last?: string): [string, Errand] {
   return [n, e];
 }
 
+/**
+ * 쉬는 날 하루: 늦잠 → 씻고 브런치 → 오후엔 게임·책·운동·낮잠 → 저녁 간식·드라마 → 씻고 잠.
+ * 이름은 반복 방지와 테스트에 쓴다.
+ */
+function holidayRoutine(hour: number, e: Record<string, Errand>): Choice[] {
+  if (hour < 10)
+    return [
+      ['sleep', 3, e.sleepLong],
+      ['wake', 1.5, e.wakeUp],
+      ['shower', 1, e.shower],
+      ['stretch', 1, e.yawn],
+      ['window', 1, e.windowGaze],
+    ];
+  if (hour < 14)
+    return [
+      ['meal', 3, e.meal],
+      ['sip', 1.5, e.sipAtDesk],
+      ['shower', 1, e.shower],
+      ['phone', 1, e.phone],
+      ['window', 1, e.windowGaze],
+      ['wander', 1, e.wander],
+    ];
+  if (hour < 17)
+    return [
+      ['game', 2, e.game],
+      ['read', 2, e.read],
+      ['workout', 1.5, e.workout],
+      ['nap', 1.5, e.nap],
+      ['phone', 1.5, e.phone],
+      ['window', 1, e.windowGaze],
+    ];
+  if (hour < 20)
+    return [
+      ['snack', 2, e.snack],
+      ['meal', 1.5, e.meal],
+      ['workout', 1.5, e.workout],
+      ['phone', 1.5, e.phone],
+      ['game', 1.5, e.game],
+      ['wander', 1, e.wander],
+    ];
+  if (hour < 23)
+    return [
+      ['phone', 2.5, e.phone],
+      ['game', 2, e.game],
+      ['snack', 1.5, e.snack],
+      ['shower', 1.5, e.shower],
+      ['read', 1, e.read],
+      ['groom', 1, e.groom],
+    ];
+  return [
+    ['sleep', 3, e.sleepLong],
+    ['read', 1.5, e.read],
+    ['shower', 1, e.shower],
+    ['stretch', 1, e.yawn],
+  ];
+}
+
+/** 평일 퇴근 후: 저녁 먹고 → 게임·드라마 → 씻고 잠 */
+function eveningRoutine(hour: number, e: Record<string, Errand>): Choice[] {
+  if (hour < 20)
+    return [
+      ['meal', 3, e.meal],
+      ['snack', 1, e.snack],
+      ['wheel', 1, e.playWheel],
+      ['phone', 1, e.phone],
+      ['groom', 1, e.groom],
+      ['wander', 1, e.wander],
+    ];
+  if (hour < 23)
+    return [
+      ['phone', 2.5, e.phone],
+      ['game', 2, e.game],
+      ['snack', 1.5, e.snack],
+      ['shower', 1.5, e.shower],
+      ['wheel', 1, e.playWheel],
+      ['read', 1, e.read],
+    ];
+  return [
+    ['sleep', 3, e.sleepLong],
+    ['read', 1.5, e.read],
+    ['shower', 1, e.shower],
+    ['phone', 1, e.phone],
+    ['stretch', 1, e.yawn],
+  ];
+}
+
 /** 한 번의 할 일이 희귀 행동이 될 확률. 대략 한두 시간에 한 번꼴 */
 export const RARE_CHANCE = 0.004;
 const RARE_MOODS: HamsterMood[] = ['starting', 'working', 'break', 'almostDone'];
@@ -109,6 +195,8 @@ export function planErrand(
   last?: string,
   here: Place = 'floor',
   payday = false,
+  /** 지금 몇 시인지 (0~23). 쉬는 날·퇴근 후엔 시간대마다 하는 일이 달라진다 */
+  hour = 12,
 ): { name: string; steps: Step[] } {
   const go = (to: number, lazy = false) => travel(x, to, rnd, lazy);
   const wanderTo = () => between(rnd, s.wanderMin, Math.max(s.wanderMin + 1, s.wanderMax));
@@ -138,6 +226,14 @@ export function planErrand(
   const payDance: Errand = () => [...go(wanderTo()), front('dance', between(rnd, 3000, 5000))];
   const windowGaze: Errand = () => [...go(s.window), front('look', between(rnd, 2800, 5000))];
   const playWheel: Errand = () => [...go(s.wheel), side('run', between(rnd, 3500, 7000), 'wheel'), side('stand', 800, 'wheel')];
+  // 쉬는 날·퇴근 후 일과
+  const meal: Errand = () => [...go(s.eat), front('meal', between(rnd, 6000, 9000))];
+  const snack: Errand = () => [...go(wanderTo()), front('snack', between(rnd, 4500, 7000))];
+  const game: Errand = () => [...go(wanderTo()), front('game', between(rnd, 7000, 11000))];
+  const phone: Errand = () => [...go(s.bed, true), front('phone', between(rnd, 8000, 12000), 'bed')];
+  const read: Errand = () => [...go(s.window), front('read', between(rnd, 7000, 11000))];
+  const shower: Errand = () => [...go(wanderTo()), front('shower', between(rnd, 3500, 5000)), front('groom', 2000)];
+  const workout: Errand = () => [...go(s.wheel), side('run', between(rnd, 7000, 11000), 'wheel'), side('stand', 800, 'wheel')];
 
   // 희귀 행동
   const rare = (id: RareId, step: Step): Step => ({ ...step, rare: id }) as Step;
@@ -162,10 +258,20 @@ export function planErrand(
   }
 
   let list: Choice[];
-  switch (mood) {
+  // 밤(자정~아침 7시)엔 대부분 잔다
+  const night = hour < 7;
+  if (night && (mood === 'beforeWork' || mood === 'holiday' || mood === 'off')) {
+    list = [
+      ['sleep', 6, sleepLong],
+      ['groom', 0.5, groom],
+      ['eat', 0.5, eat],
+    ];
+  } else if (mood === 'holiday') {
+    list = holidayRoutine(hour, { sleepLong, wakeUp, shower, yawn, windowGaze, sipAtDesk, meal, phone, wander, game, read, workout, nap, snack, eat, groom });
+  } else if (mood === 'off') {
+    list = eveningRoutine(hour, { sleepLong, shower, yawn, meal, phone, game, read, snack, playWheel, groom, wander });
+  } else switch (mood) {
     case 'beforeWork':
-    case 'holiday':
-    case 'off':
       list = [
         ['sleep', 2.2, sleepLong],
         ['wake', 1, wakeUp],
@@ -218,11 +324,14 @@ export function planErrand(
 }
 
 /** 처음 화면을 열었을 때 이미 하고 있던 일 */
-export function initialScene(mood: HamsterMood, s: Spots, rnd: Rnd = Math.random): Step[] {
+export function initialScene(mood: HamsterMood, s: Spots, rnd: Rnd = Math.random, hour = 3): Step[] {
   switch (mood) {
-    case 'beforeWork':
     case 'holiday':
     case 'off':
+      // 쉬는 날 낮·퇴근 후 저녁엔 깨어 있다 (밤과 늦은 아침까지만 자는 중)
+      if (hour >= (mood === 'holiday' ? 10 : 7) && hour < 23) return [{ t: 'set', x: s.window }, front('look', 1500)];
+      return [{ t: 'set', x: s.bed }, side('sleep', between(rnd, 8000, 16000), 'bed')];
+    case 'beforeWork':
       return [{ t: 'set', x: s.bed }, side('sleep', between(rnd, 8000, 16000), 'bed')];
     case 'arriving':
       return [{ t: 'set', x: s.bed }, side('sleep', 2500, 'bed'), ...startDay(s, s.bed, rnd)];
@@ -274,6 +383,12 @@ export const ACTIVITY_LABEL: Record<FrontAction | SideAction, string> = {
   shy: '부끄부끄',
   hug: '안아주세요~',
   doom: '영혼이 빠져나가는 중',
+  meal: '밥 먹는 중',
+  game: '게임하는 중',
+  phone: '드라마 정주행 중',
+  read: '책 읽는 중',
+  shower: '보송보송 씻는 중',
+  snack: '과자 먹는 중',
   stand: '두리번두리번',
   walk: '종종종 걷는 중',
   run: '뽈뽈뽈 달리는 중',

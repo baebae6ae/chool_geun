@@ -17,6 +17,7 @@ import { SettingsForm } from './screens/SettingsForm';
 import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
 import { TabIcon, type IconId } from './components/TabIcon';
 import { installWidgetDebug, syncWidget } from './widgetSync';
+import { isHolidayEvent } from './domain/gacha';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -85,7 +86,7 @@ export function App() {
       const { start } = dayBounds(today.date, today.schedule);
       if (prev < start && now >= start) next = sendNotification(next, 'clockIn', now);
     }
-    if (r.newGacha.length > 0) next = sendNotification(next, 'gacha', now);
+    if (r.newGacha.length > 0) next = sendNotification(next, r.newGacha.every((g) => isHolidayEvent(g.eventId)) ? 'holidayGacha' : 'gacha', now);
     if (today && r.finalized.includes(today.date)) next = sendNotification(next, 'clockOut', now);
     // 야근은 자정에 자동으로 끝낸다
     if (next.overtime && now >= atTime(addDays(next.overtime.date, 1), '00:00')) next = endOvertime(next, now);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GACHA_BY_ID, RARITY_LABEL } from '../domain/gacha';
+import { EVENT_BY_ID, GACHA_BY_ID, isHolidayEvent, RARITY_LABEL } from '../domain/gacha';
 import { formatDotDate, formatDuration } from '../domain/date';
 import { formatWon, itemOf } from '../domain/records';
 import type { Customization, DailyWork, Rarity } from '../domain/types';
@@ -20,7 +20,8 @@ const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
 
 /** 기획서 7. 근무 중 랜덤 발생한 직장인 가챠 */
 export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: string; eventId: string; isNew: boolean; remaining: number; onClose: () => void }) {
-  const e = GACHA_BY_ID[eventId];
+  const e = EVENT_BY_ID[eventId];
+  const holiday = isHolidayEvent(eventId);
   const [opened, setOpened] = useState(false);
   const tier = e ? REVEAL[e.rarity] : REVEAL.COMMON;
   useEffect(() => {
@@ -33,9 +34,9 @@ export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: str
   }, [opened, tier.buzz]);
   if (!e) return null;
   return (
-    <div className="overlay" role="dialog" aria-modal="true" aria-label="직장인 가챠">
+    <div className="overlay" role="dialog" aria-modal="true" aria-label={holiday ? '휴일 가챠' : '직장인 가챠'}>
       <div key={id} className={`sheet gacha-card rarity-${e.rarity}`}>
-        <div className="gacha-title">🎰 직장인 이벤트 발생!</div>
+        <div className="gacha-title">{holiday ? '🏖️ 휴일 이벤트 발생!' : '🎰 직장인 이벤트 발생!'}</div>
         {!opened ? (
           <div className="capsule" onClick={() => setOpened(true)} style={{ '--wait': `${tier.wait}ms` } as React.CSSProperties} aria-label="캡슐 열기">
             <div className="capsule-top" />
