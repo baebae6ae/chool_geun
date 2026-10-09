@@ -5,6 +5,9 @@ name: Test Android app (emulator)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   emulator:
     runs-on: ubuntu-latest
@@ -63,3 +66,18 @@ jobs:
           path: e2e-out/
           if-no-files-found: warn
           retention-days: 14
+
+      # 점검 결과 중 위젯 그림만 ci-screens 브랜치에 올려 둔다 (아티팩트를 열 수 없는 환경에서도 git으로 받아 보기 위해)
+      - name: Publish widget screenshots to ci-screens branch
+        if: always()
+        run: |
+          mkdir -p /tmp/pub
+          cp e2e-out/widget-*.png /tmp/pub/ 2>/dev/null || true
+          cp e2e-out/results.json /tmp/pub/ 2>/dev/null || true
+          cd /tmp/pub
+          [ -n "$(ls -A)" ] || exit 0
+          git init -q
+          git checkout -q -b ci-screens
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "emulator run ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screens

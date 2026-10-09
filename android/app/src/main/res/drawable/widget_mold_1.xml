@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 야근 1시간째: 곰팡이 얼룩 몇 개 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp" android:height="100dp"
+    android:viewportWidth="100" android:viewportHeight="100">
+    <path android:fillColor="#5530481C" android:pathData="M4,10 a8 6 0 1 0 16 0 a8 6 0 1 0 -16 0z" />
+    <path android:fillColor="#552F4A22" android:pathData="M80,82 a9 7 0 1 0 18 0 a9 7 0 1 0 -18 0z" />
+    <path android:fillColor="#4466883A" android:pathData="M44,4 a6 4 0 1 0 12 0 a6 4 0 1 0 -12 0z" />
+</vector>

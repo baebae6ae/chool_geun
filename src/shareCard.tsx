@@ -475,3 +475,13 @@ export async function shareCardImage(blob: Blob, name: string): Promise<boolean>
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   return true;
 }
+
+/** 위젯용: 캐릭터 한 자세를 투명 배경 PNG(base64, 접두어 없음)로 그린다 */
+export async function posePng(custom: Customization, pose: Pose, size: number, tired = false): Promise<string> {
+  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(hamsterSvg(custom, pose, size, tired)));
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  canvas.getContext('2d')!.drawImage(img, 0, 0);
+  return canvas.toDataURL('image/png').split(',')[1];
+}

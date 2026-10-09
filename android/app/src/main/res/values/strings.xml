@@ -4,4 +4,8 @@
     <string name="title_activity_main">햄스터 출근일지</string>
     <string name="package_name">io.github.baebae6ae.hamsterworklog</string>
     <string name="custom_url_scheme">io.github.baebae6ae.hamsterworklog</string>
+    <string name="widget_wide_label">퇴근 카운트다운</string>
+    <string name="widget_small_label">출근일지 친구</string>
+    <string name="widget_wide_desc">퇴근까지 남은 시간과 오늘 번 돈</string>
+    <string name="widget_small_desc">캐릭터와 퇴근까지 남은 시간</string>
 </resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 야근 2시간째 이후: 곰팡이가 번지고 파리가 날아다닌다 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp" android:height="100dp"
+    android:viewportWidth="100" android:viewportHeight="100">
+    <path android:fillColor="#7730481C" android:pathData="M2,12 a11 8 0 1 0 22 0 a11 8 0 1 0 -22 0z" />
+    <path android:fillColor="#772F4A22" android:pathData="M76,80 a12 9 0 1 0 24 0 a12 9 0 1 0 -24 0z" />
+    <path android:fillColor="#6666883A" android:pathData="M40,6 a8 5 0 1 0 16 0 a8 5 0 1 0 -16 0z" />
+    <path android:fillColor="#6630481C" android:pathData="M30,88 a7 5 0 1 0 14 0 a7 5 0 1 0 -14 0z" />
+    <path android:fillColor="#5566883A" android:pathData="M88,20 a6 5 0 1 0 12 0 a6 5 0 1 0 -12 0z" />
+    <path android:fillColor="#FF1F2618" android:pathData="M60,24 a1.6 1.2 0 1 0 3.2 0 a1.6 1.2 0 1 0 -3.2 0z" />
+    <path android:fillColor="#FF1F2618" android:pathData="M22,40 a1.6 1.2 0 1 0 3.2 0 a1.6 1.2 0 1 0 -3.2 0z" />
+    <path android:strokeColor="#AA1F2618" android:strokeWidth="0.5" android:pathData="M59,22.5 q1,-2 2.2,0 M62,22.5 q1,-2 2.2,0 M21,38.5 q1,-2 2.2,0 M24,38.5 q1,-2 2.2,0" />
+</vector>

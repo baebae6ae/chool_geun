@@ -179,6 +179,104 @@ await step('새로고침해도 기록이 남음', async () => {
   if (!home || onboarding) throw new Error('기록이 사라져 첫 화면으로 돌아감');
 });
 
+// ---------- 홈 화면 위젯 ----------
+await step('위젯에 상태 넘기기', async () => {
+  await waitFor(`!!window.__widgetDebug`, 8000, '위젯 연결');
+  await ev(`window.__widgetDebug.sync()`);
+  return 'ok';
+});
+
+const widgetShots = [];
+await step('위젯 미리보기 (상태별)', async () => {
+  // 앞으로 2주 중 첫 근무일과 첫 쉬는 날을 골라 시각별로 그려 본다
+  const plan = await ev(`(() => {
+    const tl = JSON.parse(window.__widgetDebug.timeline(Date.now()));
+    const work = tl.find((e) => e.label === '퇴근까지' && e.img === 'type');
+    const off = tl.find((e) => e.theme === 'off');
+    const day = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+    const H = 3600e3;
+    const base = work ? day(work.at) : day(Date.now());
+    const out = [
+      ['before', base + 7 * H],
+      ['morning', base + 9 * H + 10 * 60e3],
+      ['work', base + 10 * H + 47 * 60e3],
+      ['lunch', base + 12 * H + 30 * 60e3],
+      ['almost', base + 17 * H + 45 * 60e3],
+      ['done', base + 19 * H + 5 * 60e3],
+    ].map(([k, t]) => ({ k, t, ot: 0 }));
+    for (const [k, m] of [['overtime1', 20], ['overtime3', 75], ['overtime4', 143]]) out.push({ k, t: base + 18 * H + m * 60e3, ot: base + 18 * H });
+    if (off) out.push({ k: 'off', t: off.at + 11 * H, ot: 0 });
+    return out;
+  })()`);
+  for (const p of plan) {
+    for (const size of ['wide', 'small']) {
+      const png = await ev(`(async () => {
+        const tl = window.__widgetDebug.timeline(${p.t}, ${p.ot || 0} || undefined);
+        const r = await window.__widgetDebug.preview({ size: '${size}', now: ${p.t}, timeline: tl });
+        return r.png;
+      })()`);
+      const name = `widget-${p.k}-${size}`;
+      fs.writeFileSync(`${OUT}/${name}.png`, Buffer.from(png, 'base64'));
+      widgetShots.push({ name, k: p.k, size, png });
+    }
+  }
+  return `${widgetShots.length}장`;
+});
+
+await step('위젯 미리보기 모음 한 장으로', async () => {
+  // 브라우저(웹뷰) 캔버스로 배경 위에 위젯들을 배치해 한 장으로 만든다
+  const data = JSON.stringify(widgetShots.map(({ k, size, png }) => ({ k, size, png })));
+  const out = await ev(`(async () => {
+    const shots = ${data};
+    const LABEL = { before: '출근 전', morning: '출근 직후', work: '근무 중', lunch: '점심시간', almost: '퇴근 30분 전', done: '퇴근 완료', overtime1: '야근 20분', overtime3: '야근 1시간 15분', overtime4: '야근 2시간 23분', off: '쉬는 날' };
+    const load = (b) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = 'data:image/png;base64,' + b; });
+    const keys = [...new Set(shots.map((s) => s.k))];
+    const imgs = {};
+    for (const s of shots) imgs[s.k + s.size] = await load(s.png);
+    const w0 = imgs[keys[0] + 'wide'], s0 = imgs[keys[0] + 'small'];
+    const pad = 40, rowH = Math.max(w0.height, s0.height) + 90;
+    const W = pad * 3 + w0.width + s0.width, H = pad + keys.length * rowH;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, '#c9b8e8'); grad.addColorStop(1, '#9fc8e0');
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    keys.forEach((k, i) => {
+      const y = pad + i * rowH;
+      g.fillStyle = '#ffffff'; g.font = 'bold 34px sans-serif'; g.fillText(LABEL[k] || k, pad, y + 36);
+      g.drawImage(imgs[k + 'wide'], pad, y + 60);
+      g.drawImage(imgs[k + 'small'], pad * 2 + w0.width, y + 60);
+    });
+    return c.toDataURL('image/png').split(',')[1];
+  })()`);
+  fs.writeFileSync(`${OUT}/widget-sheet.png`, Buffer.from(out, 'base64'));
+});
+
+await step('홈 화면에 위젯 놓기 (런처가 허용하면)', async () => {
+  const r = await ev(`window.__widgetDebug.pin({ size: 'wide' })`);
+  if (!r?.ok) return '런처가 위젯 추가 요청을 지원하지 않음 (건너뜀)';
+  await sleep(2500);
+  try {
+    fs.writeFileSync(`${OUT}/widget-pin-dialog.png`, execSync('adb exec-out screencap -p', { maxBuffer: 1e8 }));
+    const xml = execSync('adb exec-out uiautomator dump /dev/tty', { maxBuffer: 1e8 }).toString();
+    const m = [...xml.matchAll(/<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/g)].find((x) => /^(추가|자동으로 추가|Add|Add automatically|ADD)$/i.test(x[1]));
+    if (!m) {
+      execSync('adb shell input keyevent 4');
+      return '추가 버튼을 찾지 못함';
+    }
+    const x = (Number(m[2]) + Number(m[4])) >> 1, y = (Number(m[3]) + Number(m[5])) >> 1;
+    execSync(`adb shell input tap ${x} ${y}`);
+    await sleep(2000);
+    execSync('adb shell input keyevent 3');
+    await sleep(3000);
+    fs.writeFileSync(`${OUT}/widget-home-screen.png`, execSync('adb exec-out screencap -p', { maxBuffer: 1e8 }));
+    execSync('adb shell am start -n io.github.baebae6ae.hamsterworklog/.MainActivity');
+    await sleep(3000);
+    return `"${m[1]}" 눌러 추가`;
+  } catch (e) {
+    return '위젯 추가 시도 중 오류: ' + String(e.message || e).slice(0, 80);
+  }
+});
+
 await step('웹 오류 없음', async () => {
   if (errors.length) throw new Error(errors.slice(0, 3).join(' | '));
 });

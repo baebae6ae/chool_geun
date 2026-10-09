@@ -16,6 +16,7 @@ import { Records } from './screens/Records';
 import { SettingsForm } from './screens/SettingsForm';
 import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
 import { TabIcon, type IconId } from './components/TabIcon';
+import { installWidgetDebug, syncWidget } from './widgetSync';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -90,6 +91,30 @@ export function App() {
     if (next.overtime && now >= atTime(addDays(next.overtime.date, 1), '00:00')) next = endOvertime(next, now);
     setState(next);
   }, [now]);
+
+  // 홈 화면 위젯(안드로이드): 위젯에 보이는 내용이 바뀌는 상태가 달라질 때마다 다시 넘긴다
+  const todayRec = state.days[dateKey(now)];
+  const widgetSig = JSON.stringify([
+    state.settings,
+    state.custom,
+    state.overtime ?? null,
+    dateKey(now),
+    todayRec?.clockedOut ?? null,
+    todayRec?.hourly ?? null,
+    todayRec?.overtimeMs ?? null,
+  ]);
+  useEffect(() => {
+    const id = setTimeout(() => syncWidget(getState(), clockNow()), 800);
+    return () => clearTimeout(id);
+  }, [widgetSig]);
+  useEffect(() => {
+    installWidgetDebug(getState, clockNow);
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') syncWidget(getState(), clockNow());
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => document.removeEventListener('visibilitychange', onHide);
+  }, []);
 
   const saveSettings = (s: Settings) => {
     const t = clockNow();
