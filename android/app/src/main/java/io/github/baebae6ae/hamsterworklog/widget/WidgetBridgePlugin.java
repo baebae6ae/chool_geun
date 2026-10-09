@@ -60,8 +60,8 @@ public class WidgetBridgePlugin extends Plugin {
     @PluginMethod
     public void preview(PluginCall call) {
         final boolean wide = !"small".equals(call.getString("size", "wide"));
-        Double nowD = call.getDouble("now");
-        final long now = nowD != null ? nowD.longValue() : System.currentTimeMillis();
+        // 밀리초 시각은 정수(Long)로 넘어와 getDouble이 버리므로 JSON에서 직접 읽는다
+        final long now = (long) call.getData().optDouble("now", System.currentTimeMillis());
         final String tlStr = call.getString("timeline");
         final int wDp = call.getInt("width", wide ? 330 : 170);
         final int hDp = call.getInt("height", wide ? 100 : 170);
