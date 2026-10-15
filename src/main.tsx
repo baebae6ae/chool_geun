@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 import { isNative } from './platform';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const Gallery = lazy(() => import('./dev/Gallery').then((m) => ({ default: m.Gallery })));
 const Diag = lazy(() => import('./dev/Diag').then((m) => ({ default: m.Diag })));
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')!).render(
     {isGallery || isDiag ? (
       <Suspense>{isDiag ? <Diag /> : <Gallery />}</Suspense>
     ) : (
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     )}
   </StrictMode>,
 );

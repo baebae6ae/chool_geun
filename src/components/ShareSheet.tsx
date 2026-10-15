@@ -3,6 +3,7 @@ import { drawLook, renderCard, shareCardImage, type CardData } from '../shareCar
 import { now as clockNow } from '../store';
 import { pickQuote, pickTiredQuote } from '../domain/quotes';
 import { speciesWord } from '../domain/customization';
+import { useBackHandler } from '../backStack';
 import type { Customization } from '../domain/types';
 
 export type TimeBand =
@@ -61,6 +62,8 @@ export function ShareSheet({ custom, dateKey, dateText, off, payday, nameTag, ch
       if (objUrl) URL.revokeObjectURL(objUrl);
     };
   }, [custom, dateKey, draws, tired, timeBand, dateText, nameTag, chipsKey, quote]);
+
+  useBackHandler(true, onClose);
 
   const share = async () => {
     if (!blobRef.current || busy) return;

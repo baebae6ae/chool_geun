@@ -8,6 +8,7 @@ import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
 import { ItemIcon } from './ItemIcon';
 import { EventIcon } from './EventIcon';
+import { useBackHandler } from '../backStack';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -23,6 +24,10 @@ export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: str
   const e = EVENT_BY_ID[eventId];
   const holiday = isHolidayEvent(eventId);
   const [opened, setOpened] = useState(false);
+  // 가챠는 확인 버튼으로만 닫는다 (뒤로가기로 앱이 나가거나 뒤 화면이 바뀌지 않게 삼킨다)
+  useBackHandler(true, () => {
+    if (opened) onClose();
+  });
   const tier = e ? REVEAL[e.rarity] : REVEAL.COMMON;
   useEffect(() => {
     setOpened(false);
@@ -73,6 +78,7 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
     setLeaving(true);
     setTimeout(then, 240);
   };
+  useBackHandler(true, () => leave(onClose));
   return (
     <div className={`overlay ${leaving ? 'leaving' : ''}`} role="dialog" aria-modal="true" aria-label="퇴근">
       <div className={`sheet clockout ${day.completed ? 'done' : ''}`}>
@@ -133,6 +139,7 @@ export function PaydayModal({
     setLeaving(true);
     setTimeout(onClose, 240);
   };
+  useBackHandler(true, close);
   return (
     <div className={`overlay ${leaving ? 'leaving' : ''}`} role="dialog" aria-modal="true" aria-label="월급날">
       <div className="sheet payday">

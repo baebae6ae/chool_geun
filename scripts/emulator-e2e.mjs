@@ -180,6 +180,81 @@ await step('새로고침해도 기록이 남음', async () => {
   if (!home || onboarding) throw new Error('기록이 사라져 첫 화면으로 돌아감');
 });
 
+
+// ---------- 안드로이드 뒤로가기 · 알림 예약 · 위젯 추가 버튼 ----------
+const PKG = 'io.github.baebae6ae.hamsterworklog';
+const adb = (cmd) => execSync(`adb shell ${cmd}`, { maxBuffer: 1e8 }).toString();
+const focusIsApp = () => /mCurrentFocus=.*io\.github\.baebae6ae\.hamsterworklog/.test(adb('dumpsys window'));
+const relaunch = async () => {
+  adb(`am start -n ${PKG}/.MainActivity`);
+  await sleep(3000);
+};
+
+await step('홈에 위젯 안내 칩 (처음 한 번)', async () => {
+  await closeDialogs();
+  await click('nav.tabbar button', '오늘');
+  await sleep(600);
+  await waitFor(hasText('위젯 달기'), 4000, '위젯 달기 칩');
+});
+
+await step('설정에 홈 화면 위젯 추가 버튼', async () => {
+  await click('button', '^\\s*설정');
+  await sleep(900);
+  await waitFor(hasText('홈 화면 위젯'), 4000, '위젯 카드');
+  await waitFor(hasText('카운트다운 (가로 4칸)'), 2000, '가로 4칸 버튼');
+  await waitFor(hasText('햄스터 친구 (정사각 2칸)'), 2000, '정사각 2칸 버튼');
+});
+
+await step('뒤로가기: 설정 화면이 닫히고 앱은 그대로', async () => {
+  adb('input keyevent 4');
+  await sleep(1500);
+  if (await ev(hasText('백업 저장'))) throw new Error('뒤로가기를 눌렀는데 설정 화면이 안 닫힘');
+  if (!focusIsApp()) throw new Error('뒤로가기로 앱이 나가 버림');
+});
+
+await step('뒤로가기: 다른 탭에서는 오늘 탭으로', async () => {
+  await click('nav.tabbar button', '도감');
+  await sleep(800);
+  adb('input keyevent 4');
+  await sleep(1500);
+  const onHome = await ev(`!!document.querySelector('nav.tabbar button.on')?.textContent.includes('오늘')`);
+  if (!onHome) throw new Error('오늘 탭으로 돌아가지 않음');
+  if (!focusIsApp()) throw new Error('뒤로가기로 앱이 나가 버림');
+});
+
+await step('뒤로가기: 오늘 탭에서는 앱을 내림 (꺼지지 않음)', async () => {
+  adb('input keyevent 4');
+  await sleep(2000);
+  if (focusIsApp()) throw new Error('뒤로가기를 눌러도 앱이 내려가지 않음');
+  if (!adb(`pidof ${PKG}`).trim()) throw new Error('앱 프로세스가 꺼짐');
+  await relaunch();
+  await waitFor(`!!document.querySelector('nav.tabbar')`, 8000, '앱 다시 열림');
+});
+
+await step('알림 예약: 앞으로 일정이 기기에 예약되고, 앱이 보이면 지워진다', async () => {
+  adb(`pm grant ${PKG} android.permission.POST_NOTIFICATIONS`);
+  await waitFor(`!!window.__notifDebug`, 5000, '알림 점검 연결');
+  const n = await ev(`window.__notifDebug.sync(true)`);
+  if (!(n > 0)) throw new Error(`예약된 알림이 없음 (${n})`);
+  const pending = await ev(`window.__notifDebug.pending()`);
+  if (pending !== n) throw new Error(`예약 ${n}개인데 기기엔 ${pending}개`);
+  await ev(`window.__notifDebug.sync(false)`);
+  const after = await ev(`window.__notifDebug.pending()`);
+  if (after !== 0) throw new Error(`앱이 보이는데 예약이 ${after}개 남음`);
+  return `${n}개 예약 후 지움`;
+});
+
+await step('알림: 앱이 내려가 있어도 예약한 시각에 알림이 뜬다', async () => {
+  await ev(`window.__notifDebug.fireIn(8)`);
+  adb('input keyevent 3'); // 홈으로 (앱을 내림)
+  await sleep(14000);
+  const dump = adb('dumpsys notification --noredact');
+  const ok = dump.includes('퇴근시간입니다');
+  adb('cmd statusbar collapse');
+  if (!ok) throw new Error('예약한 알림이 알림창에 없음');
+  await relaunch();
+});
+
 // ---------- 홈 화면 위젯 ----------
 await step('위젯에 상태 넘기기', async () => {
   await waitFor(`!!window.__widgetDebug`, 8000, '위젯 연결');

@@ -5,11 +5,13 @@ import { RARE_BEHAVIORS } from '../domain/rare';
 import type { AppState } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
 import { EventIcon } from '../components/EventIcon';
+import { useBackHandler } from '../backStack';
 
 /** 기획서 8. 직장인 가챠 도감 */
 export function Collection({ state }: { state: AppState }) {
   const owned = GACHA_EVENTS.filter((e) => state.collection[e.id]).length;
   const [picked, setPicked] = useState<GachaEvent | null>(null);
+  useBackHandler(!!picked, () => setPicked(null));
 
   return (
     <div className="screen">

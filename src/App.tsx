@@ -18,6 +18,8 @@ import { getState, inAppBrowser, now as clockNow, resetState, setState, storageO
 import { TabIcon, type IconId } from './components/TabIcon';
 import { installWidgetDebug, syncWidget } from './widgetSync';
 import { isHolidayEvent } from './domain/gacha';
+import { installBackButton, useBackHandler } from './backStack';
+import { installNotifDebug, syncNotifications } from './notifySchedule';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -110,12 +112,26 @@ export function App() {
   }, [widgetSig]);
   useEffect(() => {
     installWidgetDebug(getState, clockNow);
+    installNotifDebug(getState, clockNow);
+    // 앱을 내리면 앞으로의 알림을 기기에 예약하고, 다시 보이면 지운다 (안드로이드 앱)
+    syncNotifications(getState(), clockNow(), document.visibilityState === 'hidden');
     const onHide = () => {
-      if (document.visibilityState === 'hidden') syncWidget(getState(), clockNow());
+      const hidden = document.visibilityState === 'hidden';
+      if (hidden) syncWidget(getState(), clockNow());
+      syncNotifications(getState(), clockNow(), hidden);
     };
     document.addEventListener('visibilitychange', onHide);
     return () => document.removeEventListener('visibilitychange', onHide);
   }, []);
+
+  // 안드로이드 뒤로가기: 설정 화면 → 닫기, 다른 탭 → 오늘 탭, 그다음엔 앱 내리기
+  useEffect(installBackButton, []);
+  useBackHandler(showSettings, () => setShowSettings(false));
+  useBackHandler(!showSettings && tab !== 'home', () => {
+    setRecordFocus(undefined);
+    setTab('home');
+    window.scrollTo(0, 0);
+  });
 
   const saveSettings = (s: Settings) => {
     const t = clockNow();

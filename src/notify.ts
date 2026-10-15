@@ -8,6 +8,7 @@ export const DAILY_LIMIT = 3;
 export const MESSAGES = {
   clockIn: { title: '🐹 출근했습니다.', body: '오늘도 하나 만들어볼까요?' },
   gacha: { title: '🎰 직장인 이벤트가 발생했습니다!', body: '어떤 이벤트인지 확인해 보세요.' },
+  payday: { title: '💰 오늘은 월급날!', body: '한 달 동안 수고했어요. 햄스터도 같이 기뻐하고 있어요.' },
   holidayGacha: { title: '🏖️ 휴일 이벤트가 발생했습니다!', body: '쉬는 날엔 무슨 일이 있었을까요?' },
   clockOut: { title: '🐹 퇴근시간입니다.', body: '오늘의 작업이 완성됐어요.' },
 } as const;
@@ -15,23 +16,14 @@ export const MESSAGES = {
 /** 알림을 보낼 수 있으면 보내고, 카운트가 반영된 새 상태를 돌려준다. */
 export function sendNotification(state: AppState, kind: keyof typeof MESSAGES, now: number): AppState {
   if (!state.settings?.notifications) return state;
-  if (!isNative && (typeof Notification === 'undefined' || Notification.permission !== 'granted')) return state;
+  // 안드로이드 앱은 미리 예약해 둔 알림(notifySchedule)이 대신한다 (같은 알림이 두 번 가지 않게)
+  if (isNative) return state;
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return state;
   if (!document.hidden) return state;
   const today = dateKey(now);
   const count = state.notif.date === today ? state.notif.count : 0;
   if (count >= DAILY_LIMIT) return state;
   const msg = MESSAGES[kind];
-  if (isNative) {
-    // 안드로이드 앱: 기기 알림으로 바로 띄운다 (권한은 설정에서 켤 때 받아 둠)
-    import('@capacitor/local-notifications')
-      .then(({ LocalNotifications }) =>
-        LocalNotifications.schedule({
-          notifications: [{ id: Math.floor(now % 2_000_000_000), title: msg.title, body: msg.body, schedule: { at: new Date(Date.now() + 300) } }],
-        }),
-      )
-      .catch(() => {});
-    return { ...state, notif: { date: today, count: count + 1 } };
-  }
   const opts = { body: msg.body, icon: './icon-192.png', tag: `hamster-${kind}` };
   // 모바일 브라우저는 페이지 컨텍스트의 new Notification()을 막는 경우가 있어 서비스워커 우선
   if (navigator.serviceWorker?.controller) {

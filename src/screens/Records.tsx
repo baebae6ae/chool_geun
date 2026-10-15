@@ -12,6 +12,7 @@ import { dayBounds, isWorkday } from '../domain/schedule';
 import type { AppState, DailyWork, Settings } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
+import { useBackHandler } from '../backStack';
 import { EventIcon } from '../components/EventIcon';
 import { HOLIDAY_BY_ID } from '../domain/gacha';
 
@@ -276,6 +277,7 @@ function DaySheet({
   onPick: (v: Override) => void;
   onClose: () => void;
 }) {
+  useBackHandler(true, onClose);
   const ov = settings.dayOverrides?.[date];
   const base = isWorkday(date, { ...settings, dayOverrides: undefined });
   const hol = holidayName(date);

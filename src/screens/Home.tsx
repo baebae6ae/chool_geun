@@ -20,6 +20,7 @@ import { BigClock, QuoteCard } from '../components/AmbientExtras';
 import { pickOvertimeBubble, pickOvertimeQuote, pickTimeBubble, quotePhase } from '../domain/quotes';
 import { ShareSheet, type TimeBand } from '../components/ShareSheet';
 import { restDailyPay, restEarnedAt } from '../domain/rest';
+import { pinWidget, widgetAvailable } from '../widgetSync';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -300,6 +301,24 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   ].filter(Boolean);
   const shareNameTag = `${settings.hamsterName || '햄스터'} · ${careerTitle(career.completedDays, custom.species)}`;
 
+  // 안드로이드 앱: 위젯이 있다는 걸 한 번 알려 준다 (누르면 사라진다)
+  const [widgetHint, setWidgetHint] = useState(() => {
+    try {
+      return widgetAvailable && !localStorage.getItem('hamster-widget-hint');
+    } catch {
+      return false;
+    }
+  });
+  const addWidget = async () => {
+    try {
+      localStorage.setItem('hamster-widget-hint', '1');
+    } catch {
+      // 무시
+    }
+    setWidgetHint(false);
+    if (!(await pinWidget('wide'))) say('홈 화면 빈 곳을 길게 눌러 위젯을 추가해 보세요!');
+  };
+
   const quoteBlock = (
     <>
       <QuoteCard dateKey={key} off={!working} payday={payD === 0} comfort={comfort} species={custom.species} />
@@ -310,6 +329,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         <button type="button" className="chip-btn" onClick={() => setSharing(true)}>
           카드 공유
         </button>
+        {widgetHint && (
+          <button type="button" className="chip-btn" onClick={addWidget}>
+            🧩 위젯 달기
+          </button>
+        )}
         {canOvertime && (
           <button type="button" className="chip-btn overtime" onClick={() => onState((s) => startOvertime(s, key, clockNow()))}>
             🌙 야근하기

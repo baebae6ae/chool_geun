@@ -7,6 +7,7 @@ import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
 import { estimateNet } from '../domain/tax';
 import type { Customization, Settings } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
+import { pinWidget, widgetAvailable } from '../widgetSync';
 
 export const DEFAULT_SETTINGS: Settings = {
   salary: 3_000_000,
@@ -280,6 +281,8 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="btn primary big-btn">{onboarding ? '🐹 출근 시작하기' : '저장'}</button>
 
+      {widgetAvailable && !onboarding && <WidgetCard />}
+
       <BackupCard onboarding={onboarding} />
 
       <footer className="app-info">
@@ -306,6 +309,38 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         </button>
       )}
     </form>
+  );
+}
+
+/** 홈 화면 위젯 추가 (안드로이드 앱에서만 보인다) */
+function WidgetCard() {
+  const [msg, setMsg] = useState<string | null>(null);
+  const add = async (size: 'wide' | 'small') => {
+    const ok = await pinWidget(size);
+    setMsg(
+      ok
+        ? '추가 창이 떴어요. 확인을 누르면 홈 화면에 놓여요.'
+        : '이 폰에서는 바로 추가할 수 없어요. 홈 화면 빈 곳을 길게 눌러 "위젯"에서 햄스터 출근일지를 찾아 주세요.',
+    );
+  };
+  return (
+    <section className="card backup-card">
+      <div className="card-label">홈 화면 위젯</div>
+      <p className="muted small">앱을 열지 않아도 퇴근까지 남은 시간과 오늘 번 돈, 햄스터의 모습을 홈 화면에서 볼 수 있어요. 누르면 앱이 열려요.</p>
+      <div className="backup-actions">
+        <button type="button" className="btn" onClick={() => add('wide')}>
+          ⏱️ 카운트다운 (가로 4칸)
+        </button>
+        <button type="button" className="btn" onClick={() => add('small')}>
+          🐹 햄스터 친구 (정사각 2칸)
+        </button>
+      </div>
+      {msg && (
+        <p className="muted small" role="status">
+          {msg}
+        </p>
+      )}
+    </section>
   );
 }
 

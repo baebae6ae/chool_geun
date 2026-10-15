@@ -76,6 +76,22 @@ export function syncWidget(state: AppState, now: number): Promise<void> {
   return job;
 }
 
+/** 위젯을 쓸 수 있는 환경인지 (안드로이드 앱) */
+export const widgetAvailable = enabled;
+
+/**
+ * 홈 화면에 위젯 추가를 요청한다. 런처가 지원하면 시스템 확인 창이 뜨고 true,
+ * 지원하지 않으면 false (이때는 홈 화면을 길게 눌러 직접 추가하도록 안내한다).
+ */
+export async function pinWidget(size: 'wide' | 'small'): Promise<boolean> {
+  if (!enabled) return false;
+  try {
+    return !!(await WidgetBridge.pin({ size })).ok;
+  } catch {
+    return false;
+  }
+}
+
 /** 점검용: 특정 시각·상태의 위젯을 그림으로 받아 본다 (에뮬레이터 점검 스크립트가 쓴다) */
 declare global {
   interface Window {

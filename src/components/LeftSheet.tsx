@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toMinutes } from '../domain/date';
+import { useBackHandler } from '../backStack';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const plus = (hhmm: string, min: number) => {
@@ -19,6 +20,7 @@ interface Props {
 /** "어제 몇 시에 퇴근했어요?" — 정시 이후 퇴근 시각을 알려주면 야근 시간과 못 받은 돈을 계산한다 */
 export function LeftSheet({ when, workEnd, onPick, onLater }: Props) {
   const [custom, setCustom] = useState(plus(workEnd, 60));
+  useBackHandler(true, onLater);
   const quick = [30, 60, 120, 180].map((m) => ({ label: m < 60 ? `${m}분 뒤` : `${m / 60}시간 뒤`, at: plus(workEnd, m) }));
   return (
     <div className="overlay left-overlay" role="dialog" aria-modal="true" aria-label="퇴근 시각 기록">
