@@ -810,17 +810,19 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           </g>
         </>
       );
-    case 'hipsway': {
-      // 허리에 손 얹고 엉덩이 씰룩: 짧은 팔의 팔꿈치만 몸 옆으로 살짝 나온다 (몸 폭에 맞춰 위치를 정한다)
-      const L: [number, number][] = sp === 'cat' ? [[37, 85], [28, 92], [39, 99]] : sp === 'rabbit' ? [[23, 79], [14, 88], [28, 95]] : [[20, 77], [11, 86], [25, 93]];
-      const R: [number, number][] = L.map(([x, y]) => [120 - x, y]);
-      return (
+    case 'hipsway':
+      // 허리에 손 얹고 엉덩이 씰룩: 팔은 그리지 않고 손만 허리춤에 붙인다 (이 캐릭터들은 손이 몸에 바로 붙어 있다)
+      return sp === 'cat' ? (
         <>
-          <BentArm pts={L} c={c} />
-          <BentArm pts={R} c={c} />
+          <Paw x={37} y={96} rot={-35} />
+          <Paw x={83} y={96} rot={35} />
+        </>
+      ) : (
+        <>
+          <Paw x={25} y={88} rot={-35} />
+          <Paw x={95} y={88} rot={35} />
         </>
       );
-    }
     case 'blowkiss':
       // 손키스를 날리고 퇴장
       return (
@@ -830,8 +832,18 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
         </>
       );
     case 'smug':
-      // 팔짱: 팔을 길게 뻗지 않고, 몸 앞에 접어 얹은 모양으로 그린다
-      return <FoldedArms c={c} />;
+      // 팔짱: 짧은 팔 두 개를 배 위에서 엇갈리게 얹는다 (팔 길이는 다른 동작과 같다)
+      return sp === 'cat' ? (
+        <>
+          <Arm from={[48, 93]} to={[67, 101]} c={c} />
+          <Arm from={[72, 93]} to={[53, 101]} c={c} />
+        </>
+      ) : (
+        <>
+          <Arm from={[46, 86]} to={[68, 95]} c={c} />
+          <Arm from={[74, 86]} to={[52, 95]} c={c} />
+        </>
+      );
     case 'shrug':
       // 두 손을 펼치고 어깨 으쓱
       return (
@@ -1050,40 +1062,6 @@ function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; stil
           {wing('r', -70, false)}
         </>
       )}
-    </g>
-  );
-}
-
-/** 팔짱: 몸 앞에 접어 얹은 두 팔(띠 모양)과 양쪽 끝에 살짝 보이는 손 */
-function FoldedArms({ c }: { c: Palette }) {
-  const { sp } = useContext(SpeciesCtx);
-  const fill = sp === 'bird' ? c.ear : sp === 'cat' ? c.cream : c.body;
-  const h = sp === 'cat' ? 24 : 30;
-  const y = sp === 'cat' ? 92 : 89;
-  const x0 = 60 - h;
-  const x1 = 60 + h;
-  return (
-    <g stroke={INK} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
-      <path d={`M${x0} ${y - 5} Q60 ${y - 11} ${x1} ${y - 5} Q${x1 + 5} ${y + 3} ${x1 - 3} ${y + 8} Q60 ${y + 14} ${x0 + 3} ${y + 8} Q${x0 - 5} ${y + 3} ${x0} ${y - 5}Z`} fill={fill} />
-      <path d={`M${x0 + 5} ${y + 3} Q60 ${y + 9} ${x1 - 4} ${y - 3}`} fill="none" strokeWidth="1.7" />
-      <Paw x={x1 - 3} y={y + 5} rot={25} />
-      <Paw x={x0 + 3} y={y + 7} rot={-25} />
-    </g>
-  );
-}
-
-/** 구부린 팔(어깨 → 팔꿈치 → 손): 허리에 손 얹기 */
-function BentArm({ pts, c }: { pts: [number, number][]; c: Palette }) {
-  const { sp } = useContext(SpeciesCtx);
-  const fill = sp === 'bird' ? c.ear : sp === 'cat' ? c.cream : c.body;
-  const d = 'M' + pts.map((p) => p.join(' ')).join(' L');
-  const end = pts[pts.length - 1];
-  return (
-    <g>
-      <path d={d} stroke={INK} strokeWidth="15" fill="none" strokeLinejoin="round" />
-      <path d={d} stroke={fill} strokeWidth="10.4" fill="none" strokeLinejoin="round" />
-      <circle cx={pts[0][0]} cy={pts[0][1]} r="6.4" fill={fill} />
-      <Paw x={end[0]} y={end[1]} />
     </g>
   );
 }
