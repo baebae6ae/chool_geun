@@ -142,6 +142,8 @@ export interface AppState {
   visitors?: Partial<Record<Species, { first: number; count: number }>>;
   /** 평일 저녁 가짜 업무 연락을 읽씹한 날 */
   evening?: Record<string, { readAt: number }>;
+  /** 이 기기에서 이미 본 업데이트 소식 버전 */
+  whatsNew?: number;
   /** 근무 중 어이없는 대화에 사이다를 날린 날 */
   chat?: Record<string, { doneAt: number }>;
   /** 달성한 업적 (id → 처음 달성한 시각) */

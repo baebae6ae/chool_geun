@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
-import { ClockOutModal, GachaModal, PaydayModal } from './components/Modals';
+import { ClockOutModal, GachaModal, PaydayModal, WhatsNewModal } from './components/Modals';
 import { addDays, atTime, dateKey } from './domain/date';
 import { endOvertime, recordLeft } from './domain/overtime';
 import { applySettings, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
@@ -22,6 +22,7 @@ import { installBackButton, useBackHandler } from './backStack';
 import { installNotifDebug, syncNotifications } from './notifySchedule';
 import { grantAchievements, newAchievements } from './domain/achievements';
 import { visitSeason } from './domain/seasons';
+import { markWhatsNewSeen, whatsNewPending } from './domain/whatsNew';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -155,9 +156,19 @@ export function App() {
     window.scrollTo(0, 0);
   });
 
+  // 업데이트 소식: 화면에 뜨는 순간 본 것으로 기록해서, 창을 닫지 않고 앱을 꺼도 다음에 또 뜨지 않는다
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  const newsPending = whatsNewPending(state);
+  useEffect(() => {
+    if (newsPending) setWhatsNewOpen(true);
+  }, [newsPending]);
+
   const saveSettings = (s: Settings) => {
     const t = clockNow();
-    setState(reconcile(applySettings(getState(), s, t), t).state);
+    const first = !getState().settings;
+    // 처음 시작한 사람은 지난 업데이트 소식을 볼 필요가 없다
+    const base = first ? markWhatsNewSeen(getState()) : getState();
+    setState(reconcile(applySettings(base, s, t), t).state);
     setShowSettings(false);
   };
 
@@ -292,6 +303,9 @@ export function App() {
           name={settings.hamsterName}
           onClose={() => setState((s) => ({ ...s, paydaySeen: key }))}
         />
+      )}
+      {whatsNewOpen && !gacha && !pay && !showClockOut && !showSettings && (
+        <WhatsNewModal custom={state.custom} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(false)} />
       )}
       {showClockOut && today && (
         <ClockOutModal

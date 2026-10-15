@@ -9,6 +9,7 @@ import { ProgressBar } from './WorkBuild';
 import { ItemIcon } from './ItemIcon';
 import { EventIcon } from './EventIcon';
 import { useBackHandler } from '../backStack';
+import { WHATS_NEW } from '../domain/whatsNew';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -113,6 +114,41 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
         </div>
         <button className="btn primary" onClick={() => leave(onRecord)}>오늘의 기록 보기</button>
         <button className="btn ghost" onClick={() => leave(onClose)}>닫기</button>
+      </div>
+    </div>
+  );
+}
+
+/** 업데이트 소식: 업데이트한 뒤 처음 켰을 때 한 번만 */
+export function WhatsNewModal({ custom, onShown, onClose }: { custom: Customization; onShown: () => void; onClose: () => void }) {
+  const [leaving, setLeaving] = useState(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(onShown, []);
+  const close = () => {
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(onClose, 240);
+  };
+  useBackHandler(true, close);
+  return (
+    <div className={`overlay ${leaving ? 'leaving' : ''}`} role="dialog" aria-modal="true" aria-label="업데이트 소식">
+      <div className="sheet whats-new">
+        <div className="whats-new-hamster">
+          <HamsterSprite custom={custom} pose={{ pose: 'front', action: 'cheer' }} />
+        </div>
+        <h2>🎁 업데이트 소식</h2>
+        <p className="muted">이번에 새로 생긴 것들이에요!</p>
+        <ul className="whats-new-list">
+          {WHATS_NEW.items.map((it) => (
+            <li key={it.text}>
+              <span aria-hidden>{it.icon}</span>
+              <span>{it.text}</span>
+            </li>
+          ))}
+        </ul>
+        <button className="btn primary" onClick={close}>
+          좋아요!
+        </button>
       </div>
     </div>
   );
