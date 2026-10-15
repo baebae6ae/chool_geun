@@ -35,6 +35,8 @@ interface Props {
   onTouch?: (thing: Thing) => void;
   /** 친밀도 단계 (1~5). 이름 옆에 ♥로 보여 준다 */
   bond?: number;
+  /** id가 바뀔 때마다 퇴근 후 업무 연락을 얄밉게 읽씹하는 연기를 한다 */
+  moment?: { id: number } | null;
   /** 지금 계절 이벤트 기간이면 방을 꾸민다 */
   season?: SeasonId | null;
   /** 다른 종의 손님이 놀러 왔다 */
@@ -102,7 +104,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, reaction, overtimeMin = null }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -504,6 +506,15 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     onInteractRef.current?.('feed');
     buzz(10);
   };
+
+  // 읽씹하기: 폰을 슬쩍 보고 → 흥 → 메롱 → 성의 없는 박수 → 으쓱 → 흥 (총 9초쯤)
+  const lastMoment = useRef(0);
+  useEffect(() => {
+    if (!moment || moment.id === lastMoment.current) return;
+    lastMoment.current = moment.id;
+    const pl = viewRef.current.place === 'bed' || viewRef.current.place === 'wheel' ? 'floor' : viewRef.current.place;
+    inject([act('phone', 1500, pl), act('smug', 1700, pl), act('tongue', 1700, pl), act('slowclap', 2300, pl), act('shrug', 1700, pl), act('smug', 1400, pl)]);
+  }, [moment, inject]);
 
   // 위로 버튼: 두 팔을 벌려 안아주기
   const lastReaction = useRef(0);

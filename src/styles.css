@@ -2681,3 +2681,64 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 }
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } }
 @keyframes toast-out { to { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* 퇴근 후 업무 연락 (가짜) — 읽씹하기! */
+.msg-card {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  border: 2px solid var(--ink);
+  background: var(--card);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 22%, transparent);
+  animation: msg-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.msg-card.done { animation: msg-bye 0.8s ease-in 8.9s forwards; }
+.msg-head { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
+.msg-head small { margin-left: auto; color: var(--ink-2); font-size: 0.68rem; }
+.msg-bell { display: inline-block; animation: msg-ring 0.9s ease-in-out 3; transform-origin: 50% 20%; }
+.msg-row { display: flex; align-items: baseline; gap: 8px; }
+.msg-from { font-weight: 800; }
+.msg-time { color: var(--ink-2); font-size: 0.75rem; }
+.msg-text {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 4px 14px 14px 14px;
+  background: color-mix(in srgb, var(--accent, #f2a65a) 14%, var(--card));
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.msg-card.done .msg-text { text-decoration: line-through; opacity: 0.5; transition: opacity 0.6s; }
+.msg-btn {
+  min-height: 48px;
+  border: 2px solid #8f2f2a;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ff7b6e, #e8504b);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 0 #8f2f2a;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.msg-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #8f2f2a; }
+.msg-done { display: grid; gap: 4px; justify-items: center; text-align: center; }
+.msg-stamp {
+  padding: 4px 16px;
+  border: 3px solid #e8504b;
+  border-radius: 10px;
+  color: #e8504b;
+  font-size: 1.3rem;
+  font-weight: 900;
+  transform: rotate(-6deg);
+  animation: msg-stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.msg-meta { color: var(--ink-2); font-size: 0.78rem; font-weight: 700; }
+.app.clock .msg-card { display: none; }
+@keyframes msg-in { from { opacity: 0; transform: translateY(-14px) scale(0.96); } }
+@keyframes msg-ring { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-14deg); } }
+@keyframes msg-stamp { from { opacity: 0; transform: rotate(-6deg) scale(2.6); } }
+@keyframes msg-bye { to { opacity: 0; transform: translateX(110%) rotate(10deg); } }

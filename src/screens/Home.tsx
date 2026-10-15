@@ -23,6 +23,8 @@ import { restDailyPay, restEarnedAt } from '../domain/rest';
 import { pinWidget, widgetAvailable } from '../widgetSync';
 import { activeSeason, seasonRangeText } from '../domain/seasons';
 import { recordVisit } from '../domain/visitors';
+import { ignoreWorkMessage, IGNORE_LINES, pendingWorkMessage, stressRelief, type WorkMessage } from '../domain/workMessage';
+import { buzz } from '../haptics';
 import type { Species } from '../domain/types';
 import { addHeart, bondLevel, bondLine, BOND_TITLES, bumpStat, bumpThing, clockLine, SNARK_PET, thingLine, type ClockPhase, type Thing } from '../domain/play';
 import type { FrontAction } from '../components/hamster/HamsterSprite';
@@ -201,6 +203,24 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     onState((s) => bumpStat(addHeart(s, clockNow()).state, kind));
     if (r.leveledUp) setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), 2600);
   };
+  // 퇴근 후 업무 연락(가짜): 읽씹하기 버튼을 누르면 캐릭터가 한바탕 얄밉게 군다
+  const [fx, setFx] = useState<{ msg: WorkMessage; stress: number } | null>(null);
+  const [moment, setMoment] = useState<{ id: number } | null>(null);
+  const ignoreTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => ignoreTimers.current.forEach(clearTimeout), []);
+  const ignoreIt = () => {
+    const m = pendingWorkMessage(stateRef.current, key, clockNow(), { clockedOut: !!day?.clockedOut, overtime: !!stateRef.current.overtime });
+    if (!m || fx) return;
+    buzz([25, 45, 25]);
+    setFx({ msg: m, stress: stressRelief() });
+    setMoment({ id: Date.now() });
+    IGNORE_LINES.forEach((line, i) => ignoreTimers.current.push(setTimeout(() => say(line), 300 + i * 1900)));
+    const r = addHeart(stateRef.current, clockNow());
+    onState((s) => addHeart(ignoreWorkMessage(s, key, clockNow()), clockNow()).state);
+    if (r.leveledUp) ignoreTimers.current.push(setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), 300 + IGNORE_LINES.length * 1900));
+    ignoreTimers.current.push(setTimeout(() => setFx(null), 9800));
+  };
+
   // 다른 종의 손님이 놀러 왔다: 도감에 기록한다 (인사는 손님이 직접 말풍선으로 해서 따로 말하지 않는다)
   const handleVisit = (sp: Species) => onState((s) => recordVisit(s, sp, clockNow()));
   // 방 안 물건: 시계는 남은 시간을 얄밉게 알려 준다
@@ -268,6 +288,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const otNow = otActive && otDate ? liveOvertime(state, otDate, now) : null;
   const inclusive = wageTypeOf(settings) === 'inclusive';
   const canOvertime = !otActive && !!day && !!item && !!bounds && now >= bounds.end;
+  const workMsg = pendingWorkMessage(state, key, now, { clockedOut: !!day?.clockedOut, overtime: otActive });
+  const shownMsg = fx?.msg ?? workMsg;
   const otLiveFn = () => (otDate ? (liveOvertime(stateRef.current, otDate, clockNow()) ?? { ms: 0, pay: 0, owed: 0 }) : { ms: 0, pay: 0, owed: 0 });
   useEffect(() => {
     const root = document.documentElement;
@@ -408,9 +430,35 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           bond={bond}
           season={activeSeason(key)?.event.id ?? null}
           onVisit={handleVisit}
+          moment={moment}
           reaction={reaction}
           overtimeMin={otNow ? Math.floor(otNow.ms / 60_000) : null}
         />
+
+        {shownMsg && (
+          <section className={`msg-card ${fx ? 'done' : ''}`} aria-label="퇴근 후 업무 연락 (가짜)">
+            <div className="msg-head">
+              <span className="msg-bell" aria-hidden>📱</span>
+              <b>퇴근 후 업무 연락</b>
+              <small>앱이 만든 가짜예요</small>
+            </div>
+            <div className="msg-row">
+              <span className="msg-from">{shownMsg.sender}</span>
+              <span className="msg-time">{hhmm(shownMsg.at)}</span>
+            </div>
+            <p className="msg-text">{shownMsg.text}</p>
+            {fx ? (
+              <div className="msg-done" role="status">
+                <span className="msg-stamp">읽씹 완료!</span>
+                <span className="msg-meta">읽음 ✓✓ · 답장 안 함 · 스트레스 -{fx.stress}% (재미용)</span>
+              </div>
+            ) : (
+              <button type="button" className="msg-btn" onClick={ignoreIt}>
+                읽씹하기!
+              </button>
+            )}
+          </section>
+        )}
 
         <BigClock
           now={now}
