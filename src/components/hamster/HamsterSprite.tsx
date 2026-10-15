@@ -366,7 +366,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <HeldProp action={action} />
-        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug', 'phoneShow', 'phoneToss', 'hipsway', 'blowkiss'].includes(action) ? 'translate(0 14)' : undefined}>
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug', 'phoneShow', 'phoneToss', 'blowkiss'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
         {holding && (
@@ -810,14 +810,17 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           </g>
         </>
       );
-    case 'hipsway':
-      // 허리에 손 얹고 엉덩이 씰룩
+    case 'hipsway': {
+      // 허리에 손 얹고 엉덩이 씰룩: 짧은 팔의 팔꿈치만 몸 옆으로 살짝 나온다 (몸 폭에 맞춰 위치를 정한다)
+      const L: [number, number][] = sp === 'cat' ? [[37, 85], [28, 92], [39, 99]] : sp === 'rabbit' ? [[23, 79], [14, 88], [28, 95]] : [[20, 77], [11, 86], [25, 93]];
+      const R: [number, number][] = L.map(([x, y]) => [120 - x, y]);
       return (
         <>
-          <BentArm pts={[[27, 67], [8, 81], [27, 96]]} c={c} />
-          <BentArm pts={[[93, 67], [112, 81], [93, 96]]} c={c} />
+          <BentArm pts={L} c={c} />
+          <BentArm pts={R} c={c} />
         </>
       );
+    }
     case 'blowkiss':
       // 손키스를 날리고 퇴장
       return (
@@ -827,13 +830,8 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
         </>
       );
     case 'smug':
-      // 팔짱
-      return (
-        <>
-          <Arm from={[26, 72]} to={[72, 94]} c={c} />
-          <Arm from={[94, 72]} to={[48, 91]} c={c} />
-        </>
-      );
+      // 팔짱: 팔을 길게 뻗지 않고, 몸 앞에 접어 얹은 모양으로 그린다
+      return <FoldedArms c={c} />;
     case 'shrug':
       // 두 손을 펼치고 어깨 으쓱
       return (
@@ -1052,6 +1050,24 @@ function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; stil
           {wing('r', -70, false)}
         </>
       )}
+    </g>
+  );
+}
+
+/** 팔짱: 몸 앞에 접어 얹은 두 팔(띠 모양)과 양쪽 끝에 살짝 보이는 손 */
+function FoldedArms({ c }: { c: Palette }) {
+  const { sp } = useContext(SpeciesCtx);
+  const fill = sp === 'bird' ? c.ear : sp === 'cat' ? c.cream : c.body;
+  const h = sp === 'cat' ? 24 : 30;
+  const y = sp === 'cat' ? 92 : 89;
+  const x0 = 60 - h;
+  const x1 = 60 + h;
+  return (
+    <g stroke={INK} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
+      <path d={`M${x0} ${y - 5} Q60 ${y - 11} ${x1} ${y - 5} Q${x1 + 5} ${y + 3} ${x1 - 3} ${y + 8} Q60 ${y + 14} ${x0 + 3} ${y + 8} Q${x0 - 5} ${y + 3} ${x0} ${y - 5}Z`} fill={fill} />
+      <path d={`M${x0 + 5} ${y + 3} Q60 ${y + 9} ${x1 - 4} ${y - 3}`} fill="none" strokeWidth="1.7" />
+      <Paw x={x1 - 3} y={y + 5} rot={25} />
+      <Paw x={x0 + 3} y={y + 7} rot={-25} />
     </g>
   );
 }
