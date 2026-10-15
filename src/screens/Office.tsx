@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { OfficeRoom } from '../components/OfficeRoom';
-import { mondayOf, WEEKDAY_EN, weekday } from '../domain/date';
 import { completedCount } from '../domain/engine';
-import { completedInSeason, itemOf } from '../domain/records';
+import { completedInSeason, itemOf, PART_SIZE, seasonParts } from '../domain/records';
 import { SEASON_LENGTH, seasonDef, seasonTitle } from '../domain/workItems';
-import type { AppState, DailyWork } from '../domain/types';
+import type { AppState } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 
@@ -16,14 +15,9 @@ export function Office({ state }: { state: AppState }) {
   const done = completedInSeason(state.days, season);
   const seasonDone = done.size >= SEASON_LENGTH;
 
-  // 주 단위로 완성한 작업물 묶기
-  const weeks = new Map<string, DailyWork[]>();
-  for (const d of Object.values(state.days).sort((a, b) => a.date.localeCompare(b.date))) {
-    if (!d.completed || d.season !== season) continue;
-    const m = mondayOf(d.date);
-    weeks.set(m, [...(weeks.get(m) ?? []), d]);
-  }
-  const weekList = [...weeks.entries()];
+  // 만든 순서대로 5개씩 파트로 묶기 (쉬는 날은 건너뛰고 다음 출근 때 이어서 채운다)
+  const parts = seasonParts(state.days, season);
+  const md = (date: string) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
 
   return (
     <div className="screen">
@@ -43,22 +37,29 @@ export function Office({ state }: { state: AppState }) {
       {seasonDone && <div className="banner">🎉 시즌 {season} 완성! 「{seasonTitle(season)}」을 모두 만들었어요.</div>}
 
       <section className="card">
-        <div className="card-label">주간 결과물</div>
-        {weekList.length === 0 && <p className="muted">첫 작업물을 완성하면 여기에 쌓여요.</p>}
-        {weekList.map(([mon, list], i) => (
-          <div key={mon} className="week-result">
-            <div className="week-result-title">
-              {i + 1}주차 {list.length >= 5 ? '🏢 완성' : <span className="muted">({list.length}/5)</span>}
+        <div className="card-label">파트별 결과물</div>
+        {parts.length === 0 && <p className="muted">첫 작업물을 완성하면 여기에 쌓여요.</p>}
+        {parts.map((slots, i) => {
+          const n = slots.filter(Boolean).length;
+          return (
+            <div key={i} className="week-result">
+              <div className="week-result-title">
+                파트 {i + 1} {n >= PART_SIZE ? '🏢 완성' : <span className="muted">({n}/{PART_SIZE})</span>}
+              </div>
+              <div className="week-result-items">
+                {slots.map((d, j) =>
+                  d ? (
+                    <span key={j}>
+                      <small>{md(d.date)}</small> <ItemIcon item={itemOf(d)} />
+                    </span>
+                  ) : (
+                    <span key={j} className="part-empty" aria-label="아직 안 만든 작업물">❔</span>
+                  ),
+                )}
+              </div>
             </div>
-            <div className="week-result-items">
-              {list.map((d) => (
-                <span key={d.date}>
-                  <small>{WEEKDAY_EN[weekday(d.date)]}</small> <ItemIcon item={itemOf(d)} />
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       <section className="card">

@@ -2846,3 +2846,5 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
   animation-delay: calc(var(--i, 0) * 0.9s);
 }
 .chat-sys::before, .chat-sys::after { content: ' — '; opacity: 0.6; }
+
+.part-empty { opacity: 0.35; font-size: 1rem; }

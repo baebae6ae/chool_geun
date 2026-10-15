@@ -29,6 +29,24 @@ export function isWeekComplete(slots: WeekSlot[]): boolean {
   return slots.filter((s) => s.day?.completed).length >= 5;
 }
 
+/** 파트 하나에 들어가는 작업물 수 */
+export const PART_SIZE = 5;
+
+/**
+ * 시즌을 작업물 5개씩 파트로 나눈다 (Day 1~5, 6~10, …).
+ * 달력 주가 아니라 만든 순서대로 채워져서, 공휴일·연차·휴가로 쉰 날은 그냥 건너뛰고 다음 출근 때 이어서 채운다.
+ * 작업물을 하나라도 만든 파트까지만 돌려준다.
+ */
+export function seasonParts(days: Record<string, DailyWork>, season: number): (DailyWork | undefined)[][] {
+  const byIndex = new Map<number, DailyWork>();
+  for (const d of Object.values(days)) if (d.completed && d.season === season && !byIndex.has(d.workItemIndex)) byIndex.set(d.workItemIndex, d);
+  if (!byIndex.size) return [];
+  const last = Math.max(...byIndex.keys());
+  return Array.from({ length: Math.floor(last / PART_SIZE) + 1 }, (_, p) =>
+    Array.from({ length: PART_SIZE }, (_, i) => byIndex.get(p * PART_SIZE + i)),
+  );
+}
+
 export interface MonthSummary {
   workDays: number;
   workedMs: number;
