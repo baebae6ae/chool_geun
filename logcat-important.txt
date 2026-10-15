@@ -1,0 +1,60 @@
+10-15 08:24:16.781  2171  2171 D Capacitor: Starting BridgeActivity
+10-15 08:24:16.826  2171  2171 D Capacitor: Registering plugin instance: CapacitorCookies
+10-15 08:24:16.829  2171  2171 D Capacitor: Registering plugin instance: WebView
+10-15 08:24:16.840  2171  2171 D Capacitor: Registering plugin instance: CapacitorHttp
+10-15 08:24:16.841  2171  2171 D Capacitor: Registering plugin instance: SystemBars
+10-15 08:24:16.844  2171  2171 D Capacitor: Registering plugin instance: WidgetBridge
+10-15 08:24:16.848  2171  2171 D Capacitor: Registering plugin instance: KeepAwake
+10-15 08:24:16.872  2171  2171 D Capacitor: Registering plugin instance: App
+10-15 08:24:16.879  2171  2171 D Capacitor: Registering plugin instance: Filesystem
+10-15 08:24:16.881  2171  2171 D Capacitor: Registering plugin instance: LocalNotifications
+10-15 08:24:16.917  2171  2171 D Capacitor: Registering plugin instance: Share
+10-15 08:24:16.947  2171  2171 W Capacitor: Unable to read file at path public/plugins
+10-15 08:24:16.953  2171  2171 D Capacitor: Loading app at https://localhost
+10-15 08:24:17.006  2171  2171 D Capacitor: App started
+10-15 08:24:17.021  2171  2171 D Capacitor/AppPlugin: Firing change: true
+10-15 08:24:17.021  2171  2171 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-15 08:24:17.021  2171  2171 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-15 08:24:17.021  2171  2171 D Capacitor: App resumed
+10-15 08:24:17.047  2171  2329 D Capacitor: Handling local request: https://localhost/
+10-15 08:24:17.106  2171  2329 D Capacitor: Handling local request: https://localhost/assets/index-hl54u2sy.js
+10-15 08:24:17.107  2171  2337 D Capacitor: Handling local request: https://localhost/assets/jsx-runtime-481lMZ6m.js
+10-15 08:24:17.108  2171  2352 D Capacitor: Handling local request: https://localhost/assets/index-kJVmh9o1.css
+10-15 08:24:17.275  2171  2171 V Capacitor/AppPlugin: Notifying listeners for event pause
+10-15 08:24:17.275  2171  2171 D Capacitor/AppPlugin: No listeners found for event pause
+10-15 08:24:17.275  2171  2171 D Capacitor: App paused
+10-15 08:24:17.289  2171  2171 D Capacitor/AppPlugin: Firing change: false
+10-15 08:24:17.290  2171  2171 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-15 08:24:17.290  2171  2171 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-15 08:24:17.290  2171  2171 D Capacitor: App stopped
+10-15 08:24:17.290  2171  2171 D Capacitor: Saving instance state!
+10-15 08:24:17.296  2171  2171 D Capacitor: App destroyed
+10-15 08:24:17.341  2171  2171 D Capacitor: Starting BridgeActivity
+10-15 08:24:17.344  2171  2171 D Capacitor: Registering plugin instance: CapacitorCookies
+10-15 08:24:17.346  2171  2171 D Capacitor: Registering plugin instance: WebView
+10-15 08:24:17.347  2171  2171 D Capacitor: Registering plugin instance: CapacitorHttp
+10-15 08:24:17.348  2171  2171 D Capacitor: Registering plugin instance: SystemBars
+10-15 08:24:17.349  2171  2171 D Capacitor: Registering plugin instance: WidgetBridge
+10-15 08:24:17.350  2171  2171 D Capacitor: Registering plugin instance: KeepAwake
+10-15 08:24:17.351  2171  2171 D Capacitor: Registering plugin instance: App
+10-15 08:24:17.352  2171  2171 D Capacitor: Registering plugin instance: Filesystem
+10-15 08:24:17.353  2171  2171 D Capacitor: Registering plugin instance: LocalNotifications
+10-15 08:24:17.354  2171  2171 D Capacitor: Registering plugin instance: Share
+10-15 08:24:17.374  2171  2171 W Capacitor: Unable to read file at path public/plugins
+10-15 08:24:17.375  2171  2171 D Capacitor: Loading app at https://localhost
+10-15 08:24:17.379  2171  2329 D Capacitor: Handling local request: https://localhost/
+10-15 08:24:17.381  2171  2171 D Capacitor: App started
+10-15 08:24:17.382  2171  2171 D Capacitor/AppPlugin: Firing change: true
+10-15 08:24:17.382  2171  2171 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-15 08:24:17.382  2171  2171 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-15 08:24:17.383  2171  2171 D Capacitor: App resumed
+10-15 08:24:17.457  2171  2329 D Capacitor: Handling local request: https://localhost/assets/index-hl54u2sy.js
+10-15 08:24:17.483  2171  2352 D Capacitor: Handling local request: https://localhost/assets/jsx-runtime-481lMZ6m.js
+10-15 08:24:17.487  2171  2329 D Capacitor: Handling local request: https://localhost/assets/index-kJVmh9o1.css
+10-15 08:24:17.920  2171  2337 D Capacitor: Handling local request: https://localhost/assets/esm-CM9trD7k.js
+10-15 08:24:17.925  2171  2352 D Capacitor: Handling local request: https://localhost/assets/esm-BLAK0Z13.js
+10-15 08:24:17.926  2171  2367 D Capacitor: Handling local request: https://localhost/icon.svg
+10-15 08:24:17.926  2171  2366 D Capacitor: Handling local request: https://localhost/icon-192.png
+10-15 08:24:18.518  2171  2171 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-15 08:24:18.519  2171  2171 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 70547104, pluginId: LocalNotifications, methodName: getPending
+10-15 08:24:18.520  2171  2171 V Capacitor: callback: 70547104, pluginId: LocalNotifications, methodName: getPending, methodData: {}
