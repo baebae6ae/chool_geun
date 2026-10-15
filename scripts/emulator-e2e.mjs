@@ -256,12 +256,15 @@ await step('알림 예약: 앞으로 일정이 기기에 예약되고, 앱이 �
 await step('알림: 앱이 내려가 있어도 예약한 시각에 알림이 뜬다', async () => {
   await ev(`window.__notifDebug.fireIn(8)`);
   adb('input keyevent 3'); // 홈으로 (앱을 내림)
-  await sleep(14000);
-  const dump = adb('dumpsys notification --noredact');
-  const ok = dump.includes('퇴근시간입니다');
+  // 정확한 시각을 쓰지 않는 알림이라 몇 초~몇십 초 늦을 수 있어 최대 100초까지 기다린다
+  let ok = false;
+  for (let i = 0; i < 20 && !ok; i++) {
+    await sleep(5000);
+    ok = adb('dumpsys notification --noredact').includes('퇴근시간입니다');
+  }
   adb('cmd statusbar collapse');
-  if (!ok) throw new Error('예약한 알림이 알림창에 없음');
   await relaunch();
+  if (!ok) throw new Error('예약한 알림이 100초 안에 알림창에 뜨지 않음');
 });
 
 // ---------- 홈 화면 위젯 ----------

@@ -89,6 +89,9 @@ export async function syncNotifications(state: AppState, now: number, hidden: bo
         title: MESSAGES[p.kind].title,
         body: MESSAGES[p.kind].body,
         schedule: { at: new Date(p.at), allowWhileIdle: true },
+        // 정확한 시각을 요구하면 안드로이드 12 이상에서 "알람 및 리마인더" 설정 화면이 열려 버린다.
+        // 몇 분쯤 늦을 수 있어도 사용자를 설정 화면으로 보내지 않는 쪽을 택한다.
+        isExactNotification: false,
       })),
     });
     return plan.length;
@@ -121,7 +124,7 @@ export function installNotifDebug(getState: () => AppState, now: () => number) {
     fireIn: async (seconds) => {
       const { LocalNotifications } = await import('@capacitor/local-notifications');
       await LocalNotifications.schedule({
-        notifications: [{ id: 9001, title: MESSAGES.clockOut.title, body: MESSAGES.clockOut.body, schedule: { at: new Date(Date.now() + seconds * 1000), allowWhileIdle: true } }],
+        notifications: [{ id: 9001, title: MESSAGES.clockOut.title, body: MESSAGES.clockOut.body, schedule: { at: new Date(Date.now() + seconds * 1000), allowWhileIdle: true }, isExactNotification: false }],
       });
     },
     plan: () => planNotifications(getState(), now()),

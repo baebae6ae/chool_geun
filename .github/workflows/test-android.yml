@@ -74,6 +74,7 @@ jobs:
           mkdir -p /tmp/pub
           cp e2e-out/widget-*.png /tmp/pub/ 2>/dev/null || true
           cp e2e-out/results.json /tmp/pub/ 2>/dev/null || true
+          cp e2e-out/logcat-important.txt /tmp/pub/ 2>/dev/null || true
           cd /tmp/pub
           [ -n "$(ls -A)" ] || exit 0
           git init -q
