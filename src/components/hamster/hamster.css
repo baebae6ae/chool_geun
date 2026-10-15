@@ -426,3 +426,43 @@
 .hs-front.act-phone .hs-bob { animation: hs-nod 3.2s ease-in-out infinite; }
 .hs-front.act-shower .hs-bob { animation: hs-groombob 0.72s ease-in-out infinite; }
 .hs-bubbles { animation: hs-float 2.4s ease-in-out infinite; }
+
+/* 얄미운 움직임 */
+.hs-front.act-smug .hs-bob { animation: hs-smug 2.6s ease-in-out infinite; }
+@keyframes hs-smug {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-4.5deg) translateY(-1px); }
+  70% { transform: rotate(4.5deg); }
+}
+.hs-front.act-tongue .hs-bob { animation: hs-taunt 0.5s ease-in-out infinite; }
+@keyframes hs-taunt {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg) translateY(-1px); }
+}
+.hs-taunt-l { animation: hs-wig 0.34s ease-in-out infinite; }
+.hs-taunt-r { animation: hs-wig 0.34s ease-in-out 0.17s infinite reverse; }
+@keyframes hs-wig {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+.hs-front.act-shrug .hs-bob { animation: hs-shrug 1.8s ease-in-out infinite; }
+@keyframes hs-shrug {
+  0%, 100% { transform: translateY(0); }
+  25%, 60% { transform: translateY(-5px); }
+}
+.hs-shrug-l, .hs-shrug-r { animation: hs-shrug-arm 1.8s ease-in-out infinite; }
+@keyframes hs-shrug-arm {
+  0%, 100% { transform: translateY(0); }
+  25%, 60% { transform: translateY(-5px); }
+}
+.hs-front.act-slowclap .hs-bob { animation: hs-smug 3s ease-in-out infinite; }
+.hs-clap-l { animation: hs-clap-l 1.5s ease-in-out infinite; }
+.hs-clap-r { animation: hs-clap-r 1.5s ease-in-out infinite; }
+@keyframes hs-clap-l {
+  0%, 62%, 100% { transform: translateX(-4px); }
+  76% { transform: translateX(7px); }
+}
+@keyframes hs-clap-r {
+  0%, 62%, 100% { transform: translateX(4px); }
+  76% { transform: translateX(-7px); }
+}

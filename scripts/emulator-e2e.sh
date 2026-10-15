@@ -9,6 +9,8 @@ mkdir -p "$OUT"
 adb wait-for-device
 adb shell input keyevent 82 || true
 adb install -r "$APK"
+# 알림 권한은 앱을 켜기 전에 미리 허용해 둔다 (실행 중에 바꾸면 앱이 다시 시작될 수 있다)
+adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS || true
 adb logcat -c
 adb shell am start -W -n "$PKG/.MainActivity"
 sleep 12

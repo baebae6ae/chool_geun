@@ -47,12 +47,12 @@ export interface Settings extends Schedule {
 
 export type HamsterColor = 'golden' | 'white' | 'gray' | 'choco' | 'cream' | 'silver';
 /** 머리 위: 사무용품 */
-export type HatId = 'none' | 'headset' | 'postit' | 'cup' | 'stapler' | 'mouse' | 'eraser' | 'tape';
+export type HatId = 'none' | 'headset' | 'postit' | 'cup' | 'stapler' | 'mouse' | 'eraser' | 'tape' | 'pumpkin' | 'witch' | 'santa' | 'antlers';
 /** 몸: 업무복·사무용품 */
-export type OutfitId = 'none' | 'tie' | 'suit' | 'cardigan' | 'badge' | 'bubble' | 'box';
+export type OutfitId = 'none' | 'tie' | 'suit' | 'cardigan' | 'badge' | 'bubble' | 'box' | 'skeleton' | 'scarf';
 /** 손에 든 것 */
 export type HandId = 'none' | 'pencil' | 'highlighter' | 'calculator' | 'stamp';
-export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern';
+export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern' | 'jackolantern' | 'tree';
 export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
 export type Species = 'hamster' | 'rabbit' | 'bird' | 'cat';
@@ -134,6 +134,16 @@ export interface AppState {
   collection: Record<string, CollectionEntry>;
   /** 하루 최대 3회 알림 제한용 */
   notif: { date: string; count: number };
+  /** 친밀도: 쓰다듬고 간식 줄수록 쌓이는 하트 (하루 최대 10개) */
+  bond?: { hearts: number; today?: { date: string; n: number } };
+  /** 누적 기록 (업적용) */
+  stats?: { pet?: number; feed?: number; hug?: number; things?: Partial<Record<'window' | 'clock' | 'wheel' | 'nest' | 'desk', number>> };
+  /** 놀러 온 손님 도감 */
+  visitors?: Partial<Record<Species, { first: number; count: number }>>;
+  /** 달성한 업적 (id → 처음 달성한 시각) */
+  achievements?: Record<string, number>;
+  /** 계절 이벤트 기간에 앱을 켠 날짜들 (`이벤트:연도` → 날짜 목록) */
+  seasons?: Record<string, string[]>;
   /** 쉬는 날의 휴일 이벤트 (그날 앱을 열었을 때 정해진다) */
   holidays?: Record<string, { gacha: GachaDraw[] }>;
   /** 희귀 행동을 처음 목격한 시각 */

@@ -5,6 +5,7 @@
 import { addDays, atTime, dateKey, pad } from './date';
 import { GACHA_BY_ID, HOLIDAY_GACHA_FROM, HOLIDAY_GACHA_TO, planDailyGacha, planHolidayGacha } from './gacha';
 import { createRng } from './random';
+import { seasonDays } from './seasons';
 import { dayBounds, earnedAt, hourlyWage, isBankDay, isWorkday, progressAt, timeAtFraction, workedMs } from './schedule';
 import { DEFAULT_CUSTOM, isUnlocked, rarityIndex, type Progress, type ProgressSource, type Unlock } from './customization';
 import { itemForCompletedCount } from './workItems';
@@ -260,6 +261,7 @@ export function playerProgress(state: ProgressSource): Progress {
     collected: Object.keys(state.collection).filter((id) => GACHA_BY_ID[id]).length,
     bestRarity: best,
     earned: Object.values(state.days).reduce((sum, d) => sum + (d.earned || 0), 0),
+    seasonDays: seasonDays(state),
   };
 }
 

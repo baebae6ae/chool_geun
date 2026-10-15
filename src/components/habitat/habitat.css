@@ -321,3 +321,29 @@
     radial-gradient(ellipse at center, rgba(86, 124, 44, 0.5) 0 42%, rgba(86, 124, 44, 0) 74%);
   animation: rot-grow 5s ease-in-out infinite alternate;
 }
+
+/* 눌러 볼 수 있는 물건 (창문·시계·쳇바퀴·이불·노트북) */
+.habitat-thing {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.habitat-bond {
+  color: #e0607e;
+  font-weight: 800;
+}
+
+/* 계절 소품 반짝임 */
+.prop-glow { animation: prop-glow 2.4s ease-in-out infinite; }
+@keyframes prop-glow { 50% { opacity: 0.55; } }
+.prop-blink { animation: prop-blink 1.6s ease-in-out infinite; }
+.prop-blink.b { animation-delay: 0.8s; }
+@keyframes prop-blink { 50% { opacity: 0.35; } }
+
+/* 할로윈 박쥐 */
+.bat { animation: bat-bob 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes bat-bob { 50% { transform: translateY(2.5px) rotate(4deg); } }

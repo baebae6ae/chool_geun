@@ -6,12 +6,24 @@ import type { AppState } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
 import { EventIcon } from '../components/EventIcon';
 import { useBackHandler } from '../backStack';
+import { ACHIEVEMENTS, achievementContext, achievementCount, type Achievement } from '../domain/achievements';
+import { Medal } from '../components/Medal';
+import { HamsterSprite } from '../components/hamster/HamsterSprite';
+import { DEFAULT_CUSTOM, SPECIES } from '../domain/customization';
+import { VISITOR_COLOR } from '../domain/visitors';
 
 /** 기획서 8. 직장인 가챠 도감 */
 export function Collection({ state }: { state: AppState }) {
   const owned = GACHA_EVENTS.filter((e) => state.collection[e.id]).length;
   const [picked, setPicked] = useState<GachaEvent | null>(null);
-  useBackHandler(!!picked, () => setPicked(null));
+  const [pickedAch, setPickedAch] = useState<Achievement | null>(null);
+  useBackHandler(!!picked || !!pickedAch, () => {
+    setPicked(null);
+    setPickedAch(null);
+  });
+  const ach = achievementContext(state);
+  const [achGot, achTotal] = achievementCount(state);
+  const visited = SPECIES.filter((s) => state.visitors?.[s.id]).length;
 
   return (
     <div className="screen">
@@ -20,6 +32,47 @@ export function Collection({ state }: { state: AppState }) {
         <span className="count-chip">{owned} / {GACHA_EVENTS.length}</span>
       </header>
       <p className="muted">근무 중 하루 1~3번, 랜덤으로 직장인 이벤트가 발생해요.</p>
+
+      <details className="card dex ach-dex">
+        <summary className="dex-head">
+          <span className="rarity-badge">🏅 업적</span>
+          <span className="muted small">{achGot}/{achTotal} · 눌러서 펼치기</span>
+        </summary>
+        <div className="dex-grid">
+          {ACHIEVEMENTS.map((x) => {
+            const at = state.achievements?.[x.id];
+            const v = Math.min(x.goal, Math.floor(x.value(ach)));
+            return (
+              <button key={x.id} className={`dex-cell ${at ? 'got' : 'locked'}`} onClick={() => setPickedAch(x)}>
+                <span className="dex-emoji"><Medal glyph={x.glyph} tier={x.tier} locked={!at} /></span>
+                <span className="dex-name">{x.name}</span>
+                <span className="dex-date">{at ? formatDotDate(dateKey(at)) : `${v}/${x.goal}`}</span>
+              </button>
+            );
+          })}
+        </div>
+      </details>
+
+      <section className="card dex visitor-dex">
+        <div className="dex-head">
+          <span className="rarity-badge">🚪 방문 손님</span>
+          <span className="muted small">{visited}/{SPECIES.length} · 가끔 다른 친구가 놀러 와요</span>
+        </div>
+        <div className="dex-grid visitor-grid">
+          {SPECIES.map((s) => {
+            const v = state.visitors?.[s.id];
+            return (
+              <div key={s.id} className={`dex-cell ${v ? 'got' : 'locked'}`}>
+                <span className="dex-emoji visitor-sprite">
+                  <HamsterSprite custom={{ ...DEFAULT_CUSTOM, species: s.id, color: VISITOR_COLOR[s.id], outfit: 'none' }} pose={{ pose: 'front', action: v ? 'wave' : 'idle' }} still />
+                </span>
+                <span className="dex-name">{v ? s.label : '???'}</span>
+                {v && <span className="dex-date">{v.count}번 · {formatDotDate(dateKey(v.first))}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="card dex rare-dex">
         <div className="dex-head">
@@ -87,6 +140,22 @@ export function Collection({ state }: { state: AppState }) {
           })}
         </div>
       </section>
+
+      {pickedAch && (
+        <div className="overlay" role="dialog" aria-modal="true" onClick={() => setPickedAch(null)}>
+          <div className="sheet gacha-card" onClick={(e) => e.stopPropagation()}>
+            <div className="gacha-emoji"><Medal glyph={pickedAch.glyph} tier={pickedAch.tier} locked={!state.achievements?.[pickedAch.id]} /></div>
+            <div className="gacha-name">{pickedAch.name}</div>
+            <p className="gacha-desc">{pickedAch.desc}</p>
+            <p className="muted small">
+              {state.achievements?.[pickedAch.id]
+                ? `달성 ${formatDotDate(dateKey(state.achievements[pickedAch.id]))}`
+                : `진행 ${Math.min(pickedAch.goal, Math.floor(pickedAch.value(ach)))}/${pickedAch.goal}`}
+            </p>
+            <button className="btn primary" onClick={() => setPickedAch(null)}>닫기</button>
+          </div>
+        </div>
+      )}
 
       {picked && (
         <div className="overlay" role="dialog" aria-modal="true" onClick={() => setPicked(null)}>

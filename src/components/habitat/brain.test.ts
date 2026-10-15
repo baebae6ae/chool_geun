@@ -61,7 +61,38 @@ describe('habitat brain', () => {
       last = planErrand('working', S, S.desk, rnd, last).name;
       names.add(last);
     }
-    expect([...names].filter((n) => !n.startsWith('rare:')).sort()).toEqual(['eat', 'groom', 'sip', 'type', 'wander', 'wheel', 'yawn']);
+    expect([...names].filter((n) => !n.startsWith('rare:')).sort()).toEqual(['eat', 'groom', 'sip', 'taunt', 'type', 'wander', 'wheel', 'yawn']);
+  });
+
+  it('얄미운 움직임: 근무 중에도 가끔 메롱·팔짱·으쓱·박수를 한다', () => {
+    const rnd = seeded(11);
+    const acts = new Set<string>();
+    let last: string | undefined;
+    for (let i = 0; i < 400; i++) {
+      const plan = planErrand('working', S, S.desk, rnd, last);
+      last = plan.name;
+      if (plan.name === 'taunt') for (const st of plan.steps) if (st.t === 'act') acts.add(st.pose.action);
+    }
+    expect([...acts].every((a) => ['smug', 'tongue', 'shrug', 'slowclap'].includes(a))).toBe(true);
+    expect(acts.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it('친밀도가 높을수록 하트·춤이 늘고, 낮으면 없다. 밤에 자는 중엔 없다', () => {
+    const names = (bond: number, hour: number, mood: HamsterMood = 'working') => {
+      const rnd = seeded(bond * 17 + hour);
+      const out = new Set<string>();
+      let last: string | undefined;
+      for (let i = 0; i < 300; i++) {
+        last = planErrand(mood, S, S.desk, rnd, last, 'floor', false, hour, bond).name;
+        out.add(last);
+      }
+      return out;
+    };
+    expect(names(1, 12).has('love')).toBe(false);
+    expect(names(3, 12).has('love')).toBe(true);
+    expect(names(3, 12).has('dance')).toBe(false);
+    expect(names(5, 12).has('dance')).toBe(true);
+    expect(names(5, 3, 'holiday').has('love')).toBe(false);
   });
 
   it('희귀 행동: 근무 중에만 아주 가끔, 목격 표시(rare)가 붙은 동작이 들어 있다', () => {
@@ -154,5 +185,23 @@ describe('habitat brain', () => {
     expect(initialScene('off', S, Math.random, 20)[1]).toMatchObject({ t: 'act', pose: { pose: 'front' } });
     expect(initialScene('holiday', S, Math.random, 8)[1]).toMatchObject({ pose: { action: 'sleep' } });
     expect(initialScene('working', S)[1]).toMatchObject({ t: 'act', place: 'desk', pose: { action: 'type' } });
+  });
+});
+
+describe('손님 방문 대본', () => {
+  it('주인공에서 먼 쪽에서 들어와 인사하고 간식을 먹고 인사하고 같은 쪽으로 돌아간다', async () => {
+    const { visitScript } = await import('./brain');
+    for (const mainX of [60, 300]) {
+      const { startX, steps } = visitScript(S, mainX, 'cat', seeded(4));
+      expect(Math.abs(startX - mainX)).toBeGreaterThan(150);
+      expect(startX < 0 || startX > S.W).toBe(true);
+      const acts = steps.filter((s): s is Extract<Step, { t: 'act' }> => s.t === 'act').map((s) => s.pose.action);
+      expect(acts).toEqual(['wave', 'nibble', 'look', 'wave']);
+      expect(steps.filter((s) => s.t === 'say')).toHaveLength(2);
+      const last = steps.at(-1)!;
+      expect(last).toMatchObject({ t: 'move', to: startX });
+      // 방 안에서만 돌아다닌다
+      for (const st of steps) if (st.t === 'move' && st.to !== startX) expect(st.to).toBeGreaterThan(0), expect(st.to).toBeLessThan(S.W);
+    }
   });
 });

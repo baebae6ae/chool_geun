@@ -21,6 +21,11 @@ import { pickOvertimeBubble, pickOvertimeQuote, pickTimeBubble, quotePhase } fro
 import { ShareSheet, type TimeBand } from '../components/ShareSheet';
 import { restDailyPay, restEarnedAt } from '../domain/rest';
 import { pinWidget, widgetAvailable } from '../widgetSync';
+import { activeSeason, seasonRangeText } from '../domain/seasons';
+import { recordVisit } from '../domain/visitors';
+import type { Species } from '../domain/types';
+import { addHeart, bondLevel, bondLine, BOND_TITLES, bumpStat, bumpThing, clockLine, SNARK_PET, thingLine, type ClockPhase, type Thing } from '../domain/play';
+import type { FrontAction } from '../components/hamster/HamsterSprite';
 
 interface Props {
   state: AppState & { settings: Settings };
@@ -184,9 +189,29 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const [reaction, setReaction] = useState<{ id: number; action: 'hug' } | null>(null);
   const [sharing, setSharing] = useState(false);
   const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
-  const handleInteract = (kind: 'pet' | 'feed' | 'hug') => {
+  const bond = bondLevel(state.bond?.hearts ?? 0);
+  const handleInteract = (kind: 'pet' | 'feed' | 'hug', action?: FrontAction) => {
     const lines = REACTION_LINES[custom.species ?? 'hamster'];
-    say(pick(lines[kind]));
+    const snarky = kind === 'pet' && (action === 'smug' || action === 'tongue');
+    // 친해질수록 마음을 털어놓는 말이 섞인다
+    const fond = !snarky && Math.random() < 0.35 ? bondLine(bond) : null;
+    say(snarky ? pick(SNARK_PET) : (fond ?? pick(lines[kind])));
+    // 하트와 누적 기록 (하트는 하루 최대 10개)
+    const r = addHeart(stateRef.current, clockNow());
+    onState((s) => bumpStat(addHeart(s, clockNow()).state, kind));
+    if (r.leveledUp) setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), 2600);
+  };
+  // 다른 종의 손님이 놀러 왔다: 도감에 기록한다 (인사는 손님이 직접 말풍선으로 해서 따로 말하지 않는다)
+  const handleVisit = (sp: Species) => onState((s) => recordVisit(s, sp, clockNow()));
+  // 방 안 물건: 시계는 남은 시간을 얄밉게 알려 준다
+  const handleTouch = (thing: Thing) => {
+    if (thing === 'clock') {
+      const phase: ClockPhase = !working || !bounds ? 'off' : now < bounds.start ? 'before' : now >= bounds.end || day?.clockedOut ? 'done' : 'working';
+      say(clockLine(phase, bounds ? (bounds.end - now) / 60_000 : 0));
+    } else {
+      say(thingLine(thing));
+    }
+    onState((s) => bumpThing(s, thing));
   };
   const askComfort = () => {
     setComfort((n) => n + 1);
@@ -350,6 +375,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           <span className="ambient-date-main">{formatKoreanDate(key)}</span>
           <span className="ambient-date-sub">
             {holiday && <b className="holiday-chip">{holiday}</b>}
+            {activeSeason(key) && (
+              <b className="holiday-chip season-chip" title="꾸미기에서 한정 아이템을 확인하세요">
+                {activeSeason(key)!.event.emoji} {activeSeason(key)!.event.name} 이벤트 · ~{seasonRangeText(activeSeason(key)!.event).split('~')[1]}
+              </b>
+            )}
             {payD === 0 ? '오늘은 월급날' : `월급날까지 D-${payD}`}
           </span>
         </div>
@@ -374,6 +404,10 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           payday={payD === 0}
           onRare={handleRare}
           onInteract={handleInteract}
+          onTouch={handleTouch}
+          bond={bond}
+          season={activeSeason(key)?.event.id ?? null}
+          onVisit={handleVisit}
           reaction={reaction}
           overtimeMin={otNow ? Math.floor(otNow.ms / 60_000) : null}
         />

@@ -20,6 +20,8 @@ import { installWidgetDebug, syncWidget } from './widgetSync';
 import { isHolidayEvent } from './domain/gacha';
 import { installBackButton, useBackHandler } from './backStack';
 import { installNotifDebug, syncNotifications } from './notifySchedule';
+import { grantAchievements, newAchievements } from './domain/achievements';
+import { visitSeason } from './domain/seasons';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -124,6 +126,26 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onHide);
   }, []);
 
+  // 계절 이벤트 기간에 앱을 켠 날 기록 + 새 업적 달성 확인
+  const dayKey = dateKey(now);
+  const hasSettings = !!state.settings;
+  useEffect(() => {
+    if (hasSettings) setState((s) => visitSeason(s, dayKey));
+  }, [dayKey, hasSettings]);
+  const [toast, setToast] = useState<{ key: number; text: string } | null>(null);
+  useEffect(() => {
+    if (!state.settings) return;
+    const fresh = newAchievements(state);
+    if (!fresh.length) return;
+    setState((s) => grantAchievements(s, fresh.map((x) => x.id), clockNow()));
+    setToast({ key: Date.now(), text: fresh.length > 2 ? `🏅 업적 ${fresh.length}개를 한꺼번에 달성했어요!` : `🏅 업적 달성! ${fresh.map((x) => x.name).join(' · ')}` });
+  }, [state]);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 3700);
+    return () => clearTimeout(id);
+  }, [toast]);
+
   // 안드로이드 뒤로가기: 설정 화면 → 닫기, 다른 탭 → 오늘 탭, 그다음엔 앱 내리기
   useEffect(installBackButton, []);
   useBackHandler(showSettings, () => setShowSettings(false));
@@ -227,6 +249,12 @@ export function App() {
           </>
         )}
       </main>
+
+      {toast && (
+        <div key={toast.key} className="toast" role="status">
+          {toast.text}
+        </div>
+      )}
 
       <nav className="tabbar" aria-label="메뉴">
         {TABS.map((t) => (

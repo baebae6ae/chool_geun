@@ -1,4 +1,5 @@
 /** 기획서 15. 햄스터 커스터마이징 — 기본 아이템 + 게임 진행 보상 */
+import { SEASON_BY_ID, SEASON_ITEMS, seasonRangeText, type SeasonId } from './seasons';
 import type { AppState, Customization, DecoId, HamsterColor, HandId, HatId, OutfitId, Rarity, RoomBg, Species } from './types';
 
 export type Unlock =
@@ -6,7 +7,8 @@ export type Unlock =
   | { kind: 'completed'; n: number } // 작업물 n개 완성
   | { kind: 'collected'; n: number } // 도감 n종 수집
   | { kind: 'rarity'; rarity: Rarity } // 해당 등급 이상 1종 획득
-  | { kind: 'earned'; won: number }; // 지금까지 번 돈(누적)
+  | { kind: 'earned'; won: number } // 지금까지 번 돈(누적)
+  | { kind: 'season'; event: SeasonId; days: number }; // 계절 이벤트 기간 중 앱을 켠 날
 
 export interface CatalogItem<T extends string> {
   id: T;
@@ -16,6 +18,16 @@ export interface CatalogItem<T extends string> {
 }
 
 const d = { kind: 'default' } as const;
+
+/** 계절 이벤트 한정 아이템 (기간 중 앱을 켠 날이 쌓이면 열린다) */
+function seasonCatalog<T extends string>(kind: 'hat' | 'outfit' | 'deco'): CatalogItem<T>[] {
+  return SEASON_ITEMS.filter((i) => i.kind === kind).map((i) => ({
+    id: i.id as T,
+    label: i.label,
+    emoji: i.emoji,
+    unlock: { kind: 'season', event: i.event, days: i.days } as Unlock,
+  }));
+}
 
 /** 털 색상 팔레트. light/shade는 그라디언트 음영, cream은 가슴/배 털 */
 export interface FurPalette {
@@ -53,6 +65,7 @@ export const HATS: CatalogItem<HatId>[] = [
   { id: 'headset', label: '헤드셋', emoji: '🎧', unlock: { kind: 'rarity', rarity: 'RARE' } },
   { id: 'eraser', label: '지우개', emoji: '🧽', unlock: { kind: 'completed', n: 30 } },
   { id: 'tape', label: '박스테이프', emoji: '📦', unlock: { kind: 'earned', won: 3_000_000 } },
+  ...seasonCatalog<HatId>('hat'),
 ];
 
 export const OUTFITS: CatalogItem<OutfitId>[] = [
@@ -63,6 +76,7 @@ export const OUTFITS: CatalogItem<OutfitId>[] = [
   { id: 'cardigan', label: '카디건', emoji: '🧶', unlock: { kind: 'collected', n: 15 } },
   { id: 'bubble', label: '뽁뽁이 망토', emoji: '🫧', unlock: { kind: 'completed', n: 25 } },
   { id: 'box', label: '택배 상자', emoji: '📦', unlock: { kind: 'completed', n: 45 } },
+  ...seasonCatalog<OutfitId>('outfit'),
 ];
 
 export const HANDS: CatalogItem<HandId>[] = [
@@ -81,6 +95,7 @@ export const DECOS: CatalogItem<DecoId>[] = [
   { id: 'cake', label: '케이크', emoji: '🍰', unlock: { kind: 'completed', n: 40 } },
   { id: 'sunflower', label: '해바라기', emoji: '🌻', unlock: { kind: 'completed', n: 60 } },
   { id: 'lantern', label: '랜턴', emoji: '🏮', unlock: { kind: 'completed', n: 80 } },
+  ...seasonCatalog<DecoId>('deco'),
 ];
 
 /** 서식지 배경 — 시즌을 끝낼 때마다 하나씩 열린다 */
@@ -161,6 +176,8 @@ export interface Progress {
   bestRarity: number; // RARITY_ORDER 인덱스, 없으면 -1
   /** 지금까지 번 돈 */
   earned: number;
+  /** 계절 이벤트별로 앱을 켠 날 수 */
+  seasonDays?: Partial<Record<SeasonId, number>>;
 }
 
 export function isUnlocked(u: Unlock, p: Progress): boolean {
@@ -175,6 +192,8 @@ export function isUnlocked(u: Unlock, p: Progress): boolean {
       return p.bestRarity >= RARITY_ORDER.indexOf(u.rarity);
     case 'earned':
       return p.earned >= u.won;
+    case 'season':
+      return (p.seasonDays?.[u.event] ?? 0) >= u.days;
   }
 }
 
@@ -190,6 +209,10 @@ export function unlockText(u: Unlock): string {
       return `${u.rarity} 이상 획득`;
     case 'earned':
       return `누적 ${(u.won / 10000).toLocaleString('ko-KR')}만 원 벌기`;
+    case 'season': {
+      const e = SEASON_BY_ID[u.event];
+      return `${e.name} 한정 · ${seasonRangeText(e)}에 ${u.days}일 접속`;
+    }
   }
 }
 
@@ -228,4 +251,4 @@ export function careerTitle(completed: number, species: Species = 'hamster'): st
   return t.replace('햄스터', name);
 }
 
-export type ProgressSource = Pick<AppState, 'days' | 'collection'>;
+export type ProgressSource = Pick<AppState, 'days' | 'collection' | 'seasons'>;

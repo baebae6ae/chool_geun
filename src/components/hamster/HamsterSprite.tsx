@@ -33,7 +33,12 @@ export type FrontAction =
   | 'phone'
   | 'read'
   | 'shower'
-  | 'snack';
+  | 'snack'
+  // 얄미운 움직임
+  | 'smug'
+  | 'tongue'
+  | 'shrug'
+  | 'slowclap';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -62,6 +67,8 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
   badge: 'transparent',
   bubble: '#cfe8f7',
   box: '#d9aa6e',
+  skeleton: '#3b3350',
+  scarf: '#d6453d',
 };
 
 type Palette = (typeof COLORS)[number];
@@ -133,9 +140,13 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
   const sp = custom.species ?? 'hamster';
   const shape = FRONT_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
-  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' =
+  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' =
     action === 'doom'
       ? 'doom'
+      : action === 'smug' || action === 'shrug' || action === 'slowclap'
+      ? 'smug'
+      : action === 'tongue'
+      ? 'wink'
       : action === 'groom' || action === 'yawn' || action === 'shower'
       ? 'closed'
       : action === 'doze'
@@ -148,9 +159,13 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               ? 'squeeze'
               : 'open';
   const lookUp = action === 'look';
-  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' =
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' =
     action === 'doom'
       ? 'frown'
+      : action === 'smug' || action === 'shrug' || action === 'slowclap'
+      ? 'smirk'
+      : action === 'tongue'
+      ? 'tongue'
       : action === 'yawn'
       ? 'yawn'
       : action === 'dizzy'
@@ -249,6 +264,19 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d="M37.5 65 q5.5 3.2 11 0 M71.5 65 q5.5 3.2 11 0" stroke="#7a5d8c" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".75" />
             <path d="M36 51 l9 2.4 M84 51 l-9 2.4" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
           </g>
+        ) : eyes === 'smug' ? (
+          // 반쯤 감은 눈 + 한쪽 눈썹만 올린 "흥" 표정
+          <g>
+            <path d="M37 58 h12 M71 58 h12" stroke={INK} strokeWidth="2.8" strokeLinecap="round" />
+            <path d="M39.4 58.6 a3.6 3.3 0 0 0 7.2 0z M73.4 58.6 a3.6 3.3 0 0 0 7.2 0z" fill={sp === 'cat' ? BLUE_EYE : EYE} stroke={sp === 'cat' ? INK : 'none'} strokeWidth=".8" />
+            <path d="M37 53.4 q5 1.4 11 4 M71 49.6 q6 -4.6 12 -1.2" stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" />
+          </g>
+        ) : eyes === 'wink' ? (
+          // 한쪽 눈은 감고 메롱
+          <g>
+            <OpenEyes sp={sp} y={(lookUp ? 55 : 57) + (sp === 'rabbit' ? 1 : 0)} skip="l" />
+            <path d="M38.5 58.5 q4 -5.2 8 0" stroke={INK} strokeWidth="2.4" fill="none" strokeLinecap="round" />
+          </g>
         ) : eyes === 'spiral' ? (
           <g stroke={INK} strokeWidth="1.6" fill="none">
             <path d="M43 57 m0 0 a1.2 1.2 0 1 1 1.2 1.2 a2.4 2.4 0 1 1 -2.4 -2.4 a3.6 3.6 0 1 1 3.6 3.6" />
@@ -267,7 +295,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <FrontNose sp={sp} />
         {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
         {sp === 'bird' ? (
-          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o'} />
+          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o' || mouth === 'tongue'} />
         ) : sp === 'rabbit' && (mouth === 'small' || mouth === 'smile') ? (
           mouth === 'smile' ? (
             <path className="hs-mouth" d="M57.2 68.4 Q60 69.6 62.8 68.4 Q62.2 72.2 60 72.2 Q57.8 72.2 57.2 68.4Z" fill={MOUTH} stroke={INK} strokeWidth="1.5" />
@@ -282,6 +310,17 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <g className="hs-mouth">
             <path d="M53.5 71.5 q6.5 -6 13 0" stroke={INK} strokeWidth="1.9" fill="none" strokeLinecap="round" />
             <path d="M66 67 q1.6 3 0 5" stroke="#8fd0ff" strokeWidth="1.2" fill="none" />
+          </g>
+        ) : mouth === 'smirk' ? (
+          <g className="hs-mouth" stroke={INK} strokeWidth="1.9" fill="none" strokeLinecap="round">
+            <path d="M53.6 66.6 q6.4 4 13.2 -1.8" />
+            <path d="M67.4 65.2 l1.8 -1.6" strokeWidth="1.4" />
+          </g>
+        ) : mouth === 'tongue' ? (
+          <g className="hs-mouth">
+            <path d="M55 64.6 Q60 68.4 65 64.6 Q64.4 69.6 60 69.6 Q55.6 69.6 55 64.6Z" fill={MOUTH} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+            <path className="hs-tongue" d="M56.8 67.6 q-.2 8.8 3.2 8.8 q3.4 0 3.2 -8.8z" fill={TONGUE} stroke={INK} strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M60 68.8 v5.6" stroke={INK} strokeWidth=".9" opacity=".6" />
           </g>
         ) : mouth === 'wavy' ? (
           <path className="hs-mouth" d="M54.5 67 q2.75 -2.2 5.5 0 q2.75 2.2 5.5 0" stroke={INK} strokeWidth="1.7" fill="none" />
@@ -308,7 +347,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <HeldProp action={action} />
-        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug'].includes(action) ? 'translate(0 14)' : undefined}>
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
         {holding && (
@@ -609,11 +648,11 @@ function Beak({ open }: { open: boolean }) {
 }
 
 /** 눈 동그라미 (샴고양이는 파란 눈에 세로 동공) */
-function OpenEyes({ sp, y }: { sp: Species; y: number }) {
+function OpenEyes({ sp, y, skip }: { sp: Species; y: number; skip?: 'l' | 'r' }) {
   if (sp === 'cat') {
     return (
       <g className="hs-blink">
-        {[43, 77].map((x) => (
+        {[43, 77].filter((x) => !(skip === 'l' && x === 43) && !(skip === 'r' && x === 77)).map((x) => (
           <g key={x}>
             <circle cx={x} cy={y} r="4.7" fill={BLUE_EYE} stroke={INK} strokeWidth="0.9" />
             <ellipse cx={x} cy={y} rx="1.5" ry="3.5" fill={EYE} />
@@ -627,10 +666,10 @@ function OpenEyes({ sp, y }: { sp: Species; y: number }) {
   const [x1, x2] = sp === 'rabbit' ? [41, 79] : [43, 77];
   return (
     <g className="hs-blink" fill={sp === 'rabbit' ? '#2d2427' : EYE}>
-      <circle cx={x1} cy={y} r={r} />
-      <circle cx={x2} cy={y} r={r} />
-      <circle cx={x1 + 1.1} cy={y - 1.1} r="1" fill="#fff" />
-      <circle cx={x2 + 1.1} cy={y - 1.1} r="1" fill="#fff" />
+      {skip !== 'l' && <circle cx={x1} cy={y} r={r} />}
+      {skip !== 'r' && <circle cx={x2} cy={y} r={r} />}
+      {skip !== 'l' && <circle cx={x1 + 1.1} cy={y - 1.1} r="1" fill="#fff" />}
+      {skip !== 'r' && <circle cx={x2 + 1.1} cy={y - 1.1} r="1" fill="#fff" />}
     </g>
   );
 }
@@ -687,6 +726,38 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
         <>
           <g className="hs-hand hs-tap-slow-l"><Paw x={47} y={97} rot={-8} /></g>
           <g className="hs-hand hs-tap-slow-r"><Paw x={73} y={97} rot={8} /></g>
+        </>
+      );
+    case 'smug':
+      // 팔짱
+      return (
+        <>
+          <Arm from={[26, 72]} to={[72, 94]} c={c} />
+          <Arm from={[94, 72]} to={[48, 91]} c={c} />
+        </>
+      );
+    case 'shrug':
+      // 두 손을 펼치고 어깨 으쓱
+      return (
+        <>
+          <g className="hs-hand hs-shrug-l"><Arm from={[26, 70]} to={[6, 80]} c={c} /></g>
+          <g className="hs-hand hs-shrug-r"><Arm from={[94, 70]} to={[114, 80]} c={c} /></g>
+        </>
+      );
+    case 'slowclap':
+      // 성의 없는 느린 박수
+      return (
+        <>
+          <g className="hs-hand hs-clap-l"><Arm from={[26, 72]} to={[47, 84]} c={c} /></g>
+          <g className="hs-hand hs-clap-r"><Arm from={[94, 72]} to={[73, 84]} c={c} /></g>
+        </>
+      );
+    case 'tongue':
+      // 메롱 하며 얼굴 옆에서 손을 흔든다
+      return (
+        <>
+          <g className="hs-hand hs-taunt-l"><Arm from={[27, 66]} to={[17, 46]} c={c} /></g>
+          <g className="hs-hand hs-taunt-r"><Arm from={[93, 66]} to={[103, 46]} c={c} /></g>
         </>
       );
     case 'meal':
@@ -829,11 +900,11 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
  */
 function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; still: boolean }) {
   const mode: 'fold' | 'up' | 'wave' | 'open' =
-    action === 'cheer' || action === 'dance' || action === 'yawn'
+    action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue'
       ? 'up'
       : action === 'wave'
         ? 'wave'
-        : action === 'hug'
+        : action === 'hug' || action === 'shrug'
           ? 'open'
           : 'fold';
   const L = 'M24 60 C12 66 11 90 23 97 C32 99 37 88 35 76 C34 67 30 61 24 60Z';
@@ -991,6 +1062,34 @@ function FrontOutfit({ id }: { id: Customization['outfit'] }) {
           </g>
         </g>
       );
+    case 'skeleton':
+      // 해골 티셔츠: 어두운 옷에 하얀 갈비뼈와 해골
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M-4 78 Q60 94 124 78 L128 124 H-8Z" fill={col} />
+          <g stroke="#f4f1ff" strokeWidth="2.6" strokeLinecap="round" fill="none">
+            <path d="M60 96 V120" />
+            <path d="M44 100 q8 5 16 1 M76 100 q-8 5 -16 1" />
+            <path d="M42 108 q9 5 18 1 M78 108 q-9 5 -18 1" />
+            <path d="M44 116 q8 4 16 0 M76 116 q-8 4 -16 0" />
+          </g>
+          <ellipse cx="60" cy="90" rx="8.6" ry="7" fill="#f4f1ff" strokeWidth="1.4" />
+          <ellipse cx="56.4" cy="90" rx="2.1" ry="2.5" fill={INK} stroke="none" />
+          <ellipse cx="63.6" cy="90" rx="2.1" ry="2.5" fill={INK} stroke="none" />
+        </g>
+      );
+    case 'scarf':
+      // 빨간 목도리: 목에 두른 띠와 늘어진 끝자락
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M84 90 L100 88 L106 118 L88 121Z" fill={col} />
+          <path d="M87 100 L103 97.5 M88.4 109 L104.6 106.5" stroke="#fff4dc" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M89 121 l-.6 5 M94 120.4 l-.6 5 M99 119.6 l-.6 5 M104 119 l-.6 5" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+          <path d="M12 76 Q60 93 108 76 L106 87 Q60 104 14 87Z" fill={col} />
+          <path d="M30 86 l-1 7 M52 92 l0 7 M74 92 l1 7 M94 87 l2 6" stroke="none" />
+          <path d="M26 82 l-.6 7 M48 88.6 l-.2 7 M72 88.6 l.4 7 M92 83 l1 7" stroke="#fff4dc" strokeWidth="3" strokeLinecap="round" fill="none" />
+        </g>
+      );
     case 'box':
       return (
         <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
@@ -1059,6 +1158,47 @@ function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
           <ellipse cx="0" cy="-8" rx="17" ry="11" fill="#f2d08a" />
           <ellipse cx="0" cy="-9" rx="9" ry="5.5" fill="#fff4dc" />
           <path d="M-17 -8 q-6 6 -3 14 l9 -1" fill="#f6dfa8" />
+        </g>
+      );
+    case 'pumpkin':
+      // 잭오랜턴 호박 모자
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+          <path d="M-3 -21 q-1 -7 5 -9 l2 4 q-3 1 -2 5z" fill="#6aa84f" />
+          <ellipse cx="0" cy="-9" rx="18" ry="12" fill="#ff9a3c" />
+          <path d="M-7 -20 Q-10 -9 -7 2 M7 -20 Q10 -9 7 2" fill="none" stroke="#e07a1c" strokeWidth="1.4" />
+          <path d="M-11 -12 l4 -5 l4 5z M3 -12 l4 -5 l4 5z" fill="#4a2c10" stroke="none" />
+          <path d="M-8 -5 q8 6 16 0" fill="none" stroke="#4a2c10" strokeWidth="2" />
+        </g>
+      );
+    case 'witch':
+      // 마녀 모자
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+          <path d="M-12 -3 Q-6 -20 4 -36 Q6 -26 12 -3Z" fill="#4b3a63" />
+          <path d="M4 -36 q8 -2 10 4 q-5 -2 -10 -1" fill="#4b3a63" />
+          <path d="M-11.4 -9 Q0 -5 11.6 -9 L12.4 -3 Q0 1 -12.4 -3Z" fill="#a874d8" />
+          <rect x="-3.6" y="-8.4" width="7.2" height="6.4" rx="1" fill="#ffd54a" strokeWidth="1.2" />
+          <ellipse cx="0" cy="-1" rx="24" ry="5.5" fill="#3a2c4e" />
+        </g>
+      );
+    case 'santa':
+      // 산타 모자
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+          <path d="M-16 -5 Q-12 -32 12 -28 Q24 -26 26 -14 Q19 -20 15 -6Z" fill="#e0443f" />
+          <rect x="-19" y="-9" width="38" height="10" rx="5" fill="#fffdf6" />
+          <circle cx="26" cy="-13" r="5.6" fill="#fffdf6" />
+        </g>
+      );
+    case 'antlers':
+      // 루돌프 뿔
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none">
+          <path d="M-12 0 Q-14 -14 -22 -22 M-16 -10 Q-24 -10 -27 -16 M-19 -17 Q-21 -26 -18 -29" stroke="#8a5a36" strokeWidth="3.6" />
+          <path d="M12 0 Q14 -14 22 -22 M16 -10 Q24 -10 27 -16 M19 -17 Q21 -26 18 -29" stroke="#8a5a36" strokeWidth="3.6" />
+          <path d="M-12 0 Q-14 -14 -22 -22 M-16 -10 Q-24 -10 -27 -16 M-19 -17 Q-21 -26 -18 -29 M12 0 Q14 -14 22 -22 M16 -10 Q24 -10 27 -16 M19 -17 Q21 -26 18 -29" stroke="#c18e5e" strokeWidth="1.2" />
+          <circle cx="0" cy="-3" r="0" />
         </g>
       );
     case 'headset':
@@ -1472,6 +1612,15 @@ function SideOutfit({ id }: { id: Customization['outfit'] }) {
       </g>
     );
   }
+  if (id === 'scarf') {
+    return (
+      <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
+        <path d="M84 70 Q98 84 114 70 L116 82 Q98 98 86 82Z" fill={col} />
+        <path d="M92 76 l-1 8 M100 80 l0 8 M108 76 l1 8" stroke="#fff4dc" strokeWidth="2.4" strokeLinecap="round" />
+        <path d="M86 82 L80 104 L92 104 L96 88Z" fill={col} />
+      </g>
+    );
+  }
   if (id === 'box') {
     return (
       <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
@@ -1484,6 +1633,11 @@ function SideOutfit({ id }: { id: Customization['outfit'] }) {
   return (
     <g>
       <path d="M0 72 Q66 88 140 68 V100 H0Z" fill={col} stroke={INK} strokeWidth="2" opacity={id === 'bubble' ? 0.92 : 1} />
+      {id === 'skeleton' && (
+        <g stroke="#f4f1ff" strokeWidth="2.4" strokeLinecap="round" fill="none">
+          <path d="M70 80 V98 M48 84 q10 6 22 1 M52 91 q9 5 18 1 M56 97 q7 3 14 0" />
+        </g>
+      )}
       {id === 'suit' && <path d="M94 74 L108 76 L102 94Z" fill="#fff" stroke={INK} strokeWidth="1.2" />}
       {id === 'bubble' && (
         <g fill="#fff" fillOpacity=".7" stroke="#8fb9d6" strokeWidth="1">

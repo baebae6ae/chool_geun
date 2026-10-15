@@ -9,13 +9,15 @@ import { ItemIcon } from '../components/ItemIcon';
 import { SEASONS } from '../domain/workItems';
 import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
+import { MedalSheet } from './MedalSheet';
 
-const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack'];
+const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 
 /** 개발용: `?gallery` 로 모든 자세를 한눈에 본다 */
 export function Gallery() {
   const params = new URLSearchParams(location.search);
+  if (params.has('medals')) return <MedalSheet />;
   if (params.has('icons')) return <IconSheet />;
   if (params.has('cards')) return <CardSheet />;
   if (params.has('gear')) return <GearSheet />;

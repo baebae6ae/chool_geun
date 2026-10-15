@@ -2,11 +2,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { HamsterMood } from '../../domain/schedule';
 import type { Customization } from '../../domain/types';
 import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSprite';
-import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, type Place, type Step } from './brain';
+import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, visitScript, type Place, type Step, type VStep } from './brain';
 import { buzz } from '../../haptics';
+import { THING_ACTION, THING_LABEL, type Thing } from '../../domain/play';
 import type { RareId } from '../../domain/rare';
 import { RotLayer, rotLevel } from './RotLayer';
-import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, WallClock, Wheel, Window, type Trophy } from './props';
+import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, SeasonDecor, WallClock, Wheel, Window, type Trophy } from './props';
+import type { SeasonId } from '../../domain/seasons';
+import { pickVisitor, VISIT_CHANCE, VISITOR_COLOR } from '../../domain/visitors';
+import { DEFAULT_CUSTOM } from '../../domain/customization';
+import type { Species } from '../../domain/types';
 import './habitat.css';
 
 interface Props {
@@ -24,8 +29,16 @@ interface Props {
   payday?: boolean;
   /** 화면을 보고 있을 때 희귀 행동이 시작됨 */
   onRare?: (id: RareId) => void;
-  /** 사용자가 햄스터와 논다: 쓰다듬기·간식 주기·위로(안아주기) */
-  onInteract?: (kind: 'pet' | 'feed' | 'hug') => void;
+  /** 사용자가 햄스터와 논다: 쓰다듬기·간식 주기·위로(안아주기). 쓰다듬었을 때 고른 동작도 알려 준다 */
+  onInteract?: (kind: 'pet' | 'feed' | 'hug', action?: FrontAction) => void;
+  /** 방 안 물건(창문·시계·쳇바퀴·이불·노트북)을 눌렀다 */
+  onTouch?: (thing: Thing) => void;
+  /** 친밀도 단계 (1~5). 이름 옆에 ♥로 보여 준다 */
+  bond?: number;
+  /** 지금 계절 이벤트 기간이면 방을 꾸민다 */
+  season?: SeasonId | null;
+  /** 다른 종의 손님이 놀러 왔다 */
+  onVisit?: (species: Species) => void;
   /** id가 바뀔 때마다 햄스터가 해당 반응을 한다 (위로 버튼) */
   reaction?: { id: number; action: 'hug' } | null;
   /** 야근 중이면 지금까지의 야근 시간(분). 햄스터는 죽상이 되고 방은 썩어간다 */
@@ -89,7 +102,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, reaction, overtimeMin = null }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -114,6 +127,8 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   const started = useRef(false);
   const lastErrand = useRef<string | undefined>(undefined);
   const paydayRef = useRef(payday);
+  const bondRef = useRef(bond ?? 1);
+  bondRef.current = bond ?? 1;
   const hourRef = useRef(new Date(now).getHours());
   hourRef.current = new Date(now).getHours();
   const overtimeOn = overtimeMin !== null;
@@ -121,12 +136,24 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   overtimeRef.current = overtimeOn;
   const onRareRef = useRef(onRare);
   const onInteractRef = useRef(onInteract);
+  const onTouchRef = useRef(onTouch);
+  const onVisitRef = useRef(onVisit);
+  const customRef = useRef(custom);
+  customRef.current = custom;
+  const visitorEl = useRef<HTMLDivElement>(null);
+  const visitorBubble = useRef<HTMLDivElement>(null);
+  // 손님: 위치는 직접 옮기고(DOM), 모습·말풍선만 React 상태로 둔다
+  const visit = useRef<{ species: Species; queue: VStep[]; cur: { step: VStep; since: number } | null; x: number } | null>(null);
+  const [guest, setGuest] = useState<{ species: Species; pose: Pose; facing: 1 | -1; say: string | null; sayKey: number } | null>(null);
+  const sayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const taps = useRef<number[]>([]);
   const feedUntil = useRef(0);
   spotsRef.current = spots;
   paydayRef.current = payday;
   onRareRef.current = onRare;
   onInteractRef.current = onInteract;
+  onTouchRef.current = onTouch;
+  onVisitRef.current = onVisit;
 
   const patch = useCallback((p: Partial<View>) => {
     const next = { ...viewRef.current, ...p };
@@ -236,6 +263,97 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     placeActor();
   }, [spots, placeActor]);
 
+  /** 손님을 불러 대본을 시작한다 */
+  const startVisit = useCallback((species: Species) => {
+    if (visit.current) return;
+    const s = spotsRef.current;
+    const { startX, steps } = visitScript(s, x.current, species);
+    visit.current = { species, queue: steps, cur: null, x: startX };
+    setGuest({ species, pose: { pose: 'side', action: 'walk' }, facing: startX < 0 ? 1 : -1, say: null, sayKey: 0 });
+    onVisitRef.current?.(species);
+  }, []);
+
+  /** 한 가지 일이 끝날 때마다 아주 가끔 손님이 온다 (낮 시간대, 야근 중엔 오지 않는다) */
+  const maybeVisit = () => {
+    if (visit.current || overtimeRef.current || document.visibilityState !== 'visible') return;
+    const h = hourRef.current;
+    if (h < 9 || h >= 22 || moodRef.current === 'oneMore') return;
+    if (Math.random() < VISIT_CHANCE) startVisit(pickVisitor(customRef.current.species));
+  };
+
+  /** 손님의 한 프레임 */
+  const tickVisitor = (now: number, dt: number) => {
+    const v = visit.current;
+    if (!v) return;
+    const place = (xx: number) => {
+      if (visitorEl.current) visitorEl.current.style.transform = `translateX(${xx - 46}px)`;
+      if (visitorBubble.current) {
+        const W = spotsRef.current.W;
+        const bx = Math.min(Math.max(xx, 100), W - 100);
+        visitorBubble.current.style.left = `${bx}px`;
+        visitorBubble.current.style.setProperty('--tail', `${Math.max(-80, Math.min(80, xx - bx))}px`);
+      }
+    };
+    if (!v.cur) {
+      const step = v.queue.shift();
+      if (!step) {
+        // 다 끝났다
+        visit.current = null;
+        clearTimeout(sayTimer.current);
+        setGuest(null);
+        return;
+      }
+      v.cur = { step, since: now };
+      if (step.t === 'set') {
+        if (step.x !== undefined) v.x = step.x;
+        const f = step.facing;
+        if (f !== undefined) setGuest((g) => (g ? { ...g, facing: f } : g));
+        place(v.x);
+        v.cur = null;
+      } else if (step.t === 'say') {
+        const text = step.text;
+        setGuest((g) => (g ? { ...g, say: text, sayKey: g.sayKey + 1 } : g));
+        clearTimeout(sayTimer.current);
+        sayTimer.current = setTimeout(() => setGuest((g) => (g ? { ...g, say: null } : g)), 3200);
+        v.cur = null;
+      } else if (step.t === 'act') {
+        setGuest((g) => (g ? { ...g, pose: step.pose } : g));
+      } else {
+        const dir = step.to >= v.x ? 1 : -1;
+        setGuest((g) => (g ? { ...g, pose: { pose: 'side', action: 'walk' }, facing: dir } : g));
+      }
+      return;
+    }
+    const { step, since } = v.cur;
+    if (step.t === 'move') {
+      const dir = step.to >= v.x ? 1 : -1;
+      const nx = v.x + dir * SPEED.walk * dt;
+      if ((dir > 0 && nx >= step.to) || (dir < 0 && nx <= step.to)) {
+        v.x = step.to;
+        v.cur = null;
+      } else {
+        v.x = nx;
+      }
+      place(v.x);
+    } else if (step.t === 'act' && (now - since) * HSPEED >= step.ms) {
+      v.cur = null;
+    }
+  };
+
+  // 개발용: ?visit=cat 처럼 주소에 적으면 잠시 뒤 그 손님이 온다
+  useEffect(() => {
+    let sp: string | null = null;
+    try {
+      sp = new URLSearchParams(location.search).get('visit');
+    } catch {
+      // 무시
+    }
+    if (!sp) return;
+    const id = setTimeout(() => startVisit((['hamster', 'rabbit', 'bird', 'cat'].includes(sp!) ? sp : 'cat') as Species), 2500);
+    return () => clearTimeout(id);
+  }, [startVisit]);
+  useEffect(() => () => clearTimeout(sayTimer.current), []);
+
   // 메인 루프
   useEffect(() => {
     let raf = 0;
@@ -245,6 +363,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000) * HSPEED;
       last = now;
+      tickVisitor(now, dt);
 
       if (!cur.current) {
         if (queue.current.length === 0 && overtimeRef.current) {
@@ -268,9 +387,11 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
             viewRef.current.place,
             paydayRef.current,
             hourRef.current,
+            bondRef.current,
           );
           lastErrand.current = plan.name;
           queue.current = plan.steps;
+          maybeVisit();
         }
         const step = queue.current.shift()!;
         cur.current = { step, since: now };
@@ -336,6 +457,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
   const poke = () => {
     if (cur.current?.step.t === 'move') return;
     const pl = viewRef.current.place;
+    let chosen: FrontAction | undefined;
     const t = Date.now();
     taps.current = [...taps.current.filter((x) => t - x < 4000), t];
     if (pl === 'bed') {
@@ -344,15 +466,27 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
       taps.current = [];
       inject([act('dance', 3200, pl)]);
     } else {
-      const picks = ['wave', 'shy', 'heart', 'cheer'] as const;
+      // 귀엽게 받아 주다가, 가끔은 얄밉게 굴기도 한다
+      const picks = ['wave', 'shy', 'heart', 'cheer', 'smug', 'tongue'] as const;
       let a: (typeof picks)[number];
       do a = picks[Math.floor(Math.random() * picks.length)];
       while (a === viewRef.current.pose.action && picks.length > 1);
-      inject([act(a, a === 'wave' ? 1500 : 2000, pl)]);
+      chosen = a;
+      inject([act(a, a === 'wave' ? 1500 : a === 'smug' || a === 'tongue' ? 2600 : 2000, pl)]);
     }
     setHeart((h) => h + 1);
-    onInteractRef.current?.('pet');
+    onInteractRef.current?.('pet', chosen);
     buzz(8);
+  };
+
+  // 방 안 물건 누르기: 얄미운 움직임과 한마디
+  const touch = (thing: Thing) => {
+    const pl = viewRef.current.place;
+    if (cur.current?.step.t !== 'move') {
+      inject([act(THING_ACTION[thing], 2600, pl === 'wheel' || pl === 'bed' ? 'floor' : pl)]);
+    }
+    onTouchRef.current?.(thing);
+    buzz(6);
   };
 
   // 간식 주기: 그릇 쪽으로 가서 냠냠 → 볼이 빵빵 → 고마워서 하트
@@ -410,6 +544,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
           ...(overtimeOn ? ({ '--rot': rotLevel(overtimeMin ?? 0) } as React.CSSProperties) : null),
         }}
       >
+        {season && <SeasonDecor id={season} W={W} />}
         <Window x={spots.window} now={now} />
         {trophies.length > 0 && <PlacedItems items={trophies} />}
         <WallClock x={spots.desk} now={now} />
@@ -424,6 +559,14 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
           onClick={feed}
           aria-label="해바라기씨 주기"
         />
+        {/* 눌러 볼 수 있는 물건들 */}
+        <button type="button" className="habitat-thing" style={{ left: spots.window - 48, top: 24, width: 96, height: 70 }} onClick={() => touch('window')} aria-label={`${THING_LABEL.window} 누르기`} />
+        <button type="button" className="habitat-thing" style={{ left: spots.desk - 18, top: 20, width: 36, height: 36 }} onClick={() => touch('clock')} aria-label={`${THING_LABEL.clock} 누르기`} />
+        <button type="button" className="habitat-thing" style={{ left: spots.wheel - 45, bottom: 14, width: 90, height: 98 }} onClick={() => touch('wheel')} aria-label={`${THING_LABEL.wheel} 누르기`} />
+        <button type="button" className="habitat-thing" style={{ left: spots.bed - 45, bottom: 8, width: 90, height: 38 }} onClick={() => touch('nest')} aria-label={`${THING_LABEL.nest} 누르기`} />
+        {custom.laptop && (
+          <button type="button" className="habitat-thing" style={{ left: spots.desk - 22, bottom: 58, width: 44, height: 26 }} onClick={() => touch('desk')} aria-label={`${THING_LABEL.desk} 누르기`} />
+        )}
         <DeskBack x={spots.desk} />
 
         <div
@@ -454,6 +597,46 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
           )}
         </div>
 
+        {guest && (
+          <div
+            ref={(el) => {
+              visitorEl.current = el;
+              if (el && visit.current) el.style.transform = `translateX(${visit.current.x - 46}px)`;
+            }}
+            className="habitat-actor habitat-guest"
+            style={{ zIndex: 4, pointerEvents: 'none' }}
+            aria-label={`손님 ${guest.species}`}
+          >
+            <div className="habitat-lift" style={{ transform: 'scale(0.86)', transformOrigin: 'bottom center' }}>
+              <div className={`habitat-flip pose-${guest.pose.pose}`} style={{ transform: `scaleX(${guest.facing})` }}>
+                <HamsterSprite
+                  custom={{ ...DEFAULT_CUSTOM, species: guest.species, color: VISITOR_COLOR[guest.species], outfit: 'none', hat: 'none', hand: 'none', glasses: false }}
+                  pose={guest.pose}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        {guest?.say && (
+          <div
+            key={guest.sayKey}
+            ref={(el) => {
+              visitorBubble.current = el;
+              if (el && visit.current) {
+                const W = spotsRef.current.W;
+                const bx = Math.min(Math.max(visit.current.x, 100), W - 100);
+                el.style.left = `${bx}px`;
+                el.style.setProperty('--tail', `${Math.max(-80, Math.min(80, visit.current.x - bx))}px`);
+              }
+            }}
+            className="habitat-bubble"
+            style={{ bottom: 10 + 70 * 0.86 + 4 }}
+            role="status"
+          >
+            {guest.say}
+          </div>
+        )}
+
         {bubble && (
           <div
             key={bubble.key}
@@ -477,6 +660,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
       </div>
       <div className="habitat-status" aria-live="polite">
         {name || '햄스터'}
+        {bond ? <span className="habitat-bond" title={`친밀도 ${bond}단계`}> ♥{bond}</span> : null}
         {' · '}
         {label}
       </div>

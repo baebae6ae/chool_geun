@@ -161,6 +161,31 @@ function Deco({ id }: { id: Customization['deco'] }) {
           <path d="M7 44 h14 l-2 8 h-10z" fill="#e8a074" />
         </g>
       );
+    case 'jackolantern':
+      return (
+        <g>
+          <circle className="prop-glow" cx="14" cy="38" r="15" fill="#ffb347" opacity=".35" />
+          <path d="M13 26 q-1 -5 4 -7 l1.6 3 q-2.4 1 -1.6 4z" fill="#6aa84f" stroke="#4d7f3a" strokeWidth=".8" />
+          <ellipse cx="14" cy="38" rx="12" ry="11" fill="#ff9a3c" stroke="#d9711f" strokeWidth="1" />
+          <path d="M9 28 Q6 38 9 48 M19 28 Q22 38 19 48" fill="none" stroke="#e07a1c" strokeWidth="1" />
+          <path className="prop-glow" d="M7.6 35 l3.4 -4.4 l3.4 4.4z M14.4 35 l3.4 -4.4 l3.4 4.4z" fill="#ffe36b" />
+          <path className="prop-glow" d="M8 41.4 q6 6 12 0 l-1.4 4.2 l-2.6 -2 l-2 3 l-2 -3 l-2.6 2z" fill="#ffe36b" />
+        </g>
+      );
+    case 'tree':
+      return (
+        <g>
+          <rect x="12" y="46" width="5" height="6" rx="1" fill="#8a5a36" />
+          <path d="M14.5 12 L24 26 H5z" fill="#4f9c64" stroke="#2f7044" strokeWidth=".8" strokeLinejoin="round" />
+          <path d="M14.5 20 L26 36 H3z" fill="#5fae73" stroke="#2f7044" strokeWidth=".8" strokeLinejoin="round" />
+          <path d="M14.5 29 L28 47 H1z" fill="#6fbd82" stroke="#2f7044" strokeWidth=".8" strokeLinejoin="round" />
+          <path d="M14.5 6 l1.7 3.6 3.9 .5 -2.9 2.7 .8 3.9 -3.5 -1.9 -3.5 1.9 .8 -3.9 -2.9 -2.7 3.9 -.5z" fill="#ffd54a" stroke="#d9a11f" strokeWidth=".6" />
+          <circle className="prop-blink" cx="11" cy="31" r="1.8" fill="#e8504b" />
+          <circle className="prop-blink b" cx="19" cy="38" r="1.8" fill="#4aa3e8" />
+          <circle className="prop-blink" cx="9" cy="43" r="1.8" fill="#ffd54a" />
+          <circle className="prop-blink b" cx="21" cy="26" r="1.5" fill="#ff8fb0" />
+        </g>
+      );
     case 'lantern':
       return (
         <g>
@@ -380,5 +405,82 @@ export function PlacedItems({ items }: { items: Trophy[] }) {
         );
       })}
     </div>
+  );
+}
+
+/* ---------- 계절 이벤트 방 장식 (벽 위쪽 줄 장식) ---------- */
+type Pt = [number, number];
+const quad = (a: Pt, c: Pt, b: Pt, t: number): Pt => [
+  (1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0],
+  (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1],
+];
+
+/** 천장에 늘어뜨린 줄 위의 점들 (두 번 처지는 곡선) */
+function wirePoints(W: number, n: number): { d: string; pts: Pt[] } {
+  const a: Pt = [-4, 4], m: Pt = [W / 2, 8], b: Pt = [W + 4, 4];
+  const c1: Pt = [W * 0.25, 34], c2: Pt = [W * 0.75, 34];
+  const half = Math.ceil(n / 2);
+  const pts: Pt[] = [];
+  for (let i = 0; i < n; i++) {
+    const first = i < half;
+    const k = first ? (i + 0.5) / half : (i - half + 0.5) / (n - half);
+    pts.push(first ? quad(a, c1, m, k) : quad(m, c2, b, k));
+  }
+  return { d: `M${a[0]} ${a[1]} Q${c1[0]} ${c1[1]} ${m[0]} ${m[1]} Q${c2[0]} ${c2[1]} ${b[0]} ${b[1]}`, pts };
+}
+
+export function SeasonDecor({ id, W }: { id: 'halloween' | 'christmas'; W: number }) {
+  const n = Math.max(6, Math.round(W / 46));
+  const { d, pts } = wirePoints(W, n);
+  const style: CSSProperties = { position: 'absolute', left: 0, top: 0, width: W, height: 70, zIndex: 0, pointerEvents: 'none' };
+  if (id === 'halloween') {
+    return (
+      <svg viewBox={`0 0 ${W} 70`} style={style} aria-hidden>
+        {/* 거미줄 */}
+        <g stroke="#ffffff" strokeWidth="1" fill="none" opacity=".75" strokeLinecap="round">
+          <path d="M0 0 L66 0 M0 0 L0 66 M0 0 L52 40 M0 0 L38 54 M0 0 L62 20" />
+          <path d="M16 0 Q13 13 0 16 M32 0 Q26 26 0 32 M48 0 Q39 39 0 48 M62 0 Q50 50 0 62" />
+        </g>
+        <path d={d} stroke="#6b4a3a" strokeWidth="1.4" fill="none" />
+        {pts.map(([x, y], i) =>
+          i % 2 === 0 ? (
+            <g key={i} transform={`translate(${x} ${y + 7})`}>
+              <path d="M0 -8 q-1 -4 3 -5" stroke="#6aa84f" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+              <ellipse cx="0" cy="0" rx="8" ry="7" fill="#ff9a3c" stroke="#d9711f" strokeWidth="1" />
+              <path className="prop-glow" d="M-4.4 -2.4 l2.2 -3 l2.2 3z M0.2 -2.4 l2.2 -3 l2.2 3z M-4 2 q4 4 8 0" fill="#ffe36b" stroke="#ffe36b" strokeWidth="1.2" strokeLinejoin="round" />
+            </g>
+          ) : (
+            <g key={i} transform={`translate(${x} ${y + 9})`}>
+              <g className="bat">
+                <path d="M0 0 q-5 -7 -12 -4 q3 2 3 6 q4 -3 5 1 q2 -3 4 0 q1 -4 5 -1 q0 -4 3 -6 q-7 -3 -8 4z" fill="#4b3a63" stroke="#2f2440" strokeWidth=".8" strokeLinejoin="round" />
+                <circle cx="-1" cy="1.2" r=".9" fill="#ffe36b" />
+                <circle cx="1.4" cy="1.2" r=".9" fill="#ffe36b" />
+              </g>
+            </g>
+          ),
+        )}
+      </svg>
+    );
+  }
+  // 크리스마스: 반짝이는 전구 줄 + 리스
+  const colors = ['#e8504b', '#ffd54a', '#4aa3e8', '#5bc27a', '#ff8fb0'];
+  return (
+    <svg viewBox={`0 0 ${W} 70`} style={style} aria-hidden>
+      <path d={d} stroke="#3f7a52" strokeWidth="1.8" fill="none" />
+      {pts.map(([x, y], i) => (
+        <g key={i} transform={`translate(${x} ${y})`}>
+          <path d="M-1.6 0 h3.2 v3 h-3.2z" fill="#6b4a3a" />
+          <ellipse className={`prop-blink${i % 2 ? ' b' : ''}`} cx="0" cy="8" rx="3.6" ry="5" fill={colors[i % colors.length]} stroke="#8b5e3c" strokeWidth=".8" />
+        </g>
+      ))}
+      <g transform={`translate(${Math.round(W * 0.27)} 46)`}>
+        <circle r="13" fill="none" stroke="#3f8f57" strokeWidth="6" />
+        <circle r="13" fill="none" stroke="#5fae73" strokeWidth="2" strokeDasharray="3 4" />
+        <path d="M-7 12 l-5 8 l6 -2 z M7 12 l5 8 l-6 -2 z" fill="#d6453d" stroke="#a82f29" strokeWidth=".8" />
+        <circle cy="11" r="3.4" fill="#e8504b" stroke="#a82f29" strokeWidth=".8" />
+        <circle cx="-5" cy="-6" r="1.6" fill="#ffd54a" />
+        <circle cx="6" cy="-3" r="1.6" fill="#ffd54a" />
+      </g>
+    </svg>
   );
 }

@@ -5,6 +5,8 @@
 import { RARE_BEHAVIORS, type RareId } from '../../domain/rare';
 import type { HamsterMood } from '../../domain/schedule';
 import type { FrontAction, Pose, SideAction } from '../hamster/HamsterSprite';
+import { VISITOR_LINES } from '../../domain/visitors';
+import type { Species } from '../../domain/types';
 
 export type Place = 'floor' | 'wheel' | 'desk' | 'bed';
 
@@ -101,6 +103,12 @@ function weighted(rnd: Rnd, list: Choice[], last?: string): [string, Errand] {
  * 이름은 반복 방지와 테스트에 쓴다.
  */
 function holidayRoutine(hour: number, e: Record<string, Errand>): Choice[] {
+  const t: Choice = ['taunt', 0.7, e.taunt];
+  if (hour >= 10 && hour < 23) return [...holidayDay(hour, e), t];
+  return holidayDay(hour, e);
+}
+
+function holidayDay(hour: number, e: Record<string, Errand>): Choice[] {
   if (hour < 10)
     return [
       ['sleep', 3, e.sleepLong],
@@ -155,6 +163,12 @@ function holidayRoutine(hour: number, e: Record<string, Errand>): Choice[] {
 
 /** 평일 퇴근 후: 저녁 먹고 → 게임·드라마 → 씻고 잠 */
 function eveningRoutine(hour: number, e: Record<string, Errand>): Choice[] {
+  const t: Choice = ['taunt', 0.7, e.taunt];
+  if (hour < 23) return [...eveningDay(hour, e), t];
+  return eveningDay(hour, e);
+}
+
+function eveningDay(hour: number, e: Record<string, Errand>): Choice[] {
   if (hour < 20)
     return [
       ['meal', 3, e.meal],
@@ -197,6 +211,8 @@ export function planErrand(
   payday = false,
   /** 지금 몇 시인지 (0~23). 쉬는 날·퇴근 후엔 시간대마다 하는 일이 달라진다 */
   hour = 12,
+  /** 친밀도 단계 (1~5). 친할수록 하트를 날리고 춤을 춘다 */
+  bond = 1,
 ): { name: string; steps: Step[] } {
   const go = (to: number, lazy = false) => travel(x, to, rnd, lazy);
   const wanderTo = () => between(rnd, s.wanderMin, Math.max(s.wanderMin + 1, s.wanderMax));
@@ -233,6 +249,10 @@ export function planErrand(
   const phone: Errand = () => [...go(s.bed, true), front('phone', between(rnd, 8000, 12000), 'bed')];
   const read: Errand = () => [...go(s.window), front('read', between(rnd, 7000, 11000))];
   const shower: Errand = () => [...go(wanderTo()), front('shower', between(rnd, 3500, 5000)), front('groom', 2000)];
+  // 얄미운 움직임: 메롱, 팔짱, 으쓱, 성의 없는 박수
+  const TAUNTS: FrontAction[] = ['smug', 'tongue', 'shrug', 'slowclap'];
+  const taunt: Errand = () => inPlace(front(TAUNTS[Math.floor(rnd() * TAUNTS.length)], 2800));
+  const love: Errand = () => inPlace(front('heart', 2400));
   const workout: Errand = () => [...go(s.wheel), side('run', between(rnd, 7000, 11000), 'wheel'), side('stand', 800, 'wheel')];
 
   // 희귀 행동
@@ -267,9 +287,9 @@ export function planErrand(
       ['eat', 0.5, eat],
     ];
   } else if (mood === 'holiday') {
-    list = holidayRoutine(hour, { sleepLong, wakeUp, shower, yawn, windowGaze, sipAtDesk, meal, phone, wander, game, read, workout, nap, snack, eat, groom });
+    list = holidayRoutine(hour, { sleepLong, wakeUp, shower, yawn, windowGaze, sipAtDesk, meal, phone, wander, game, read, workout, nap, snack, eat, groom, taunt });
   } else if (mood === 'off') {
-    list = eveningRoutine(hour, { sleepLong, shower, yawn, meal, phone, game, read, snack, playWheel, groom, wander });
+    list = eveningRoutine(hour, { sleepLong, shower, yawn, meal, phone, game, read, snack, playWheel, groom, wander, taunt });
   } else switch (mood) {
     case 'beforeWork':
       list = [
@@ -295,6 +315,7 @@ export function planErrand(
         ['wander', 2, wander],
         ['yawn', 0.7, yawn],
         ['sip', 1, sipAtDesk],
+        ['taunt', 0.7, taunt],
       ];
       break;
     case 'break':
@@ -305,6 +326,7 @@ export function planErrand(
         ['wander', 2, wander],
         ['nap', 1.5, nap],
         ['wheel', 1, wheel],
+        ['taunt', 0.7, taunt],
       ];
       break;
     case 'almostDone':
@@ -313,12 +335,19 @@ export function planErrand(
         ['look', 3, look],
         ['pace', 3, pace],
         ['groom', 1, groom],
+        ['taunt', 1, taunt],
       ];
       break;
     case 'oneMore':
       return { name: 'typeFast', steps: [...go(s.desk), front('typeFast', 6000, 'desk')] };
   }
   if (payday && mood !== 'beforeWork' && mood !== 'holiday') list = [...list, ['payDance', 2.5, payDance]];
+  // 친해질수록 먼저 하트를 보내고, 아주 친하면 혼자 춤도 춘다 (밤에 자는 중엔 제외)
+  const asleep = night && (mood === 'beforeWork' || mood === 'holiday' || mood === 'off');
+  if (!asleep) {
+    if (bond >= 3) list = [...list, ['love', (bond - 2) * 0.5, love]];
+    if (bond >= 4) list = [...list, ['dance', (bond - 3) * 0.5, payDance]];
+  }
   const [name, errand] = weighted(rnd, list, last);
   return { name, steps: errand(x) };
 }
@@ -362,6 +391,38 @@ export function endDay(s: Spots, x: number, here: Place, rnd: Rnd = Math.random)
   ];
 }
 
+/** 손님 전용 단계: 말풍선 한마디가 더해진다 */
+export type VStep = Step | { t: 'say'; text: string };
+
+/**
+ * 손님 방문 대본: 방 한쪽 끝에서 걸어 들어와 인사하고, 간식을 먹고, 방 안을 둘러본 뒤 인사하고 돌아간다.
+ * 주인공(mainX)에서 먼 쪽 문으로 들어와 주인공 쪽으로 다가간다.
+ */
+export function visitScript(s: Spots, mainX: number, species: Species, rnd: Rnd = Math.random): { startX: number; steps: VStep[] } {
+  const fromRight = mainX < s.W / 2;
+  const startX = fromRight ? s.W + 44 : -44;
+  const dir = fromRight ? -1 : 1;
+  const meet = Math.min(Math.max(mainX + (fromRight ? 64 : -64), s.wanderMin), s.wanderMax + 40);
+  const lines = VISITOR_LINES[species];
+  const pickLine = (list: string[]) => list[Math.floor(rnd() * list.length)];
+  const bowlSide = s.bowl + (fromRight ? 38 : -38);
+  return {
+    startX,
+    steps: [
+      { t: 'set', x: startX, facing: dir },
+      { t: 'move', to: meet, gait: 'walk' },
+      front('wave', 1800),
+      { t: 'say', text: pickLine(lines.hello) },
+      { t: 'move', to: bowlSide, gait: 'walk' },
+      front('nibble', between(rnd, 4200, 6000)),
+      front('look', between(rnd, 2200, 3200)),
+      { t: 'say', text: pickLine(lines.bye) },
+      front('wave', 1700),
+      { t: 'move', to: startX, gait: 'walk' },
+    ],
+  };
+}
+
 export const ACTIVITY_LABEL: Record<FrontAction | SideAction, string> = {
   idle: '멍 때리는 중',
   sniff: '킁킁 탐색 중',
@@ -389,6 +450,10 @@ export const ACTIVITY_LABEL: Record<FrontAction | SideAction, string> = {
   read: '책 읽는 중',
   shower: '보송보송 씻는 중',
   snack: '과자 먹는 중',
+  smug: '흥, 뭘 봐요',
+  tongue: '메롱~',
+  shrug: '으쓱~ 몰라요',
+  slowclap: '짝…짝…짝… (성의 없음)',
   stand: '두리번두리번',
   walk: '종종종 걷는 중',
   run: '뽈뽈뽈 달리는 중',

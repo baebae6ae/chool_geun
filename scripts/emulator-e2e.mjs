@@ -10,6 +10,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const results = [];
 const errors = [];
+// 점검 전체가 이 시간을 넘기면 지금까지의 결과를 저장하고 끝낸다 (CI가 40분 기다리지 않게)
+setTimeout(() => {
+  console.log('WATCHDOG: 점검이 너무 오래 걸려 중단');
+  results.push({ name: '점검 시간 초과', ok: false, detail: '14분을 넘겨 중단' });
+  fs.writeFileSync(`${OUT}/results.json`, JSON.stringify({ results, errors }, null, 2));
+  process.exit(3);
+}, 14 * 60 * 1000).unref();
 const step = async (name, fn) => {
   try {
     const detail = await fn();
@@ -49,8 +56,11 @@ const show = (a) => {
 const IGNORED = /Share canceled/;
 Runtime.consoleAPICalled((e) => e.type === 'error' && !IGNORED.test(e.args.map(show).join(' ')) && errors.push(`console.error: ${e.args.map(show).join(' ').slice(0, 400)}`));
 
-const ev = async (expression) => {
-  const r = await Runtime.evaluate({ expression, awaitPromise: true, returnByValue: true });
+// 웹뷰가 응답하지 않아도 무한정 기다리지 않는다
+const withTimeout = (p, ms, what) =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`응답 없음(${ms / 1000}초): ${what}`)), ms))]);
+const ev = async (expression, ms = 25000) => {
+  const r = await withTimeout(Runtime.evaluate({ expression, awaitPromise: true, returnByValue: true }), ms, expression.slice(0, 60));
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
   return r.result.value;
 };
@@ -232,7 +242,6 @@ await step('뒤로가기: 오늘 탭에서는 앱을 내림 (꺼지지 않음)',
 });
 
 await step('알림 예약: 앞으로 일정이 기기에 예약되고, 앱이 보이면 지워진다', async () => {
-  adb(`pm grant ${PKG} android.permission.POST_NOTIFICATIONS`);
   await waitFor(`!!window.__notifDebug`, 5000, '알림 점검 연결');
   const n = await ev(`window.__notifDebug.sync(true)`);
   if (!(n > 0)) throw new Error(`예약된 알림이 없음 (${n})`);
