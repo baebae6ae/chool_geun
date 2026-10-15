@@ -466,3 +466,48 @@
   0%, 62%, 100% { transform: translateX(4px); }
   76% { transform: translateX(-7px); }
 }
+
+/* 읽씹 전용 연기 */
+.hs-front.act-phoneShow .hs-bob { animation: hs-nod 1.4s ease-in-out infinite; }
+.hs-phone-wag, .hs-phone-arm { transform-box: view-box; transform-origin: 100px 50px; animation: hs-wag 0.8s ease-in-out infinite; }
+@keyframes hs-wag { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.hs-front.act-earplug .hs-bob { animation: hs-sway 0.8s ease-in-out infinite; }
+@keyframes hs-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.hs-ear-l, .hs-ear-r { animation: hs-jig 0.3s ease-in-out infinite; }
+.hs-ear-r { animation-delay: 0.15s; }
+@keyframes hs-jig { 50% { transform: translateY(-1.6px); } }
+.hs-front.act-phoneToss .hs-bob { animation: hs-relief 1.8s ease-out forwards; }
+@keyframes hs-relief {
+  0%, 28% { transform: rotate(-5deg); }
+  46% { transform: rotate(6deg) translateX(1px); }
+  100% { transform: rotate(0); }
+}
+.hs-toss-arm { transform-origin: 94px 66px; animation: hs-toss-arm 1.8s ease-in-out forwards; }
+@keyframes hs-toss-arm {
+  0% { transform: rotate(-34deg); }
+  30% { transform: rotate(-34deg); }
+  46% { transform: rotate(26deg); }
+  100% { transform: rotate(10deg); }
+}
+.hs-toss-phone { animation: hs-toss-fly 1.8s ease-in forwards; }
+@keyframes hs-toss-fly {
+  0%, 38% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(58px, -86px) rotate(620deg); opacity: 0; }
+}
+.hs-front.act-hipsway .hs-bob { animation: hs-hips 0.7s ease-in-out infinite; }
+@keyframes hs-hips {
+  0%, 100% { transform: translateX(-3px) rotate(-4deg); }
+  50% { transform: translateX(3px) rotate(4deg); }
+}
+.hs-front.act-blowkiss .hs-bob { animation: hs-nod 1.2s ease-in-out infinite; }
+.hs-kiss-arm { transform-origin: 94px 74px; animation: hs-kiss-arm 1s ease-in-out infinite; }
+@keyframes hs-kiss-arm {
+  0%, 35%, 100% { transform: rotate(0); }
+  60% { transform: rotate(62deg); }
+}
+.hs-kiss-heart { animation: hs-kiss-heart 1s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes hs-kiss-heart {
+  0%, 30% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  45% { opacity: 1; }
+  100% { opacity: 0; transform: translate(36px, -34px) scale(1.5); }
+}

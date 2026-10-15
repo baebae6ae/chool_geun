@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addDays, atTime } from './date';
 import { createInitialState } from './engine';
-import { eveningMessage, ignoreWorkMessage, IGNORE_LINES, pendingWorkMessage, stressRelief } from './workMessage';
+import { eveningMessage, ignoreWorkMessage, IGNORE_BEATS, IGNORE_TOTAL_MS, pendingWorkMessage, stressRelief } from './workMessage';
 import { ACHIEVEMENTS, achievementContext } from './achievements';
 
 const KEY = '2026-10-13';
@@ -52,7 +52,10 @@ describe('퇴근 후 업무 연락', () => {
   });
 
   it('읽씹 대사와 스트레스 감소율이 정해진 범위 안에 있다', () => {
-    expect(IGNORE_LINES.length).toBeGreaterThanOrEqual(4);
+    expect(IGNORE_BEATS.length).toBeGreaterThanOrEqual(4);
+    expect(IGNORE_TOTAL_MS).toBe(IGNORE_BEATS.reduce((s, b) => s + b.ms, 0));
+    // 읽씹 전용 동작만 쓴다 (기존 얄미운 동작을 재활용하지 않는다)
+    expect(IGNORE_BEATS.map((b) => b.action)).toEqual(['phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss']);
     for (let i = 0; i < 100; i++) {
       const v = stressRelief(() => Math.min(0.999999, i / 100));
       expect(v).toBeGreaterThanOrEqual(31);

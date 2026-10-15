@@ -5,6 +5,7 @@ import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSp
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, visitScript, type Place, type Step, type VStep } from './brain';
 import { buzz } from '../../haptics';
 import { THING_ACTION, THING_LABEL, type Thing } from '../../domain/play';
+import { IGNORE_BEATS } from '../../domain/workMessage';
 import type { RareId } from '../../domain/rare';
 import { RotLayer, rotLevel } from './RotLayer';
 import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, SeasonDecor, WallClock, Wheel, Window, type Trophy } from './props';
@@ -507,13 +508,13 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     buzz(10);
   };
 
-  // 읽씹하기: 폰을 슬쩍 보고 → 흥 → 메롱 → 성의 없는 박수 → 으쓱 → 흥 (총 9초쯤)
+  // 읽씹하기: 읽음 보여주기 → 귀 막기 → 폰 던지기 → 허리에 손 얹고 씰룩 → 손키스 (읽씹 전용 동작, 총 10초쯤)
   const lastMoment = useRef(0);
   useEffect(() => {
     if (!moment || moment.id === lastMoment.current) return;
     lastMoment.current = moment.id;
     const pl = viewRef.current.place === 'bed' || viewRef.current.place === 'wheel' ? 'floor' : viewRef.current.place;
-    inject([act('phone', 1500, pl), act('smug', 1700, pl), act('tongue', 1700, pl), act('slowclap', 2300, pl), act('shrug', 1700, pl), act('smug', 1400, pl)]);
+    inject(IGNORE_BEATS.map((b) => act(b.action, b.ms, pl)));
   }, [moment, inject]);
 
   // 위로 버튼: 두 팔을 벌려 안아주기

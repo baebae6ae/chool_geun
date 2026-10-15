@@ -2694,7 +2694,7 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
   box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 22%, transparent);
   animation: msg-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
-.msg-card.done { animation: msg-bye 0.8s ease-in 8.9s forwards; }
+.msg-card.done { animation: msg-bye 0.8s ease-in var(--bye, 10s) forwards; }
 .msg-head { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
 .msg-head small { margin-left: auto; color: var(--ink-2); font-size: 0.68rem; }
 .msg-bell { display: inline-block; animation: msg-ring 0.9s ease-in-out 3; transform-origin: 50% 20%; }

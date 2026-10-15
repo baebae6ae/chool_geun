@@ -4,6 +4,7 @@
  */
 import { addDays, atTime } from './date';
 import { createRng } from './random';
+import type { FrontAction } from '../components/hamster/HamsterSprite';
 import type { AppState } from './types';
 
 export interface WorkMessage {
@@ -64,14 +65,20 @@ export function ignoreWorkMessage(state: AppState, key: string, now: number): Ap
   };
 }
 
-/** 읽씹하는 동안 캐릭터가 하는 말 (순서대로) */
-export const IGNORE_LINES = [
-  '읽었어요~',
-  '근데 답장은 안 해요 ^^',
-  '퇴. 근. 했. 거. 든. 요.',
-  '내일의 제가 알아서 하겠죠. 아마도',
-  '읽씹 완료! 속이 시원하다~',
+/**
+ * 읽씹 연기: 이 순서대로 캐릭터가 연기하고, 각 동작이 시작될 때 한마디씩 한다.
+ * 모두 읽씹 전용으로 새로 그린 동작이다.
+ */
+export const IGNORE_BEATS: { action: FrontAction; ms: number; line: string }[] = [
+  { action: 'phoneShow', ms: 1900, line: '읽었어요~ 읽음 ✓✓ 보이죠?' },
+  { action: 'earplug', ms: 2300, line: '아아~ 아무것도 안 들려요~' },
+  { action: 'phoneToss', ms: 1800, line: '업무 폰은 안녕~ 휙!' },
+  { action: 'hipsway', ms: 2400, line: '퇴. 근. 했. 거. 든. 요. ^^' },
+  { action: 'blowkiss', ms: 2000, line: '내일의 제가 알아서 할게요~ 쪽♥' },
 ];
+export const IGNORE_TOTAL_MS = IGNORE_BEATS.reduce((s, b) => s + b.ms, 0);
+/** 마지막 한마디 (연기가 끝난 뒤) */
+export const IGNORE_FINAL_LINE = '읽씹 완료! 속이 시원하다~';
 
 /** 읽씹하고 나서 "줄어든" 스트레스 (재미용, 31~97%) */
 export function stressRelief(rnd: () => number = Math.random): number {

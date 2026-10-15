@@ -38,7 +38,13 @@ export type FrontAction =
   | 'smug'
   | 'tongue'
   | 'shrug'
-  | 'slowclap';
+  | 'slowclap'
+  // 읽씹 전용 연기
+  | 'phoneShow'
+  | 'earplug'
+  | 'phoneToss'
+  | 'hipsway'
+  | 'blowkiss';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -143,10 +149,14 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' =
     action === 'doom'
       ? 'doom'
-      : action === 'smug' || action === 'shrug' || action === 'slowclap'
+      : action === 'smug' || action === 'shrug' || action === 'slowclap' || action === 'phoneShow' || action === 'hipsway'
       ? 'smug'
-      : action === 'tongue'
+      : action === 'tongue' || action === 'blowkiss'
       ? 'wink'
+      : action === 'earplug'
+      ? 'squeeze'
+      : action === 'phoneToss'
+      ? 'happy'
       : action === 'groom' || action === 'yawn' || action === 'shower'
       ? 'closed'
       : action === 'doze'
@@ -159,13 +169,17 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               ? 'squeeze'
               : 'open';
   const lookUp = action === 'look';
-  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' =
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' | 'kiss' =
     action === 'doom'
       ? 'frown'
-      : action === 'smug' || action === 'shrug' || action === 'slowclap'
+      : action === 'smug' || action === 'shrug' || action === 'slowclap' || action === 'phoneShow'
       ? 'smirk'
-      : action === 'tongue'
+      : action === 'tongue' || action === 'hipsway'
       ? 'tongue'
+      : action === 'blowkiss'
+      ? 'kiss'
+      : action === 'earplug' || action === 'phoneToss'
+      ? 'smile'
       : action === 'yawn'
       ? 'yawn'
       : action === 'dizzy'
@@ -316,6 +330,11 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d="M53.6 66.6 q6.4 4 13.2 -1.8" />
             <path d="M67.4 65.2 l1.8 -1.6" strokeWidth="1.4" />
           </g>
+        ) : mouth === 'kiss' ? (
+          <g className="hs-mouth" stroke={INK} strokeLinecap="round">
+            <ellipse cx="60" cy="68" rx="2.6" ry="3.1" fill={MOUTH} strokeWidth="1.5" />
+            <path d="M57 65.6 q3 -2.2 6 0" fill="none" strokeWidth="1.3" />
+          </g>
         ) : mouth === 'tongue' ? (
           <g className="hs-mouth">
             <path d="M55 64.6 Q60 68.4 65 64.6 Q64.4 69.6 60 69.6 Q55.6 69.6 55 64.6Z" fill={MOUTH} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
@@ -347,7 +366,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <HeldProp action={action} />
-        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug'].includes(action) ? 'translate(0 14)' : undefined}>
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug', 'phoneShow', 'phoneToss', 'hipsway', 'blowkiss'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
         {holding && (
@@ -443,6 +462,38 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <g className="hs-hearts" fill="#ff8fa8" stroke={INK} strokeWidth="1" strokeLinejoin="round">
           <path d="M101 24 c-6 -5 -7 -10 -3 -10 c2 0 3 1.2 3 2.6 c0 -1.4 1 -2.6 3 -2.6 c4 0 3 5 -3 10z" />
           <path d="M16 30 c-4.4 -3.6 -5 -7.4 -2.2 -7.4 c1.6 0 2.2 .9 2.2 1.9 c0 -1 .6 -1.9 2.2 -1.9 c2.8 0 2.2 3.8 -2.2 7.4z" />
+        </g>
+      )}
+      {action === 'phoneShow' && (
+        <g className="hs-phone-wag">
+          <g transform="translate(105 38) rotate(8)">
+            <PhoneScreen />
+          </g>
+        </g>
+      )}
+      {action === 'phoneToss' && sp === 'bird' && (
+        <g className="hs-toss-phone">
+          <g transform="translate(105 33) rotate(10)">
+            <PhoneScreen />
+          </g>
+        </g>
+      )}
+      {action === 'earplug' && (
+        <g className="hs-notes" fill={INK} fontFamily="system-ui, sans-serif" fontWeight="700">
+          <text x="96" y="22" fontSize="13">♪</text>
+          <text x="8" y="18" fontSize="11">♫</text>
+          <text x="58" y="10" fontSize="10">♪</text>
+        </g>
+      )}
+      {action === 'hipsway' && (
+        <g className="hs-sparkle" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+          <path d={star(12, 24, 5)} />
+          <path d={star(108, 20, 4.4)} />
+        </g>
+      )}
+      {action === 'blowkiss' && (
+        <g className="hs-kiss-heart">
+          <path d="M73 61 c-6 -5 -7 -10 -3 -10 c2 0 3 1.2 3 2.6 c0 -1.4 1 -2.6 3 -2.6 c4 0 3 5 -3 10z" fill="#ff8fa8" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
         </g>
       )}
       {action === 'shower' && (
@@ -728,6 +779,53 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           <g className="hs-hand hs-tap-slow-r"><Paw x={73} y={97} rot={8} /></g>
         </>
       );
+    case 'phoneShow':
+      // 읽음 표시가 뜬 폰을 얼굴 옆에 들이밀며 약 올린다
+      return (
+        <>
+          <Paw x={46} y={91} rot={-20} />
+          <g className="hs-hand hs-phone-arm"><Arm from={[94, 68]} to={[103, 53]} c={c} /></g>
+        </>
+      );
+    case 'earplug':
+      // 두 손으로 귀를 막고 "아아 안 들려~"
+      return (
+        <>
+          <g className="hs-hand hs-ear-l"><Arm from={[26, 66]} to={[21, 40]} c={c} /></g>
+          <g className="hs-hand hs-ear-r"><Arm from={[94, 66]} to={[99, 40]} c={c} /></g>
+        </>
+      );
+    case 'phoneToss':
+      // 폰을 휙 던져 버린다
+      return (
+        <>
+          <Paw x={48} y={90} rot={-20} />
+          <g className="hs-hand hs-toss-arm">
+            <Arm from={[94, 66]} to={[104, 44]} c={c} />
+            <g className="hs-toss-phone">
+              <g transform="translate(105 33) rotate(10)">
+                <PhoneScreen />
+              </g>
+            </g>
+          </g>
+        </>
+      );
+    case 'hipsway':
+      // 허리에 손 얹고 엉덩이 씰룩
+      return (
+        <>
+          <BentArm pts={[[27, 67], [8, 81], [27, 96]]} c={c} />
+          <BentArm pts={[[93, 67], [112, 81], [93, 96]]} c={c} />
+        </>
+      );
+    case 'blowkiss':
+      // 손키스를 날리고 퇴장
+      return (
+        <>
+          <Paw x={45} y={91} rot={-20} />
+          <g className="hs-hand hs-kiss-arm"><Arm from={[94, 74]} to={[75, 72]} c={c} /></g>
+        </>
+      );
     case 'smug':
       // 팔짱
       return (
@@ -899,14 +997,16 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
  * 접고 있다가, 신나면 두 날개를 들어 파닥, 인사는 한쪽 날개, 안아줄 땐 활짝.
  */
 function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; still: boolean }) {
-  const mode: 'fold' | 'up' | 'wave' | 'open' =
+  const mode: 'fold' | 'up' | 'wave' | 'open' | 'ear' =
     action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue'
       ? 'up'
-      : action === 'wave'
+      : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss'
         ? 'wave'
-        : action === 'hug' || action === 'shrug'
-          ? 'open'
-          : 'fold';
+        : action === 'earplug'
+          ? 'ear'
+          : action === 'hug' || action === 'shrug' || action === 'hipsway'
+            ? 'open'
+            : 'fold';
   const L = 'M24 60 C12 66 11 90 23 97 C32 99 37 88 35 76 C34 67 30 61 24 60Z';
   const R = 'M96 60 C108 66 109 90 97 97 C88 99 83 88 85 76 C86 67 90 61 96 60Z';
   const lines = (side: 'l' | 'r') =>
@@ -940,12 +1040,49 @@ function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; stil
           {wing('r', -115, true)}
         </>
       )}
+      {mode === 'ear' && (
+        <>
+          {wing('l', 158, false)}
+          {wing('r', -158, false)}
+        </>
+      )}
       {mode === 'open' && (
         <>
           {wing('l', 70, false)}
           {wing('r', -70, false)}
         </>
       )}
+    </g>
+  );
+}
+
+/** 구부린 팔(어깨 → 팔꿈치 → 손): 허리에 손 얹기 */
+function BentArm({ pts, c }: { pts: [number, number][]; c: Palette }) {
+  const { sp } = useContext(SpeciesCtx);
+  const fill = sp === 'bird' ? c.ear : sp === 'cat' ? c.cream : c.body;
+  const d = 'M' + pts.map((p) => p.join(' ')).join(' L');
+  const end = pts[pts.length - 1];
+  return (
+    <g>
+      <path d={d} stroke={INK} strokeWidth="15" fill="none" strokeLinejoin="round" />
+      <path d={d} stroke={fill} strokeWidth="10.4" fill="none" strokeLinejoin="round" />
+      <circle cx={pts[0][0]} cy={pts[0][1]} r="6.4" fill={fill} />
+      <Paw x={end[0]} y={end[1]} />
+    </g>
+  );
+}
+
+/** 화면이 보이는 폰: 받은 메시지에 "읽음 ✓✓"이 떠 있다 */
+function PhoneScreen() {
+  return (
+    <g stroke={INK} strokeWidth="1.6" strokeLinejoin="round">
+      <rect x="-11" y="-19" width="22" height="38" rx="5" fill="#3d4156" />
+      <rect x="-8.4" y="-15" width="16.8" height="30" rx="2.6" fill="#f3f7ff" stroke="none" />
+      <rect x="-6.6" y="-12" width="11.4" height="6.4" rx="2.4" fill="#ffe56b" stroke="none" />
+      <path d="M-4.4 -8.8 h6.8" stroke="#b8860b" strokeWidth="1" />
+      <rect x="-4.6" y="-3" width="11.4" height="6.4" rx="2.4" fill="#cfe3ff" stroke="none" />
+      <path d="M-2.4 0.2 h6.8" stroke="#6a8fc9" strokeWidth="1" />
+      <path d="M-6.8 9 l2 2 l4 -4.6 M-3.4 9 l2 2 l4 -4.6" stroke="#3b82f6" strokeWidth="1.6" fill="none" strokeLinecap="round" />
     </g>
   );
 }

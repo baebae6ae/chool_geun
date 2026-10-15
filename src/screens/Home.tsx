@@ -23,7 +23,7 @@ import { restDailyPay, restEarnedAt } from '../domain/rest';
 import { pinWidget, widgetAvailable } from '../widgetSync';
 import { activeSeason, seasonRangeText } from '../domain/seasons';
 import { recordVisit } from '../domain/visitors';
-import { ignoreWorkMessage, IGNORE_LINES, pendingWorkMessage, stressRelief, type WorkMessage } from '../domain/workMessage';
+import { ignoreWorkMessage, IGNORE_BEATS, IGNORE_FINAL_LINE, IGNORE_TOTAL_MS, pendingWorkMessage, stressRelief, type WorkMessage } from '../domain/workMessage';
 import { buzz } from '../haptics';
 import type { Species } from '../domain/types';
 import { addHeart, bondLevel, bondLine, BOND_TITLES, bumpStat, bumpThing, clockLine, SNARK_PET, thingLine, type ClockPhase, type Thing } from '../domain/play';
@@ -214,11 +214,17 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     buzz([25, 45, 25]);
     setFx({ msg: m, stress: stressRelief() });
     setMoment({ id: Date.now() });
-    IGNORE_LINES.forEach((line, i) => ignoreTimers.current.push(setTimeout(() => say(line), 300 + i * 1900)));
+    // 동작이 시작될 때마다 한마디씩, 연기가 끝나면 마무리 한마디
+    let at = 250;
+    for (const beat of IGNORE_BEATS) {
+      ignoreTimers.current.push(setTimeout(() => say(beat.line), at));
+      at += beat.ms;
+    }
+    ignoreTimers.current.push(setTimeout(() => say(IGNORE_FINAL_LINE), at + 100));
     const r = addHeart(stateRef.current, clockNow());
     onState((s) => addHeart(ignoreWorkMessage(s, key, clockNow()), clockNow()).state);
-    if (r.leveledUp) ignoreTimers.current.push(setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), 300 + IGNORE_LINES.length * 1900));
-    ignoreTimers.current.push(setTimeout(() => setFx(null), 9800));
+    if (r.leveledUp) ignoreTimers.current.push(setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), at + 2600));
+    ignoreTimers.current.push(setTimeout(() => setFx(null), IGNORE_TOTAL_MS + 2400));
   };
 
   // 다른 종의 손님이 놀러 왔다: 도감에 기록한다 (인사는 손님이 직접 말풍선으로 해서 따로 말하지 않는다)
@@ -436,7 +442,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         />
 
         {shownMsg && (
-          <section className={`msg-card ${fx ? 'done' : ''}`} aria-label="퇴근 후 업무 연락 (가짜)">
+          <section
+            className={`msg-card ${fx ? 'done' : ''}`}
+            style={{ '--bye': `${(IGNORE_TOTAL_MS + 900) / 1000}s` } as React.CSSProperties}
+            aria-label="퇴근 후 업무 연락 (가짜)"
+          >
             <div className="msg-head">
               <span className="msg-bell" aria-hidden>📱</span>
               <b>퇴근 후 업무 연락</b>
