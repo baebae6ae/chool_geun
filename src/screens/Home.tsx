@@ -518,7 +518,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
                       <i /><i /><i />
                     </span>
                   )}
-                  <p className={`chat-bub ${l.me ? 'me' : 'them'}`} style={{ '--i': i } as React.CSSProperties}>
+                  <p className={l.sys ? 'chat-sys' : `chat-bub ${l.me ? 'me' : 'them'}`} style={{ '--i': i } as React.CSSProperties}>
                     {l.text}
                   </p>
                 </Fragment>

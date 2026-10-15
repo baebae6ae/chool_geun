@@ -15,8 +15,10 @@ describe('어이없는 대화', () => {
     for (const s of SCENES) {
       expect(s.lines.length).toBeGreaterThanOrEqual(2);
       expect(s.lines.length).toBeLessThanOrEqual(7);
-      expect(s.lines[s.lines.length - 1].me).toBe(false);
-      expect(s.lines.some((l) => l.me)).toBe(true);
+      // 사이다는 반말: 존댓말 어미로 끝나지 않는다
+      expect(s.retort).not.toMatch(/(요|니다)[.?!]?$/);
+      const last = s.lines[s.lines.length - 1];
+      expect(last.me || last.sys).toBeFalsy();
       expect(s.retort.length).toBeGreaterThan(15);
       expect(s.retort.length).toBeLessThan(130);
       // 욕설은 그대로 쓰지 않고 가려서 쓴다

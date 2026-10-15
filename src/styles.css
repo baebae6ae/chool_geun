@@ -2835,3 +2835,14 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 @media (prefers-reduced-motion: reduce) {
   .ambient-body.shake { animation: none; }
 }
+
+.chat-sys {
+  margin: 2px 0;
+  justify-self: center;
+  color: var(--ink-2);
+  font-size: 0.74rem;
+  font-weight: 700;
+  animation: chat-pop 0.35s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.9s);
+}
+.chat-sys::before, .chat-sys::after { content: ' — '; opacity: 0.6; }
