@@ -5,7 +5,6 @@ import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSp
 import { ACTIVITY_LABEL, endDay, initialScene, planErrand, spotsFor, startDay, travel, visitScript, type Place, type Step, type VStep } from './brain';
 import { buzz } from '../../haptics';
 import { THING_ACTION, THING_LABEL, type Thing } from '../../domain/play';
-import { IGNORE_BEATS } from '../../domain/workMessage';
 import type { RareId } from '../../domain/rare';
 import { RotLayer, rotLevel } from './RotLayer';
 import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, SeasonDecor, WallClock, Wheel, Window, type Trophy } from './props';
@@ -37,7 +36,8 @@ interface Props {
   /** 친밀도 단계 (1~5). 이름 옆에 ♥로 보여 준다 */
   bond?: number;
   /** id가 바뀔 때마다 퇴근 후 업무 연락을 얄밉게 읽씹하는 연기를 한다 */
-  moment?: { id: number } | null;
+  /** 읽씹·사이다 같은 전용 연기: 정해진 동작을 차례로 한다 */
+  moment?: { id: number; beats: { action: FrontAction; ms: number }[] } | null;
   /** 지금 계절 이벤트 기간이면 방을 꾸민다 */
   season?: SeasonId | null;
   /** 다른 종의 손님이 놀러 왔다 */
@@ -508,13 +508,13 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
     buzz(10);
   };
 
-  // 읽씹하기: 읽음 보여주기 → 귀 막기 → 폰 던지기 → 허리에 손 얹고 씰룩 → 손키스 (읽씹 전용 동작, 총 10초쯤)
+  // 읽씹하기(읽음 보여주기 → 귀 막기 → 폰 던지기 → 씰룩 → 손키스)나 사이다(책상 쾅 → 벌컥 → 캬~) 같은 전용 연기
   const lastMoment = useRef(0);
   useEffect(() => {
     if (!moment || moment.id === lastMoment.current) return;
     lastMoment.current = moment.id;
     const pl = viewRef.current.place === 'bed' || viewRef.current.place === 'wheel' ? 'floor' : viewRef.current.place;
-    inject(IGNORE_BEATS.map((b) => act(b.action, b.ms, pl)));
+    inject(moment.beats.map((b) => act(b.action, b.ms, pl)));
   }, [moment, inject]);
 
   // 위로 버튼: 두 팔을 벌려 안아주기

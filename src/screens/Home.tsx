@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
 import { completedCount, daysUntilPayday } from '../domain/engine';
@@ -24,6 +24,7 @@ import { pinWidget, widgetAvailable } from '../widgetSync';
 import { activeSeason, seasonRangeText } from '../domain/seasons';
 import { recordVisit } from '../domain/visitors';
 import { ignoreWorkMessage, IGNORE_BEATS, IGNORE_FINAL_LINE, IGNORE_TOTAL_MS, pendingWorkMessage, stressRelief, type WorkMessage } from '../domain/workMessage';
+import { CIDER_BEATS, CIDER_FINAL_LINE, CIDER_TOTAL_MS, cleanStress, pendingChat, SLAM_HIT_MS, winChat, type ChatScene } from '../domain/chatScene';
 import { buzz } from '../haptics';
 import type { Species } from '../domain/types';
 import { addHeart, bondLevel, bondLine, BOND_TITLES, bumpStat, bumpThing, clockLine, SNARK_PET, thingLine, type ClockPhase, type Thing } from '../domain/play';
@@ -205,7 +206,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   };
   // 퇴근 후 업무 연락(가짜): 읽씹하기 버튼을 누르면 캐릭터가 한바탕 얄밉게 군다
   const [fx, setFx] = useState<{ msg: WorkMessage; stress: number } | null>(null);
-  const [moment, setMoment] = useState<{ id: number } | null>(null);
+  const [moment, setMoment] = useState<{ id: number; beats: { action: FrontAction; ms: number }[] } | null>(null);
   const ignoreTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => ignoreTimers.current.forEach(clearTimeout), []);
   const ignoreIt = () => {
@@ -213,7 +214,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     if (!m || fx) return;
     buzz([25, 45, 25]);
     setFx({ msg: m, stress: stressRelief() });
-    setMoment({ id: Date.now() });
+    setMoment({ id: Date.now(), beats: IGNORE_BEATS });
     // 동작이 시작될 때마다 한마디씩, 연기가 끝나면 마무리 한마디
     let at = 250;
     for (const beat of IGNORE_BEATS) {
@@ -225,6 +226,35 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     onState((s) => addHeart(ignoreWorkMessage(s, key, clockNow()), clockNow()).state);
     if (r.leveledUp) ignoreTimers.current.push(setTimeout(() => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`), at + 2600));
     ignoreTimers.current.push(setTimeout(() => setFx(null), IGNORE_TOTAL_MS + 2400));
+  };
+
+  // 근무 중 어이없는 대화(가짜): 사이다 날리기! → 책상 쾅, 답변이 화면에 꽂히고, 사이다를 마신다
+  const [chatFx, setChatFx] = useState<{ stage: 'wind' | 'hit'; stress: number; scene: ChatScene; stamp: string } | null>(null);
+  const [shake, setShake] = useState(false);
+  const cider = () => {
+    const c = pendingChat(stateRef.current, key, clockNow(), { bounds, clockedOut: !!day?.clockedOut, overtime: !!stateRef.current.overtime });
+    if (!c || chatFx) return;
+    buzz(20);
+    setChatFx({ stage: 'wind', stress: cleanStress(), scene: c.scene, stamp: c.stamp });
+    setMoment({ id: Date.now(), beats: CIDER_BEATS });
+    const later = (ms: number, fn: () => void) => ignoreTimers.current.push(setTimeout(fn, ms));
+    let at = 250;
+    for (const beat of CIDER_BEATS) {
+      later(at, () => say(beat.line));
+      at += beat.ms;
+    }
+    later(SLAM_HIT_MS, () => {
+      setChatFx((f) => (f ? { ...f, stage: 'hit' } : f));
+      setShake(true);
+      buzz([70, 30, 110]);
+    });
+    later(SLAM_HIT_MS + 650, () => setShake(false));
+    later(at + 100, () => say(CIDER_FINAL_LINE));
+    // 기록(업적 알림 포함)은 쾅 한 뒤에 남긴다
+    const r = addHeart(stateRef.current, clockNow());
+    later(SLAM_HIT_MS + 900, () => onState((s) => addHeart(winChat(s, key, clockNow()), clockNow()).state));
+    if (r.leveledUp) later(at + 2600, () => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`));
+    later(CIDER_TOTAL_MS + 3200, () => setChatFx(null));
   };
 
   // 다른 종의 손님이 놀러 왔다: 도감에 기록한다 (인사는 손님이 직접 말풍선으로 해서 따로 말하지 않는다)
@@ -296,6 +326,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const canOvertime = !otActive && !!day && !!item && !!bounds && now >= bounds.end;
   const workMsg = pendingWorkMessage(state, key, now, { clockedOut: !!day?.clockedOut, overtime: otActive });
   const shownMsg = fx?.msg ?? workMsg;
+  const pendChat = pendingChat(state, key, now, { bounds, clockedOut: !!day?.clockedOut, overtime: otActive });
+  const shownChat = chatFx ? { scene: chatFx.scene, stamp: chatFx.stamp } : pendChat;
   const otLiveFn = () => (otDate ? (liveOvertime(stateRef.current, otDate, clockNow()) ?? { ms: 0, pay: 0, owed: 0 }) : { ms: 0, pay: 0, owed: 0 });
   useEffect(() => {
     const root = document.documentElement;
@@ -420,7 +452,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         )}
       </header>
 
-      <div className="ambient-body">
+      <div className={`ambient-body${shake ? ' shake' : ''}`}>
         <Habitat
           custom={custom}
           mood={mood}
@@ -466,6 +498,45 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
               <button type="button" className="msg-btn" onClick={ignoreIt}>
                 읽씹하기!
               </button>
+            )}
+          </section>
+        )}
+
+        {shownChat && (
+          <section className={`msg-card chat-card ${chatFx ? 'done' : ''} ${chatFx?.stage === 'hit' ? 'hit' : ''}`} aria-label="근무 중 어이없는 대화 (가짜)">
+            <div className="msg-head">
+              <span className="msg-bell" aria-hidden>💬</span>
+              <b>어이없는 대화</b>
+              <small>앱이 만든 가짜예요</small>
+            </div>
+            <div className="chat-who">{shownChat.scene.who}</div>
+            <div className="chat-log">
+              {shownChat.scene.lines.map((l, i) => (
+                <Fragment key={i}>
+                  {i === shownChat.scene.lines.length - 1 && !chatFx && (
+                    <span className="chat-dots" style={{ '--i': i } as React.CSSProperties} aria-hidden>
+                      <i /><i /><i />
+                    </span>
+                  )}
+                  <p className={`chat-bub ${l.me ? 'me' : 'them'}`} style={{ '--i': i } as React.CSSProperties}>
+                    {l.text}
+                  </p>
+                </Fragment>
+              ))}
+              {chatFx?.stage === 'hit' && <p className="chat-bub me retort">{shownChat.scene.retort}</p>}
+            </div>
+            {!chatFx ? (
+              <button type="button" className="chat-btn" style={{ '--i': shownChat.scene.lines.length } as React.CSSProperties} onClick={cider}>
+                🥤 사이다 날리기!
+              </button>
+            ) : chatFx.stage === 'wind' ? (
+              <div className="chat-wait" role="status">…</div>
+            ) : (
+              <div className="msg-done" role="status">
+                <span className="chat-note">상대방이 입력을 멈췄습니다</span>
+                <span className="msg-stamp chat-stamp">{chatFx.stamp}</span>
+                <span className="msg-meta">읽음 ✓✓ · 상대는 말이 없음 · 스트레스 -{chatFx.stress}% (재미용)</span>
+              </div>
             )}
           </section>
         )}

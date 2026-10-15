@@ -44,7 +44,11 @@ export type FrontAction =
   | 'earplug'
   | 'phoneToss'
   | 'hipsway'
-  | 'blowkiss';
+  | 'blowkiss'
+  // 사이다 논파 전용 연기
+  | 'slam'
+  | 'cider'
+  | 'ahh';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -146,9 +150,13 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
   const sp = custom.species ?? 'hamster';
   const shape = FRONT_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
-  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' =
+  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' | 'fierce' =
     action === 'doom'
       ? 'doom'
+      : action === 'slam'
+      ? 'fierce'
+      : action === 'ahh'
+      ? 'squeeze'
       : action === 'smug' || action === 'shrug' || action === 'slowclap' || action === 'phoneShow' || action === 'hipsway'
       ? 'smug'
       : action === 'tongue' || action === 'blowkiss'
@@ -161,7 +169,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
       ? 'closed'
       : action === 'doze'
         ? 'sleepy'
-        : action === 'nibble' || action === 'sip' || action === 'dance' || action === 'cheer' || action === 'heart' || action === 'shy' || action === 'meal' || action === 'snack' || action === 'phone'
+        : action === 'nibble' || action === 'sip' || action === 'cider' || action === 'dance' || action === 'cheer' || action === 'heart' || action === 'shy' || action === 'meal' || action === 'snack' || action === 'phone'
           ? 'happy'
           : action === 'dizzy'
             ? 'spiral'
@@ -169,9 +177,13 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               ? 'squeeze'
               : 'open';
   const lookUp = action === 'look';
-  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' | 'kiss' =
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' | 'kiss' | 'shout' =
     action === 'doom'
       ? 'frown'
+      : action === 'slam'
+      ? 'shout'
+      : action === 'ahh'
+      ? 'smile'
       : action === 'smug' || action === 'shrug' || action === 'slowclap' || action === 'phoneShow'
       ? 'smirk'
       : action === 'tongue' || action === 'hipsway'
@@ -285,6 +297,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d="M39.4 58.6 a3.6 3.3 0 0 0 7.2 0z M73.4 58.6 a3.6 3.3 0 0 0 7.2 0z" fill={sp === 'cat' ? BLUE_EYE : EYE} stroke={sp === 'cat' ? INK : 'none'} strokeWidth=".8" />
             <path d="M37 53.4 q5 1.4 11 4 M71 49.6 q6 -4.6 12 -1.2" stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" />
           </g>
+        ) : eyes === 'fierce' ? (
+          // 눈을 부릅뜨고 눈썹을 세운 "이건 못 참아" 표정
+          <g>
+            <OpenEyes sp={sp} y={(sp === 'rabbit' ? 58 : 57)} />
+            <path d="M36 51.6 l13 4.6 M84 51.6 l-13 4.6" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+          </g>
         ) : eyes === 'wink' ? (
           // 한쪽 눈은 감고 메롱
           <g>
@@ -309,7 +327,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <FrontNose sp={sp} />
         {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
         {sp === 'bird' ? (
-          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o' || mouth === 'tongue'} />
+          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o' || mouth === 'tongue' || mouth === 'shout'} />
         ) : sp === 'rabbit' && (mouth === 'small' || mouth === 'smile') ? (
           mouth === 'smile' ? (
             <path className="hs-mouth" d="M57.2 68.4 Q60 69.6 62.8 68.4 Q62.2 72.2 60 72.2 Q57.8 72.2 57.2 68.4Z" fill={MOUTH} stroke={INK} strokeWidth="1.5" />
@@ -329,6 +347,11 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <g className="hs-mouth" stroke={INK} strokeWidth="1.9" fill="none" strokeLinecap="round">
             <path d="M53.6 66.6 q6.4 4 13.2 -1.8" />
             <path d="M67.4 65.2 l1.8 -1.6" strokeWidth="1.4" />
+          </g>
+        ) : mouth === 'shout' ? (
+          <g className="hs-mouth" strokeLinejoin="round">
+            <path d="M53 63.6 Q60 61.4 67 63.6 Q68 74.6 60 74.6 Q52 74.6 53 63.6Z" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
+            <path d="M55.6 71.4 Q60 68.2 64.4 71.4 Q62.4 73.6 60 73.6 Q57.6 73.6 55.6 71.4Z" fill={TONGUE} />
           </g>
         ) : mouth === 'kiss' ? (
           <g className="hs-mouth" stroke={INK} strokeLinecap="round">
@@ -366,7 +389,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         ) : null}
 
         <HeldProp action={action} />
-        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug', 'phoneShow', 'phoneToss', 'blowkiss'].includes(action) ? 'translate(0 14)' : undefined}>
+        <g transform={sp === 'cat' && ['yawn', 'dance', 'cheer', 'hug', 'tongue', 'shrug', 'phoneShow', 'phoneToss', 'blowkiss', 'ahh'].includes(action) ? 'translate(0 14)' : undefined}>
           <FrontHands action={action} c={c} still={still} />
         </g>
         {holding && (
@@ -414,6 +437,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           </g>
         )}
 
+        {action === 'slam' && <SlamDesk c={c} />}
         {custom.glasses && (
           <g stroke={INK} strokeWidth="1.8" fill="#ffffff" fillOpacity=".2">
             <circle cx="43" cy="57" r="8" />
@@ -490,6 +514,27 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
           <path d={star(12, 24, 5)} />
           <path d={star(108, 20, 4.4)} />
         </g>
+      )}
+      {action === 'cider' && (
+        <g className="hs-fizz" fill="#ffffff" stroke="#7fc6a0" strokeWidth="1.1">
+          <circle cx="52" cy="70" r="2.2" />
+          <circle cx="60" cy="64" r="2.8" />
+          <circle cx="68" cy="69" r="2" />
+          <circle cx="57" cy="58" r="1.6" />
+        </g>
+      )}
+      {action === 'ahh' && (
+        <>
+          <g className="hs-fizz-loop" fill="#ffffff" stroke="#7fc6a0" strokeWidth="1.1">
+            <circle cx="98" cy="22" r="2.4" />
+            <circle cx="108" cy="16" r="1.8" />
+            <circle cx="104" cy="28" r="1.5" />
+          </g>
+          <g className="hs-sparkle" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+            <path d={star(14, 22, 5)} />
+            <path d={star(60, 6, 3.6)} />
+          </g>
+        </>
       )}
       {action === 'blowkiss' && (
         <g className="hs-kiss-heart">
@@ -831,6 +876,25 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
           <g className="hs-hand hs-kiss-arm"><Arm from={[94, 74]} to={[75, 72]} c={c} /></g>
         </>
       );
+    case 'slam':
+      // 책상을 내려치는 두 팔은 책상과 함께 SlamDesk에서 그린다
+      return null;
+    case 'cider':
+      // 캔을 두 손으로 잡고 벌컥벌컥 (캔은 HeldProp)
+      return (
+        <g className="hs-can">
+          <Paw x={51} y={90} rot={-25} />
+          <Paw x={69} y={90} rot={25} />
+        </g>
+      );
+    case 'ahh':
+      // "캬~" 한 손에 캔을 높이 들고 (캔은 HeldProp)
+      return (
+        <>
+          <Paw x={46} y={91} rot={-20} />
+          <g className="hs-hand hs-ahh-arm"><Arm from={[94, 68]} to={[103, 53]} c={c} /></g>
+        </>
+      );
     case 'smug':
       // 팔짱: 짧은 팔 두 개를 배 위에서 엇갈리게 얹는다 (팔 길이는 다른 동작과 같다)
       return sp === 'cat' ? (
@@ -1008,9 +1072,9 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
  */
 function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; still: boolean }) {
   const mode: 'fold' | 'up' | 'wave' | 'open' | 'ear' =
-    action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue'
+    action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue' || action === 'slam'
       ? 'up'
-      : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss'
+      : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss' || action === 'ahh'
         ? 'wave'
         : action === 'earplug'
           ? 'ear'
@@ -1081,9 +1145,72 @@ function PhoneScreen() {
   );
 }
 
+/** 사이다 캔 (원점이 캔의 한가운데) */
+function CiderCan() {
+  return (
+    <g stroke={INK} strokeWidth="1.5" strokeLinejoin="round">
+      <rect x="-7" y="-11" width="14" height="22" rx="3.2" fill="#eefaf2" />
+      <rect x="-7" y="-3.5" width="14" height="10" fill="#46b97a" stroke="none" />
+      <path d="M-7 -3.5 h14 M-7 6.5 h14" fill="none" />
+      <ellipse cy="-11" rx="6.4" ry="1.9" fill="#c9d0d6" />
+      <path d="M-2.4 -11.4 h4.4" strokeWidth="1.2" fill="none" />
+      <circle cx="-2.4" cy="0" r="1.4" fill="#fff" stroke="none" />
+      <circle cx="2.2" cy="2.4" r="1.1" fill="#fff" stroke="none" />
+      <circle cx="0" cy="-1.6" r=".8" fill="#fff" stroke="none" />
+    </g>
+  );
+}
+
+/** 책상을 쾅! 내려치는 장면: 책상, 번쩍 든 두 팔, 충격 표시 (책상 앞쪽에서 캐릭터가 선 것처럼 보인다) */
+function SlamDesk({ c }: { c: Palette }) {
+  const { sp } = useContext(SpeciesCtx);
+  const y = sp === 'cat' ? 104 : 91;
+  const dy = sp === 'cat' ? 14 : 0;
+  const ray = (x: number, d: number) => `M${x + 12 * d} ${y - 8} l${7 * d} -4 M${x + 8 * d} ${y - 16} l${4 * d} -7 M${x + 14 * d} ${y - 1} l${7 * d} 0`;
+  return (
+    <>
+      <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+        <rect x="6" y={y} width="108" height="9" rx="3" fill="#dba76d" />
+        <rect x="9" y={y + 9} width="102" height="16" fill="#c4854a" />
+        <path d={`M16 ${y + 3.6} h26 M60 ${y + 3.6} h12`} stroke="#b3763e" strokeWidth="1.2" fill="none" />
+      </g>
+      {sp !== 'bird' && (
+        <>
+          <g className="hs-hand hs-slam-l" style={{ transformOrigin: `26px ${68 + dy}px` }}><Arm from={[26, 68 + dy]} to={[18, 50 + dy]} c={c} /></g>
+          <g className="hs-hand hs-slam-r" style={{ transformOrigin: `94px ${68 + dy}px` }}><Arm from={[94, 68 + dy]} to={[102, 50 + dy]} c={c} /></g>
+        </>
+      )}
+      <g className="hs-impact" fill="none" stroke="#e8504b" strokeWidth="2.6" strokeLinecap="round">
+        <path d={ray(24, -1)} />
+        <path d={ray(96, 1)} />
+        <text x="85" y="19" fontSize="17" fontWeight="900" fontFamily="system-ui, sans-serif" fill="#e8504b" stroke="#fff" strokeWidth="3" paintOrder="stroke" transform="rotate(10 96 14)">쾅!</text>
+      </g>
+    </>
+  );
+}
+
 /** 쉬는 날 일과에서 손에 든 물건 (손·날개는 이 위에 그린다) */
 function HeldProp({ action }: { action: FrontAction }) {
+  const { sp } = useContext(SpeciesCtx);
   switch (action) {
+    case 'cider':
+      return (
+        <g className="hs-can">
+          <g transform="translate(60 88)">
+            <CiderCan />
+          </g>
+        </g>
+      );
+    case 'ahh':
+      return (
+        <g transform={sp === 'cat' ? 'translate(0 14)' : undefined}>
+          <g className="hs-ahh-can">
+            <g transform="translate(107 40) rotate(14)">
+              <CiderCan />
+            </g>
+          </g>
+        </g>
+      );
     case 'meal':
       // 밥그릇과 젓가락
       return (

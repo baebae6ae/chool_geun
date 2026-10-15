@@ -30,6 +30,7 @@ export interface AchContext {
   visitors: number;
   seasonItems: number;
   ignored: number;
+  chatWins: number;
 }
 
 export interface Achievement {
@@ -64,6 +65,7 @@ export function achievementContext(state: AppState): AchContext {
     visitors: Object.keys(state.visitors ?? {}).length,
     seasonItems: ownedSeasonItems(state).length,
     ignored: state.stats?.ignored ?? 0,
+    chatWins: state.stats?.chatWins ?? 0,
   };
 }
 
@@ -95,6 +97,9 @@ export const ACHIEVEMENTS: Achievement[] = [
   a('ignore-1', '첫 읽씹', '퇴근 후 업무 연락을 읽씹해요', 'bubble', 'bronze', 1, (c) => c.ignored),
   a('ignore-10', '읽씹 장인', '퇴근 후 업무 연락을 10번 읽씹해요', 'bubble', 'silver', 10, (c) => c.ignored),
   a('ignore-30', '읽씹 마스터', '퇴근 후 업무 연락을 30번 읽씹해요', 'bubble', 'gold', 30, (c) => c.ignored),
+  a('cider-1', '첫 사이다', '어이없는 대화에 사이다를 날려요', 'bubble', 'bronze', 1, (c) => c.chatWins),
+  a('cider-10', '사이다 장인', '사이다를 10번 날려요', 'bubble', 'silver', 10, (c) => c.chatWins),
+  a('cider-30', '사이다 마스터', '사이다를 30번 날려요', 'bubble', 'gold', 30, (c) => c.chatWins),
   a('guest-1', '첫 손님', '다른 친구가 놀러 와요', 'paw', 'bronze', 1, (c) => c.visitors),
   a('guest-3', '손님 접대왕', '세 종류의 손님을 모두 만나요', 'paw', 'silver', 3, (c) => c.visitors),
   a('season-1', '한정 아이템', '계절 이벤트 한정 아이템을 받아요', 'gift', 'bronze', 1, (c) => c.seasonItems),

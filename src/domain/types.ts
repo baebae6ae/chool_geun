@@ -137,11 +137,13 @@ export interface AppState {
   /** 친밀도: 쓰다듬고 간식 줄수록 쌓이는 하트 (하루 최대 10개) */
   bond?: { hearts: number; today?: { date: string; n: number } };
   /** 누적 기록 (업적용) */
-  stats?: { pet?: number; feed?: number; hug?: number; ignored?: number; things?: Partial<Record<'window' | 'clock' | 'wheel' | 'nest' | 'desk', number>> };
+  stats?: { pet?: number; feed?: number; hug?: number; ignored?: number; chatWins?: number; things?: Partial<Record<'window' | 'clock' | 'wheel' | 'nest' | 'desk', number>> };
   /** 놀러 온 손님 도감 */
   visitors?: Partial<Record<Species, { first: number; count: number }>>;
   /** 평일 저녁 가짜 업무 연락을 읽씹한 날 */
   evening?: Record<string, { readAt: number }>;
+  /** 근무 중 어이없는 대화에 사이다를 날린 날 */
+  chat?: Record<string, { doneAt: number }>;
   /** 달성한 업적 (id → 처음 달성한 시각) */
   achievements?: Record<string, number>;
   /** 계절 이벤트 기간에 앱을 켠 날짜들 (`이벤트:연도` → 날짜 목록) */

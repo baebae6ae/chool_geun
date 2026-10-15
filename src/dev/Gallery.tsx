@@ -11,7 +11,7 @@ import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
 
-const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap', 'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss'];
+const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap', 'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss', 'slam', 'cider', 'ahh'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
 
 /** 개발용: `?gallery` 로 모든 자세를 한눈에 본다 */

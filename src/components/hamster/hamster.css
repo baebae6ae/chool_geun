@@ -511,3 +511,66 @@
   45% { opacity: 1; }
   100% { opacity: 0; transform: translate(36px, -34px) scale(1.5); }
 }
+
+/* 사이다 논파 전용 연기 */
+.hs-front.act-slam .hs-bob { animation: hs-slam-body 1.7s ease-in forwards; }
+@keyframes hs-slam-body {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-4px) rotate(-1.5deg); }
+  42% { transform: translateY(-6px) rotate(-1.5deg); }
+  56% { transform: translateY(3px) rotate(0); }
+  66% { transform: translateY(-1.5px); }
+  100% { transform: translateY(0); }
+}
+.hs-slam-l { animation: hs-slam-l 1.7s linear forwards; }
+.hs-slam-r { animation: hs-slam-r 1.7s linear forwards; }
+@keyframes hs-slam-l {
+  0% { transform: rotate(0); animation-timing-function: ease-out; }
+  40% { transform: rotate(14deg); animation-timing-function: cubic-bezier(0.6, 0, 1, 0.5); }
+  54% { transform: rotate(-150deg); animation-timing-function: ease-out; }
+  62% { transform: rotate(-142deg); animation-timing-function: ease-in; }
+  100% { transform: rotate(-150deg); }
+}
+@keyframes hs-slam-r {
+  0% { transform: rotate(0); animation-timing-function: ease-out; }
+  40% { transform: rotate(-14deg); animation-timing-function: cubic-bezier(0.6, 0, 1, 0.5); }
+  54% { transform: rotate(150deg); animation-timing-function: ease-out; }
+  62% { transform: rotate(142deg); animation-timing-function: ease-in; }
+  100% { transform: rotate(150deg); }
+}
+.hs-impact { opacity: 0; animation: hs-impact 1.7s ease-out forwards; }
+@keyframes hs-impact {
+  0%, 53% { opacity: 0; }
+  57% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.hs-front.act-cider .hs-bob { animation: hs-gulp 2.9s ease-in-out forwards; }
+@keyframes hs-gulp {
+  0%, 45% { transform: rotate(0); }
+  55%, 80% { transform: rotate(-3deg) translateY(1px); }
+  100% { transform: rotate(0); }
+}
+.hs-can { transform-box: view-box; transform-origin: 60px 88px; animation: hs-can-sip 2.9s ease-in-out forwards; }
+@keyframes hs-can-sip {
+  0%, 6% { transform: translate(0, 0) rotate(0); }
+  9% { transform: rotate(-8deg); }
+  12% { transform: rotate(8deg); }
+  15% { transform: rotate(-5deg); }
+  18% { transform: translate(0, 0) rotate(0); }
+  40% { transform: translate(0, -17px) rotate(0); }
+  52%, 80% { transform: translate(0, -19px) rotate(-32deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+.hs-fizz { opacity: 0; animation: hs-fizz 2.9s ease-out forwards; }
+@keyframes hs-fizz {
+  0%, 16% { opacity: 0; transform: translateY(6px); }
+  22% { opacity: 1; }
+  40% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 0; }
+}
+.hs-front.act-ahh .hs-bob { animation: hs-hop 0.7s ease-in-out infinite alternate; }
+.hs-ahh-arm { transform-origin: 94px 68px; animation: hs-ahh-arm 0.7s ease-in-out infinite alternate; }
+@keyframes hs-ahh-arm { from { transform: rotate(-5deg); } to { transform: rotate(6deg); } }
+.hs-ahh-can { transform-box: view-box; transform-origin: 105px 53px; animation: hs-ahh-arm 0.7s ease-in-out infinite alternate; }
+.hs-fizz-loop { animation: hs-float 1s ease-in-out infinite; }

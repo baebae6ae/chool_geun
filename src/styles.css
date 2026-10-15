@@ -2742,3 +2742,96 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 @keyframes msg-ring { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-14deg); } }
 @keyframes msg-stamp { from { opacity: 0; transform: rotate(-6deg) scale(2.6); } }
 @keyframes msg-bye { to { opacity: 0; transform: translateX(110%) rotate(10deg); } }
+
+/* 어이없는 대화 (가짜) — 사이다 날리기! */
+.chat-who { color: var(--ink-2); font-size: 0.74rem; font-weight: 700; }
+.chat-log { display: grid; gap: 5px; }
+.chat-bub {
+  margin: 0;
+  max-width: 86%;
+  justify-self: start;
+  padding: 7px 11px;
+  border-radius: 4px 14px 14px 14px;
+  background: color-mix(in srgb, var(--ink) 9%, var(--card));
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: keep-all;
+  animation: chat-pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.9s);
+}
+.chat-bub.me {
+  justify-self: end;
+  border-radius: 14px 4px 14px 14px;
+  background: color-mix(in srgb, var(--accent, #f2a65a) 30%, var(--card));
+}
+.chat-bub.retort {
+  max-width: 96%;
+  padding: 10px 14px;
+  border: 2px solid #0e7e96;
+  background: linear-gradient(180deg, #36d3ea, #12a3c0);
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 900;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 0 #0e7e96;
+  animation: chat-slam 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.chat-dots {
+  justify-self: start;
+  display: inline-flex;
+  gap: 4px;
+  padding: 9px 12px;
+  border-radius: 4px 14px 14px 14px;
+  background: color-mix(in srgb, var(--ink) 9%, var(--card));
+  overflow: hidden;
+  animation: chat-dots 0.9s both;
+  animation-delay: calc((var(--i, 1) - 1) * 0.9s + 0.35s);
+}
+.chat-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); animation: chat-dot 0.6s ease-in-out infinite alternate; }
+.chat-dots i:nth-child(2) { animation-delay: 0.15s; }
+.chat-dots i:nth-child(3) { animation-delay: 0.3s; }
+.chat-btn {
+  min-height: 48px;
+  border: 2px solid #0e7e96;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #36d3ea, #12a3c0);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 0 #0e7e96;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: chat-pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.9s + 0.1s);
+}
+.chat-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0e7e96; }
+.chat-wait { min-height: 48px; display: grid; place-items: center; color: var(--ink-2); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.3em; }
+.chat-note { color: var(--ink-2); font-size: 0.74rem; font-weight: 700; }
+.chat-stamp { border-color: #0e8fae; color: #0e8fae; }
+.chat-card.done { animation: none; }
+.chat-card.hit { animation: chat-hit 0.5s ease-out; }
+.ambient-body.shake { animation: screen-shake 0.55s ease-out; }
+@keyframes chat-pop { from { opacity: 0; transform: translateY(8px) scale(0.92); } }
+@keyframes chat-slam {
+  0% { opacity: 0; transform: translateY(-46px) scale(1.8) rotate(-5deg); }
+  60% { opacity: 1; transform: translateY(2px) scale(0.96) rotate(1deg); }
+  100% { transform: none; }
+}
+@keyframes chat-dots { 0% { opacity: 0; max-height: 0; padding-block: 0; } 12%, 85% { opacity: 1; max-height: 36px; } 100% { opacity: 0; max-height: 0; padding-block: 0; } }
+@keyframes chat-dot { to { transform: translateY(-3px); opacity: 0.5; } }
+@keyframes chat-hit { 0% { transform: scale(1); } 20% { transform: scale(1.035) rotate(-0.6deg); } 100% { transform: scale(1); } }
+@keyframes screen-shake {
+  0% { transform: translate(0, 0); }
+  14% { transform: translate(-7px, 4px); }
+  28% { transform: translate(6px, -5px); }
+  42% { transform: translate(-5px, 3px); }
+  58% { transform: translate(4px, -2px); }
+  75% { transform: translate(-2px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient-body.shake { animation: none; }
+}
