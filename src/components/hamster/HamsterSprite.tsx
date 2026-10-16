@@ -148,6 +148,7 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
 
 function FrontView({ c, clip, action, custom, className, still }: ViewProps<FrontAction>) {
   const sp = custom.species ?? 'hamster';
+  const lop = isLop(custom);
   const shape = FRONT_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' | 'fierce' =
@@ -222,13 +223,19 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               <circle cx="89" cy="26" r="9.5" />
             </>
           )}
+          {sp === 'rabbit' && !lop && (
+            <>
+              <path d={BUN_EAR_L} />
+              <path d={BUN_EAR_R} />
+            </>
+          )}
           <path d={shape.body} />
           {sp === 'cat' && <path d={CAT.head.body} />}
           <ellipse cx="45" cy="106.5" rx="7" ry="3.8" />
           <ellipse cx="75" cy="106.5" rx="7" ry="3.8" />
         </g>
         {/* 귀 */}
-        <FrontBack sp={sp} c={c} />
+        <FrontBack sp={sp} c={c} lop={lop} />
 
         {/* 볼주머니 (몸 뒤에 먼저 그려서 바깥쪽 윤곽만 보이게) */}
         {stuffed && (
@@ -256,7 +263,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d={CAT.head.body} fill="none" stroke={INK} strokeWidth={LINE} />
           </>
         )}
-        <FrontOver sp={sp} c={c} uid={clip} />
+        <FrontOver sp={sp} c={c} uid={clip} lop={lop} />
         {stuffed ? (
           <g className="hs-cheeks" fill={bc.body}>
             <circle cx="22" cy="70" r="12.6" />
@@ -617,7 +624,7 @@ function Paw({ x, y, rot = 0 }: { x: number; y: number; rot?: number }) {
 }
 
 /** 몸 뒤에 그리는 부분: 귀(햄스터·고양이), 새의 날개와 머리깃 */
-function FrontBack({ sp, c }: { sp: Species; c: Palette }) {
+function FrontBack({ sp, c, lop = false }: { sp: Species; c: Palette; lop?: boolean }) {
   if (sp === 'bird') {
     return (
       <g strokeLinejoin="round">
@@ -651,7 +658,7 @@ function FrontBack({ sp, c }: { sp: Species; c: Palette }) {
       </g>
     );
   }
-  if (sp === 'rabbit') return null;
+  if (sp === 'rabbit') return lop ? null : <BunEars c={c} />;
   return (
     <g className="hs-ears" fill={c.ear} stroke={INK} strokeWidth={LINE}>
       <circle className="hs-ear-l" cx="31" cy="26" r="9.5" />
@@ -660,8 +667,32 @@ function FrontBack({ sp, c }: { sp: Species; c: Palette }) {
   );
 }
 
+/** 롭이어(히든)인지: 귀만 다르고 나머지는 토끼와 같다 */
+function isLop(custom: Customization): boolean {
+  return (custom.species as string) === 'lop';
+}
+
+/** 일반 토끼의 쫑긋 선 귀 (정면, 몸 뒤에 그려서 귀 뿌리가 머리에 묻힌다) */
+const BUN_EAR_L = 'M40 42 C34 31 32 17 36 8 C39 2 47 2 50 9 C53 17 55 29 55 41Z';
+const BUN_EAR_R = 'M80 42 C86 31 88 17 84 8 C81 2 73 2 70 9 C67 17 65 29 65 41Z';
+function BunEars({ c }: { c: Palette }) {
+  return (
+    <g className="hs-ears" strokeLinejoin="round">
+      <g className="hs-bun-l">
+        <path d={BUN_EAR_L} fill={c.body} stroke={INK} strokeWidth={LINE} />
+        <path d="M42.6 35 C39.6 27 38.8 17 41 11 C43 7.6 46.4 8 47.8 12.4 C49.6 19 50.4 27 50.4 35Z" fill={PINK} opacity=".9" />
+      </g>
+      <g className="hs-bun-r">
+        <path d={BUN_EAR_R} fill={c.body} stroke={INK} strokeWidth={LINE} />
+        <path d="M77.4 35 C80.4 27 81.2 17 79 11 C77 7.6 73.6 8 72.2 12.4 C70.4 19 69.6 27 69.6 35Z" fill={PINK} opacity=".9" />
+      </g>
+    </g>
+  );
+}
+
 /** 몸 위에 얹는 부분: 롭이어 토끼의 축 처진 귀, 샴고양이의 얼굴 마스크 */
-function FrontOver({ sp, c, uid }: { sp: Species; c: Palette; uid: string }) {
+function FrontOver({ sp, c, uid, lop = false }: { sp: Species; c: Palette; uid: string; lop?: boolean }) {
+  if (sp === 'rabbit' && !lop) return null;
   if (sp === 'rabbit') {
     // 머리 위 양옆에서 볼을 따라 축 늘어진 가는 귀
     return (
@@ -1581,12 +1612,20 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
           </g>
         )}
 
+        {sp === 'rabbit' && !isLop(custom) && (
+          // 잘 때는 귀를 등 뒤로 납작하게 눕힌다
+          <g stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
+            <path d="M58 44 C50 36 38 28 27 27 C20 27 18 33 23 37 C32 43 45 46 56 48Z" fill={c.body} />
+            <path d="M82 44 C90 36 102 28 113 27 C120 27 122 33 117 37 C108 43 95 46 84 48Z" fill={c.body} />
+            <path d="M50 42 C42 36 34 32 28 31.6 C25 31.6 25 34 27.6 35.4 C34 39 42 42 50 44Z M90 42 C98 36 106 32 112 31.6 C115 31.6 115 34 112.4 35.4 C106 39 98 42 90 44Z" fill={PINK} stroke="none" opacity=".9" />
+          </g>
+        )}
         <PencilBody d={LOAF.body} c={bc} uid={clip} />
         <g clipPath={`url(#${clip})`}>
           <SideOutfit id={custom.outfit} />
         </g>
         <path d={LOAF.body} fill="none" stroke={INK} strokeWidth={LINE} />
-        {sp === 'rabbit' && (
+        {sp === 'rabbit' && isLop(custom) && (
           <g fill={c.ear} stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
             <path d="M40 44 C30 43 22 54 21 66 C20 76 25 82 31 79 C35 76 36 68 38 60 C40 53 43 47 40 44Z" />
             <path d="M100 44 C110 43 118 54 119 66 C120 76 115 82 109 79 C105 76 104 68 102 60 C100 53 97 47 100 44Z" />
@@ -1701,7 +1740,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 꼬리 · 귀 */}
         <SideTail sp={sp} c={c} />
-        <SideEar sp={sp} c={c} />
+        <SideEar sp={sp} c={c} lop={isLop(custom)} />
 
         {/* 몸 */}
         <PencilBody d={shape.body} c={bc} uid={clip} />
@@ -1716,7 +1755,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
             <path d="M44 66 q8 4 16 2 M46 75 q8 3 16 0" fill="none" strokeWidth="1.3" opacity=".6" />
           </g>
         )}
-        {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} />}
+        {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} lop={isLop(custom)} />}
         {sp === 'cat' && (
           <>
             <PencilBody d={CAT_SIDE_HEAD.body} c={bc} uid={`${clip}-h`} />
@@ -1824,7 +1863,7 @@ function SideTail({ sp, c }: { sp: Species; c: Palette }) {
   return <ellipse cx="31" cy="72" rx="4.4" ry="3.4" fill={c.body} stroke={INK} strokeWidth="2" />;
 }
 
-function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
+function SideEar({ sp, c, lop = false }: { sp: Species | 'rabbit-front'; c: Palette; lop?: boolean }) {
   if (sp === 'bird') {
     return (
       <g fill={c.body} stroke={INK} strokeWidth="1.8" strokeLinejoin="round">
@@ -1833,7 +1872,27 @@ function SideEar({ sp, c }: { sp: Species | 'rabbit-front'; c: Palette }) {
       </g>
     );
   }
-  if (sp === 'rabbit') return null;
+  if (sp === 'rabbit') {
+    if (lop) return null;
+    // 먼 쪽 귀: 몸 뒤에, 살짝 뒤로 눕고 조금 어둡게
+    return (
+      <g className="hs-ears" strokeLinejoin="round">
+        <g className="hs-bun-s2">
+          <path d="M77 40 C70 28 66 15 68 5 C70 -1 77 0 80 7 C84 16 85 28 86 38Z" fill={c.shade} stroke={INK} strokeWidth={LINE} />
+        </g>
+      </g>
+    );
+  }
+  if (sp === 'rabbit-front' && !lop) {
+    return (
+      <g className="hs-ears" strokeLinejoin="round">
+        <g className="hs-bun-s">
+          <path d="M84 40 C79 27 78 13 82 4 C85 -2 93 -1 95 6 C98 15 97 28 96 39Z" fill={c.body} stroke={INK} strokeWidth={LINE} />
+          <path d="M86.4 33 C83.6 25 83 15 85.4 8.4 C87.4 4.6 90.8 5.4 91.8 9.6 C93.2 16 93 25 92.4 33Z" fill={PINK} opacity=".9" />
+        </g>
+      </g>
+    );
+  }
   if (sp === 'rabbit-front') {
     return (
       <g className="hs-ears" strokeLinejoin="round">

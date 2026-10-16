@@ -574,3 +574,18 @@
 @keyframes hs-ahh-arm { from { transform: rotate(-5deg); } to { transform: rotate(6deg); } }
 .hs-ahh-can { transform-box: view-box; transform-origin: 105px 53px; animation: hs-ahh-arm 0.7s ease-in-out infinite alternate; }
 .hs-fizz-loop { animation: hs-float 1s ease-in-out infinite; }
+
+/* 일반 토끼 귀: 가끔 한쪽 귀를 쫑긋 */
+.hs-bun-l, .hs-bun-r, .hs-bun-s, .hs-bun-s2 { transform-box: view-box; }
+.hs-bun-l { transform-origin: 47px 38px; animation: hs-bun-l 6s ease-in-out infinite; }
+.hs-bun-r { transform-origin: 73px 38px; animation: hs-bun-r 6s ease-in-out 2.2s infinite; }
+.hs-bun-s { transform-origin: 90px 36px; animation: hs-bun-l 6s ease-in-out 1s infinite; }
+.hs-bun-s2 { transform-origin: 80px 36px; animation: hs-bun-l 6s ease-in-out 1.4s infinite; }
+@keyframes hs-bun-l { 0%, 84%, 100% { transform: rotate(0); } 88% { transform: rotate(-9deg); } 92% { transform: rotate(3deg); } 96% { transform: rotate(-1deg); } }
+@keyframes hs-bun-r { 0%, 84%, 100% { transform: rotate(0); } 88% { transform: rotate(9deg); } 92% { transform: rotate(-3deg); } 96% { transform: rotate(1deg); } }
+.act-dance .hs-bun-l, .act-cheer .hs-bun-l, .act-hug .hs-bun-l { animation: hs-bun-big-l 0.42s ease-in-out infinite alternate; }
+.act-dance .hs-bun-r, .act-cheer .hs-bun-r, .act-hug .hs-bun-r { animation: hs-bun-big-r 0.42s ease-in-out 0.1s infinite alternate; }
+.act-run .hs-bun-s, .act-run .hs-bun-s2 { animation: hs-bun-run 0.2s ease-in-out infinite alternate; }
+@keyframes hs-bun-big-l { from { transform: rotate(-8deg); } to { transform: rotate(5deg); } }
+@keyframes hs-bun-big-r { from { transform: rotate(8deg); } to { transform: rotate(-5deg); } }
+@keyframes hs-bun-run { from { transform: rotate(-4deg); } to { transform: rotate(-14deg); } }
