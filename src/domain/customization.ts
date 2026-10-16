@@ -15,6 +15,8 @@ export interface CatalogItem<T extends string> {
   label: string;
   emoji: string;
   unlock: Unlock;
+  /** 히든: 열리기 전에는 이름과 모습을 감춘다 */
+  hidden?: boolean;
 }
 
 const d = { kind: 'default' } as const;
@@ -49,11 +51,16 @@ export const COLORS: (CatalogItem<HamsterColor> & FurPalette)[] = [
   { id: 'silver', label: '실버', emoji: '🩵', unlock: { kind: 'completed', n: 150 }, body: '#e6e3ee', light: '#f2f0f8', shade: '#b9b4cc', cream: '#f8f6fc', ear: '#a59fbd', line: '#6f6a88' },
 ];
 
+/** 히든 캐릭터 롭이어가 열리는 출근(작업물 완성) 일수 */
+export const LOP_DAYS = 50;
+
 export const SPECIES: CatalogItem<Species>[] = [
   { id: 'hamster', label: '햄스터', emoji: '🐹', unlock: d },
   { id: 'rabbit', label: '토끼', emoji: '🐰', unlock: d },
   { id: 'bird', label: '오목눈이', emoji: '🐦', unlock: d },
   { id: 'cat', label: '고양이', emoji: '🐱', unlock: d },
+  // 히든 캐릭터: 출근(작업물 완성) 50일이면 열린다
+  { id: 'lop', label: '롭이어', emoji: '🐇', unlock: { kind: 'completed', n: LOP_DAYS }, hidden: true },
 ];
 
 export const HATS: CatalogItem<HatId>[] = [
@@ -140,6 +147,11 @@ export const REACTION_LINES: Record<Species, { pet: string[]; feed: string[]; hu
     pet: ['귀 만지면 간지러워요', '더 쓰다듬어 주세요', '쫑긋쫑긋!', '손이 따뜻해요', '푸르르~ 기분 좋아요'],
     feed: ['아삭아삭! 최고예요', '당근이면 더 좋은데… 농담이에요', '냠냠, 오물오물…', '고마워요, 깡총!'],
     hug: ['폭신하게 안아줄게요 🤍'],
+  },
+  lop: {
+    pet: ['축 늘어진 귀도 만져 주세요', '헤헤, 귀가 펄럭펄럭', '더 쓰다듬어 주세요', '손이 따뜻해요', '푸르르~ 기분 좋아요'],
+    feed: ['아삭아삭! 최고예요', '귀가 쫑긋… 하려다 말았어요. 맛있어서요', '냠냠, 오물오물…', '고마워요, 깡총!'],
+    hug: ['귀로 폭 감싸 안아줄게요 🤍'],
   },
   bird: {
     pet: ['짹짹! 간지러워요', '쪼로롱~ 기분 좋아요', '깃털이 부풀었어요', '손이 따뜻해요', '포르르~'],

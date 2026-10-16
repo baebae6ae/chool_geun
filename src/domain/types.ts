@@ -55,7 +55,7 @@ export type HandId = 'none' | 'pencil' | 'highlighter' | 'calculator' | 'stamp';
 export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern' | 'jackolantern' | 'tree';
 export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
-export type Species = 'hamster' | 'rabbit' | 'bird' | 'cat';
+export type Species = 'hamster' | 'rabbit' | 'bird' | 'cat' | 'lop';
 
 export interface Customization {
   /** 캐릭터 (없으면 햄스터) */
@@ -142,6 +142,8 @@ export interface AppState {
   visitors?: Partial<Record<Species, { first: number; count: number }>>;
   /** 평일 저녁 가짜 업무 연락을 읽씹한 날 */
   evening?: Record<string, { readAt: number }>;
+  /** 히든 캐릭터가 열렸다고 알려 준 시각 */
+  revealed?: { lop?: number };
   /** 이 기기에서 이미 본 업데이트 소식 버전 */
   whatsNew?: number;
   /** 근무 중 어이없는 대화에 사이다를 날린 날 */

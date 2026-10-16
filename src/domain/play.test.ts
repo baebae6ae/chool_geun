@@ -72,6 +72,9 @@ describe('손님', () => {
     expect(visitorChoices('cat').sort()).toEqual(['bird', 'hamster', 'rabbit']);
     expect(visitorChoices(undefined)).not.toContain('hamster');
     for (let i = 0; i < 50; i++) expect(pickVisitor('rabbit', seeded(i + 1))).not.toBe('rabbit');
+    // 히든 롭이어는 손님으로 오지 않고, 롭이어를 키우면 토끼도 같은 종이라 오지 않는다
+    expect(visitorChoices('hamster')).not.toContain('lop');
+    expect(visitorChoices('lop').sort()).toEqual(['bird', 'cat', 'hamster']);
     let s = createInitialState(1);
     s = recordVisit(recordVisit(s, 'bird', 1000), 'bird', 2000);
     expect(s.visitors?.bird).toEqual({ first: 1000, count: 2 });

@@ -158,15 +158,20 @@ function Picker<T extends string>({
     <section className="card">
       <div className="card-label">{title}</div>
       <div className="chips">
-        {items.map((it) => (
-          <Chip
-            key={it.id}
-            label={`${it.emoji} ${it.label}`}
-            on={value === it.id}
-            locked={!isOpen(it.unlock) ? unlockText(it.unlock) : undefined}
-            onClick={() => onPick(it.id)}
-          />
-        ))}
+        {items.map((it) => {
+          const open = isOpen(it.unlock);
+          // 히든은 열리기 전까지 이름을 감춘다
+          const masked = it.hidden && !open;
+          return (
+            <Chip
+              key={it.id}
+              label={masked ? '❔ ???' : `${it.emoji} ${it.label}`}
+              on={value === it.id}
+              locked={!open ? `${masked ? '히든 · ' : ''}${unlockText(it.unlock)}` : undefined}
+              onClick={() => onPick(it.id)}
+            />
+          );
+        })}
       </div>
     </section>
   );

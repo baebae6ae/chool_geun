@@ -84,7 +84,9 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
 type Palette = (typeof COLORS)[number];
 
 /** 손발 모양이 캐릭터마다 달라서 Paw·Arm이 알아야 한다 */
-const SpeciesCtx = createContext<{ sp: Species; c: Palette }>({ sp: 'hamster', c: COLORS[0] });
+const SpeciesCtx = createContext<{ sp: Kind; c: Palette; lop: boolean }>({ sp: 'hamster', c: COLORS[0], lop: false });
+/** 그림 그리는 종류: 롭이어는 귀만 다른 토끼로 그린다 */
+type Kind = Exclude<Species, 'lop'>;
 const BEAK = '#f4a949';
 const BIRD_FOOT = '#f2a64a';
 /** 샴고양이의 포인트(귀·얼굴·발·꼬리) 색: 털 색상의 윤곽색을 쓴다 */
@@ -97,8 +99,10 @@ const BLUE_EYE = '#62b4ea';
 export function HamsterSprite({ custom, pose, className = '', still = false }: Props) {
   const clip = `hc-${useId().replace(/:/g, '')}`;
   const c = COLORS.find((x) => x.id === custom.color) ?? COLORS[0];
+  const lop = custom.species === 'lop';
+  if (lop) custom = { ...custom, species: 'rabbit' };
   return (
-    <SpeciesCtx.Provider value={{ sp: custom.species ?? 'hamster', c }}>
+    <SpeciesCtx.Provider value={{ sp: (custom.species ?? 'hamster') as Kind, c, lop }}>
       {pose.pose === 'side' ? (
         <SideView c={c} clip={clip} action={pose.action} custom={custom} className={className} />
       ) : (
@@ -147,8 +151,7 @@ function PencilBody({ d, c, uid }: { d: string; c: Palette; uid: string }) {
 /* ============================ 정면 (앉은 자세) ============================ */
 
 function FrontView({ c, clip, action, custom, className, still }: ViewProps<FrontAction>) {
-  const sp = custom.species ?? 'hamster';
-  const lop = isLop(custom);
+  const { sp, lop } = useContext(SpeciesCtx);
   const shape = FRONT_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
   const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' | 'fierce' =
@@ -665,11 +668,6 @@ function FrontBack({ sp, c, lop = false }: { sp: Species; c: Palette; lop?: bool
       <circle className="hs-ear-r" cx="89" cy="26" r="9.5" />
     </g>
   );
-}
-
-/** 롭이어(히든)인지: 귀만 다르고 나머지는 토끼와 같다 */
-function isLop(custom: Customization): boolean {
-  return (custom.species as string) === 'lop';
 }
 
 /** 일반 토끼의 쫑긋 선 귀 (정면, 몸 뒤에 그려서 귀 뿌리가 머리에 묻힌다) */
@@ -1570,7 +1568,7 @@ function SideMask({ uid, c, cx, cy, rx, ry }: { uid: string; c: Palette; cx: num
 
 /** 자는 자세: 앞을 보고 납작 엎드려 눈 감고, 앞발은 턱 밑에 */
 function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, 'action'>) {
-  const sp = custom.species ?? 'hamster';
+  const { sp, lop } = useContext(SpeciesCtx);
   const bc = bodyPal(sp, c);
   const pc = points(c);
   return (
@@ -1612,7 +1610,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
           </g>
         )}
 
-        {sp === 'rabbit' && !isLop(custom) && (
+        {sp === 'rabbit' && !lop && (
           // 잘 때는 귀를 등 뒤로 납작하게 눕힌다
           <g stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
             <path d="M58 44 C50 36 38 28 27 27 C20 27 18 33 23 37 C32 43 45 46 56 48Z" fill={c.body} />
@@ -1625,7 +1623,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
           <SideOutfit id={custom.outfit} />
         </g>
         <path d={LOAF.body} fill="none" stroke={INK} strokeWidth={LINE} />
-        {sp === 'rabbit' && isLop(custom) && (
+        {sp === 'rabbit' && lop && (
           <g fill={c.ear} stroke={INK} strokeWidth={LINE} strokeLinejoin="round">
             <path d="M40 44 C30 43 22 54 21 66 C20 76 25 82 31 79 C35 76 36 68 38 60 C40 53 43 47 40 44Z" />
             <path d="M100 44 C110 43 118 54 119 66 C120 76 115 82 109 79 C105 76 104 68 102 60 C100 53 97 47 100 44Z" />
@@ -1703,7 +1701,7 @@ function SleepView({ c, clip, custom, className }: Omit<ViewProps<SideAction>, '
 
 function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>) {
   if (action === 'sleep') return <SleepView c={c} clip={clip} custom={custom} className={className} />;
-  const sp = custom.species ?? 'hamster';
+  const { sp, lop } = useContext(SpeciesCtx);
   const shape = SIDE_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
   const pc = points(c);
@@ -1740,7 +1738,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
 
         {/* 꼬리 · 귀 */}
         <SideTail sp={sp} c={c} />
-        <SideEar sp={sp} c={c} lop={isLop(custom)} />
+        <SideEar sp={sp} c={c} lop={lop} />
 
         {/* 몸 */}
         <PencilBody d={shape.body} c={bc} uid={clip} />
@@ -1755,7 +1753,7 @@ function SideView({ c, clip, action, custom, className }: ViewProps<SideAction>)
             <path d="M44 66 q8 4 16 2 M46 75 q8 3 16 0" fill="none" strokeWidth="1.3" opacity=".6" />
           </g>
         )}
-        {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} lop={isLop(custom)} />}
+        {sp === 'rabbit' && <SideEar sp="rabbit-front" c={c} lop={lop} />}
         {sp === 'cat' && (
           <>
             <PencilBody d={CAT_SIDE_HEAD.body} c={bc} uid={`${clip}-h`} />

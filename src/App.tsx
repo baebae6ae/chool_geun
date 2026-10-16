@@ -3,7 +3,8 @@ import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal, PaydayModal, WhatsNewModal } from './components/Modals';
 import { addDays, atTime, dateKey } from './domain/date';
 import { endOvertime, recordLeft } from './domain/overtime';
-import { applySettings, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
+import { applySettings, completedCount, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
+import { LOP_DAYS } from './domain/customization';
 import { paydaySummary } from './domain/records';
 import { dayBounds, earnedAt } from './domain/schedule';
 import type { AppState, Settings } from './domain/types';
@@ -22,7 +23,7 @@ import { installBackButton, useBackHandler } from './backStack';
 import { installNotifDebug, syncNotifications } from './notifySchedule';
 import { grantAchievements, newAchievements } from './domain/achievements';
 import { visitSeason } from './domain/seasons';
-import { markWhatsNewSeen, whatsNewPending } from './domain/whatsNew';
+import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -141,6 +142,14 @@ export function App() {
     setState((s) => grantAchievements(s, fresh.map((x) => x.id), clockNow()));
     setToast({ key: Date.now(), text: fresh.length > 2 ? `🏅 업적 ${fresh.length}개를 한꺼번에 달성했어요!` : `🏅 업적 달성! ${fresh.map((x) => x.name).join(' · ')}` });
   }, [state]);
+  // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (업적 알림과 겹치지 않게 조금 뒤에)
+  const lopReady = !!state.settings && !state.revealed?.lop && completedCount(state.days) >= LOP_DAYS;
+  useEffect(() => {
+    if (!lopReady) return;
+    setState((s) => ({ ...s, revealed: { ...s.revealed, lop: clockNow() } }));
+    // 기록하자마자 lopReady가 false로 바뀌므로 타이머는 정리하지 않는다
+    setTimeout(() => setToast({ key: Date.now(), text: '🐇 히든 캐릭터 롭이어가 열렸어요! 꾸미기에서 바꿔 보세요' }), 4200);
+  }, [lopReady]);
   useEffect(() => {
     if (!toast) return;
     const id = setTimeout(() => setToast(null), 3700);
@@ -157,10 +166,11 @@ export function App() {
   });
 
   // 업데이트 소식: 화면에 뜨는 순간 본 것으로 기록해서, 창을 닫지 않고 앱을 꺼도 다음에 또 뜨지 않는다
-  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  // 띄울 때의 소식 목록을 붙잡아 둔다 (본 것으로 기록하면 목록이 비기 때문)
+  const [whatsNewOpen, setWhatsNewOpen] = useState<ReturnType<typeof unseenNews> | null>(null);
   const newsPending = whatsNewPending(state);
   useEffect(() => {
-    if (newsPending) setWhatsNewOpen(true);
+    if (newsPending) setWhatsNewOpen(unseenNews(getState()));
   }, [newsPending]);
 
   const saveSettings = (s: Settings) => {
@@ -305,7 +315,7 @@ export function App() {
         />
       )}
       {whatsNewOpen && !gacha && !pay && !showClockOut && !showSettings && (
-        <WhatsNewModal custom={state.custom} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(false)} />
+        <WhatsNewModal custom={state.custom} items={whatsNewOpen} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(null)} />
       )}
       {showClockOut && today && (
         <ClockOutModal

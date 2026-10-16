@@ -9,7 +9,7 @@ import { ProgressBar } from './WorkBuild';
 import { ItemIcon } from './ItemIcon';
 import { EventIcon } from './EventIcon';
 import { useBackHandler } from '../backStack';
-import { WHATS_NEW } from '../domain/whatsNew';
+import type { NewsItem } from '../domain/whatsNew';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -120,7 +120,7 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
 }
 
 /** 업데이트 소식: 업데이트한 뒤 처음 켰을 때 한 번만 */
-export function WhatsNewModal({ custom, onShown, onClose }: { custom: Customization; onShown: () => void; onClose: () => void }) {
+export function WhatsNewModal({ custom, items, onShown, onClose }: { custom: Customization; items: NewsItem[]; onShown: () => void; onClose: () => void }) {
   const [leaving, setLeaving] = useState(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(onShown, []);
@@ -139,7 +139,7 @@ export function WhatsNewModal({ custom, onShown, onClose }: { custom: Customizat
         <h2>🎁 업데이트 소식</h2>
         <p className="muted">이번에 새로 생긴 것들이에요!</p>
         <ul className="whats-new-list">
-          {WHATS_NEW.items.map((it) => (
+          {items.map((it) => (
             <li key={it.text}>
               <span aria-hidden>{it.icon}</span>
               <span>{it.text}</span>
