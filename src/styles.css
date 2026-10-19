@@ -2867,3 +2867,33 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 }
 .whats-new-list li span:first-child { font-size: 1.1rem; }
 .sheet.whats-new { max-height: 92vh; overflow-y: auto; }
+
+/* 기록 > 회사생활 */
+.company { display: grid; gap: 8px; }
+.company-empty { display: grid; gap: 10px; }
+.company-empty p { margin: 0; line-height: 1.5; }
+.tenure-head { display: grid; gap: 2px; }
+.tenure-big { font-size: 1.15rem; font-weight: 800; }
+.tenure-big b { font-size: 2rem; margin: 0 2px; font-variant-numeric: tabular-nums; }
+.tenure-next, .tenure-anniv {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent, #f2a65a) 14%, var(--card));
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.tenure-anniv { background: color-mix(in srgb, #ffd23c 30%, var(--card)); }
+.severance, .real-wage { display: grid; gap: 2px; padding: 10px 12px; border-radius: 14px; border: 2px dashed var(--line); }
+.severance strong, .real-wage strong { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.severance small, .real-wage small { line-height: 1.4; }
+.small-btn { min-height: 38px; font-size: 0.85rem; }
+.leave-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.leave-left { font-size: 2rem; font-variant-numeric: tabular-nums; margin: 0 2px; }
+.leave-bar { height: 12px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 10%, var(--card)); overflow: hidden; border: 2px solid var(--line); }
+.leave-bar div { height: 100%; background: linear-gradient(90deg, #7fd3a8, #3fb37f); border-radius: 99px; }
+.leave-dates { display: flex; flex-wrap: wrap; gap: 6px; }
+.leave-dates .chip { font-size: 0.78rem; padding: 4px 9px; }
+.leave-dates .chip.half { opacity: 0.8; border-style: dashed; }
+.month-report { display: grid; gap: 8px; }
+.date-input { font: inherit; font-size: 1.1rem; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--ink); }
+.stamp-cal-cell .ov.half { background: #fff4c2; color: #8a6b00; }

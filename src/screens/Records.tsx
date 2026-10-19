@@ -15,8 +15,11 @@ import { TabIcon } from '../components/TabIcon';
 import { useBackHandler } from '../backStack';
 import { EventIcon } from '../components/EventIcon';
 import { HOLIDAY_BY_ID } from '../domain/gacha';
+import { LeaveCard, MonthReportBlock, TenureCard } from '../components/CompanyLife';
 
 type Override = 'off' | 'on' | null;
+/** 연차 1일 / 반차 0.5일 / 기록 안 함 */
+type Leave = 1 | 0.5 | null;
 
 /** 출근한 날: 퇴근했거나, 출근시간이 지난 오늘 */
 const worked = (d: DailyWork | undefined, now: number) => !!d && (d.clockedOut || now >= dayBounds(d.date, d.schedule).start);
@@ -89,11 +92,12 @@ function StampCalendar({
         const day = state.days[d];
         const on = inMonth && worked(day, now);
         const ov = state.settings?.dayOverrides?.[d];
+        const lv = state.settings?.leave?.[d];
         return (
           <button
             type="button"
             key={d}
-            disabled={!inMonth || d < today || !onPick}
+            disabled={!inMonth || !onPick}
             onClick={() => onPick?.(d)}
             className={`stamp-cal-cell ${inMonth ? '' : 'out'} ${d === today ? 'today' : ''} ${
               holidayName(d) || weekday(d) === 0 ? 'red' : weekday(d) === 6 ? 'blue' : ''
@@ -103,7 +107,9 @@ function StampCalendar({
             <small>{Number(d.slice(8))}</small>
             {on && <span className="stamp on">🐾</span>}
             {on && day?.completed && <i title={itemOf(day).name}><ItemIcon item={itemOf(day)} /></i>}
-            {inMonth && !on && ov && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
+            {inMonth && !on && lv === 1 && <em className="ov off">연차</em>}
+            {inMonth && lv === 0.5 && <em className="ov half">반차</em>}
+            {inMonth && !on && ov && !lv && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
             {inMonth && !on && !ov && holidayStamp(state, d) && <i className="hol">{holidayStamp(state, d)}</i>}
           </button>
         );
@@ -119,17 +125,20 @@ export function Records({
   focusDate,
   onDayOverride,
   onLeft,
+  onSettings,
 }: {
   state: AppState;
   now: number;
   focusDate?: string;
-  onDayOverride?: (date: string, v: Override) => void;
+  onDayOverride?: (date: string, v: Override, leave: Leave) => void;
   /** 퇴근 시각 기록·수정 (null이면 정시 퇴근) */
   onLeft?: (date: string, left: string | null) => void;
+  /** 입사일·연차 개수 같은 회사생활 설정 바꾸기 */
+  onSettings?: (patch: Partial<Settings>) => void;
 }) {
   const [editLeft, setEditLeft] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
-  const [tab, setTab] = useState<'daily' | 'monthly'>('daily');
+  const [tab, setTab] = useState<'daily' | 'monthly' | 'company'>('daily');
   const d = new Date(now);
   const [ym, setYm] = useState({ y: d.getFullYear(), m: d.getMonth() + 1 });
   const [selected, setSelected] = useState<string | undefined>(focusDate);
@@ -162,9 +171,16 @@ export function Records({
       <div className="segmented" role="tablist">
         <button role="tab" aria-selected={tab === 'daily'} className={tab === 'daily' ? 'on' : ''} onClick={() => setTab('daily')}>일일</button>
         <button role="tab" aria-selected={tab === 'monthly'} className={tab === 'monthly' ? 'on' : ''} onClick={() => setTab('monthly')}>월간</button>
+        <button role="tab" aria-selected={tab === 'company'} className={tab === 'company' ? 'on' : ''} onClick={() => setTab('company')}>회사생활</button>
       </div>
 
-      <CareerCard state={state} />
+      {tab === 'company' && onSettings && (
+        <>
+          <TenureCard state={state} now={now} onPatch={onSettings} />
+          <LeaveCard state={state} now={now} onPatch={onSettings} />
+        </>
+      )}
+      {tab !== 'company' && <CareerCard state={state} />}
       {tab === 'daily' && <StampWeek state={state} now={now} />}
       {tab === 'daily' &&
         (records.length === 0 ? (
@@ -229,8 +245,9 @@ export function Records({
               )}
             </dl>
             <StampCalendar y={ym.y} m={ym.m} state={state} now={now} onPick={onDayOverride ? setPicked : undefined} />
-            {onDayOverride && <p className="muted small">오늘 이후 날짜를 누르면 연차·회사 휴무나 출근일을 직접 정할 수 있어요.</p>}
+            {onDayOverride && <p className="muted small">날짜를 누르면 연차·반차·회사 휴무나 출근일을 직접 정할 수 있어요.</p>}
           </section>
+          <MonthReportBlock state={state} y={ym.y} m={ym.m} />
           {lastSeason && <OfficeRoom done={officeDone} season={lastSeason} small />}
         </>
       )}
@@ -252,8 +269,8 @@ export function Records({
           date={picked}
           settings={state.settings}
           locked={!!state.days[picked]?.clockedOut}
-          onPick={(v) => {
-            onDayOverride(picked, v);
+          onPick={(v, leave) => {
+            onDayOverride(picked, v, leave);
             setPicked(null);
           }}
           onClose={() => setPicked(null)}
@@ -263,7 +280,7 @@ export function Records({
   );
 }
 
-/** 날짜를 눌렀을 때: 쉬는 날 / 출근하는 날 직접 정하기 */
+/** 날짜를 눌렀을 때: 연차·반차·회사 휴무 / 출근하는 날 직접 정하기 */
 function DaySheet({
   date,
   settings,
@@ -274,40 +291,45 @@ function DaySheet({
   date: string;
   settings: Settings;
   locked: boolean;
-  onPick: (v: Override) => void;
+  onPick: (v: Override, leave: Leave) => void;
   onClose: () => void;
 }) {
   useBackHandler(true, onClose);
   const ov = settings.dayOverrides?.[date];
+  const lv = settings.leave?.[date];
   const base = isWorkday(date, { ...settings, dayOverrides: undefined });
   const hol = holidayName(date);
+  const off = ov ? ov === 'off' : !base;
+  const now = lv === 1 ? '연차' : lv === 0.5 ? '반차' : ov ? (ov === 'off' ? '쉬는 날' : '출근하는 날') : null;
+  const custom = !!ov || !!lv;
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="날짜 설정" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <h3>{formatKoreanDate(date)}</h3>
         <p className="muted">
           기본: {base ? '출근하는 날' : `쉬는 날${hol ? ` (${hol})` : ''}`}
-          {ov && ` → 직접 ${ov === 'off' ? '쉬는 날' : '출근하는 날'}로 정함`}
+          {now && ` → 직접 ${now}로 정함`}
         </p>
-        {locked ? (
+        {locked && !base ? (
           <p className="muted small">이미 퇴근한 날은 바꿀 수 없어요.</p>
-        ) : (
+        ) : locked ? (
           <>
-            {(ov ? ov === 'on' : base) ? (
-              <button className="btn primary" onClick={() => onPick(base ? 'off' : null)}>
-                🏖️ 이 날 쉬어요 (연차·회사 휴무)
-              </button>
-            ) : (
-              <button className="btn primary" onClick={() => onPick(base ? null : 'on')}>
-                💼 이 날 출근해요
-              </button>
-            )}
-            {ov && (
-              <button className="btn ghost" onClick={() => onPick(null)}>
-                기본으로 되돌리기
-              </button>
-            )}
+            <p className="muted small">이미 출근한 날이라 쉬는 날로는 바꿀 수 없어요. 반차는 기록할 수 있어요.</p>
+            {lv !== 0.5 && <button className="btn primary" onClick={() => onPick(ov ?? null, 0.5)}>🌗 반차 썼어요 (0.5일)</button>}
           </>
+        ) : base || ov === 'on' ? (
+          <>
+            {lv !== 1 && <button className="btn primary" onClick={() => onPick(base ? 'off' : null, 1)}>🏖️ 연차 (1일)</button>}
+            {lv !== 0.5 && <button className="btn primary" onClick={() => onPick(ov === 'on' ? 'on' : null, 0.5)}>🌗 반차 (0.5일)</button>}
+            {!(off && !lv) && <button className="btn ghost" onClick={() => onPick(base ? 'off' : null, null)}>🏢 회사 휴무·공가 (연차 안 씀)</button>}
+          </>
+        ) : (
+          !off || <button className="btn primary" onClick={() => onPick(base ? null : 'on', null)}>💼 이 날 출근해요</button>
+        )}
+        {custom && !locked && (
+          <button className="btn ghost" onClick={() => onPick(null, null)}>
+            기본으로 되돌리기
+          </button>
         )}
         <button className="btn ghost" onClick={onClose}>
           닫기

@@ -36,6 +36,12 @@ export interface Settings extends Schedule {
   holidaysOff?: boolean;
   /** 날짜별로 직접 정한 쉬는 날(연차·회사 휴무·임시공휴일) / 출근하는 날 */
   dayOverrides?: Record<string, 'off' | 'on'>;
+  /** 입사일 (YYYY-MM-DD) — 근속·연차·퇴직금 계산용 (선택) */
+  hireDate?: string | null;
+  /** 날짜별로 쓴 연차 (1 = 연차, 0.5 = 반차) */
+  leave?: Record<string, number>;
+  /** 올해 연차 개수를 직접 정함 (없으면 근로기준법 기준으로 계산) */
+  leaveTotal?: number | null;
   /** 임금 방식: 야근하면 수당(1.5배)을 받는지, 포괄임금제라 추가 수당이 없는지 (없으면 수당 지급) */
   wageType?: 'overtime' | 'inclusive';
   /** 어제 몇 시에 퇴근했는지 물어보기 (없으면 물어봄) */

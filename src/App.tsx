@@ -255,15 +255,19 @@ export function App() {
                 now={now}
                 focusDate={recordFocus}
                 onLeft={(date, left) => setState((s) => recordLeft(s, date, left))}
-                onDayOverride={(date, v) =>
+                onDayOverride={(date, v, lv) =>
                   setState((s) => {
                     if (!s.settings) return s;
                     const dayOverrides = { ...s.settings.dayOverrides };
                     if (v) dayOverrides[date] = v;
                     else delete dayOverrides[date];
-                    return { ...s, settings: { ...s.settings, dayOverrides } };
+                    const leave = { ...s.settings.leave };
+                    if (lv) leave[date] = lv;
+                    else delete leave[date];
+                    return { ...s, settings: { ...s.settings, dayOverrides, leave } };
                   })
                 }
+                onSettings={(patch) => setState((s) => (s.settings ? { ...s, settings: { ...s.settings, ...patch } } : s))}
               />
             )}
             {tab === 'custom' && <Customize state={state} onChange={(custom) => setState((s) => ({ ...s, custom }))} />}
