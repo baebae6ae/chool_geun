@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { STORIES, storyLength, type Story } from '../domain/theater';
+import { allStories, storyLength, type Story } from '../domain/theater';
 
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
 import { formatDotDate, dateKey } from '../domain/date';
@@ -29,7 +29,8 @@ export function Collection({ state }: { state: AppState }) {
   const guests = SPECIES.filter((s) => !s.hidden);
   const visited = guests.filter((s) => state.visitors?.[s.id]).length;
   const [story, setStory] = useState<Story | null>(null);
-  const seenStories = STORIES.filter((s) => state.stories?.seen?.[s.id]).length;
+  const stories = allStories();
+  const seenStories = stories.filter((s) => state.stories?.seen?.[s.id]).length;
 
   return (
     <div className="screen">
@@ -62,10 +63,10 @@ export function Collection({ state }: { state: AppState }) {
       <section className="card dex story-dex">
         <div className="dex-head">
           <span className="rarity-badge">🎬 썰 모음</span>
-          <span className="muted small">{seenStories}/{STORIES.length} · 퇴근하면 하루에 하나씩 열려요</span>
+          <span className="muted small">{seenStories}/{stories.length} · 퇴근하면 하루에 하나씩 열려요</span>
         </div>
         <div className="story-list">
-          {STORIES.map((s) => {
+          {stories.map((s) => {
             const at = state.stories?.seen?.[s.id];
             return (
               <button key={s.id} className={`story-item ${at ? 'got' : 'locked'}`} disabled={!at} onClick={() => setStory(s)}>

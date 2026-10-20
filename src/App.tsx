@@ -24,6 +24,7 @@ import { installNotifDebug, syncNotifications } from './notifySchedule';
 import { grantAchievements, newAchievements } from './domain/achievements';
 import { visitSeason } from './domain/seasons';
 import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
+import { refreshStories } from './domain/theater';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -142,6 +143,12 @@ export function App() {
     setState((s) => grantAchievements(s, fresh.map((x) => x.id), clockNow()));
     setToast({ key: Date.now(), text: fresh.length > 2 ? `🏅 업적 ${fresh.length}개를 한꺼번에 달성했어요!` : `🏅 업적 달성! ${fresh.map((x) => x.name).join(' · ')}` });
   }, [state]);
+  // 썰 극장: 새 썰은 앱 업데이트 없이 인터넷에서 받아온다 (받으면 화면을 다시 그린다)
+  const [, setStoriesTick] = useState(0);
+  useEffect(() => {
+    refreshStories().then((changed) => changed && setStoriesTick((n) => n + 1));
+  }, []);
+
   // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (업적 알림과 겹치지 않게 조금 뒤에)
   const lopReady = !!state.settings && !state.revealed?.lop && completedCount(state.days) >= LOP_DAYS;
   useEffect(() => {

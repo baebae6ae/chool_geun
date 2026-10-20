@@ -7,6 +7,7 @@
 import type { FrontAction } from '../components/hamster/HamsterSprite';
 import type { AppState, DailyWork, HatId, OutfitId, Species } from './types';
 import { createRng } from './random';
+import bundled from '../content/stories.json';
 
 /**
  * 배경: 장소 · 속마음 장소(황무지·후광·먹구름·우주) · 설정 샷(건물 밖) · 단색,
@@ -127,398 +128,170 @@ export function castSpecies(me: Species | undefined): { boss: Species; mate: Spe
   return { boss: others[0], mate: others[1] };
 }
 
-export const STORIES: Story[] = [
-  {
-    id: 'meeting-5min',
-    no: 1,
-    title: '5분이면 끝나는 회의',
-    credit: '익명의 김대리',
-    cast: [
-      { id: 'me', as: 'me', label: '나' },
-      { id: 'boss', as: 'boss', label: '팀장님', outfit: 'tie' },
-    ],
-    cuts: [
-      {
-        ms: 2000,
-        layout: 'full',
-        panels: [{ bg: 'building', shot: 'wide', cast: [] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', ms: 2000 },
-          { at: 200, do: 'text', text: 'PM 2:00', x: 22, y: 12, style: 'label', tilt: -4 },
-          { at: 600, do: 'text', text: '평화로운 *오후 두 시*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 3200,
-        layout: 'full',
-        enter: 'cut',
-        panels: [
-          {
-            bg: 'office',
-            shot: 'wide',
-            cast: [
-              { who: 'me', x: 34, action: 'type', desk: true, tag: true },
-              { who: 'boss', x: 118, facing: -1, tag: true },
-            ],
-          },
-        ],
-        events: [
-          { at: 200, do: 'move', who: 'boss', to: 66, ms: 1100, then: 'wave' },
-          { at: 300, do: 'cam', shot: 'medium', focus: 'boss', ms: 1200 },
-          { at: 1500, do: 'say', who: 'boss', text: '회의 *5분만* 하자~' },
-        ],
-      },
-      {
-        ms: 2200,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 34, action: 'look', desk: true }] }],
-        events: [
-          { at: 1300, do: 'mark', who: 'me', mark: 'sweat' },
-          { at: 1400, do: 'text', text: '…5분?', x: 74, y: 30, style: 'whisper' },
-        ],
-      },
-      {
-        ms: 1300,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'clock:14:00', shot: 'wide', cast: [] }],
-      },
-      {
-        ms: 3000,
-        layout: 'full',
-        enter: 'cut',
-        panels: [
-          {
-            bg: 'meeting',
-            shot: 'wide',
-            cast: [
-              { who: 'boss', x: 64, action: 'cheer' },
-              { who: 'me', x: 32, action: 'idle' },
-            ],
-          },
-        ],
-        events: [
-          { at: 0, do: 'light', level: 0.45, ms: 2800 },
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2800 },
-          { at: 900, do: 'act', who: 'me', action: 'doze' },
-          { at: 1900, do: 'act', who: 'me', action: 'soul' },
-          { at: 600, do: 'text', text: '회의는 *계속되었다*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 1600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'clock:16:47', shot: 'wide', cast: [] }],
-        events: [
-          { at: 300, do: 'shake', power: 2 },
-          { at: 300, do: 'text', text: '*2시간 47분*째', x: 50, y: 84, style: 'shout', size: 0.9 },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'soul' }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2800 },
-          { at: 1300, do: 'silhouette', who: 'me', on: true },
-          { at: 700, do: 'text', text: '5분은 *어디로 갔을까*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 2400,
-        layout: 'versus',
-        enter: 'cut',
-        panels: [
-          { bg: 'flat:#ffb4a8', shot: 'face', focus: 'boss', cast: [{ who: 'boss', x: 50, action: 'smug' }] },
-          { bg: 'flat:#9fc8ff', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 50, action: 'shock' }] },
-        ],
-        events: [
-          { at: 100, p: 0, do: 'say', who: 'boss', text: '결론은 *다음에* 다시!' },
-          { at: 1100, do: 'flash' },
-        ],
-      },
-      {
-        ms: 3000,
-        layout: 'full',
-        enter: 'scroll',
-        panels: [{ bg: 'subway', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'soul' }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 3000 },
-          { at: 0, do: 'light', level: 0.25, ms: 1500 },
-          { at: 100, do: 'text', text: 'PM 7:40 퇴근길', x: 24, y: 12, style: 'label', tilt: -3 },
-          { at: 700, do: 'text', text: '회의록: *“다음에 다시 논의”*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'ctrl-s',
-    no: 2,
-    title: '저장 버튼의 소중함',
-    credit: '익명의 박주임',
-    cast: [{ id: 'me', as: 'me', label: '나' }],
-    cuts: [
-      {
-        ms: 2600,
-        layout: 'full',
-        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 46, action: 'typeFast', desk: true, tag: true }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
-          { at: 100, do: 'text', text: '마감 20분 전', x: 22, y: 12, style: 'label', tilt: -4 },
-          { at: 500, do: 'text', text: '타다다닥', x: 72, y: 40, style: 'sfx', tilt: -8 },
-          { at: 1000, do: 'text', text: '보고서 *마지막 한 줄*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 2400,
-        layout: 'stack',
-        enter: 'scroll',
-        panels: [
-          { bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 46, action: 'resolve', desk: true }] },
-          { bg: 'office', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 46, action: 'typeFast', desk: true }], blur: 'bg' },
-        ],
-        events: [
-          { at: 900, p: 1, do: 'act', who: 'me', action: 'cheer' },
-          { at: 900, p: 1, do: 'mark', who: 'me', mark: 'sparkle' },
-          { at: 1000, do: 'text', text: '다 됐다…!', x: 50, y: 60, style: 'shout', size: 0.9 },
-        ],
-      },
-      {
-        ms: 1800,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'screen:응답 없음', shot: 'wide', cast: [] }],
-        events: [
-          { at: 600, do: 'glitch', ms: 1100 },
-          { at: 600, do: 'shake', power: 1 },
-        ],
-      },
-      {
-        ms: 2000,
-        layout: 'full',
-        enter: 'punch',
-        panels: [{ bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 46, action: 'look', desk: true }] }],
-        events: [
-          { at: 900, do: 'act', who: 'me', action: 'shock' },
-          { at: 900, do: 'flash' },
-          { at: 900, do: 'shake', power: 3 },
-          { at: 1000, do: 'text', text: '!!!', x: 76, y: 24, style: 'sfx', size: 1.6, tilt: 12 },
-        ],
-      },
-      {
-        ms: 1500,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'screen:마지막 저장: 3시간 전', shot: 'wide', cast: [] }],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'quake' }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2600 },
-          { at: 1100, do: 'silhouette', who: 'me', on: true },
-          { at: 1100, do: 'shake', power: 1 },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 46, action: 'kneel' }] }],
-        events: [
-          { at: 0, do: 'light', level: 0.5, ms: 2400 },
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
-          { at: 300, do: 'mark', who: 'me', mark: 'gloom' },
-          { at: 900, do: 'text', text: '…Ctrl+S…', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'before-6',
-    no: 3,
-    title: '퇴근 10분 전의 그림자',
-    credit: '익명의 이사원',
-    cast: [
-      { id: 'me', as: 'me', label: '나' },
-      { id: 'boss', as: 'boss', label: '팀장님', outfit: 'suit' },
-    ],
-    cuts: [
-      {
-        ms: 1500,
-        layout: 'full',
-        panels: [{ bg: 'phone:17:50', shot: 'wide', cast: [] }],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 40, action: 'dance', desk: true, tag: true }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2400 },
-          { at: 200, do: 'mark', who: 'me', mark: 'sparkle' },
-          { at: 400, do: 'dream', who: 'me', count: 1, action: 'snack', text: '치킨…' },
-          { at: 1300, do: 'dream', who: 'me', count: 3, action: 'dance', text: '치킨…!' },
-        ],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'whip',
-        panels: [{ bg: 'elevator', shot: 'wide', cast: [{ who: 'me', x: 8, action: 'idle' }] }],
-        events: [
-          { at: 0, do: 'inch', who: 'me', to: 34, steps: 4, ms: 1800 },
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2400 },
-          { at: 300, do: 'text', text: '살금살금', x: 30, y: 30, style: 'sfx', tilt: -6 },
-          { at: 1900, do: 'text', text: '엘리베이터 *도착*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'stack',
-        enter: 'cut',
-        panels: [
-          { bg: 'elevator', shot: 'medium', focus: 'boss', cast: [{ who: 'boss', x: 50, action: 'smug', hidden: true }] },
-          { bg: 'elevator', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 34, action: 'cheer' }] },
-        ],
-        events: [
-          { at: 200, p: 0, do: 'prop', prop: 'lift', state: 'open' },
-          { at: 200, do: 'text', text: '띵—', x: 74, y: 12, style: 'sfx', tilt: 8 },
-          { at: 800, p: 0, do: 'show', who: 'boss' },
-          { at: 800, do: 'flash' },
-          { at: 1000, p: 1, do: 'act', who: 'me', action: 'shock' },
-          { at: 1000, do: 'glitch', ms: 500 },
-          { at: 1000, do: 'shake', power: 2 },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'versus',
-        enter: 'cut',
-        panels: [
-          { bg: 'flat:#ffb4a8', shot: 'face', focus: 'boss', cast: [{ who: 'boss', x: 50, action: 'smug' }] },
-          { bg: 'flat:#b7f0d0', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 50, action: 'rotten' }] },
-        ],
-        events: [
-          { at: 200, p: 0, do: 'say', who: 'boss', text: '아 마침 잘 만났다~' },
-          { at: 1300, p: 1, do: 'mark', who: 'me', mark: 'sweat' },
-          { at: 1500, p: 1, do: 'say', who: 'me', text: '네…ㅎㅎ' },
-        ],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'rain', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'cry' }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
-          { at: 500, do: 'text', text: '퇴근 취소', x: 50, y: 82, style: 'stamp', tilt: -8 },
-        ],
-      },
-      {
-        ms: 1400,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'phone:19:40|팀장님|아 그리고 하나만 더…', shot: 'wide', cast: [] }],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 40, action: 'soul', desk: true }] }],
-        events: [
-          { at: 0, do: 'light', level: 0.55, ms: 2200 },
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
-          { at: 600, do: 'text', text: '“잠깐”은 *1시간 50분*이었다', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'pudding',
-    no: 4,
-    title: '탕비실 푸딩 실종 사건',
-    credit: '익명의 최주임',
-    cast: [
-      { id: 'me', as: 'me', label: '나' },
-      { id: 'mate', as: 'mate', label: '옆 팀 대리', outfit: 'badge' },
-    ],
-    cuts: [
-      {
-        ms: 3000,
-        layout: 'full',
-        panels: [{ bg: 'pantry', shot: 'wide', cast: [{ who: 'me', x: 6, action: 'idle', tag: true }] }],
-        events: [
-          { at: 0, do: 'move', who: 'me', to: 46, ms: 1300, then: 'heart' },
-          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
-          { at: 100, do: 'text', text: 'PM 1:10 탕비실', x: 26, y: 12, style: 'label', tilt: -3 },
-          { at: 1400, do: 'dream', who: 'me', count: 1, action: 'snack', text: '푸딩~♪' },
-          { at: 1600, do: 'text', text: '아껴 둔 *푸딩* 먹을 시간', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'stack',
-        enter: 'scroll',
-        panels: [
-          { bg: 'pantry', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 48, action: 'look' }] },
-          { bg: 'pantry', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 48, action: 'look' }], blur: 'bg' },
-        ],
-        events: [
-          { at: 200, p: 0, do: 'prop', prop: 'fridge', state: 'open' },
-          { at: 600, do: 'text', text: '텅—', x: 74, y: 22, style: 'sfx', tilt: 6 },
-          { at: 1500, p: 1, do: 'act', who: 'me', action: 'shock' },
-          { at: 1500, do: 'shake', power: 2 },
-        ],
-      },
-      {
-        ms: 3000,
-        layout: 'full',
-        enter: 'whip',
-        panels: [{ bg: 'halo', shot: 'wide', cast: [{ who: 'mate', x: 50, action: 'snack', tag: true }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'medium', focus: 'mate', ms: 2800 },
-          { at: 400, do: 'say', who: 'mate', text: '이거 주인 없는 거죠? *맛있네요~*' },
-          { at: 1600, do: 'mark', who: 'mate', mark: 'sparkle' },
-        ],
-      },
-      {
-        ms: 2600,
-        layout: 'versus',
-        enter: 'cut',
-        panels: [
-          { bg: 'flat:#9fc8ff', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 50, action: 'quake' }] },
-          { bg: 'flat:#ffe08a', shot: 'face', focus: 'mate', cast: [{ who: 'mate', x: 50, action: 'snack' }] },
-        ],
-        events: [
-          { at: 0, do: 'flash' },
-          { at: 400, do: 'chat', from: 'me', text: '그거 이름 써 놨는데요…' },
-          { at: 1300, do: 'chat', from: 'them', name: '옆 팀 대리', text: '아 진짜요? 몰랐네 ㅎㅎ' },
-        ],
-      },
-      {
-        ms: 2600,
-        layout: 'full',
-        enter: 'cut',
-        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'cry' }] }],
-        events: [
-          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2600 },
-          { at: 600, do: 'text', text: '포스트잇은 *방패가 되지 못했다*', x: 50, y: 86, style: 'narr' },
-        ],
-      },
-    ],
-  },
+/* ============================ 대본 불러오기 ============================ */
+
+/** 대본에서 쓸 수 있는 정면 동작 (엔진이 그릴 줄 아는 것만) */
+const FRONT_ACTIONS: FrontAction[] = [
+  'idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance',
+  'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap',
+  'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss', 'slam', 'cider', 'ahh', 'shock', 'cry', 'quake', 'rotten', 'resolve',
+  'headhold', 'kneel', 'soul',
 ];
+const ACTIONS = new Set<string>(FRONT_ACTIONS);
+const PLACES = new Set(['office', 'meeting', 'pantry', 'elevator', 'subway', 'building', 'wasteland', 'halo', 'rain', 'space']);
+const PANELS_OF: Record<string, number> = { full: 1, stack: 2, versus: 2, trio: 3 };
+const SHOTS = new Set(['wide', 'medium', 'close', 'face']);
+const ENTERS = new Set(['cut', 'whip', 'scroll', 'punch']);
+const STYLES = new Set(['narr', 'shout', 'whisper', 'label', 'sfx', 'stamp']);
+const MARKS = new Set(['sweat', 'anger', 'sparkle', 'gloom', null]);
+const PROPS = new Set(['door', 'laptop', 'fridge', 'lift']);
+
+const isStr = (v: unknown): v is string => typeof v === 'string';
+const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const okBg = (v: unknown) => isStr(v) && (PLACES.has(v) || /^(flat|phone|clock|screen):./.test(v));
+
+/** 인터넷에서 받은 대본이 엔진이 그릴 수 있는 형태인지 꼼꼼히 확인한다 (틀린 썰은 통째로 건너뛴다) */
+export function validStory(x: unknown): x is Story {
+  try {
+    const s = x as Story;
+    if (!s || !isStr(s.id) || !isNum(s.no) || !isStr(s.title) || !isStr(s.credit)) return false;
+    if (!Array.isArray(s.cast) || !s.cast.length || !Array.isArray(s.cuts) || !s.cuts.length || s.cuts.length > 20) return false;
+    const roles = new Set<string>();
+    for (const r of s.cast) {
+      if (!isStr(r.id) || !['me', 'boss', 'mate'].includes(r.as) || !isStr(r.label)) return false;
+      roles.add(r.id);
+    }
+    for (const c of s.cuts) {
+      if (!isNum(c.ms) || c.ms < 300 || c.ms > 10_000 || PANELS_OF[c.layout] === undefined || !Array.isArray(c.panels)) return false;
+      if (c.panels.length !== PANELS_OF[c.layout] || (c.enter !== undefined && !ENTERS.has(c.enter))) return false;
+      for (const p of c.panels) {
+        if (!okBg(p.bg) || !SHOTS.has(p.shot) || !Array.isArray(p.cast)) return false;
+        if (p.focus !== undefined && !roles.has(p.focus)) return false;
+        for (const a of p.cast) {
+          if (!roles.has(a.who) || !isNum(a.x) || (a.action !== undefined && !ACTIONS.has(a.action))) return false;
+        }
+      }
+      for (const e of c.events ?? []) {
+        if (!isNum(e.at) || e.at < 0 || e.at > c.ms) return false;
+        if (e.p !== undefined && (!isNum(e.p) || e.p < 0 || e.p >= c.panels.length)) return false;
+        if ('who' in e && !roles.has(e.who)) return false;
+        switch (e.do) {
+          case 'act':
+            if (!ACTIONS.has(e.action)) return false;
+            break;
+          case 'move':
+            if (!isNum(e.to) || !isNum(e.ms) || (e.then !== undefined && !ACTIONS.has(e.then))) return false;
+            break;
+          case 'inch':
+            if (!isNum(e.to) || !isNum(e.ms) || !isNum(e.steps) || e.steps < 1) return false;
+            break;
+          case 'say':
+            if (!isStr(e.text)) return false;
+            break;
+          case 'text':
+            if (!isStr(e.text) || !isNum(e.x) || !isNum(e.y) || !STYLES.has(e.style)) return false;
+            break;
+          case 'count':
+            if (!isStr(e.from) || !isStr(e.to) || !isNum(e.ms)) return false;
+            break;
+          case 'chat':
+            if (!isStr(e.text) || (e.from !== 'me' && e.from !== 'them')) return false;
+            break;
+          case 'mark':
+            if (!MARKS.has(e.mark)) return false;
+            break;
+          case 'cam':
+          case 'snap':
+            if (!SHOTS.has(e.shot)) return false;
+            break;
+          case 'light':
+            if (!isNum(e.level) || !isNum(e.ms)) return false;
+            break;
+          case 'prop':
+            if (!PROPS.has(e.prop) || !isStr(e.state)) return false;
+            break;
+          case 'dream':
+            if (!isNum(e.count) || e.count < 1 || e.count > 9 || (e.action !== undefined && !ACTIONS.has(e.action))) return false;
+            break;
+          case 'show':
+          case 'flash':
+          case 'shake':
+          case 'glitch':
+          case 'burst':
+          case 'focus':
+          case 'glare':
+          case 'silhouette':
+          case 'dreamPop':
+            break;
+          default:
+            return false;
+        }
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 앱에 들어 있는 기본 썰 (인터넷이 안 돼도 볼 수 있다) */
+export const STORIES: Story[] = (bundled.stories as unknown[]).filter(validStory);
+
+/** 새 썰은 앱 업데이트 없이 이 파일로 받아온다 (main에 올리면 GitHub Pages가 배포) */
+export const STORIES_URL = 'https://baebae6ae.github.io/chool_geun/stories.json';
+const CACHE_KEY = 'hamster-stories:v1';
+
+function readCache(): Story[] {
+  try {
+    const d = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null');
+    return Array.isArray(d?.stories) ? d.stories.filter(validStory) : [];
+  } catch {
+    return [];
+  }
+}
+let remote: Story[] = typeof localStorage === 'undefined' ? [] : readCache();
+
+/** 기본 썰 + 받아 둔 썰 (같은 id면 받아 둔 쪽이 최신) */
+export function allStories(): Story[] {
+  const map = new Map(STORIES.map((s) => [s.id, s]));
+  for (const s of remote) map.set(s.id, s);
+  return [...map.values()].sort((a, b) => a.no - b.no);
+}
+
+/** 인터넷에서 썰 목록을 받아 기기에 저장한다. 실패하면 조용히 넘어간다. 새로 받았으면 true */
+export async function refreshStories(fetcher: typeof fetch = fetch): Promise<boolean> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetcher(`${STORIES_URL}?h=${Math.floor(Date.now() / 3_600_000)}`, { cache: 'no-cache', signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!r.ok) return false;
+    const d = await r.json();
+    const list: Story[] = Array.isArray(d?.stories) ? d.stories.filter(validStory) : [];
+    if (!list.length) return false;
+    const changed = JSON.stringify(list) !== JSON.stringify(remote);
+    remote = list;
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ stories: list }));
+    } catch {
+      // 저장 못 해도 이번 실행 동안은 쓴다
+    }
+    return changed;
+  } catch {
+    return false;
+  }
+}
+
+/** 테스트용: 받아 둔 썰 바꾸기 */
+export function __setRemoteStories(list: Story[]) {
+  remote = list;
+}
 
 /** 오늘의 썰: 날짜와 기기 시드로 정해져 하루 종일 같다. 아직 안 본 썰을 먼저 고른다. */
 export function storyOfDay(seed: number, key: string, seen: Record<string, number> = {}): Story {
-  const fresh = STORIES.filter((s) => !seen[s.id]);
-  const pool = fresh.length ? fresh : STORIES;
+  const list = allStories();
+  const fresh = list.filter((s) => !seen[s.id]);
+  const pool = fresh.length ? fresh : list;
   const rng = createRng(`${seed}:${key}:story`);
   return pool[Math.floor(rng() * pool.length)];
 }
@@ -526,7 +299,7 @@ export function storyOfDay(seed: number, key: string, seen: Record<string, numbe
 /** 오늘의 썰 (한 번 정해지면 그날은 바뀌지 않는다) */
 export function todaysStory(state: AppState, key: string): Story {
   const id = state.stories?.days?.[key];
-  return STORIES.find((s) => s.id === id) ?? storyOfDay(state.seed, key, state.stories?.seen);
+  return allStories().find((s) => s.id === id) ?? storyOfDay(state.seed, key, state.stories?.seen);
 }
 
 /** 썰을 봤다고 기록 (그날의 썰로 고정하고, 도감 썰 모음에 열린다) */

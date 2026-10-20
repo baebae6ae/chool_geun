@@ -13,6 +13,13 @@ export interface NewsItem {
 
 export const NEWS: { version: number; items: NewsItem[] }[] = [
   {
+    version: 3,
+    items: [
+      { icon: '🎬', text: '퇴근하면 홈 화면에 「오늘의 썰」이 도착해요. 직장인 썰을 짧은 애니메이션으로!' },
+      { icon: '📚', text: '본 썰은 도감 「썰 모음」에서 다시 볼 수 있어요' },
+    ],
+  },
+  {
     version: 2,
     items: [
       { icon: '🐰', text: '토끼가 귀가 쫑긋 선 일반 토끼로 바뀌었어요' },
