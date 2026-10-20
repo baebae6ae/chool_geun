@@ -116,6 +116,8 @@ export interface DailyWork {
   overtimePay?: number;
   /** 야근을 했지만 못 받은 돈 = 벌었어야 할 돈 (포괄임금제) */
   overtimeOwed?: number;
+  /** 근무 시간 동안 걸은 걸음 수 (안드로이드 앱에서 신체 활동 권한을 허락했을 때만) */
+  steps?: number;
 }
 
 /** 기획서 17. Collection */

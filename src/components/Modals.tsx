@@ -10,6 +10,7 @@ import { ItemIcon } from './ItemIcon';
 import { EventIcon } from './EventIcon';
 import { useBackHandler } from '../backStack';
 import type { NewsItem } from '../domain/whatsNew';
+import { stepTier } from '../domain/steps';
 
 /** 등급이 높을수록 캡슐이 오래·세게 흔들리다 열린다 */
 const REVEAL: Record<Rarity, { wait: number; buzz: number[] }> = {
@@ -236,6 +237,15 @@ export function DailyRecordCard({ day, hamsterName, onEditLeft }: { day: DailyWo
           <>
             <dt>야근수당</dt>
             <dd>{formatWon(Math.floor(day.overtimePay))}</dd>
+          </>
+        )}
+        {typeof day.steps === 'number' && (
+          <>
+            <dt>움직임</dt>
+            <dd>
+              {stepTier(day.steps).emoji} {stepTier(day.steps).name}
+              <small className="muted"> · {day.steps.toLocaleString('ko-KR')}보</small>
+            </dd>
           </>
         )}
         <dt>작업물</dt>

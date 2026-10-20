@@ -2867,3 +2867,25 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 }
 .whats-new-list li span:first-child { font-size: 1.1rem; }
 .sheet.whats-new { max-height: 92vh; overflow-y: auto; }
+
+/* 기록 > 월간: 이달의 움직임 */
+.activity { display: grid; gap: 10px; }
+.activity-main { display: flex; align-items: center; gap: 12px; }
+.activity-emoji { font-size: 2.4rem; line-height: 1; }
+.activity-main div { display: grid; }
+.activity-main b { font-size: 1.25rem; }
+.activity-bars { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content 1fr 2.4em; align-items: center; gap: 6px 8px; font-size: 0.82rem; font-weight: 700; }
+.activity-bars li { display: contents; }
+.activity-bars li.main > span { color: var(--ink); }
+.activity-bars li:not(.main) > span { color: var(--ink-2); }
+.activity-label { white-space: nowrap; }
+.activity-track { height: 10px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, var(--card)); overflow: hidden; }
+.activity-track i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffc58a, #f29a4b); }
+.activity-bars li.main .activity-track i { background: linear-gradient(90deg, #7fd3a8, #3fb37f); }
+.activity-count { text-align: right; font-variant-numeric: tabular-nums; }
+.activity-tip { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, #7fd3a8 16%, var(--card)); }
+.activity-tip-pet { width: 72px; height: 72px; }
+.activity-tip b { display: block; margin-bottom: 4px; }
+.activity-tip p { margin: 0 0 4px; font-size: 0.86rem; line-height: 1.5; word-break: keep-all; }
+.activity-stretch { font-weight: 700; }
+.stamp-cal-cell .step-mark { position: absolute; left: 3px; bottom: 2px; font-size: 0.7rem; font-weight: 400; line-height: 1; }

@@ -15,6 +15,8 @@ import { TabIcon } from '../components/TabIcon';
 import { useBackHandler } from '../backStack';
 import { EventIcon } from '../components/EventIcon';
 import { HOLIDAY_BY_ID } from '../domain/gacha';
+import { MonthActivityCard } from '../components/MonthActivity';
+import { stepTier } from '../domain/steps';
 
 type Override = 'off' | 'on' | null;
 
@@ -103,6 +105,7 @@ function StampCalendar({
             <small>{Number(d.slice(8))}</small>
             {on && <span className="stamp on">🐾</span>}
             {on && day?.completed && <i title={itemOf(day).name}><ItemIcon item={itemOf(day)} /></i>}
+            {on && typeof day?.steps === 'number' && <b className="step-mark" title={stepTier(day.steps).name}>{stepTier(day.steps).emoji}</b>}
             {inMonth && !on && ov && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
             {inMonth && !on && !ov && holidayStamp(state, d) && <i className="hol">{holidayStamp(state, d)}</i>}
           </button>
@@ -231,6 +234,7 @@ export function Records({
             <StampCalendar y={ym.y} m={ym.m} state={state} now={now} onPick={onDayOverride ? setPicked : undefined} />
             {onDayOverride && <p className="muted small">오늘 이후 날짜를 누르면 연차·회사 휴무나 출근일을 직접 정할 수 있어요.</p>}
           </section>
+          <MonthActivityCard state={state} y={ym.y} m={ym.m} />
           {lastSeason && <OfficeRoom done={officeDone} season={lastSeason} small />}
         </>
       )}
