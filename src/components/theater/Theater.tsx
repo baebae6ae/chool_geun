@@ -1,8 +1,9 @@
 /**
  * 썰 극장 (세로 숏폼): 컷을 차례로 재생한다.
  * - 화면 위 진행 막대, 오른쪽 탭 = 다음 컷, 왼쪽 탭 = 이전 컷, 꾹 누르면 멈춤
- * - 캐릭터 이동은 1초에 12번만 갱신해서(2프레임 끊어 움직이기) 손그림 애니 느낌을 낸다
- * - 자막·효과는 매끄럽게 움직여서 대비를 준다
+ * - 캐릭터는 작고 배경은 넓게. 카메라는 천천히 다가가고 따라가며 계속 움직인다
+ * - 캐릭터 이동은 1초에 12번만 갱신해서(2프레임 끊어 움직이기) 손그림 애니 느낌, 자막·효과는 매끄럽게
+ * - 시간은 폰·시계·모니터 인서트와 조명으로, 속마음은 황무지·후광·먹구름·실루엣·생각 풍선으로 보여 준다
  */
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSprite';
@@ -15,24 +16,12 @@ import { Backdrop, Foreground } from './Backdrops';
 import './theater.css';
 
 const TICK = 1000 / 12;
-/** 칸 너비에 세트 너비의 몇 %가 보이게 할지 (작을수록 가까이) */
-const VISIBLE: Record<Shot, number> = { wide: 1, medium: 0.6, close: 0.38, face: 0.26 };
-/** 세로로 긴 칸에서도 최소한 이만큼은 당긴다 */
-const MIN_ZOOM: Record<Shot, number> = { wide: 1, medium: 1.1, close: 1.25, face: 1.4 };
+/** 칸 너비 기준 확대 배율 (전체 샷은 캐릭터가 작고 배경이 넓게) */
+const ZOOM: Record<Shot, number> = { wide: 1, medium: 1.55, close: 2.2, face: 3 };
 /** 카메라가 향하는 높이 (세트 위에서부터 %) */
-const FOCUS_Y: Record<Shot, number> = { wide: 60, medium: 62, close: 68, face: 72 };
-
-/** 칸 크기에 맞춰 확대 배율과 카메라 중심을 정한다 (세트 가장자리가 보이지 않게) */
-function framing(w: number, h: number, shot: Shot, fx: number, fy: number) {
-  if (!w || !h) return { z: 1, x: fx, y: fy };
-  const setW = Math.max(w, (h * 4) / 3);
-  const setH = setW * 0.75;
-  const z = Math.max(MIN_ZOOM[shot], w / (setW * VISIBLE[shot]));
-  const vw = (w / (setW * z)) * 100;
-  const vh = (h / (setH * z)) * 100;
-  const clamp = (v: number, span: number) => Math.min(100 - span / 2, Math.max(span / 2, v));
-  return { z, x: clamp(fx, vw), y: clamp(fy, vh) };
-}
+const FOCUS_Y: Record<Shot, number> = { wide: 60, medium: 64, close: 70, face: 73 };
+/** 바닥선이 칸 높이의 몇 %에 오는지 */
+const FLOOR_AT = 0.72;
 
 type Casting = Record<string, { custom: Customization; label: string }>;
 
@@ -60,14 +49,45 @@ interface ActorState {
   desk: boolean;
   tag: boolean;
   say: string | null;
+  silhouette: boolean;
+  /** 들썩 이동 중 몇 번째 걸음인지 (바뀔 때마다 통통 튄다) */
+  hop: number;
 }
 
-/** 컷의 t(ms) 시점에서 각 칸의 배우 상태와 발생한 이벤트를 계산한다 (멈춤·건너뛰기에 강하도록 순수 계산) */
+interface Dream {
+  who: string;
+  count: number;
+  action: FrontAction;
+  text?: string;
+  popped: boolean;
+}
+
+function fromPlace(c: Place): ActorState {
+  return { x: c.x, pose: { pose: 'front', action: c.action ?? 'idle' }, facing: c.facing ?? 1, hidden: !!c.hidden, mark: null, burst: false, desk: !!c.desk, tag: !!c.tag, say: null, silhouette: false, hop: 0 };
+}
+
+const ease = (k: number) => (k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2);
+
+/** 컷의 t(ms) 시점 상태를 대본에서 바로 계산한다 (멈춤·건너뛰기에 강하도록) */
 function stateAt(cut: Cut, t: number) {
   const panels = cut.panels.map((p) => {
     const actors: Record<string, ActorState> = {};
     for (const c of p.cast) actors[c.who] = fromPlace(c);
-    return { actors, shot: p.shot, focus: p.focus, blur: p.blur ?? null, door: 'closed', laptop: 'open', fridge: 'closed', lift: 'closed' };
+    return {
+      actors,
+      shot: p.shot,
+      focus: p.focus,
+      blur: p.blur ?? null,
+      camMs: 0,
+      light: 0,
+      lightMs: 0,
+      glare: false,
+      dream: null as Dream | null,
+      door: 'closed',
+      laptop: 'open',
+      fridge: 'closed',
+      lift: 'closed',
+    };
   });
   let flash = -1;
   let shake: { at: number; power: number } | null = null;
@@ -89,12 +109,20 @@ function stateAt(cut: Cut, t: number) {
         case 'move':
           if (a) {
             const k = Math.min(1, (Math.floor((t - e.at) / TICK) * TICK) / e.ms);
-            const ease = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
             const from = a.x;
             a.facing = e.to >= from ? 1 : -1;
-            a.x = from + (e.to - from) * ease;
+            a.x = from + (e.to - from) * ease(k);
             a.hidden = false;
             a.pose = k < 1 ? { pose: 'side', action: e.run ? 'run' : 'walk' } : { pose: 'front', action: (e.then ?? 'idle') as FrontAction };
+          }
+          break;
+        case 'inch':
+          if (a) {
+            const k = Math.min(1, (t - e.at) / e.ms);
+            const step = Math.min(e.steps, Math.floor(k * e.steps + 0.5));
+            a.x = a.x + ((e.to - a.x) * step) / e.steps;
+            a.hop = step;
+            a.hidden = false;
           }
           break;
         case 'mark':
@@ -106,12 +134,34 @@ function stateAt(cut: Cut, t: number) {
         case 'say':
           if (a) a.say = e.text;
           break;
+        case 'silhouette':
+          if (a) a.silhouette = e.on;
+          break;
         case 'focus':
           P.blur = e.blur;
           break;
         case 'snap':
           P.shot = e.shot;
+          P.camMs = 0;
           if (e.focus) P.focus = e.focus;
+          break;
+        case 'cam':
+          P.shot = e.shot;
+          P.camMs = e.ms;
+          if (e.focus) P.focus = e.focus;
+          break;
+        case 'light':
+          P.light = e.level;
+          P.lightMs = e.ms;
+          break;
+        case 'glare':
+          P.glare = e.on;
+          break;
+        case 'dream':
+          if (P.actors[e.who]) P.dream = { who: e.who, count: e.count, action: e.action ?? 'idle', text: e.text, popped: false };
+          break;
+        case 'dreamPop':
+          if (P.dream) P.dream = { ...P.dream, popped: true };
           break;
         case 'prop':
           (P as Record<string, unknown>)[e.prop] = e.state;
@@ -123,10 +173,6 @@ function stateAt(cut: Cut, t: number) {
     if (e.do === 'glitch') glitchUntil = Math.max(glitchUntil, e.at + e.ms);
   }
   return { panels, flash, shake, glitch: t < glitchUntil };
-}
-
-function fromPlace(c: Place): ActorState {
-  return { x: c.x, pose: { pose: 'front', action: c.action ?? 'idle' }, facing: c.facing ?? 1, hidden: !!c.hidden, mark: null, burst: false, desk: !!c.desk, tag: !!c.tag, say: null };
 }
 
 export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Customization; onClose: () => void; onSeen?: () => void }) {
@@ -253,9 +299,9 @@ export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Cust
             style={st.shake && t - st.shake.at < 450 ? { animation: `sh-shake-${st.shake.power} 0.45s linear` } : undefined}
           >
             {cut.panels.map((p, i) => (
-              <PanelView key={i} i={i} panel={p} live={st.panels[i]} cast={cast} />
+              <PanelView key={i} i={i} panel={p} live={st.panels[i]} cast={cast} me={me} />
             ))}
-            {(cut.events ?? []).map((e, i) => (e.at <= t ? <Overlay key={i} e={e} t={t} /> : null))}
+            {(cut.events ?? []).map((e, i) => (e.at <= t ? <Overlay key={i} e={e} /> : null))}
             <Chat events={(cut.events ?? []).filter((e) => e.do === 'chat' && e.at <= t) as Extract<Ev, { do: 'chat' }>[]} />
             {st.flash >= 0 && t - st.flash < 300 && <div className="cut-flash" />}
           </div>
@@ -298,7 +344,22 @@ function TitleCard({ story }: { story: Story }) {
 
 type Live = ReturnType<typeof stateAt>['panels'][number];
 
-function PanelView({ i, panel, live, cast }: { i: number; panel: Panel; live: Live; cast: Casting }) {
+/** 칸 크기에 맞춘 카메라: 세트는 칸 너비에 맞추고, 바닥선을 칸 아래쪽에 둔다. 위아래는 벽과 바닥이 이어져 넓어 보인다 */
+function camera(w: number, h: number, shot: Shot, fx: number) {
+  const setW = w;
+  const setH = w * 0.75;
+  const top = h * FLOOR_AT - setH * 0.76;
+  const z = ZOOM[shot];
+  const fy = FOCUS_Y[shot];
+  // 초점을 칸 가운데쯤으로 끌어온다 (전체 샷은 제자리)
+  const px = (fx / 100) * setW;
+  const py = top + (fy / 100) * setH;
+  const tx = shot === 'wide' ? 0 : w / 2 - px;
+  const ty = shot === 'wide' ? 0 : h * 0.5 - py;
+  return { top, setW, setH, z, fx, fy, tx, ty };
+}
+
+function PanelView({ i, panel, live, cast, me }: { i: number; panel: Panel; live: Live; cast: Casting; me: Customization }) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   useLayoutEffect(() => {
@@ -310,35 +371,131 @@ function PanelView({ i, panel, live, cast }: { i: number; panel: Panel; live: Li
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  const bg = panel.bg;
+  const insert = bg.startsWith('phone:') || bg.startsWith('clock:') || bg.startsWith('screen:');
+  const flat = bg.startsWith('flat:') ? bg.slice(5) : null;
   const focusActor = live.focus ? live.actors[live.focus] : undefined;
-  // 전체 샷은 보이는 배우들 가운데로, 나머지는 초점 배우에게
   const shown = Object.values(live.actors).filter((a) => !a.hidden);
-  const fx = live.shot === 'wide' && !focusActor ? (shown.length ? shown.reduce((t, a) => t + a.x, 0) / shown.length : 50) : (focusActor?.x ?? 50);
-  const f = framing(size.w, size.h, live.shot, fx, FOCUS_Y[live.shot]);
-  const flat = panel.bg.startsWith('flat:') ? panel.bg.slice(5) : null;
+  const fx = focusActor?.x ?? (shown.length ? shown.reduce((s, a) => s + a.x, 0) / shown.length : 50);
+  const cam = camera(size.w, size.h, live.shot, fx);
   return (
-    <div ref={ref} className={`panel panel-${i} shot-${live.shot} ${live.blur ? `blur-${live.blur}` : ''}`} style={flat ? { background: flat } : undefined}>
-      <div className="set" style={{ transformOrigin: `${f.x}% ${f.y}%`, transform: `translate(${50 - f.x}%, ${50 - f.y}%) scale(${f.z})`, visibility: size.w ? 'visible' : 'hidden' }}>
-        <div className="drift">
-          {!flat && (
-            <div className="layer back">
-              <Backdrop bg={panel.bg as Bg} props={live} />
+    <div
+      ref={ref}
+      className={`panel panel-${i} shot-${live.shot} ${live.blur ? `blur-${live.blur}` : ''} ${live.glare ? 'glare' : ''} ${insert ? 'insert' : ''}`}
+      style={flat ? { background: flat } : undefined}
+    >
+      {insert ? (
+        <Insert bg={bg} me={me} />
+      ) : (
+        <div
+          className="set"
+          style={{
+            top: cam.top,
+            width: cam.setW,
+            height: cam.setH,
+            transformOrigin: `${cam.fx}% ${cam.fy}%`,
+            transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.z})`,
+            transition: `transform ${live.camMs}ms cubic-bezier(.45,0,.25,1)`,
+            visibility: size.w ? 'visible' : 'hidden',
+          }}
+        >
+          <div className="drift">
+            {!flat && (
+              <div className="layer back">
+                <Backdrop bg={bg as Bg} props={live} />
+              </div>
+            )}
+            {flat && <FlatBurst />}
+            <div className="layer actors">
+              {Object.entries(live.actors).map(([id, a]) => (
+                <ActorView
+                  key={id}
+                  id={id}
+                  a={a}
+                  who={cast[id]}
+                  zoom={cam.z}
+                  big={live.shot === 'face' || live.shot === 'close'}
+                  sx={size.w ? (((a.x / 100) * cam.setW - (cam.fx / 100) * cam.setW) * cam.z + (cam.fx / 100) * cam.setW + cam.tx) / size.w * 100 : a.x}
+                  dream={live.dream?.who === id ? live.dream : null}
+                  me={me}
+                />
+              ))}
             </div>
-          )}
-          {flat && <FlatBurst />}
-          <div className="layer actors">
-            {Object.entries(live.actors).map(([id, a]) => (
-              <ActorView key={id} id={id} a={a} who={cast[id]} zoom={f.z} big={live.shot === 'face' || live.shot === 'close'} sx={size.w ? 50 + ((a.x - f.x) * Math.max(size.w, (size.h * 4) / 3) * f.z) / size.w : a.x} />
-            ))}
+            {!flat && (
+              <div className="layer fore">
+                <Foreground bg={bg as Bg} />
+              </div>
+            )}
           </div>
-          {!flat && (
-            <div className="layer fore">
-              <Foreground bg={panel.bg as Bg} />
+        </div>
+      )}
+      <div className="light" style={{ opacity: live.light, transition: `opacity ${live.lightMs}ms linear` }} aria-hidden />
+      <div className="halftone" aria-hidden />
+    </div>
+  );
+}
+
+/** 화면 가득 소품 인서트: 폰 잠금화면 · 벽시계 · 모니터 */
+function Insert({ bg, me }: { bg: string; me: Customization }) {
+  const [kind, rest] = [bg.slice(0, bg.indexOf(':')), bg.slice(bg.indexOf(':') + 1)];
+  if (kind === 'phone') {
+    const [time, from, msg] = rest.split('|');
+    return (
+      <div className="insert-wrap">
+        <div className="phone">
+          <div className="phone-screen">
+            <div className="phone-date">10월 20일 화요일</div>
+            <div className="phone-time">{time}</div>
+            {from && (
+              <div className="phone-noti">
+                <small>메신저 · {from}</small>
+                <b>{msg}</b>
+              </div>
+            )}
+            <div className="phone-wall">
+              <HamsterSprite custom={me} pose={{ pose: 'front', action: 'idle' }} still />
             </div>
-          )}
+          </div>
         </div>
       </div>
-      <div className="halftone" aria-hidden />
+    );
+  }
+  if (kind === 'clock') {
+    const [hh, mm] = rest.split(':').map(Number);
+    return (
+      <div className="insert-wrap clock-wrap">
+        <svg className="big-clock" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="#fffaf0" stroke="#4a3a2e" strokeWidth="5" />
+          {Array.from({ length: 12 }, (_, i) => (
+            <path key={i} d={`M50 ${i % 3 ? 12 : 10} V${i % 3 ? 16 : 19}`} stroke="#4a3a2e" strokeWidth={i % 3 ? 2 : 4} strokeLinecap="round" transform={`rotate(${i * 30} 50 50)`} />
+          ))}
+          <path d="M50 50 V27" stroke="#4a3a2e" strokeWidth="5" strokeLinecap="round" transform={`rotate(${((hh % 12) + mm / 60) * 30} 50 50)`} />
+          <path d="M50 50 V16" stroke="#4a3a2e" strokeWidth="3" strokeLinecap="round" transform={`rotate(${mm * 6} 50 50)`} />
+          <path className="big-clock-sec" d="M50 54 V14" stroke="#e8504b" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="50" cy="50" r="3.2" fill="#4a3a2e" />
+        </svg>
+        <div className="clock-digits">
+          {String(hh).padStart(2, '0')}:{String(mm).padStart(2, '0')}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="insert-wrap screen-wrap">
+      <div className="monitor">
+        <div className="monitor-screen">
+          <div className="win">
+            <div className="win-bar">
+              보고서_최종_진짜최종.docx <span>✕</span>
+            </div>
+            <div className="win-body">
+              <b>⚠ {rest}</b>
+              <div className="win-spin" />
+            </div>
+          </div>
+        </div>
+        <div className="monitor-stand" />
+      </div>
     </div>
   );
 }
@@ -352,11 +509,11 @@ const Sprite = memo(function Sprite({ custom, pose }: { custom: Customization; p
   return <HamsterSprite custom={custom} pose={pose} />;
 });
 
-function ActorView({ id, a, who, zoom, big, sx }: { id: string; a: ActorState; who: Casting[string]; zoom: number; big: boolean; sx: number }) {
+function ActorView({ id, a, who, zoom, big, sx, dream, me }: { id: string; a: ActorState; who: Casting[string]; zoom: number; big: boolean; sx: number; dream: Dream | null; me: Customization }) {
   if (!who) return null;
   return (
-    <div className={`actor ${a.hidden ? 'hidden' : ''} ${a.burst ? 'burst' : ''} mark-${a.mark ?? 'none'} actor-${id}`} style={{ left: `${a.x}%` }}>
-      <div className="actor-flip" style={{ transform: `scaleX(${a.pose.pose === 'side' ? a.facing : 1})` }}>
+    <div className={`actor ${a.hidden ? 'hidden' : ''} ${a.burst ? 'burst' : ''} ${a.silhouette ? 'silhouette' : ''} mark-${a.mark ?? 'none'} actor-${id}`} style={{ left: `${a.x}%` }}>
+      <div key={a.hop} className={`actor-flip ${a.hop ? 'hop' : ''}`} style={{ transform: `scaleX(${a.pose.pose === 'side' ? a.facing : 1})` }}>
         <Sprite custom={who.custom} pose={a.pose} />
       </div>
       <Manpu mark={a.mark} />
@@ -367,6 +524,27 @@ function ActorView({ id, a, who, zoom, big, sx }: { id: string; a: ActorState; w
           <Words text={a.say} />
         </div>
       )}
+      {dream && <DreamBubble d={dream} me={me} />}
+    </div>
+  );
+}
+
+/** 생각 풍선: 분신이 하나둘 늘어난다 */
+function DreamBubble({ d, me }: { d: Dream; me: Customization }) {
+  return (
+    <div className={`dream ${d.popped ? 'popped' : ''}`}>
+      <div className="dream-cloud">
+        <div className="dream-cast">
+          {Array.from({ length: d.count }, (_, i) => (
+            <div key={i} className="dream-clone" style={{ animationDelay: `${(i % 3) * 0.08}s` }}>
+              <HamsterSprite custom={me} pose={{ pose: 'front', action: d.action }} />
+            </div>
+          ))}
+        </div>
+        {d.text && <div className="dream-text">{d.text}</div>}
+      </div>
+      <i className="dream-dot a" />
+      <i className="dream-dot b" />
     </div>
   );
 }
@@ -393,9 +571,9 @@ function Words({ text, base = 0, step = 0.09 }: { text: string; base?: number; s
   );
 }
 
-function Overlay({ e, t }: { e: Ev; t: number }) {
+function Overlay({ e }: { e: Ev }) {
   if (e.do === 'text') return <KText text={e.text} x={e.x} y={e.y} style={e.style} size={e.size} tilt={e.tilt} />;
-  if (e.do === 'count') return <Counter from={e.from} to={e.to} x={e.x} y={e.y} k={Math.min(1, (t - e.at) / e.ms)} />;
+  if (e.do === 'count') return <Counter from={e.from} to={e.to} x={e.x} y={e.y} ms={e.ms} />;
   return null;
 }
 
@@ -408,7 +586,13 @@ function KText({ text, x, y, style, size = 1, tilt = 0 }: { text: string; x: num
 }
 
 /** 숫자가 촤라락 굴러가다 멈춤 */
-function Counter({ from, to, x, y, k }: { from: string; to: string; x: number; y: number; k: number }) {
+function Counter({ from, to, x, y, ms }: { from: string; to: string; x: number; y: number; ms: number }) {
+  const [k, setK] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    const id = setInterval(() => setK(Math.min(1, (performance.now() - start) / ms)), 60);
+    return () => clearInterval(id);
+  }, [ms]);
   const scramble = (s: string) => s.replace(/\d/g, () => String(Math.floor(Math.random() * 10)));
   const text = k <= 0.15 ? from : k >= 1 ? to : scramble(k < 0.5 ? from : to);
   return (

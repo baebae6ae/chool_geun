@@ -22,6 +22,11 @@ export function Backdrop({ bg, props }: { bg: Bg; props: Props }) {
       {bg === 'pantry' && <Pantry fridge={props.fridge} />}
       {bg === 'elevator' && <Elevator lift={props.lift} />}
       {bg === 'subway' && <Subway />}
+      {bg === 'building' && <Building />}
+      {bg === 'wasteland' && <Wasteland />}
+      {bg === 'halo' && <Halo />}
+      {bg === 'rain' && <Rain />}
+      {bg === 'space' && <Space />}
     </svg>
   );
 }
@@ -30,17 +35,17 @@ export function Foreground({ bg }: { bg: Bg }) {
   if (bg === 'meeting') {
     return (
       <svg className="bd" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden>
-        <rect x="-10" y="236" width="420" height="14" rx="4" fill="#c99a6b" stroke={INK} strokeWidth={SW} />
-        <rect x="0" y="250" width="400" height="60" fill="#b8865a" stroke={INK} strokeWidth={SW} />
-        <rect x="70" y="226" width="34" height="12" rx="2" fill="#fff" stroke={INK} strokeWidth="2" />
-        <rect x="296" y="228" width="26" height="10" rx="2" fill="#e8f0ff" stroke={INK} strokeWidth="2" />
+        <rect x="-400" y="246" width="1200" height="14" rx="4" fill="#c99a6b" stroke={INK} strokeWidth={SW} />
+        <rect x="-400" y="260" width="1200" height="900" fill="#b8865a" stroke={INK} strokeWidth={SW} />
+        <rect x="70" y="236" width="34" height="12" rx="2" fill="#fff" stroke={INK} strokeWidth="2" />
+        <rect x="296" y="238" width="26" height="10" rx="2" fill="#e8f0ff" stroke={INK} strokeWidth="2" />
       </svg>
     );
   }
   if (bg === 'subway') {
     return (
       <svg className="bd" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden>
-        <rect x="-10" y="262" width="420" height="50" rx="10" fill="#4f6fb0" stroke={INK} strokeWidth={SW} />
+        <rect x="-400" y="262" width="1200" height="60" rx="10" fill="#4f6fb0" stroke={INK} strokeWidth={SW} />
       </svg>
     );
   }
@@ -59,11 +64,11 @@ export function Foreground({ bg }: { bg: Bg }) {
 function Floor({ color = '#d8b183', line = '#c39a6d' }: { color?: string; line?: string }) {
   return (
     <g>
-      <rect x="-20" y="228" width="440" height="90" fill={color} />
-      {Array.from({ length: 12 }, (_, i) => (
-        <path key={i} d={`M${i * 40 - 10} 228 L${i * 40 - 30} 300`} stroke={line} strokeWidth="2" />
+      <rect x="-400" y="228" width="1200" height="900" fill={color} />
+      {Array.from({ length: 30 }, (_, i) => (
+        <path key={i} d={`M${i * 40 - 400} 228 L${i * 40 - 560} 1100`} stroke={line} strokeWidth="2" />
       ))}
-      <path d="M-20 228 H420" stroke={INK} strokeWidth={SW} />
+      <path d="M-400 228 H800" stroke={INK} strokeWidth={SW} />
     </g>
   );
 }
@@ -81,9 +86,10 @@ function Clock({ x, y, r = 20 }: { x: number; y: number; r?: number }) {
 function Office() {
   return (
     <g strokeLinejoin="round">
-      <rect x="-20" y="-20" width="440" height="250" fill="#f6e6cc" />
-      <rect x="-20" y="188" width="440" height="40" fill="#ecd6b2" />
-      <path d="M-20 188 H420" stroke={INK} strokeWidth="2" opacity=".5" />
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#f6e6cc" />
+      <rect x="-400" y="188" width="1200" height="40" fill="#ecd6b2" />
+      <path d="M-400 188 H800" stroke={INK} strokeWidth="2" opacity=".5" />
+      <path d="M-400 -60 H800" stroke={INK} strokeWidth="2" opacity=".25" />
       {/* 창문 */}
       <rect x="150" y="30" width="104" height="92" rx="4" fill="#bfe4ff" stroke={INK} strokeWidth={SW} />
       <path d="M202 30 V122 M150 76 H254" stroke={INK} strokeWidth={SW} />
@@ -104,7 +110,7 @@ function Office() {
 function Meeting() {
   return (
     <g strokeLinejoin="round">
-      <rect x="-20" y="-20" width="440" height="250" fill="#e6edf5" />
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#e6edf5" />
       {/* 화이트보드 */}
       <rect x="110" y="26" width="180" height="112" rx="4" fill="#fff" stroke={INK} strokeWidth={SW} />
       <path d="M126 50 h70 M126 66 h104 M126 82 h56" stroke="#3b7fd8" strokeWidth="3" strokeLinecap="round" />
@@ -122,12 +128,12 @@ function Pantry({ fridge }: { fridge?: string }) {
   const open = fridge === 'open';
   return (
     <g strokeLinejoin="round">
-      <rect x="-20" y="-20" width="440" height="250" fill="#eef7f2" />
-      {Array.from({ length: 11 }, (_, i) => (
-        <path key={`v${i}`} d={`M${i * 40} 100 V228`} stroke="#d4e8dc" strokeWidth="2" />
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#eef7f2" />
+      {Array.from({ length: 30 }, (_, i) => (
+        <path key={`v${i}`} d={`M${i * 40 - 400} 100 V228`} stroke="#d4e8dc" strokeWidth="2" />
       ))}
       {Array.from({ length: 4 }, (_, i) => (
-        <path key={`h${i}`} d={`M-20 ${100 + i * 32} H420`} stroke="#d4e8dc" strokeWidth="2" />
+        <path key={`h${i}`} d={`M-400 ${100 + i * 32} H800`} stroke="#d4e8dc" strokeWidth="2" />
       ))}
       {/* 수납장 */}
       <rect x="-10" y="20" width="250" height="62" rx="3" fill="#f3e2c8" stroke={INK} strokeWidth={SW} />
@@ -169,8 +175,8 @@ function Elevator({ lift }: { lift?: string }) {
   const open = lift === 'open';
   return (
     <g strokeLinejoin="round">
-      <rect x="-20" y="-20" width="440" height="250" fill="#ebe5da" />
-      <path d="M-20 60 H420 M-20 140 H420" stroke="#ddd5c6" strokeWidth="2" />
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#ebe5da" />
+      <path d="M-400 60 H800 M-400 140 H800" stroke="#ddd5c6" strokeWidth="2" />
       {/* 층 표시 */}
       <rect x="168" y="14" width="64" height="24" rx="4" fill="#2d2440" stroke={INK} strokeWidth={SW} />
       <text x="183" y="32" fontSize="15" fontWeight="900" fill={open ? '#7dffa8' : '#ffb347'}>1F ▼</text>
@@ -199,7 +205,7 @@ function Elevator({ lift }: { lift?: string }) {
 function Subway() {
   return (
     <g strokeLinejoin="round">
-      <rect x="-20" y="-20" width="440" height="250" fill="#dfe6ee" />
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#dfe6ee" />
       {/* 창문: 어두운 터널에 불빛이 휙휙 */}
       {[20, 160, 300].map((x) => (
         <g key={x}>
@@ -209,7 +215,7 @@ function Subway() {
         </g>
       ))}
       {/* 손잡이 */}
-      <path d="M-20 14 H420" stroke="#9aa6b8" strokeWidth="5" />
+      <path d="M-400 14 H800" stroke="#9aa6b8" strokeWidth="5" />
       {[50, 130, 210, 290, 370].map((x, i) => (
         <g key={x} className="bd-strap" style={{ transformOrigin: `${x}px 14px`, animationDelay: `${i * 0.2}s` }}>
           <path d={`M${x} 14 V34`} stroke="#9aa6b8" strokeWidth="3" />
@@ -217,8 +223,93 @@ function Subway() {
         </g>
       ))}
       {/* 의자 등받이 */}
-      <rect x="-10" y="150" width="420" height="80" rx="10" fill="#6f8fd0" stroke={INK} strokeWidth={SW} />
+      <rect x="-400" y="150" width="1200" height="80" rx="10" fill="#6f8fd0" stroke={INK} strokeWidth={SW} />
       <Floor color="#b8bfc9" line="#a6aeb9" />
+    </g>
+  );
+}
+
+/* ---------- 설정 샷: 회사 건물 밖 ---------- */
+function Building() {
+  return (
+    <g strokeLinejoin="round">
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#bfe4ff" />
+      <circle cx="330" cy="-60" r="26" fill="#fff3b0" />
+      <path d="M-40 -20 q30 -18 60 0 q20 -14 44 0z M250 40 q24 -14 48 0 q16 -10 34 0z" fill="#fff" opacity=".9" />
+      <rect x="90" y="-260" width="220" height="490" fill="#cfd6e0" stroke={INK} strokeWidth={SW} />
+      {Array.from({ length: 9 }, (_, r) =>
+        Array.from({ length: 4 }, (_, c) => (
+          <rect key={`${r}-${c}`} x={106 + c * 50} y={-240 + r * 50} width="36" height="30" rx="2" fill={r === 7 && c === 1 ? '#ffe9a3' : '#9fb7cf'} stroke={INK} strokeWidth="2" />
+        )),
+      )}
+      <rect x="-60" y="60" width="130" height="170" fill="#e2c9a8" stroke={INK} strokeWidth={SW} />
+      <rect x="330" y="20" width="130" height="210" fill="#d6c3e3" stroke={INK} strokeWidth={SW} />
+      <rect x="-400" y="228" width="1200" height="900" fill="#b9b2a6" />
+      <path d="M-400 228 H800" stroke={INK} strokeWidth={SW} />
+    </g>
+  );
+}
+
+/* ---------- 속마음 장소 ---------- */
+/** 허무: 잿빛 갈라진 황무지 */
+function Wasteland() {
+  return (
+    <g strokeLinejoin="round">
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#8f97a3" />
+      <path d="M-400 170 L-200 90 L-60 150 L60 70 L200 160 L320 80 L460 150 L800 110 V230 H-400Z" fill="#4e5562" stroke={INK} strokeWidth="2.4" />
+      <rect x="-400" y="200" width="1200" height="900" fill="#a9aeb5" />
+      <path d="M-400 200 H800" stroke={INK} strokeWidth="2.4" />
+      <g stroke="#6f7680" strokeWidth="2.4" fill="none" strokeLinecap="round">
+        <path d="M20 250 l40 10 l20 -8 l50 14 M210 240 l30 16 l40 -6 l30 20 M60 300 l60 -10 l30 16 l70 -6 M260 290 l40 14 l60 -10" />
+        <path d="M-120 330 l80 -20 l40 24 M330 340 l60 -18 l70 20 M80 380 l90 10 l40 -22" />
+      </g>
+    </g>
+  );
+}
+
+/** 깨달음·신성: 금빛 후광 */
+function Halo() {
+  return (
+    <g>
+      <rect x="-400" y="-900" width="1200" height="2000" fill="#fff4c2" />
+      <g className="bd-rays" style={{ transformOrigin: '200px 170px' }}>
+        {Array.from({ length: 24 }, (_, i) => (
+          <path key={i} d="M200 170 L190 -700 L210 -700Z" fill="#ffd23c" opacity=".55" transform={`rotate(${i * 15} 200 170)`} />
+        ))}
+      </g>
+      <circle cx="200" cy="170" r="90" fill="#fff9e0" opacity=".9" />
+      <path d="M40 270 q40 -30 80 0 q30 -24 60 0 M240 280 q36 -26 72 0 q30 -22 60 0" fill="#fff" stroke="#e8d38a" strokeWidth="3" />
+    </g>
+  );
+}
+
+/** 우울: 머리 위에만 먹구름 비 */
+function Rain() {
+  return (
+    <g strokeLinejoin="round">
+      <rect x="-400" y="-900" width="1200" height="1130" fill="#5d6577" />
+      <rect x="-400" y="228" width="1200" height="900" fill="#474e5e" />
+      <path d="M-400 228 H800" stroke="#2d2f3a" strokeWidth={SW} />
+      <path d="M120 40 q-10 -40 40 -42 q16 -36 60 -20 q40 -20 60 20 q46 4 36 42z" fill="#3b4150" stroke="#2d2f3a" strokeWidth={SW} />
+      <g className="bd-rain" stroke="#9fb4d8" strokeWidth="3" strokeLinecap="round" opacity=".8">
+        {Array.from({ length: 12 }, (_, i) => (
+          <path key={i} d={`M${140 + i * 13} ${50 + (i % 3) * 14} l-4 22`} />
+        ))}
+      </g>
+    </g>
+  );
+}
+
+/** 멍: 우주 */
+function Space() {
+  return (
+    <g>
+      <rect x="-400" y="-900" width="1200" height="2000" fill="#1d2140" />
+      {Array.from({ length: 60 }, (_, i) => (
+        <circle key={i} className={i % 4 ? undefined : 'bd-star'} cx={((i * 97) % 1200) - 400} cy={((i * 53) % 1100) - 700} r={i % 5 ? 1.6 : 2.8} fill="#fff" />
+      ))}
+      <circle cx="320" cy="60" r="34" fill="#f2a64a" stroke="#fff3" strokeWidth="2" />
+      <ellipse cx="320" cy="60" rx="58" ry="12" fill="none" stroke="#ffd27a" strokeWidth="4" transform="rotate(-18 320 60)" />
     </g>
   );
 }

@@ -8,7 +8,25 @@ import type { FrontAction } from '../components/hamster/HamsterSprite';
 import type { AppState, DailyWork, HatId, OutfitId, Species } from './types';
 import { createRng } from './random';
 
-export type Bg = 'office' | 'meeting' | 'pantry' | 'elevator' | 'subway' | `flat:${string}`;
+/**
+ * 배경: 장소 · 속마음 장소(황무지·후광·먹구름·우주) · 설정 샷(건물 밖) · 단색,
+ * 그리고 화면 가득 소품을 보여 주는 인서트(폰 잠금화면 `phone:19:40|보낸 사람|알림`, 벽시계 `clock:16:47`, 모니터 `screen:문구`)
+ */
+export type Bg =
+  | 'office'
+  | 'meeting'
+  | 'pantry'
+  | 'elevator'
+  | 'subway'
+  | 'building'
+  | 'wasteland'
+  | 'halo'
+  | 'rain'
+  | 'space'
+  | `flat:${string}`
+  | `phone:${string}`
+  | `clock:${string}`
+  | `screen:${string}`;
 /** 카메라 거리: 전체 → 중간 → 가까이 → 얼굴 */
 export type Shot = 'wide' | 'medium' | 'close' | 'face';
 /** 칸 나누기: 한 칸 / 위아래 / 좌우 대치 / 위 하나 + 아래 둘 */
@@ -70,6 +88,19 @@ export type Ev = { at: number; p?: number } & (
   /** 칸 안에서 한 번에 확 당기기 (점프 줌) */
   | { do: 'snap'; shot: Shot; focus?: string }
   | { do: 'prop'; prop: 'door' | 'laptop' | 'fridge' | 'lift'; state: string }
+  /** 카메라를 천천히 옮기기 (다가가기·따라가기) */
+  | { do: 'cam'; shot: Shot; focus?: string; ms: number }
+  /** 조명: 0 = 그대로, 1 = 완전 암전 */
+  | { do: 'light'; level: number; ms: number }
+  /** 과하게 밝아지며 번지는 패닉 화면 */
+  | { do: 'glare'; on: boolean }
+  /** 새까만 실루엣으로 */
+  | { do: 'silhouette'; who: string; on: boolean }
+  /** 머리 위 생각 풍선: 내 분신 count명이 action을 한다 */
+  | { do: 'dream'; who: string; count: number; action?: FrontAction; text?: string }
+  | { do: 'dreamPop' }
+  /** 한 번에 가지 않고 들썩들썩 조금씩 다가가기 */
+  | { do: 'inch'; who: string; to: number; steps: number; ms: number }
 );
 
 export interface Cut {
@@ -108,64 +139,96 @@ export const STORIES: Story[] = [
     ],
     cuts: [
       {
+        ms: 2000,
+        layout: 'full',
+        panels: [{ bg: 'building', shot: 'wide', cast: [] }],
+        events: [
+          { at: 0, do: 'cam', shot: 'medium', ms: 2000 },
+          { at: 200, do: 'text', text: 'PM 2:00', x: 22, y: 12, style: 'label', tilt: -4 },
+          { at: 600, do: 'text', text: '평화로운 *오후 두 시*', x: 50, y: 86, style: 'narr' },
+        ],
+      },
+      {
+        ms: 3200,
+        layout: 'full',
+        enter: 'cut',
+        panels: [
+          {
+            bg: 'office',
+            shot: 'wide',
+            cast: [
+              { who: 'me', x: 34, action: 'type', desk: true, tag: true },
+              { who: 'boss', x: 118, facing: -1, tag: true },
+            ],
+          },
+        ],
+        events: [
+          { at: 200, do: 'move', who: 'boss', to: 66, ms: 1100, then: 'wave' },
+          { at: 300, do: 'cam', shot: 'medium', focus: 'boss', ms: 1200 },
+          { at: 1500, do: 'say', who: 'boss', text: '회의 *5분만* 하자~' },
+        ],
+      },
+      {
         ms: 2200,
         layout: 'full',
-        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 40, action: 'type', desk: true, tag: true }] }],
+        enter: 'cut',
+        panels: [{ bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 34, action: 'look', desk: true }] }],
         events: [
-          { at: 100, do: 'text', text: 'PM 2:00', x: 18, y: 14, style: 'label', tilt: -4 },
-          { at: 500, do: 'text', text: '평화로운 *오후 두 시*', x: 50, y: 84, style: 'narr' },
+          { at: 1300, do: 'mark', who: 'me', mark: 'sweat' },
+          { at: 1400, do: 'text', text: '…5분?', x: 74, y: 30, style: 'whisper' },
         ],
+      },
+      {
+        ms: 1300,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'clock:14:00', shot: 'wide', cast: [] }],
       },
       {
         ms: 3000,
-        layout: 'stack',
-        enter: 'scroll',
-        panels: [
-          { bg: 'office', shot: 'medium', focus: 'boss', cast: [{ who: 'boss', x: 62, action: 'wave', tag: true }], blur: 'bg' },
-          { bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 40, action: 'look', desk: true }] },
-        ],
-        events: [
-          { at: 200, p: 0, do: 'say', who: 'boss', text: '회의 *5분만* 하자~' },
-          { at: 1300, p: 1, do: 'act', who: 'me', action: 'quake' },
-          { at: 1300, p: 1, do: 'mark', who: 'me', mark: 'sweat' },
-          { at: 1500, do: 'text', text: '…5분?', x: 76, y: 72, style: 'whisper' },
-        ],
-      },
-      {
-        ms: 2600,
         layout: 'full',
-        enter: 'punch',
-        panels: [{ bg: 'flat:#ffd23c', shot: 'wide', cast: [] }],
-        events: [
-          { at: 0, do: 'text', text: '회의 시간', x: 50, y: 34, style: 'label' },
-          { at: 250, do: 'count', from: '5분', to: '2시간 47분', x: 50, y: 50, ms: 1600 },
-          { at: 1900, do: 'shake', power: 2 },
-          { at: 1900, do: 'text', text: '실화?', x: 72, y: 66, style: 'sfx', tilt: 12 },
-        ],
-      },
-      {
-        ms: 2800,
-        layout: 'full',
-        enter: 'whip',
+        enter: 'cut',
         panels: [
           {
             bg: 'meeting',
             shot: 'wide',
             cast: [
-              { who: 'boss', x: 66, action: 'cheer' },
-              { who: 'me', x: 34, action: 'soul' },
+              { who: 'boss', x: 64, action: 'cheer' },
+              { who: 'me', x: 32, action: 'idle' },
             ],
           },
         ],
         events: [
-          { at: 200, do: 'say', who: 'boss', text: '그래서 결론은… *다음에 다시 얘기하자!*' },
-          { at: 1700, do: 'glitch', ms: 400 },
-          { at: 1700, do: 'shake', power: 2 },
-          { at: 1700, do: 'text', text: '?!', x: 30, y: 30, style: 'sfx', size: 1.4, tilt: -10 },
+          { at: 0, do: 'light', level: 0.45, ms: 2800 },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2800 },
+          { at: 900, do: 'act', who: 'me', action: 'doze' },
+          { at: 1900, do: 'act', who: 'me', action: 'soul' },
+          { at: 600, do: 'text', text: '회의는 *계속되었다*', x: 50, y: 86, style: 'narr' },
         ],
       },
       {
-        ms: 2200,
+        ms: 1600,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'clock:16:47', shot: 'wide', cast: [] }],
+        events: [
+          { at: 300, do: 'shake', power: 2 },
+          { at: 300, do: 'text', text: '*2시간 47분*째', x: 50, y: 84, style: 'shout', size: 0.9 },
+        ],
+      },
+      {
+        ms: 2800,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'soul' }] }],
+        events: [
+          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2800 },
+          { at: 1300, do: 'silhouette', who: 'me', on: true },
+          { at: 700, do: 'text', text: '5분은 *어디로 갔을까*', x: 50, y: 86, style: 'narr' },
+        ],
+      },
+      {
+        ms: 2400,
         layout: 'versus',
         enter: 'cut',
         panels: [
@@ -173,18 +236,20 @@ export const STORIES: Story[] = [
           { bg: 'flat:#9fc8ff', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 50, action: 'shock' }] },
         ],
         events: [
-          { at: 0, do: 'flash' },
-          { at: 300, do: 'text', text: '*다음에*…?', x: 50, y: 82, style: 'shout' },
+          { at: 100, p: 0, do: 'say', who: 'boss', text: '결론은 *다음에* 다시!' },
+          { at: 1100, do: 'flash' },
         ],
       },
       {
         ms: 3000,
         layout: 'full',
         enter: 'scroll',
-        panels: [{ bg: 'subway', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 50, action: 'soul' }], blur: 'bg' }],
+        panels: [{ bg: 'subway', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'soul' }] }],
         events: [
-          { at: 100, do: 'text', text: 'PM 7:40 퇴근길', x: 24, y: 14, style: 'label', tilt: -3 },
-          { at: 600, do: 'text', text: '회의록: *“다음에 다시 논의”*', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 3000 },
+          { at: 0, do: 'light', level: 0.25, ms: 1500 },
+          { at: 100, do: 'text', text: 'PM 7:40 퇴근길', x: 24, y: 12, style: 'label', tilt: -3 },
+          { at: 700, do: 'text', text: '회의록: *“다음에 다시 논의”*', x: 50, y: 86, style: 'narr' },
         ],
       },
     ],
@@ -197,22 +262,23 @@ export const STORIES: Story[] = [
     cast: [{ id: 'me', as: 'me', label: '나' }],
     cuts: [
       {
-        ms: 2200,
+        ms: 2600,
         layout: 'full',
         panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 46, action: 'typeFast', desk: true, tag: true }] }],
         events: [
-          { at: 100, do: 'text', text: '마감 20분 전', x: 22, y: 14, style: 'label', tilt: -4 },
-          { at: 400, do: 'text', text: '타다다닥', x: 72, y: 40, style: 'sfx', tilt: -8 },
-          { at: 900, do: 'text', text: '보고서 *마지막 한 줄*', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
+          { at: 100, do: 'text', text: '마감 20분 전', x: 22, y: 12, style: 'label', tilt: -4 },
+          { at: 500, do: 'text', text: '타다다닥', x: 72, y: 40, style: 'sfx', tilt: -8 },
+          { at: 1000, do: 'text', text: '보고서 *마지막 한 줄*', x: 50, y: 86, style: 'narr' },
         ],
       },
       {
-        ms: 2600,
+        ms: 2400,
         layout: 'stack',
         enter: 'scroll',
         panels: [
           { bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 46, action: 'resolve', desk: true }] },
-          { bg: 'office', shot: 'close', focus: 'me', cast: [{ who: 'me', x: 46, action: 'typeFast', desk: true }], blur: 'bg' },
+          { bg: 'office', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 46, action: 'typeFast', desk: true }], blur: 'bg' },
         ],
         events: [
           { at: 900, p: 1, do: 'act', who: 'me', action: 'cheer' },
@@ -224,48 +290,51 @@ export const STORIES: Story[] = [
         ms: 1800,
         layout: 'full',
         enter: 'cut',
-        panels: [{ bg: 'flat:#1d1a24', shot: 'wide', cast: [] }],
+        panels: [{ bg: 'screen:응답 없음', shot: 'wide', cast: [] }],
         events: [
-          { at: 0, do: 'glitch', ms: 1800 },
-          { at: 200, do: 'text', text: '⚠ 응답 없음', x: 50, y: 44, style: 'stamp' },
-          { at: 700, do: 'text', text: '프로그램이 응답하지 않습니다', x: 50, y: 58, style: 'whisper' },
-          { at: 900, do: 'shake', power: 1 },
+          { at: 600, do: 'glitch', ms: 1100 },
+          { at: 600, do: 'shake', power: 1 },
         ],
       },
       {
-        ms: 1300,
+        ms: 2000,
         layout: 'full',
         enter: 'punch',
-        panels: [{ bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 46, action: 'shock', desk: true }] }],
+        panels: [{ bg: 'office', shot: 'face', focus: 'me', cast: [{ who: 'me', x: 46, action: 'look', desk: true }] }],
         events: [
-          { at: 0, do: 'flash' },
-          { at: 0, do: 'shake', power: 3 },
-          { at: 100, do: 'text', text: '!!!', x: 76, y: 24, style: 'sfx', size: 1.6, tilt: 12 },
+          { at: 900, do: 'act', who: 'me', action: 'shock' },
+          { at: 900, do: 'flash' },
+          { at: 900, do: 'shake', power: 3 },
+          { at: 1000, do: 'text', text: '!!!', x: 76, y: 24, style: 'sfx', size: 1.6, tilt: 12 },
         ],
       },
       {
-        ms: 2800,
-        layout: 'trio',
-        enter: 'scroll',
-        panels: [
-          { bg: 'office', shot: 'close', focus: 'me', cast: [{ who: 'me', x: 46, action: 'quake', desk: true }] },
-          { bg: 'flat:#cfd8ff', shot: 'close', focus: 'me', cast: [{ who: 'me', x: 50, action: 'headhold' }] },
-          { bg: 'flat:#fff4c2', shot: 'wide', cast: [] },
-        ],
-        events: [
-          { at: 300, p: 0, do: 'mark', who: 'me', mark: 'sweat' },
-          { at: 700, do: 'text', text: '마지막 저장', x: 76, y: 76, style: 'whisper' },
-          { at: 900, do: 'text', text: '*3시간 전*', x: 76, y: 84, style: 'shout', size: 0.8 },
-        ],
+        ms: 1500,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'screen:마지막 저장: 3시간 전', shot: 'wide', cast: [] }],
       },
       {
         ms: 2600,
         layout: 'full',
         enter: 'cut',
-        panels: [{ bg: 'office', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 46, action: 'kneel' }] }],
+        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'quake' }] }],
         events: [
-          { at: 200, do: 'mark', who: 'me', mark: 'gloom' },
-          { at: 700, do: 'text', text: '…Ctrl+S…', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2600 },
+          { at: 1100, do: 'silhouette', who: 'me', on: true },
+          { at: 1100, do: 'shake', power: 1 },
+        ],
+      },
+      {
+        ms: 2800,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 46, action: 'kneel' }] }],
+        events: [
+          { at: 0, do: 'light', level: 0.5, ms: 2400 },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
+          { at: 300, do: 'mark', who: 'me', mark: 'gloom' },
+          { at: 900, do: 'text', text: '…Ctrl+S…', x: 50, y: 86, style: 'narr' },
         ],
       },
     ],
@@ -281,24 +350,32 @@ export const STORIES: Story[] = [
     ],
     cuts: [
       {
-        ms: 2200,
+        ms: 1500,
         layout: 'full',
+        panels: [{ bg: 'phone:17:50', shot: 'wide', cast: [] }],
+      },
+      {
+        ms: 2600,
+        layout: 'full',
+        enter: 'cut',
         panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 40, action: 'dance', desk: true, tag: true }] }],
         events: [
-          { at: 100, do: 'text', text: 'PM 5:50', x: 18, y: 14, style: 'label', tilt: -4 },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2400 },
           { at: 200, do: 'mark', who: 'me', mark: 'sparkle' },
-          { at: 500, do: 'say', who: 'me', text: '오늘은 *칼퇴*다~♪' },
+          { at: 400, do: 'dream', who: 'me', count: 1, action: 'snack', text: '치킨…' },
+          { at: 1300, do: 'dream', who: 'me', count: 3, action: 'dance', text: '치킨…!' },
         ],
       },
       {
-        ms: 2200,
+        ms: 2600,
         layout: 'full',
         enter: 'whip',
-        panels: [{ bg: 'elevator', shot: 'wide', cast: [{ who: 'me', x: -12, action: 'idle' }] }],
+        panels: [{ bg: 'elevator', shot: 'wide', cast: [{ who: 'me', x: 8, action: 'idle' }] }],
         events: [
-          { at: 0, do: 'move', who: 'me', to: 34, ms: 900, run: true, then: 'cheer' },
-          { at: 300, do: 'text', text: '다다다', x: 30, y: 40, style: 'sfx', tilt: -6 },
-          { at: 1100, do: 'text', text: '엘리베이터 *도착*', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'inch', who: 'me', to: 34, steps: 4, ms: 1800 },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2400 },
+          { at: 300, do: 'text', text: '살금살금', x: 30, y: 30, style: 'sfx', tilt: -6 },
+          { at: 1900, do: 'text', text: '엘리베이터 *도착*', x: 50, y: 86, style: 'narr' },
         ],
       },
       {
@@ -312,11 +389,11 @@ export const STORIES: Story[] = [
         events: [
           { at: 200, p: 0, do: 'prop', prop: 'lift', state: 'open' },
           { at: 200, do: 'text', text: '띵—', x: 74, y: 12, style: 'sfx', tilt: 8 },
-          { at: 700, p: 0, do: 'show', who: 'boss' },
-          { at: 700, do: 'flash' },
-          { at: 900, p: 1, do: 'act', who: 'me', action: 'shock' },
-          { at: 900, do: 'glitch', ms: 500 },
-          { at: 900, do: 'shake', power: 2 },
+          { at: 800, p: 0, do: 'show', who: 'boss' },
+          { at: 800, do: 'flash' },
+          { at: 1000, p: 1, do: 'act', who: 'me', action: 'shock' },
+          { at: 1000, do: 'glitch', ms: 500 },
+          { at: 1000, do: 'shake', power: 2 },
         ],
       },
       {
@@ -330,27 +407,34 @@ export const STORIES: Story[] = [
         events: [
           { at: 200, p: 0, do: 'say', who: 'boss', text: '아 마침 잘 만났다~' },
           { at: 1300, p: 1, do: 'mark', who: 'me', mark: 'sweat' },
-          { at: 1400, p: 1, do: 'say', who: 'me', text: '네…ㅎㅎ' },
-        ],
-      },
-      {
-        ms: 1800,
-        layout: 'full',
-        enter: 'punch',
-        panels: [{ bg: 'flat:#2d2440', shot: 'wide', cast: [] }],
-        events: [
-          { at: 100, do: 'text', text: '퇴근 취소', x: 50, y: 48, style: 'stamp', tilt: -8 },
-          { at: 150, do: 'shake', power: 3 },
+          { at: 1500, p: 1, do: 'say', who: 'me', text: '네…ㅎㅎ' },
         ],
       },
       {
         ms: 2600,
         layout: 'full',
-        enter: 'scroll',
-        panels: [{ bg: 'office', shot: 'medium', focus: 'me', cast: [{ who: 'me', x: 40, action: 'soul', desk: true }], blur: 'bg' }],
+        enter: 'cut',
+        panels: [{ bg: 'rain', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'cry' }] }],
         events: [
-          { at: 100, do: 'text', text: 'PM 7:40', x: 18, y: 14, style: 'label', tilt: -4 },
-          { at: 600, do: 'text', text: '“잠깐”은 *1시간 50분*이었다', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
+          { at: 500, do: 'text', text: '퇴근 취소', x: 50, y: 82, style: 'stamp', tilt: -8 },
+        ],
+      },
+      {
+        ms: 1400,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'phone:19:40|팀장님|아 그리고 하나만 더…', shot: 'wide', cast: [] }],
+      },
+      {
+        ms: 2600,
+        layout: 'full',
+        enter: 'cut',
+        panels: [{ bg: 'office', shot: 'wide', cast: [{ who: 'me', x: 40, action: 'soul', desk: true }] }],
+        events: [
+          { at: 0, do: 'light', level: 0.55, ms: 2200 },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
+          { at: 600, do: 'text', text: '“잠깐”은 *1시간 50분*이었다', x: 50, y: 86, style: 'narr' },
         ],
       },
     ],
@@ -366,17 +450,19 @@ export const STORIES: Story[] = [
     ],
     cuts: [
       {
-        ms: 2400,
+        ms: 3000,
         layout: 'full',
-        panels: [{ bg: 'pantry', shot: 'wide', cast: [{ who: 'me', x: -10, action: 'idle', tag: true }] }],
+        panels: [{ bg: 'pantry', shot: 'wide', cast: [{ who: 'me', x: 6, action: 'idle', tag: true }] }],
         events: [
-          { at: 100, do: 'text', text: 'PM 1:10 탕비실', x: 24, y: 14, style: 'label', tilt: -3 },
-          { at: 0, do: 'move', who: 'me', to: 48, ms: 1200, then: 'heart' },
-          { at: 1300, do: 'text', text: '아껴 둔 *푸딩* 먹을 시간', x: 50, y: 84, style: 'narr' },
+          { at: 0, do: 'move', who: 'me', to: 46, ms: 1300, then: 'heart' },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'me', ms: 2600 },
+          { at: 100, do: 'text', text: 'PM 1:10 탕비실', x: 26, y: 12, style: 'label', tilt: -3 },
+          { at: 1400, do: 'dream', who: 'me', count: 1, action: 'snack', text: '푸딩~♪' },
+          { at: 1600, do: 'text', text: '아껴 둔 *푸딩* 먹을 시간', x: 50, y: 86, style: 'narr' },
         ],
       },
       {
-        ms: 2600,
+        ms: 2800,
         layout: 'stack',
         enter: 'scroll',
         panels: [
@@ -386,19 +472,19 @@ export const STORIES: Story[] = [
         events: [
           { at: 200, p: 0, do: 'prop', prop: 'fridge', state: 'open' },
           { at: 600, do: 'text', text: '텅—', x: 74, y: 22, style: 'sfx', tilt: 6 },
-          { at: 1200, p: 1, do: 'act', who: 'me', action: 'shock' },
-          { at: 1200, do: 'shake', power: 2 },
-          { at: 1300, do: 'text', text: '없어…?', x: 50, y: 92, style: 'shout', size: 0.9 },
+          { at: 1500, p: 1, do: 'act', who: 'me', action: 'shock' },
+          { at: 1500, do: 'shake', power: 2 },
         ],
       },
       {
         ms: 3000,
         layout: 'full',
         enter: 'whip',
-        panels: [{ bg: 'pantry', shot: 'medium', focus: 'mate', cast: [{ who: 'mate', x: 62, action: 'snack', tag: true }] }],
+        panels: [{ bg: 'halo', shot: 'wide', cast: [{ who: 'mate', x: 50, action: 'snack', tag: true }] }],
         events: [
-          { at: 300, do: 'say', who: 'mate', text: '이거 주인 없는 거죠? *맛있네요~*' },
-          { at: 1800, do: 'mark', who: 'mate', mark: 'sparkle' },
+          { at: 0, do: 'cam', shot: 'medium', focus: 'mate', ms: 2800 },
+          { at: 400, do: 'say', who: 'mate', text: '이거 주인 없는 거죠? *맛있네요~*' },
+          { at: 1600, do: 'mark', who: 'mate', mark: 'sparkle' },
         ],
       },
       {
@@ -416,11 +502,12 @@ export const STORIES: Story[] = [
         ],
       },
       {
-        ms: 2800,
+        ms: 2600,
         layout: 'full',
-        enter: 'scroll',
-        panels: [{ bg: 'flat:#ffd6e0', shot: 'close', focus: 'me', cast: [{ who: 'me', x: 50, action: 'cry' }] }],
+        enter: 'cut',
+        panels: [{ bg: 'wasteland', shot: 'wide', cast: [{ who: 'me', x: 50, action: 'cry' }] }],
         events: [
+          { at: 0, do: 'cam', shot: 'close', focus: 'me', ms: 2600 },
           { at: 600, do: 'text', text: '포스트잇은 *방패가 되지 못했다*', x: 50, y: 86, style: 'narr' },
         ],
       },
