@@ -57,7 +57,11 @@ export type FrontAction =
   | 'resolve'
   | 'headhold'
   | 'kneel'
-  | 'soul';
+  | 'soul'
+  | 'think'
+  | 'aha'
+  | 'tug'
+  | 'poke';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -176,8 +180,10 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
       ? 'rotten'
       : action === 'resolve'
       ? 'resolve'
-      : action === 'kneel'
+      : action === 'kneel' || action === 'think'
       ? 'closed'
+      : action === 'tug'
+      ? 'squeeze'
       : action === 'slam'
       ? 'fierce'
       : action === 'ahh'
@@ -211,8 +217,12 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
       ? 'wavy'
       : action === 'rotten'
       ? 'grin'
-      : action === 'resolve'
+      : action === 'resolve' || action === 'think' || action === 'poke'
       ? 'line'
+      : action === 'tug'
+      ? 'wavy'
+      : action === 'aha'
+      ? 'gasp'
       : action === 'soul'
       ? 'o'
       : action === 'slam'
@@ -897,6 +907,19 @@ function OpenEyes({ sp, y, skip }: { sp: Species; y: number; skip?: 'l' | 'r' })
   );
 }
 
+/** 짧은 검지 하나 (손 위로 삐죽) */
+function Finger({ x, y, dir, c }: { x: number; y: number; dir: 'up' | 'right'; c: Palette }) {
+  const { sp } = useContext(SpeciesCtx);
+  const fill = sp === 'bird' ? c.ear : sp === 'cat' ? points(c) : sp === 'rabbit' ? c.body : PINK;
+  const d = dir === 'up' ? `M${x} ${y + 4} V${y - 9}` : `M${x - 4} ${y} H${x + 9}`;
+  return (
+    <g>
+      <path d={d} stroke={INK} strokeWidth="7.6" />
+      <path d={d} stroke={fill} strokeWidth="4" />
+    </g>
+  );
+}
+
 /** 몸 옆에서 뻗어 나온 짧은 팔 (몸 색 + 분홍 손) */
 function Arm({ from, to, c }: { from: [number, number]; to: [number, number]; c: Palette }) {
   const { sp } = useContext(SpeciesCtx);
@@ -1006,6 +1029,44 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
     case 'slam':
       // 책상을 내려치는 두 팔은 책상과 함께 SlamDesk에서 그린다
       return null;
+    case 'think':
+      // 눈 감고 턱 괴기: 생각하는 척
+      return (
+        <>
+          <Paw x={sp === 'cat' ? 52 : 50} y={sp === 'cat' ? 96 : 90} rot={-15} />
+          <g className="hs-hand hs-think"><Paw x={sp === 'cat' ? 66 : 67} y={sp === 'cat' ? 84 : 80} rot={-35} /></g>
+        </>
+      );
+    case 'aha':
+      // 아하!: 검지를 번쩍 치켜든다
+      return (
+        <>
+          <Paw x={46} y={91} rot={-20} />
+          <g className="hs-hand hs-aha-arm">
+            <Finger x={104} y={42} dir="up" c={c} />
+            <Arm from={[94, 68]} to={[104, 46]} c={c} />
+          </g>
+        </>
+      );
+    case 'poke':
+      // 버튼을 검지로 꾹
+      return (
+        <>
+          <Paw x={46} y={91} rot={-20} />
+          <g className="hs-hand hs-poke-arm">
+            <Finger x={112} y={74} dir="right" c={c} />
+            <Arm from={[92, 76]} to={[108, 74]} c={c} />
+          </g>
+        </>
+      );
+    case 'tug':
+      // 두 손으로 옆에 걸린 걸 붙잡고 낑낑
+      return (
+        <g className="hs-hand hs-tug-hands">
+          <Arm from={[30, 74]} to={[12, 78]} c={c} />
+          <Arm from={[34, 88]} to={[14, 90]} c={c} />
+        </g>
+      );
     case 'shock':
       // 화들짝: 두 손이 몸 옆으로 번쩍
       return (
@@ -1259,11 +1320,11 @@ function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; stil
       ? 'up'
       : action === 'headhold' || action === 'quake'
       ? 'ear'
-      : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss' || action === 'ahh'
+      : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss' || action === 'ahh' || action === 'aha' || action === 'poke'
         ? 'wave'
         : action === 'earplug'
           ? 'ear'
-          : action === 'hug' || action === 'shrug' || action === 'hipsway'
+          : action === 'hug' || action === 'shrug' || action === 'hipsway' || action === 'tug'
             ? 'open'
             : 'fold';
   const L = 'M24 60 C12 66 11 90 23 97 C32 99 37 88 35 76 C34 67 30 61 24 60Z';

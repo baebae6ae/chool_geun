@@ -13,6 +13,13 @@ export interface NewsItem {
 
 export const NEWS: { version: number; items: NewsItem[] }[] = [
   {
+    version: 4,
+    items: [
+      { icon: '🍿', text: '썰 극장에 새 썰이 잔뜩 들어왔어요 (총 33편)' },
+      { icon: '🚽', text: '화장실 · 복사실 · 바닷가 · 내 방 무대도 새로 생겼어요' },
+    ],
+  },
+  {
     version: 3,
     items: [
       { icon: '🎬', text: '퇴근하면 홈 화면에 「오늘의 썰」이 도착해요. 직장인 썰을 짧은 애니메이션으로!' },

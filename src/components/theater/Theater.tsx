@@ -6,8 +6,8 @@
  * - 시간은 폰·시계·모니터 인서트와 조명으로, 속마음은 황무지·후광·먹구름·실루엣·생각 풍선으로 보여 준다
  */
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { HamsterSprite, type FrontAction, type Pose } from '../hamster/HamsterSprite';
-import { castSpecies, type Bg, type Cut, type Ev, type Mark, type Panel, type Place, type Shot, type Story, type TextStyle } from '../../domain/theater';
+import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
+import { castSpecies, type Act, type Bg, type Cut, type Ev, type Mark, type Panel, type Place, type Shot, type Story, type TextStyle } from '../../domain/theater';
 import { DEFAULT_CUSTOM } from '../../domain/customization';
 import type { Customization, HamsterColor } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
@@ -52,18 +52,23 @@ interface ActorState {
   silhouette: boolean;
   /** 들썩 이동 중 몇 번째 걸음인지 (바뀔 때마다 통통 튄다) */
   hop: number;
+  /** 물속에 잠겨 있음 */
+  sunk: boolean;
 }
 
 interface Dream {
   who: string;
   count: number;
-  action: FrontAction;
+  action: Act;
   text?: string;
   popped: boolean;
 }
 
+/** 대본의 동작을 그림 자세로: 눕기는 옆으로 누워 자는 모습 */
+const poseOf = (a: Act): Pose => (a === 'lie' ? { pose: 'side', action: 'sleep' } : { pose: 'front', action: a });
+
 function fromPlace(c: Place): ActorState {
-  return { x: c.x, pose: { pose: 'front', action: c.action ?? 'idle' }, facing: c.facing ?? 1, hidden: !!c.hidden, mark: null, burst: false, desk: !!c.desk, tag: !!c.tag, say: null, silhouette: false, hop: 0 };
+  return { x: c.x, pose: poseOf(c.action ?? 'idle'), facing: c.facing ?? 1, hidden: !!c.hidden, mark: null, burst: false, desk: !!c.desk, tag: !!c.tag, say: null, silhouette: false, hop: 0, sunk: !!c.sunk };
 }
 
 const ease = (k: number) => (k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2);
@@ -87,6 +92,8 @@ function stateAt(cut: Cut, t: number) {
       laptop: 'open',
       fridge: 'closed',
       lift: 'closed',
+      printer: 'idle',
+      stall: 'closed',
     };
   });
   let flash = -1;
@@ -101,7 +108,7 @@ function stateAt(cut: Cut, t: number) {
       const a = 'who' in e ? P.actors[e.who] : undefined;
       switch (e.do) {
         case 'act':
-          if (a) a.pose = { pose: 'front', action: e.action };
+          if (a) a.pose = poseOf(e.action);
           break;
         case 'show':
           if (a) a.hidden = false;
@@ -113,7 +120,7 @@ function stateAt(cut: Cut, t: number) {
             a.facing = e.to >= from ? 1 : -1;
             a.x = from + (e.to - from) * ease(k);
             a.hidden = false;
-            a.pose = k < 1 ? { pose: 'side', action: e.run ? 'run' : 'walk' } : { pose: 'front', action: (e.then ?? 'idle') as FrontAction };
+            a.pose = k < 1 ? { pose: 'side', action: e.run ? 'run' : 'walk' } : poseOf(e.then ?? 'idle');
           }
           break;
         case 'inch':
@@ -136,6 +143,9 @@ function stateAt(cut: Cut, t: number) {
           break;
         case 'silhouette':
           if (a) a.silhouette = e.on;
+          break;
+        case 'sink':
+          if (a) a.sunk = e.on;
           break;
         case 'focus':
           P.blur = e.blur;
@@ -372,7 +382,7 @@ function PanelView({ i, panel, live, cast, me }: { i: number; panel: Panel; live
     return () => ro.disconnect();
   }, []);
   const bg = panel.bg;
-  const insert = bg.startsWith('phone:') || bg.startsWith('clock:') || bg.startsWith('screen:');
+  const insert = /^(phone|clock|screen|scan):/.test(bg);
   const flat = bg.startsWith('flat:') ? bg.slice(5) : null;
   const focusActor = live.focus ? live.actors[live.focus] : undefined;
   const shown = Object.values(live.actors).filter((a) => !a.hidden);
@@ -460,6 +470,30 @@ function Insert({ bg, me }: { bg: string; me: Customization }) {
       </div>
     );
   }
+  if (kind === 'scan') {
+    const [time, msg] = rest.split('|');
+    const ok = /인식되었|확인/.test(msg ?? '');
+    return (
+      <div className="insert-wrap scan-wrap">
+        <div className={`scanner ${ok ? 'ok' : 'ng'}`}>
+          <div className="scanner-lcd">
+            <b>{time}</b>
+            <span>{msg}</span>
+          </div>
+          <svg className="scanner-pad" viewBox="0 0 60 60" aria-hidden>
+            <rect x="4" y="4" width="52" height="52" rx="12" fill="#2d2f3a" stroke="#4a3a2e" strokeWidth="3" />
+            <g fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M22 44 q-6 -14 4 -24 q10 -6 16 4" />
+              <path d="M26 46 q-6 -14 2 -20 q8 -4 10 6 q2 8 -2 14" />
+              <path d="M31 47 q-4 -10 -1 -16 M35 44 q2 -6 0 -10" />
+              <path d="M18 38 q-2 -10 4 -18" />
+            </g>
+          </svg>
+          <div className="scanner-led" />
+        </div>
+      </div>
+    );
+  }
   if (kind === 'clock') {
     const [hh, mm] = rest.split(':').map(Number);
     return (
@@ -512,7 +546,7 @@ const Sprite = memo(function Sprite({ custom, pose }: { custom: Customization; p
 function ActorView({ id, a, who, zoom, big, sx, dream, me }: { id: string; a: ActorState; who: Casting[string]; zoom: number; big: boolean; sx: number; dream: Dream | null; me: Customization }) {
   if (!who) return null;
   return (
-    <div className={`actor ${a.hidden ? 'hidden' : ''} ${a.burst ? 'burst' : ''} ${a.silhouette ? 'silhouette' : ''} mark-${a.mark ?? 'none'} actor-${id}`} style={{ left: `${a.x}%` }}>
+    <div className={`actor ${a.hidden ? 'hidden' : ''} ${a.burst ? 'burst' : ''} ${a.silhouette ? 'silhouette' : ''} ${a.sunk ? 'sunk' : ''} mark-${a.mark ?? 'none'} actor-${id}`} style={{ left: `${a.x}%` }}>
       <div key={a.hop} className={`actor-flip ${a.hop ? 'hop' : ''}`} style={{ transform: `scaleX(${a.pose.pose === 'side' ? a.facing : 1})` }}>
         <Sprite custom={who.custom} pose={a.pose} />
       </div>
@@ -537,7 +571,7 @@ function DreamBubble({ d, me }: { d: Dream; me: Customization }) {
         <div className="dream-cast">
           {Array.from({ length: d.count }, (_, i) => (
             <div key={i} className="dream-clone" style={{ animationDelay: `${(i % 3) * 0.08}s` }}>
-              <HamsterSprite custom={me} pose={{ pose: 'front', action: d.action }} />
+              <HamsterSprite custom={me} pose={poseOf(d.action)} />
             </div>
           ))}
         </div>
@@ -629,6 +663,16 @@ function Manpu({ mark }: { mark: Mark }) {
       {mark === 'gloom' && (
         <g className="gloom" stroke="#6f7fb5" strokeWidth="3" strokeLinecap="round" opacity=".75">
           <path d="M30 8 v34 M44 4 v30 M58 8 v26 M72 4 v32 M86 8 v28" />
+        </g>
+      )}
+      {mark === 'idea' && (
+        <g className="idea" strokeLinecap="round">
+          <g stroke="#ffb800" strokeWidth="3.4">
+            <path d="M60 -30 v-9 M38 -22 l-6 -6 M82 -22 l6 -6 M30 -4 h-9 M90 -4 h9" />
+          </g>
+          <path d="M60 -26 c-11 0 -18 8 -18 17 c0 7 4 11 7 14 v6 h22 v-6 c3 -3 7 -7 7 -14 c0 -9 -7 -17 -18 -17z" fill="#fff27a" stroke="#4a3a2e" strokeWidth="2.6" />
+          <path d="M51 6 h18 M52 11 h16" stroke="#4a3a2e" strokeWidth="2.4" />
+          <path d="M54 -8 q3 -6 6 0 q3 6 6 0" fill="none" stroke="#e89a00" strokeWidth="2" />
         </g>
       )}
       {mark === 'sparkle' && (

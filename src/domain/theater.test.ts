@@ -79,6 +79,22 @@ describe('썰 받아오기', () => {
     expect(validStory('hello')).toBe(false);
   });
 
+  it('새 배경·인서트·동작(눕기)·물속 등장 이벤트를 알아본다', async () => {
+    const { validStory } = await import('./theater');
+    const base = JSON.parse(JSON.stringify(STORIES[0]));
+    const ok = (f: (s: any) => void) => {
+      const s = JSON.parse(JSON.stringify(base));
+      f(s);
+      return validStory(s);
+    };
+    for (const bg of ['restroom', 'copyroom', 'beach', 'home', 'scan:08:59:57|다시 시도하세요']) expect(ok((s) => (s.cuts[0].panels[0].bg = bg))).toBe(true);
+    expect(ok((s) => (s.cuts[1].events[0] = { at: 0, do: 'act', who: 'me', action: 'lie' }))).toBe(true);
+    expect(ok((s) => (s.cuts[1].events[0] = { at: 0, do: 'mark', who: 'me', mark: 'idea' }))).toBe(true);
+    expect(ok((s) => (s.cuts[1].events[0] = { at: 0, do: 'prop', prop: 'printer', state: 'jam' }))).toBe(true);
+    expect(ok((s) => (s.cuts[1].events[0] = { at: 0, do: 'sink', who: 'me', on: false }))).toBe(true);
+    expect(ok((s) => (s.cuts[1].events[0] = { at: 0, do: 'sink', who: 'me' }))).toBe(false);
+  });
+
   it('새 썰을 받으면 목록에 더해지고, 같은 id는 새 대본으로 바뀌며, 실패하면 그대로', async () => {
     const { allStories, refreshStories, __setRemoteStories } = await import('./theater');
     const extra = { ...JSON.parse(JSON.stringify(STORIES[1])), id: 'new-one', no: 99, title: '새 썰' };

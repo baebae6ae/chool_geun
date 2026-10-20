@@ -258,3 +258,29 @@
 .dream-dot { position: absolute; border-radius: 50%; background: #fff; border: 2px solid #2d2018; }
 .dream-dot.a { width: 9%; aspect-ratio: 1; bottom: -10%; left: 46%; }
 .dream-dot.b { width: 5%; aspect-ratio: 1; bottom: -20%; left: 50%; }
+
+/* 바닷가: 물속에 잠겼다가 쑥 떠오르기 */
+.actor .actor-flip { transition: translate 0.45s cubic-bezier(.2,1.5,.4,1); }
+.actor.sunk .actor-flip { translate: 0 92%; }
+.actor.sunk .actor-tag, .actor.sunk .manpu { visibility: hidden; }
+.bd-wave { animation: sh-wave 1.6s ease-in-out infinite alternate; }
+@keyframes sh-wave { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
+.bd-blink { animation: sh-twinkle 0.5s steps(2) infinite; }
+.bd-glow { animation: sh-twinkle 1.4s steps(2) infinite; }
+.bd-print { animation: sh-print 0.8s linear infinite; }
+@keyframes sh-print { from { transform: translate(14px, -2px); opacity: 0; } 30% { opacity: 1; } to { transform: translate(-18px, 4px); opacity: 0; } }
+
+/* 아하! 전구 */
+.manpu .idea { transform-box: fill-box; transform-origin: 50% 100%; animation: sh-pop 0.35s cubic-bezier(.2,1.8,.4,1), sh-twinkle 0.6s 0.35s steps(2) infinite; }
+
+/* 출입문 지문 인식기 */
+.scanner { width: min(70%, 260px); display: grid; justify-items: center; gap: 14px; padding: 18px 16px 22px; border-radius: 22px; background: #d6dbe3; border: 4px solid #2d2018; box-shadow: 0 10px 0 rgba(0, 0, 0, 0.15); }
+.scanner-lcd { width: 100%; display: grid; justify-items: center; gap: 2px; padding: 10px 6px; border-radius: 10px; background: #1f2a24; color: #9dffb6; border: 3px solid #2d2018; font-variant-numeric: tabular-nums; }
+.scanner-lcd b { font-size: 2.1rem; font-weight: 900; letter-spacing: 0.04em; }
+.scanner-lcd span { font-size: 0.86rem; font-weight: 900; animation: sh-stick 0.35s 0.3s cubic-bezier(.2,1.5,.4,1) backwards; }
+.scanner.ng .scanner-lcd span { color: #ff8f86; }
+.scanner-pad { width: 46%; color: #9fd8ff; }
+.scanner.ng .scanner-pad { color: #ff8f86; animation: sh-twinkle 0.4s steps(2) infinite; }
+.scanner.ok .scanner-pad { color: #7dffa8; }
+.scanner-led { width: 40%; height: 8px; border-radius: 4px; background: #e8504b; border: 2px solid #2d2018; }
+.scanner.ok .scanner-led { background: #4fcf6d; }

@@ -608,3 +608,16 @@
 .hs-soul { animation: hs-soul 2.4s ease-in-out infinite; }
 @keyframes hs-soul { 0% { transform: translateY(6px); opacity: 0; } 30% { opacity: 0.8; } 100% { transform: translateY(-14px) translateX(3px); opacity: 0; } }
 .hs-front.act-soul .hs-bob { filter: saturate(0.5) brightness(1.05); }
+.hs-think { transform-box: view-box; transform-origin: 67px 84px; animation: hs-think 1.6s ease-in-out infinite; }
+@keyframes hs-think { 50% { transform: translateY(-1.5px) rotate(-6deg); } }
+.hs-front.act-think .hs-bob { animation: hs-think-head 1.6s ease-in-out infinite; transform-origin: 60px 110px; }
+@keyframes hs-think-head { 50% { transform: rotate(-3deg); } }
+.hs-aha-arm { transform-box: view-box; transform-origin: 94px 68px; animation: hs-aha 0.4s cubic-bezier(.2,1.8,.4,1); }
+@keyframes hs-aha { from { transform: rotate(50deg) scale(0.7); } }
+.hs-front.act-aha .hs-bob { animation: hs-shock 0.45s cubic-bezier(.2,1.6,.4,1); transform-origin: 60px 110px; }
+.hs-poke-arm { transform-box: view-box; animation: hs-poke 0.9s ease-in-out infinite; }
+@keyframes hs-poke { 0%, 40%, 100% { transform: translateX(0); } 55% { transform: translateX(4px); } 70% { transform: translateX(0); } }
+.hs-tug-hands { transform-box: view-box; animation: hs-tug 0.26s steps(2) infinite; }
+@keyframes hs-tug { 0% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+.hs-front.act-tug .hs-bob { animation: hs-tug-body 0.26s steps(2) infinite; transform-origin: 60px 110px; }
+@keyframes hs-tug-body { 0% { transform: rotate(4deg) translateX(1px); } 50% { transform: rotate(7deg) translateX(3px); } }
