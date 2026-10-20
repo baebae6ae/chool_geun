@@ -198,7 +198,7 @@
 .shorts-end .btn { width: min(280px, 80vw); }
 
 @media (prefers-reduced-motion: reduce) {
-  .flat-burst, .cut.glitch .panel, .kt-sfx .w { animation: none; }
+  .flat-burst, .cut.glitch .panel, .kt-sfx .w, .speed-lines path, .lightning { animation: none; }
 }
 
 /* 실루엣: 충격으로 새까매짐 */
@@ -284,3 +284,49 @@
 .scanner.ok .scanner-pad { color: #7dffa8; }
 .scanner-led { width: 40%; height: 8px; border-radius: 4px; background: #e8504b; border: 2px solid #2d2018; }
 .scanner.ok .scanner-led { background: #4fcf6d; }
+
+/* ===== 이펙트 ===== */
+/* 집중선 */
+.speed-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 11; pointer-events: none; animation: sh-in 0.12s ease-out; }
+.speed-lines path { fill: #2d2018; opacity: 0.5; }
+.speed-lines path + path { opacity: 0; animation: sh-lines 0.17s steps(1) infinite; }
+.speed-lines path:first-child { animation: sh-lines 0.17s steps(1) infinite reverse; }
+@keyframes sh-lines { 0% { opacity: 0.5; } 50% { opacity: 0; } }
+/* 가장 센 순간: 흑백이 뒤집힌 임팩트 프레임 */
+.cut.impact .panel { filter: invert(1) grayscale(1) contrast(1.8); }
+/* 큰 효과음 뒤 콰광 별풍선 */
+.kt-sfx.pow::before { content: ''; position: absolute; inset: -55% -38%; z-index: -1; background: #fff; border: none; clip-path: polygon(50% 0%, 59% 22%, 82% 6%, 74% 32%, 100% 30%, 80% 50%, 100% 70%, 74% 68%, 82% 94%, 59% 78%, 50% 100%, 41% 78%, 18% 94%, 26% 68%, 0% 70%, 20% 50%, 0% 30%, 26% 32%, 18% 6%, 41% 22%); filter: drop-shadow(0 0 0 #2d2018); animation: sh-pow 0.3s cubic-bezier(.2,1.8,.4,1), sh-boil 0.24s steps(2) 0.3s infinite; }
+.kt-sfx.pow::after { content: ''; position: absolute; inset: -62% -44%; z-index: -2; background: #2d2018; clip-path: polygon(50% 0%, 59% 22%, 82% 6%, 74% 32%, 100% 30%, 80% 50%, 100% 70%, 74% 68%, 82% 94%, 59% 78%, 50% 100%, 41% 78%, 18% 94%, 26% 68%, 0% 70%, 20% 50%, 0% 30%, 26% 32%, 18% 6%, 41% 22%); animation: sh-pow 0.3s cubic-bezier(.2,1.8,.4,1), sh-boil 0.24s steps(2) 0.3s infinite; }
+@keyframes sh-pow { from { transform: scale(0) rotate(-30deg); } }
+/* 외침은 계속 부들부들 */
+.kt-shout .w { animation: sh-slam 0.35s cubic-bezier(.2,1.6,.4,1) backwards, sh-boil 0.2s steps(2) 0.4s infinite; }
+/* 도장 주변 잉크 튐 */
+.kt-stamp::after { content: ''; position: absolute; inset: -30%; z-index: -1; background: radial-gradient(circle, #e8504b 2.5px, transparent 3px) 8% 18% / 34% 40%, radial-gradient(circle, #e8504b 1.8px, transparent 2.2px) 70% 80% / 26% 30%; opacity: 0.8; animation: sh-pow 0.3s cubic-bezier(.2,1.8,.4,1); }
+/* 빵빠레 */
+.confetti { position: absolute; inset: 0; z-index: 13; pointer-events: none; overflow: hidden; }
+.confetti i { position: absolute; top: -6%; width: 9px; height: 13px; border: 1.5px solid #2d2018; border-radius: 2px; animation: sh-confetti 2.3s cubic-bezier(.3,.4,.6,1) forwards; }
+.confetti i:nth-child(3n) { width: 11px; height: 11px; border-radius: 50%; }
+@keyframes sh-confetti { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 85% { opacity: 1; } 100% { transform: translate(var(--dx), 115cqh) rotate(var(--r)); opacity: 0; } }
+/* 실루엣 충격: 배경이 어두워지며 번개 */
+.panel.drama .layer.back { filter: brightness(0.55) saturate(0.6); transition: filter 0.25s steps(2); }
+.lightning { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; animation: sh-bolt 0.9s steps(1) infinite; }
+.lightning path { fill: #fff7a8; stroke: #2d2018; stroke-width: 0.8; stroke-linejoin: round; }
+@keyframes sh-bolt { 0% { opacity: 1; } 12% { opacity: 0; } 22% { opacity: 1; } 60% { opacity: 1; } 70% { opacity: 0.2; } }
+/* 진동하는 폰 */
+.phone.buzz { animation: sh-buzz 0.09s steps(2) 6 0.35s; }
+@keyframes sh-buzz { 0% { transform: translate(-3px, 0) rotate(-2deg); } 50% { transform: translate(3px, 0) rotate(2deg); } }
+/* 생각 풍선이 퐁 */
+.poof { position: absolute; left: 50%; bottom: 40%; width: 0; height: 0; }
+.poof i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #2d2018; animation: sh-puff 0.5s ease-out forwards; transform: rotate(var(--a)) translateX(0); }
+@keyframes sh-puff { to { transform: rotate(var(--a)) translateX(60px) scale(0.3); opacity: 0; } }
+/* 흙먼지 */
+.dust { position: absolute; bottom: 0; width: 40%; height: 30%; pointer-events: none; }
+.dust i { position: absolute; bottom: 0; width: 30%; aspect-ratio: 1; border-radius: 50%; background: #fffaf0; border: 2px solid #c9b39a; animation: sh-dust 0.42s ease-out infinite; }
+.dust i:nth-child(2) { left: 35%; animation-delay: 0.14s; }
+.dust i:nth-child(3) { left: 70%; animation-delay: 0.28s; }
+@keyframes sh-dust { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.3) translateY(-30%); opacity: 0; } }
+/* 땀방울 여러 개, 화난 표시는 쿵쾅 */
+.manpu .sweat.b { animation-delay: 0.4s; }
+.manpu .sweat.c { animation-delay: 0.75s; }
+.manpu .pop { animation: sh-pop 0.35s cubic-bezier(.2,1.8,.4,1), sh-angry 0.5s 0.35s ease-in-out infinite; }
+@keyframes sh-angry { 50% { transform: scale(1.25); } }

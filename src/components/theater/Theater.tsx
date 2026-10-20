@@ -99,6 +99,8 @@ function stateAt(cut: Cut, t: number) {
   let flash = -1;
   let shake: { at: number; power: number } | null = null;
   let glitchUntil = -1;
+  let linesUntil = -1;
+  const confetti: number[] = [];
   for (const e of cut.events ?? []) {
     if (e.at > t) continue;
     const targets = e.p === undefined ? panels.map((_, i) => i) : [e.p];
@@ -181,8 +183,22 @@ function stateAt(cut: Cut, t: number) {
     if (e.do === 'flash') flash = e.at;
     if (e.do === 'shake') shake = { at: e.at, power: e.power ?? 2 };
     if (e.do === 'glitch') glitchUntil = Math.max(glitchUntil, e.at + e.ms);
+    if (e.do === 'lines') linesUntil = Math.max(linesUntil, e.at + e.ms);
+    if (e.do === 'confetti') confetti.push(e.at);
   }
-  return { panels, flash, shake, glitch: t < glitchUntil };
+  // 번쩍이면 집중선이 잠깐, 쾅 확대로 들어온 컷은 첫머리에 집중선
+  if (flash >= 0) linesUntil = Math.max(linesUntil, flash + 700);
+  if (cut.enter === 'punch') linesUntil = Math.max(linesUntil, 450);
+  return {
+    panels,
+    flash,
+    shake,
+    glitch: t < glitchUntil,
+    lines: t < linesUntil,
+    // 가장 센 흔들림 순간엔 흑백이 뒤집힌 임팩트 프레임 두 장
+    impact: !!shake && shake.power === 3 && t - shake.at < 170,
+    confetti: confetti.filter((at) => t - at < 2600),
+  };
 }
 
 export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Customization; onClose: () => void; onSeen?: () => void }) {
@@ -305,7 +321,7 @@ export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Cust
         {cut && st && !ended && (
           <div
             key={idx}
-            className={`cut layout-${cut.layout} enter-${cut.enter ?? 'cut'} ${st.glitch ? 'glitch' : ''}`}
+            className={`cut layout-${cut.layout} enter-${cut.enter ?? 'cut'} ${st.glitch ? 'glitch' : ''} ${st.impact ? 'impact' : ''}`}
             style={st.shake && t - st.shake.at < 450 ? { animation: `sh-shake-${st.shake.power} 0.45s linear` } : undefined}
           >
             {cut.panels.map((p, i) => (
@@ -313,6 +329,10 @@ export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Cust
             ))}
             {(cut.events ?? []).map((e, i) => (e.at <= t ? <Overlay key={i} e={e} /> : null))}
             <Chat events={(cut.events ?? []).filter((e) => e.do === 'chat' && e.at <= t) as Extract<Ev, { do: 'chat' }>[]} />
+            {st.lines && <SpeedLines />}
+            {st.confetti.map((at) => (
+              <Confetti key={at} />
+            ))}
             {st.flash >= 0 && t - st.flash < 300 && <div className="cut-flash" />}
           </div>
         )}
@@ -388,10 +408,11 @@ function PanelView({ i, panel, live, cast, me }: { i: number; panel: Panel; live
   const shown = Object.values(live.actors).filter((a) => !a.hidden);
   const fx = focusActor?.x ?? (shown.length ? shown.reduce((s, a) => s + a.x, 0) / shown.length : 50);
   const cam = camera(size.w, size.h, live.shot, fx);
+  const drama = Object.values(live.actors).some((a) => a.silhouette && !a.hidden);
   return (
     <div
       ref={ref}
-      className={`panel panel-${i} shot-${live.shot} ${live.blur ? `blur-${live.blur}` : ''} ${live.glare ? 'glare' : ''} ${insert ? 'insert' : ''}`}
+      className={`panel panel-${i} shot-${live.shot} ${live.blur ? `blur-${live.blur}` : ''} ${live.glare ? 'glare' : ''} ${insert ? 'insert' : ''} ${drama ? 'drama' : ''}`}
       style={flat ? { background: flat } : undefined}
     >
       {insert ? (
@@ -439,6 +460,7 @@ function PanelView({ i, panel, live, cast, me }: { i: number; panel: Panel; live
           </div>
         </div>
       )}
+      {drama && <Lightning />}
       <div className="light" style={{ opacity: live.light, transition: `opacity ${live.lightMs}ms linear` }} aria-hidden />
       <div className="halftone" aria-hidden />
     </div>
@@ -452,7 +474,7 @@ function Insert({ bg, me }: { bg: string; me: Customization }) {
     const [time, from, msg] = rest.split('|');
     return (
       <div className="insert-wrap">
-        <div className="phone">
+        <div className={`phone ${from ? 'buzz' : ''}`}>
           <div className="phone-screen">
             <div className="phone-date">10월 20일 화요일</div>
             <div className="phone-time">{time}</div>
@@ -550,6 +572,7 @@ function ActorView({ id, a, who, zoom, big, sx, dream, me }: { id: string; a: Ac
       <div key={a.hop} className={`actor-flip ${a.hop ? 'hop' : ''}`} style={{ transform: `scaleX(${a.pose.pose === 'side' ? a.facing : 1})` }}>
         <Sprite custom={who.custom} pose={a.pose} />
       </div>
+      {a.pose.pose === 'side' && a.pose.action === 'run' && !a.hidden && <Dust facing={a.facing} />}
       <Manpu mark={a.mark} />
       {a.desk && <Desk />}
       {a.tag && !big && <span className="actor-tag" style={{ scale: `${1 / zoom}` }}>{who.label}</span>}
@@ -579,6 +602,13 @@ function DreamBubble({ d, me }: { d: Dream; me: Customization }) {
       </div>
       <i className="dream-dot a" />
       <i className="dream-dot b" />
+      {d.popped && (
+        <div className="poof" aria-hidden>
+          {Array.from({ length: 6 }, (_, i) => (
+            <i key={i} style={{ '--a': `${i * 60}deg` } as React.CSSProperties} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -613,7 +643,7 @@ function Overlay({ e }: { e: Ev }) {
 
 function KText({ text, x, y, style, size = 1, tilt = 0 }: { text: string; x: number; y: number; style: TextStyle; size?: number; tilt?: number }) {
   return (
-    <div className={`kt kt-${style}`} style={{ left: `${x}%`, top: `${y}%`, '--s': size, '--tilt': `${tilt}deg` } as React.CSSProperties}>
+    <div className={`kt kt-${style} ${style === 'sfx' && size >= 1.2 ? 'pow' : ''}`} style={{ left: `${x}%`, top: `${y}%`, '--s': size, '--tilt': `${tilt}deg` } as React.CSSProperties}>
       {style === 'sfx' || style === 'stamp' || style === 'label' ? <span className="w">{text.replaceAll('*', '')}</span> : <Words text={text} />}
     </div>
   );
@@ -654,7 +684,13 @@ function Manpu({ mark }: { mark: Mark }) {
   if (!mark) return null;
   return (
     <svg className={`manpu manpu-${mark}`} viewBox="0 0 120 120" aria-hidden>
-      {mark === 'sweat' && <path className="sweat" d="M100 30 C94 40 92 46 96 50 C100 54 106 50 105 44 C104 39 102 35 100 30Z" fill="#9fd8ff" stroke="#3b7fb8" strokeWidth="2" />}
+      {mark === 'sweat' && (
+        <g fill="#9fd8ff" stroke="#3b7fb8" strokeWidth="2">
+          <path className="sweat" d="M100 30 C94 40 92 46 96 50 C100 54 106 50 105 44 C104 39 102 35 100 30Z" />
+          <path className="sweat b" d="M18 40 C14 47 13 51 16 54 C19 57 23 54 22 50 C21 46 20 43 18 40Z" />
+          <path className="sweat c" d="M110 52 C107 57 106 60 108 62 C110 64 113 62 112 59 C112 56 111 54 110 52Z" />
+        </g>
+      )}
       {mark === 'anger' && (
         <g className="pop" stroke="#e8504b" strokeWidth="5" fill="none" strokeLinecap="round">
           <path d="M92 14 q6 6 0 12 M108 14 q-6 6 0 12 M90 30 q6 -6 12 0 M90 10 q6 6 12 0" />
@@ -694,6 +730,68 @@ function Desk() {
         <rect x="4" y="20" width="112" height="9" rx="3" fill="#dba76d" stroke="#4a3a2e" strokeWidth="2.4" />
         <rect x="8" y="29" width="104" height="11" fill="#c4854a" stroke="#4a3a2e" strokeWidth="2.4" />
       </svg>
+    </div>
+  );
+}
+
+/** 만화 집중선: 화면 가장자리에서 가운데로 몰리는 선, 2프레임마다 바뀌며 부들부들 */
+const LINES = Array.from({ length: 44 }, (_, i) => {
+  const a = (i / 44) * Math.PI * 2 + (i % 3) * 0.03;
+  const w = 0.012 + (i % 4) * 0.006;
+  const r0 = 38 + ((i * 7) % 5) * 3;
+  const p = (r: number, da: number) => `${50 + Math.cos(a + da) * r} ${50 + Math.sin(a + da) * r * 1.4}`;
+  return `M${p(90, -w)} L${p(r0, 0)} L${p(90, w)}Z`;
+}).join(' ');
+
+function SpeedLines() {
+  return (
+    <svg className="speed-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+      <path d={LINES} />
+      <path d={LINES} transform="rotate(4 50 50)" />
+    </svg>
+  );
+}
+
+/** 빵빠레 꽃가루 */
+const CONFETTI_COLORS = ['#ffd23c', '#ff8b7a', '#7dd88f', '#9fc8ff', '#c9b8ff', '#fff'];
+function Confetti() {
+  return (
+    <div className="confetti" aria-hidden>
+      {Array.from({ length: 30 }, (_, i) => (
+        <i
+          key={i}
+          style={
+            {
+              left: `${(i * 37) % 100}%`,
+              background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+              animationDelay: `${(i % 6) * 0.07}s`,
+              '--dx': `${((i * 53) % 40) - 20}px`,
+              '--r': `${(i % 2 ? 1 : -1) * (360 + i * 20)}deg`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+/** 충격 실루엣 뒤로 치는 번개 */
+function Lightning() {
+  return (
+    <svg className="lightning" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+      <path d="M14 -2 L6 22 L13 22 L3 46 L20 18 L12 18 L22 -2Z" />
+      <path d="M86 -2 L80 16 L88 16 L76 40 L95 12 L86 12 L96 -2Z" />
+    </svg>
+  );
+}
+
+/** 뛰어갈 때 발밑에 피어오르는 흙먼지 */
+function Dust({ facing }: { facing: 1 | -1 }) {
+  return (
+    <div className="dust" style={{ [facing === 1 ? 'right' : 'left']: '62%' }} aria-hidden>
+      <i />
+      <i />
+      <i />
     </div>
   );
 }

@@ -102,6 +102,10 @@ export type Ev = { at: number; p?: number } & (
   | { do: 'prop'; prop: PropName; state: string }
   /** 물속으로 잠기기(on) · 물 위로 쑥 떠오르기(off) */
   | { do: 'sink'; who: string; on: boolean }
+  /** 집중선 (번쩍·쾅 확대 컷에는 저절로 들어간다) */
+  | { do: 'lines'; ms: number }
+  /** 꽃가루 빵빠레 */
+  | { do: 'confetti' }
   /** 카메라를 천천히 옮기기 (다가가기·따라가기) */
   | { do: 'cam'; shot: Shot; focus?: string; ms: number }
   /** 조명: 0 = 그대로, 1 = 완전 암전 */
@@ -229,6 +233,10 @@ export function validStory(x: unknown): x is Story {
           case 'sink':
             if (typeof e.on !== 'boolean') return false;
             break;
+          case 'lines':
+            if (!isNum(e.ms)) return false;
+            break;
+          case 'confetti':
           case 'show':
           case 'flash':
           case 'shake':

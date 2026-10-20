@@ -492,6 +492,10 @@
        "mark": "sparkle"
       },
       {
+       "at": 900,
+       "do": "confetti"
+      },
+      {
        "at": 1000,
        "do": "text",
        "text": "다 됐다…!",
@@ -744,6 +748,10 @@
        "text": "치킨…"
       },
       {
+       "at": 400,
+       "do": "confetti"
+      },
+      {
        "at": 1300,
        "do": "dream",
        "who": "me",
@@ -785,6 +793,11 @@
        "shot": "medium",
        "focus": "me",
        "ms": 2400
+      },
+      {
+       "at": 0,
+       "do": "lines",
+       "ms": 1800
       },
       {
        "at": 300,
@@ -1206,6 +1219,10 @@
        "do": "mark",
        "who": "mate",
        "mark": "sparkle"
+      },
+      {
+       "at": 1600,
+       "do": "confetti"
       }
      ]
     },
@@ -1411,6 +1428,11 @@
        "y": 30,
        "style": "sfx",
        "tilt": -6
+      },
+      {
+       "at": 900,
+       "do": "lines",
+       "ms": 1500
       },
       {
        "at": 1400,
@@ -2379,6 +2401,10 @@
        "mark": "sparkle"
       },
       {
+       "at": 1400,
+       "do": "confetti"
+      },
+      {
        "at": 300,
        "do": "text",
        "text": "♪ 퇴근하고 싶다~",
@@ -3068,6 +3094,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 300,
+       "do": "confetti"
       },
       {
        "at": 600,
@@ -4210,6 +4240,11 @@
       },
       {
        "at": 0,
+       "do": "lines",
+       "ms": 2700
+      },
+      {
+       "at": 0,
        "do": "count",
        "from": "1F",
        "to": "13F",
@@ -4401,6 +4436,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 200,
+       "do": "confetti"
       },
       {
        "at": 700,
@@ -5984,6 +6023,10 @@
        "tilt": -8
       },
       {
+       "at": 500,
+       "do": "confetti"
+      },
+      {
        "at": 900,
        "do": "text",
        "text": "전원 *동시 기립*",
@@ -6364,6 +6407,10 @@
        "at": 1000,
        "do": "shake",
        "power": 2
+      },
+      {
+       "at": 1000,
+       "do": "confetti"
       }
      ]
     },
@@ -6564,6 +6611,11 @@
        "run": true
       },
       {
+       "at": 0,
+       "do": "lines",
+       "ms": 1800
+      },
+      {
        "at": 200,
        "do": "text",
        "text": "다다다닥",
@@ -6613,6 +6665,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 400,
+       "do": "confetti"
       },
       {
        "at": 600,
@@ -7141,6 +7197,10 @@
        "size": 0.9
       },
       {
+       "at": 200,
+       "do": "confetti"
+      },
+      {
        "at": 1000,
        "do": "dream",
        "who": "me",
@@ -7381,6 +7441,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 300,
+       "do": "confetti"
       },
       {
        "at": 600,
@@ -8001,6 +8065,11 @@
        "run": true
       },
       {
+       "at": 100,
+       "do": "lines",
+       "ms": 1100
+      },
+      {
        "at": 200,
        "do": "text",
        "text": "슈웅",
@@ -8105,6 +8174,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 200,
+       "do": "confetti"
       },
       {
        "at": 600,
@@ -8275,6 +8348,11 @@
       {
        "at": 400,
        "do": "flash"
+      },
+      {
+       "at": 400,
+       "do": "lines",
+       "ms": 1300
       }
      ]
     },
@@ -8778,6 +8856,11 @@
       },
       {
        "at": 0,
+       "do": "lines",
+       "ms": 1400
+      },
+      {
+       "at": 0,
        "do": "cam",
        "shot": "medium",
        "focus": "me",
@@ -9159,6 +9242,11 @@
        "ms": 1000,
        "run": true,
        "then": "look"
+      },
+      {
+       "at": 0,
+       "do": "lines",
+       "ms": 1000
       },
       {
        "at": 200,
@@ -10191,6 +10279,10 @@
        "power": 2
       },
       {
+       "at": 100,
+       "do": "confetti"
+      },
+      {
        "at": 150,
        "do": "text",
        "text": "아하!!",
@@ -10338,6 +10430,10 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 200,
+       "do": "confetti"
       },
       {
        "at": 600,
@@ -10734,6 +10830,11 @@
        "do": "mark",
        "who": "me",
        "mark": "sparkle"
+      },
+      {
+       "at": 300,
+       "do": "lines",
+       "ms": 900
       },
       {
        "at": 500,
