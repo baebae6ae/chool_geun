@@ -1295,6 +1295,7446 @@
      ]
     }
    ]
+  },
+  {
+   "id": "close-button",
+   "no": 5,
+   "title": "닫힘 버튼",
+   "credit": "익명의 정사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "안에 계신 분",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "building",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 1800
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 8:58",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "지각 *2분 전*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": -10,
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "look",
+         "hidden": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 0,
+       "do": "show",
+       "who": "mate"
+      },
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 22,
+       "ms": 1500,
+       "run": true,
+       "then": "resolve"
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "다다다닥",
+       "x": 30,
+       "y": 30,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 1400,
+       "do": "text",
+       "text": "문이 *닫히고 있다*!",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "resolve"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "flash"
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "…눈이 *마주쳤다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "act",
+       "who": "mate",
+       "action": "smug"
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "꾸욱",
+       "x": 74,
+       "y": 36,
+       "style": "sfx",
+       "tilt": 10
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "[ ▶◀ 닫힘 ]",
+       "x": 50,
+       "y": 20,
+       "style": "label",
+       "tilt": 4
+      },
+      {
+       "at": 800,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 22,
+         "action": "resolve"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 200,
+       "do": "prop",
+       "prop": "lift",
+       "state": "closed"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "스르륵",
+       "x": 50,
+       "y": 26,
+       "style": "sfx",
+       "tilt": 0
+      },
+      {
+       "at": 300,
+       "do": "move",
+       "who": "me",
+       "to": 40,
+       "ms": 500,
+       "then": "shock"
+      },
+      {
+       "at": 900,
+       "do": "flash"
+      },
+      {
+       "at": 900,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "!!!",
+       "x": 74,
+       "y": 30,
+       "style": "sfx",
+       "size": 1.4,
+       "tilt": 12
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "문틈으로 보인 *그 미소*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      },
+      {
+       "at": 900,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 1300,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:9:01",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "지각",
+       "x": 50,
+       "y": 82,
+       "style": "shout",
+       "size": 0.9
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "지각",
+       "x": 50,
+       "y": 30,
+       "style": "stamp",
+       "tilt": -8
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "버튼 하나로 *인생*이 갈린다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "monday",
+   "no": 6,
+   "title": "월요병",
+   "credit": "익명의 한대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:23:00",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "일요일 밤",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "내일… *월요일*",
+       "x": 50,
+       "y": 84,
+       "style": "shout",
+       "size": 0.8
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.35,
+       "ms": 2000
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "주말은 *왜 이렇게* 짧아요",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#1f1d2b",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "doze"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 1600
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "Zzz…",
+       "x": 66,
+       "y": 34,
+       "style": "sfx",
+       "tilt": 6
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "(눈 감았다 떴는데)",
+       "x": 50,
+       "y": 80,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 1200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:7:30",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 200,
+       "do": "flash"
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "따르르릉",
+       "x": 50,
+       "y": 20,
+       "style": "sfx",
+       "tilt": -8
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul",
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 3000
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "월요일 AM 8:10",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "몸만 *출근 중*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "building",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "doom"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 1000,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "회사 *도착*…",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#c9b8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "me",
+       "text": "월요일은 *왜 매주* 와요?"
+      },
+      {
+       "at": 1300,
+       "do": "shake",
+       "power": 1
+      },
+      {
+       "at": 1300,
+       "do": "mark",
+       "who": "me",
+       "mark": "gloom"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reply-all",
+   "no": 7,
+   "title": "전체 회신",
+   "credit": "익명의 윤사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "동기",
+     "outfit": "badge"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "typeFast",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 10:20",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 500,
+       "do": "chat",
+       "from": "them",
+       "name": "동기",
+       "text": "팀장님 오늘 기분 어때?"
+      },
+      {
+       "at": 1600,
+       "do": "chat",
+       "from": "me",
+       "text": "개 별로임ㅋㅋ 건드리지 마"
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "smug",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "text",
+       "text": "전송 탁!",
+       "x": 70,
+       "y": 30,
+       "style": "sfx",
+       "tilt": -8
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "screen:전체 회신으로 보냈습니다 (받는 사람 43명)",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "glitch",
+       "ms": 1000
+      },
+      {
+       "at": 500,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "look",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 600,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 600,
+       "do": "flash"
+      },
+      {
+       "at": 600,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "!!!",
+       "x": 76,
+       "y": 24,
+       "style": "sfx",
+       "size": 1.5,
+       "tilt": 12
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 1000,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "받는 사람: *팀 전체*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:10:21|팀장님|ㅎㅎ",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 600,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "kneel"
+        },
+        {
+         "who": "boss",
+         "x": 76,
+         "action": "smug",
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.4,
+       "ms": 2400
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2800
+      },
+      {
+       "at": 400,
+       "do": "mark",
+       "who": "me",
+       "mark": "gloom"
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "그날 팀장님은 *하루 종일* 웃고 계셨다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "mic-on",
+   "no": 8,
+   "title": "마이크 켜져 있어요",
+   "credit": "익명의 오주임",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "부장님",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "화상 회의 중",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "(음소거 했으니까~)",
+       "x": 50,
+       "y": 30,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "close",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "hipsway",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "♪ 퇴근하고 싶다~",
+       "x": 50,
+       "y": 13,
+       "style": "sfx",
+       "size": 0.8,
+       "tilt": -4
+      },
+      {
+       "at": 1500,
+       "do": "text",
+       "text": "♪ 지금 당장~",
+       "x": 50,
+       "y": 24,
+       "style": "sfx",
+       "size": 0.8,
+       "tilt": 4
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "face",
+       "focus": "me",
+       "ms": 3000
+      }
+     ]
+    },
+    {
+     "ms": 3200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "hipsway",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "chat",
+       "from": "them",
+       "name": "김대리",
+       "text": "ㅋㅋㅋㅋ"
+      },
+      {
+       "at": 800,
+       "do": "chat",
+       "from": "them",
+       "name": "이과장",
+       "text": "ㅋㅋㅋㅋㅋㅋㅋ"
+      },
+      {
+       "at": 1500,
+       "do": "chat",
+       "from": "them",
+       "name": "박주임",
+       "text": "노래 좋네"
+      },
+      {
+       "at": 2200,
+       "do": "chat",
+       "from": "them",
+       "name": "부장님",
+       "text": "퇴근 몇 시에 하고 싶은데?"
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "screen:마이크가 켜져 있습니다",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "glitch",
+       "ms": 1000
+      },
+      {
+       "at": 400,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "hipsway",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 400,
+       "do": "flash"
+      },
+      {
+       "at": 400,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "!!!",
+       "x": 76,
+       "y": 24,
+       "style": "sfx",
+       "size": 1.5,
+       "tilt": 12
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "kneel"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 1000,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "회의 참석자 *32명*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "노래 *잘 하네~* 회식 때 부탁해",
+       "p": 0
+      },
+      {
+       "at": 1400,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat",
+       "p": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "more-feel",
+   "no": 9,
+   "title": "느낌 있게 해 주세요",
+   "credit": "익명의 디자이너 서대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "클라이언트",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 3000,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "좀 더 *느낌 있게* 해 주세요~",
+       "p": 0
+      },
+      {
+       "at": 1400,
+       "do": "say",
+       "who": "me",
+       "text": "…어떤 느낌이요?",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "shrug"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "그건 *보면 알죠~*"
+      },
+      {
+       "at": 900,
+       "do": "mark",
+       "who": "boss",
+       "mark": "sparkle"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "typeFast",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 3000
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "타다닥",
+       "x": 74,
+       "y": 36,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 600,
+       "do": "count",
+       "from": "v2",
+       "to": "v27",
+       "x": 50,
+       "y": 24,
+       "ms": 2000
+      },
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.4,
+       "ms": 3000
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "screen:수정 27번째 저장 중…",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 600,
+       "do": "glitch",
+       "ms": 600
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "close",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "soul",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.55,
+       "ms": 0
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "3주 후",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "gloom"
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "face",
+       "focus": "me",
+       "ms": 2400
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "그냥 *처음 거로* 할게요~",
+       "p": 0
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "soul",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 300,
+       "do": "flash"
+      },
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 300,
+       "do": "glitch",
+       "ms": 600
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "space",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "v1이 *제일 느낌 있었다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rejected",
+   "no": 10,
+   "title": "반려",
+   "credit": "익명의 조과장",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "typeFast",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.55,
+       "ms": 0
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 3000
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 3:12",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "타다닥",
+       "x": 72,
+       "y": 36,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "밤새 만든 *보고서*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "halo",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "완벽해…!",
+       "x": 50,
+       "y": 78,
+       "style": "shout",
+       "size": 0.9
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 26,
+         "action": "resolve",
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 68,
+         "action": "read",
+         "facing": -1,
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2600
+      },
+      {
+       "at": 300,
+       "do": "say",
+       "who": "me",
+       "text": "결재 *부탁드립니다*!"
+      },
+      {
+       "at": 1400,
+       "do": "act",
+       "who": "boss",
+       "action": "look"
+      }
+     ]
+    },
+    {
+     "ms": 2000,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "close",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 600,
+       "do": "act",
+       "who": "boss",
+       "action": "slam"
+      },
+      {
+       "at": 800,
+       "do": "flash"
+      },
+      {
+       "at": 800,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 850,
+       "do": "text",
+       "text": "반려",
+       "x": 50,
+       "y": 44,
+       "style": "stamp",
+       "size": 1.5,
+       "tilt": -10
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 26,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "shake",
+       "power": 1
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "사유는…?",
+       "x": 72,
+       "y": 30,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "screen:반려 사유: 제목에 '최종'이 들어가서 불길함",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 900,
+       "do": "glitch",
+       "ms": 500
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "'최종' 붙으면 *꼭 또 고치더라~*",
+       "p": 0
+      },
+      {
+       "at": 1500,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 1200,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "새 파일명: 보고서_*확정*.docx",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "anything",
+   "no": 11,
+   "title": "아무거나요",
+   "credit": "익명의 막내 강사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "옆자리 대리",
+     "outfit": "badge"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "idle",
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 66,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 11:50",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 300,
+       "do": "say",
+       "who": "me",
+       "text": "점심 *뭐 드실래요*?"
+      },
+      {
+       "at": 1400,
+       "do": "say",
+       "who": "mate",
+       "text": "아무거나~"
+      }
+     ]
+    },
+    {
+     "ms": 4000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "chat",
+       "from": "me",
+       "text": "김치찌개?"
+      },
+      {
+       "at": 600,
+       "do": "chat",
+       "from": "them",
+       "name": "옆자리 대리",
+       "text": "어제 먹었는데"
+      },
+      {
+       "at": 1200,
+       "do": "chat",
+       "from": "me",
+       "text": "돈가스?"
+      },
+      {
+       "at": 1600,
+       "do": "chat",
+       "from": "them",
+       "name": "옆자리 대리",
+       "text": "좀 무거운데"
+      },
+      {
+       "at": 2200,
+       "do": "chat",
+       "from": "me",
+       "text": "국수…?"
+      },
+      {
+       "at": 2600,
+       "do": "chat",
+       "from": "them",
+       "name": "옆자리 대리",
+       "text": "배 안 찰 듯"
+      },
+      {
+       "at": 3200,
+       "do": "chat",
+       "from": "me",
+       "text": "샐러드…?"
+      },
+      {
+       "at": 3500,
+       "do": "chat",
+       "from": "them",
+       "name": "옆자리 대리",
+       "text": "그건 밥이 아니지~"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "gloom"
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "*아무거나*는 아무거나가 아니었다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1300,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:12:58",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "점심시간 *끝*",
+       "x": 50,
+       "y": 82,
+       "style": "shout",
+       "size": 0.8
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "building",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "snack"
+        },
+        {
+         "who": "mate",
+         "x": 60,
+         "action": "snack",
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 3000
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "편의점 앞",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "결국 *삼각김밥*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      },
+      {
+       "at": 1500,
+       "do": "say",
+       "who": "mate",
+       "text": "아 이게 *딱 먹고 싶었어*~"
+      }
+     ]
+    },
+    {
+     "ms": 2000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#b7f0d0",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger"
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "(그럼 처음부터…)",
+       "x": 50,
+       "y": 82,
+       "style": "whisper"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "no-coffee",
+   "no": 12,
+   "title": "원두 소진",
+   "credit": "익명의 임대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "앞사람",
+     "outfit": "badge"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "pantry",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 8,
+         "action": "doze",
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "sip"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 1:30 탕비실",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 500,
+       "do": "dream",
+       "who": "me",
+       "count": 1,
+       "action": "sip",
+       "text": "아아…"
+      },
+      {
+       "at": 1200,
+       "do": "text",
+       "text": "식후엔 *커피*지",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "pantry",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 8,
+         "action": "idle"
+        },
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "sip"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "inch",
+       "who": "me",
+       "to": 30,
+       "steps": 4,
+       "ms": 1800
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "mate",
+       "ms": 2400
+      },
+      {
+       "at": 1200,
+       "do": "text",
+       "text": "쪼르륵",
+       "x": 70,
+       "y": 30,
+       "style": "sfx",
+       "tilt": 6
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "sip"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "mate",
+       "mark": "sparkle",
+       "p": 0
+      },
+      {
+       "at": 300,
+       "do": "say",
+       "who": "mate",
+       "text": "앗 *마지막 잔*이네요~",
+       "p": 0
+      },
+      {
+       "at": 1500,
+       "do": "act",
+       "who": "me",
+       "action": "shock",
+       "p": 1
+      },
+      {
+       "at": 1500,
+       "do": "shake",
+       "power": 2
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "pantry",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "[ 원두를 채워 주세요 ]",
+       "x": 50,
+       "y": 22,
+       "style": "label",
+       "tilt": 3
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "삐-빅",
+       "x": 76,
+       "y": 34,
+       "style": "sfx",
+       "tilt": 8
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "원두 채우는 법은 *아무도 모른다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "doze",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.35,
+       "ms": 2000
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "Zzz…",
+       "x": 66,
+       "y": 34,
+       "style": "sfx",
+       "tilt": 6
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "커피 없는 *오후 2시*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lift-full",
+   "no": 13,
+   "title": "점심시간 1분 전 엘리베이터",
+   "credit": "익명의 신입 장사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "다른 층 분",
+     "outfit": "suit"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "모르는 분",
+     "outfit": "badge"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:12:57",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "*3분* 남았다",
+       "x": 50,
+       "y": 82,
+       "style": "shout",
+       "size": 0.8
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": -10,
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 44,
+         "action": "phone",
+         "hidden": true
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "idle",
+         "hidden": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 0,
+       "do": "show",
+       "who": "mate"
+      },
+      {
+       "at": 0,
+       "do": "show",
+       "who": "boss"
+      },
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 22,
+       "ms": 1200,
+       "run": true,
+       "then": "cheer"
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "다다다닥",
+       "x": 30,
+       "y": 30,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 1400,
+       "do": "text",
+       "text": "1층 엘리베이터 *도착*!",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 22,
+         "action": "cheer"
+        },
+        {
+         "who": "mate",
+         "x": 44,
+         "action": "phone"
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "idle"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "삐———",
+       "x": 60,
+       "y": 24,
+       "style": "sfx",
+       "tilt": 0
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "정원 초과",
+       "x": 60,
+       "y": 12,
+       "style": "label",
+       "tilt": 4
+      },
+      {
+       "at": 400,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 400,
+       "do": "shake",
+       "power": 2
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#d9dde3",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "act",
+       "who": "boss",
+       "action": "rotten",
+       "p": 0
+      },
+      {
+       "at": 800,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat",
+       "p": 1
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "(…내려)",
+       "x": 25,
+       "y": 30,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 10
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 90,
+       "ms": 2800,
+       "run": true,
+       "then": "ahh"
+      },
+      {
+       "at": 0,
+       "do": "count",
+       "from": "1F",
+       "to": "13F",
+       "x": 50,
+       "y": 26,
+       "ms": 2600
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "헉 헉",
+       "x": 70,
+       "y": 52,
+       "style": "sfx",
+       "tilt": 8
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "계단",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      }
+     ]
+    },
+    {
+     "ms": 1200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:13:00",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 200,
+       "do": "flash"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46,
+         "action": "soul",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "점심 먹은 거 *다 소화됨*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "praise",
+   "no": 14,
+   "title": "칭찬의 대가",
+   "credit": "익명의 정과장",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 118,
+         "facing": -1,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "move",
+       "who": "boss",
+       "to": 66,
+       "ms": 1100,
+       "then": "slowclap"
+      },
+      {
+       "at": 300,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 1200
+      },
+      {
+       "at": 1500,
+       "do": "say",
+       "who": "boss",
+       "text": "역시 *김대리*가 잘하네~"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "halo",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "shy"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "인정받았다…!",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "그럼 *이것도* 해 볼래?",
+       "p": 0
+      },
+      {
+       "at": 1400,
+       "do": "say",
+       "who": "me",
+       "text": "넵!",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "say",
+       "who": "boss",
+       "text": "*이것도*~ *저것도*~",
+       "p": 0
+      },
+      {
+       "at": 1200,
+       "do": "act",
+       "who": "me",
+       "action": "look",
+       "p": 1
+      },
+      {
+       "at": 1200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "typeFast",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "count",
+       "from": "할 일 3개",
+       "to": "할 일 19개",
+       "x": 50,
+       "y": 22,
+       "ms": 1800
+      },
+      {
+       "at": 2100,
+       "do": "shake",
+       "power": 2
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "typeFast",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.45,
+       "ms": 2400
+      },
+      {
+       "at": 300,
+       "do": "dream",
+       "who": "me",
+       "count": 2,
+       "action": "typeFast"
+      },
+      {
+       "at": 1200,
+       "do": "dream",
+       "who": "me",
+       "count": 5,
+       "action": "typeFast",
+       "text": "부족해…"
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 10:30",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "칭찬의 대가는 *업무*였다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "when-did-i",
+   "no": 15,
+   "title": "내가 언제 그랬어",
+   "credit": "익명의 박대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "이건 *A안*으로 가자",
+       "p": 0
+      },
+      {
+       "at": 1300,
+       "do": "say",
+       "who": "me",
+       "text": "넵!",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "typeFast",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "3일 후",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "타다닥",
+       "x": 72,
+       "y": 36,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "시킨 대로 *A안* 완성",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "cheer",
+         "desk": true
+        },
+        {
+         "who": "boss",
+         "x": 118,
+         "facing": -1,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "move",
+       "who": "boss",
+       "to": 66,
+       "ms": 900,
+       "then": "look"
+      },
+      {
+       "at": 200,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 1000
+      },
+      {
+       "at": 1100,
+       "do": "say",
+       "who": "boss",
+       "text": "누가 *A안*으로 하랬어?"
+      },
+      {
+       "at": 2000,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 2000,
+       "do": "flash"
+      },
+      {
+       "at": 2000,
+       "do": "shake",
+       "power": 3
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#e6eefc",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "3일 전 메신저",
+       "x": 50,
+       "y": 12,
+       "style": "label",
+       "tilt": 0
+      },
+      {
+       "at": 400,
+       "do": "chat",
+       "from": "them",
+       "name": "팀장님",
+       "text": "이건 A안으로 가자"
+      },
+      {
+       "at": 1100,
+       "do": "chat",
+       "from": "me",
+       "text": "넵!"
+      },
+      {
+       "at": 1800,
+       "do": "text",
+       "text": "증거 있음",
+       "x": 50,
+       "y": 34,
+       "style": "sfx",
+       "tilt": -6
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "아~ 그건 *그때고*",
+       "p": 0
+      },
+      {
+       "at": 1300,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 1100,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "그때는 *언제까지*였을까",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ceo-lift",
+   "no": 16,
+   "title": "대표님과 엘리베이터 단둘이",
+   "credit": "익명의 이대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "대표님",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "idle",
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "idle",
+         "hidden": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 300,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "띵—",
+       "x": 74,
+       "y": 12,
+       "style": "sfx",
+       "tilt": 8
+      },
+      {
+       "at": 900,
+       "do": "show",
+       "who": "boss"
+      },
+      {
+       "at": 1200,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 1200,
+       "do": "flash"
+      },
+      {
+       "at": 1600,
+       "do": "text",
+       "text": "헉 *대표님*…",
+       "x": 30,
+       "y": 30,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#e9e1d0",
+       "shot": "medium",
+       "cast": [
+        {
+         "who": "me",
+         "x": 38,
+         "action": "resolve"
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "idle",
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "엘리베이터 안",
+       "x": 50,
+       "y": 12,
+       "style": "label",
+       "tilt": 0
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "단둘이 *갇혔다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      },
+      {
+       "at": 1200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 1800,
+       "do": "text",
+       "text": "……",
+       "x": 50,
+       "y": 30,
+       "style": "sfx",
+       "tilt": 0
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#cfc6b4",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "count",
+       "from": "1F",
+       "to": "2F",
+       "x": 50,
+       "y": 46,
+       "ms": 2800
+      },
+      {
+       "at": 1600,
+       "do": "text",
+       "text": "왜 이렇게 *느려*…",
+       "x": 50,
+       "y": 70,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#e9e1d0",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "say",
+       "who": "boss",
+       "text": "자네 *몇 년차*지?"
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "glitch",
+       "ms": 800
+      },
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "resolve"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "me",
+       "text": "*21년식* 아반떼입니다!!!"
+      },
+      {
+       "at": 200,
+       "do": "flash"
+      },
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 200,
+       "do": "burst",
+       "who": "me"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#e9e1d0",
+       "shot": "medium",
+       "cast": [
+        {
+         "who": "me",
+         "x": 38,
+         "action": "resolve"
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "look",
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "………",
+       "x": 50,
+       "y": 30,
+       "style": "sfx",
+       "tilt": 0
+      },
+      {
+       "at": 1200,
+       "do": "act",
+       "who": "boss",
+       "action": "shrug"
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "엘리베이터는 아직 *3층*이었다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "space",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "퇴사하고 싶다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "night-9",
+   "no": 17,
+   "title": "밤 9시 카톡",
+   "credit": "익명의 최대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#2b2f4a",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "phone",
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 9:00 집",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 400,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "드디어 *내 시간*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1500,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:21:03|팀장님|자니?",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "flat:#2b2f4a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "glitch",
+       "ms": 700
+      },
+      {
+       "at": 100,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 100,
+       "do": "flash"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "!!!",
+       "x": 76,
+       "y": 24,
+       "style": "sfx",
+       "size": 1.4,
+       "tilt": 12
+      }
+     ]
+    },
+    {
+     "ms": 3200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#2b2f4a",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "phone"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "dream",
+       "who": "me",
+       "count": 1,
+       "action": "phone",
+       "text": "읽을까…?"
+      },
+      {
+       "at": 1300,
+       "do": "dream",
+       "who": "me",
+       "count": 2,
+       "action": "headhold",
+       "text": "말까…?"
+      },
+      {
+       "at": 2300,
+       "do": "dream",
+       "who": "me",
+       "count": 4,
+       "action": "headhold",
+       "text": "읽씹하면…?!"
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:21:05|팀장님|아 아니야 내일 얘기하자 ㅎㅎ",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#2b2f4a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "text",
+       "text": "…내일 *무슨* 얘기요?",
+       "x": 50,
+       "y": 80,
+       "style": "whisper"
+      },
+      {
+       "at": 500,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#1b1c2b",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 3:40",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "그날 밤 *한숨도* 못 잤다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "soul",
+         "desk": true
+        },
+        {
+         "who": "boss",
+         "x": 118,
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "move",
+       "who": "boss",
+       "to": 64,
+       "ms": 1000,
+       "then": "wave"
+      },
+      {
+       "at": 200,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 1000
+      },
+      {
+       "at": 1100,
+       "do": "say",
+       "who": "boss",
+       "text": "아 별거 아니고 *회식 날짜*~"
+      },
+      {
+       "at": 2200,
+       "do": "act",
+       "who": "me",
+       "action": "kneel"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "stay-late",
+   "no": 18,
+   "title": "눈치 야근",
+   "credit": "익명의 한주임",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "동기",
+     "outfit": "badge"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:18:00",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "text",
+       "text": "땡!",
+       "x": 50,
+       "y": 82,
+       "style": "shout"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 16,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 44,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 72,
+         "action": "look",
+         "facing": -1,
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "text",
+       "text": "……",
+       "x": 50,
+       "y": 30,
+       "style": "sfx",
+       "tilt": 0
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "아무도 *안 일어난다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "trio",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#b7f0d0",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 500,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 700,
+       "do": "mark",
+       "who": "mate",
+       "mark": "sweat"
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "모두의 시선은 *한 곳*으로",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "close",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 72,
+         "action": "phone",
+         "facing": -1,
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "▶ 낚시 브이로그 3시간",
+       "x": 50,
+       "y": 20,
+       "style": "label",
+       "tilt": 3
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "팀장님은 *유튜브* 보는 중",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1300,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:21:00",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 16,
+         "action": "soul",
+         "desk": true
+        },
+        {
+         "who": "mate",
+         "x": 44,
+         "action": "soul",
+         "desk": true
+        },
+        {
+         "who": "boss",
+         "x": 60,
+         "action": "idle",
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "다들 *왜 안 가*? 수고~"
+      },
+      {
+       "at": 200,
+       "do": "act",
+       "who": "boss",
+       "action": "wave"
+      },
+      {
+       "at": 1500,
+       "do": "move",
+       "who": "boss",
+       "to": 120,
+       "ms": 1000
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 16,
+         "action": "soul"
+        },
+        {
+         "who": "mate",
+         "x": 44,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "act",
+       "who": "me",
+       "action": "cheer"
+      },
+      {
+       "at": 300,
+       "do": "act",
+       "who": "mate",
+       "action": "cheer"
+      },
+      {
+       "at": 300,
+       "do": "flash"
+      },
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "벌떡!",
+       "x": 50,
+       "y": 30,
+       "style": "sfx",
+       "size": 1.3,
+       "tilt": -8
+      },
+      {
+       "at": 900,
+       "do": "text",
+       "text": "전원 *동시 기립*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.4,
+       "ms": 1600
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 9:40",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "아무도 *일은 안 했다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "toast",
+   "no": 19,
+   "title": "건배사 20분",
+   "credit": "익명의 오대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "동기",
+     "outfit": "badge"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "부장님",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 24,
+         "action": "cheer",
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 52,
+         "action": "cheer",
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 78,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "회식 자리",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 300,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2400
+      },
+      {
+       "at": 600,
+       "do": "say",
+       "who": "boss",
+       "text": "자자 *짧게 한마디만* 할게~"
+      }
+     ]
+    },
+    {
+     "ms": 1100,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:19:30",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "medium",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "me",
+         "x": 24,
+         "action": "cheer"
+        },
+        {
+         "who": "boss",
+         "x": 52,
+         "action": "smug"
+        },
+        {
+         "who": "mate",
+         "x": 78,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "내가 입사했을 때는 *말이야*…"
+      },
+      {
+       "at": 1800,
+       "do": "act",
+       "who": "me",
+       "action": "look"
+      },
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.2,
+       "ms": 3000
+      }
+     ]
+    },
+    {
+     "ms": 1400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:19:50",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "text",
+       "text": "*20분*째",
+       "x": 50,
+       "y": 82,
+       "style": "shout",
+       "size": 0.9
+      },
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "close",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 24,
+         "action": "quake"
+        },
+        {
+         "who": "boss",
+         "x": 52,
+         "action": "smug"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "덜덜덜",
+       "x": 70,
+       "y": 30,
+       "style": "sfx",
+       "tilt": 6
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "잔 든 팔이 *한계*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 24,
+         "action": "soul"
+        },
+        {
+         "who": "boss",
+         "x": 52,
+         "action": "cheer"
+        },
+        {
+         "who": "mate",
+         "x": 78,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2400
+      },
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.4,
+       "ms": 2000
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "다들 *영혼 이탈*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "say",
+       "who": "boss",
+       "text": "자 그럼 *건배*!",
+       "p": 0
+      },
+      {
+       "at": 1000,
+       "do": "act",
+       "who": "me",
+       "action": "shock",
+       "p": 1
+      },
+      {
+       "at": 1000,
+       "do": "flash"
+      },
+      {
+       "at": 1000,
+       "do": "shake",
+       "power": 2
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "sip"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "맥주는 *미지근해졌다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "escape",
+   "no": 20,
+   "title": "2차 탈출",
+   "credit": "익명의 서주임",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "부장님",
+     "outfit": "suit"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 26,
+         "action": "look",
+         "tag": true
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "cheer",
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.3,
+       "ms": 0
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 2600
+      },
+      {
+       "at": 300,
+       "do": "say",
+       "who": "boss",
+       "text": "*2차* 가자~!"
+      },
+      {
+       "at": 1500,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 1600,
+       "do": "text",
+       "text": "지금이 *기회*다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "building",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 20,
+         "action": "idle"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.5,
+       "ms": 0
+      },
+      {
+       "at": 0,
+       "do": "inch",
+       "who": "me",
+       "to": 46,
+       "steps": 5,
+       "ms": 2000
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "살금살금",
+       "x": 30,
+       "y": 30,
+       "style": "sfx",
+       "tilt": -6
+      }
+     ]
+    },
+    {
+     "ms": 2000,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "building",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 46
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.5,
+       "ms": 0
+      },
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 110,
+       "ms": 1400,
+       "run": true
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "다다다닥",
+       "x": 60,
+       "y": 30,
+       "style": "sfx",
+       "tilt": -8
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 10:12 지하철역",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "*탈출 성공*!",
+       "x": 50,
+       "y": 80,
+       "style": "shout",
+       "size": 0.9
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:22:13|부장님|어디야~ 너 지갑 놔두고 갔다~",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 700,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 200,
+       "do": "glitch",
+       "ms": 700
+      },
+      {
+       "at": 200,
+       "do": "flash"
+      },
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 3
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "지갑엔 *교통카드*도 있었다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "meeting",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 26,
+         "action": "soul"
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.35,
+       "ms": 0
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 1:40",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "2차는 *3차*가 되었다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "morning-after",
+   "no": 21,
+   "title": "회식 다음 날",
+   "credit": "익명의 윤대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "동기",
+     "outfit": "badge"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": -10,
+         "tag": true
+        },
+        {
+         "who": "mate",
+         "x": 54,
+         "action": "smug",
+         "desk": true
+        },
+        {
+         "who": "boss",
+         "x": 84,
+         "action": "shy",
+         "facing": -1,
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 26,
+       "ms": 1200,
+       "then": "look"
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "AM 9:00",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 1100,
+       "do": "text",
+       "text": "킥킥",
+       "x": 70,
+       "y": 26,
+       "style": "sfx",
+       "tilt": 8
+      },
+      {
+       "at": 1200,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 1600
+      },
+      {
+       "at": 1800,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "mate",
+       "text": "어제 *대박*이던데~",
+       "p": 0
+      },
+      {
+       "at": 1400,
+       "do": "say",
+       "who": "me",
+       "text": "…뭐가요?",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:09:03|회식 단톡방|사진 34장을 보냈습니다",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 600,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "close",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 26,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "glitch",
+       "ms": 600
+      },
+      {
+       "at": 100,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 700,
+       "do": "dream",
+       "who": "me",
+       "count": 1,
+       "action": "hipsway",
+       "text": "어제의 나"
+      },
+      {
+       "at": 1700,
+       "do": "dream",
+       "who": "me",
+       "count": 1,
+       "action": "blowkiss",
+       "text": "어제의 나"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "headhold"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 1000,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "say",
+       "who": "me",
+       "text": "기억이… *없어요*"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#c9b8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "오늘도 *한 잔*?",
+       "p": 0
+      },
+      {
+       "at": 1300,
+       "do": "mark",
+       "who": "me",
+       "mark": "gloom",
+       "p": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "payday",
+   "no": 22,
+   "title": "스쳐 가는 월급",
+   "credit": "익명의 정주임",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:10:00|은행|급여 3,000,000원 입금",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "halo",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "*월급날*이다!",
+       "x": 50,
+       "y": 80,
+       "style": "shout",
+       "size": 0.9
+      },
+      {
+       "at": 1000,
+       "do": "dream",
+       "who": "me",
+       "count": 3,
+       "action": "snack",
+       "text": "치킨! 소고기! 여행!"
+      }
+     ]
+    },
+    {
+     "ms": 1000,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "phone:10:01|카드사|결제 대금 1,240,000원 출금",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 1000,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "phone:10:01|집주인|월세 700,000원 출금",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 1000,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "phone:10:02|적금|자동이체 900,000원 출금",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 1000,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "phone:10:02|통신사|요금 147,600원 출금",
+       "shot": "wide",
+       "cast": []
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "count",
+       "from": "3,000,000원",
+       "to": "12,400원",
+       "x": 50,
+       "y": 24,
+       "ms": 1800
+      },
+      {
+       "at": 2000,
+       "do": "act",
+       "who": "me",
+       "action": "quake"
+      },
+      {
+       "at": 2000,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 2000,
+       "do": "flash"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "wasteland",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 1100,
+       "do": "silhouette",
+       "who": "me",
+       "on": true
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "월급은 *통장을 스쳐 갔다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "year-end-tax",
+   "no": 23,
+   "title": "13월의 월급?",
+   "credit": "익명의 김과장",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "동기",
+     "outfit": "badge"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "1월 연말정산",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "*13월의 월급* 들어온다~",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "halo",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "dance"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      },
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 600,
+       "do": "dream",
+       "who": "me",
+       "count": 2,
+       "action": "cheer",
+       "text": "환급금…!"
+      }
+     ]
+    },
+    {
+     "ms": 2000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "screen:연말정산 결과: 추가 납부 340,000원",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 700,
+       "do": "glitch",
+       "ms": 800
+      },
+      {
+       "at": 700,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "dance",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 200,
+       "do": "flash"
+      },
+      {
+       "at": 200,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 300,
+       "do": "text",
+       "text": "!!!",
+       "x": 76,
+       "y": 24,
+       "style": "sfx",
+       "size": 1.4,
+       "tilt": 12
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#b7f0d0",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "rotten"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "mate",
+       "mark": "sparkle",
+       "p": 0
+      },
+      {
+       "at": 200,
+       "do": "say",
+       "who": "mate",
+       "text": "나 *80만 원* 돌려받음~",
+       "p": 0
+      },
+      {
+       "at": 1400,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "13월의 월급이 아니라 *13월의 청구서*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "day-off",
+   "no": 24,
+   "title": "연차 신청",
+   "credit": "익명의 한사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 400,
+       "do": "dream",
+       "who": "me",
+       "count": 1,
+       "action": "dance",
+       "text": "금요일 연차…♪"
+      },
+      {
+       "at": 400,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "say",
+       "who": "me",
+       "text": "다음 주 금요일 *연차* 써도 될까요?",
+       "p": 0
+      },
+      {
+       "at": 1500,
+       "do": "say",
+       "who": "boss",
+       "text": "아 그날은 *좀*…",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "versus",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "say",
+       "who": "me",
+       "text": "그럼 *월요일*은요?",
+       "p": 0
+      },
+      {
+       "at": 1200,
+       "do": "say",
+       "who": "boss",
+       "text": "그날도 *좀*…",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "versus",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "flat:#c9b8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "quake"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "face",
+       "focus": "boss",
+       "cast": [
+        {
+         "who": "boss",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "say",
+       "who": "me",
+       "text": "그 다음 주는요…?",
+       "p": 0
+      },
+      {
+       "at": 1200,
+       "do": "say",
+       "who": "boss",
+       "text": "그 주는 *워크숍*이잖아~",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "rain",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cry"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "연차는 있는데 *쓸 날이 없다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 34,
+         "action": "soul",
+         "desk": true
+        },
+        {
+         "who": "boss",
+         "x": 62,
+         "action": "cheer",
+         "facing": -1,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "ms": 1200
+      },
+      {
+       "at": 200,
+       "do": "say",
+       "who": "boss",
+       "text": "아 나 다음 주 *휴가*니까 잘 부탁해~"
+      },
+      {
+       "at": 1600,
+       "do": "move",
+       "who": "boss",
+       "to": 120,
+       "ms": 1200
+      },
+      {
+       "at": 1600,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 500
+      },
+      {
+       "at": 1700,
+       "do": "act",
+       "who": "me",
+       "action": "shock"
+      },
+      {
+       "at": 1700,
+       "do": "flash"
+      },
+      {
+       "at": 1700,
+       "do": "shake",
+       "power": 3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "friday-6",
+   "no": 25,
+   "title": "금요일 6시",
+   "credit": "익명의 이주임",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "옆자리 대리",
+     "outfit": "badge"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1400,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "clock:17:59",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "금요일",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "resolve",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat"
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "*1분*만 버티면…",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1000,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "clock:18:00",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "flash"
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "땡!",
+       "x": 50,
+       "y": 82,
+       "style": "shout"
+      }
+     ]
+    },
+    {
+     "ms": 2200,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 30,
+         "action": "cheer"
+        },
+        {
+         "who": "mate",
+         "x": 66,
+         "action": "type",
+         "desk": true,
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "move",
+       "who": "me",
+       "to": 125,
+       "ms": 1000,
+       "run": true
+      },
+      {
+       "at": 200,
+       "do": "text",
+       "text": "슈웅",
+       "x": 60,
+       "y": 30,
+       "style": "sfx",
+       "size": 1.2,
+       "tilt": -8
+      },
+      {
+       "at": 700,
+       "do": "act",
+       "who": "mate",
+       "action": "look"
+      },
+      {
+       "at": 1200,
+       "do": "text",
+       "text": "…방금 뭐가 지나갔지",
+       "x": 66,
+       "y": 24,
+       "style": "whisper"
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "whip",
+     "panels": [
+      {
+       "bg": "elevator",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": -10
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "prop",
+       "prop": "lift",
+       "state": "open"
+      },
+      {
+       "at": 0,
+       "do": "move",
+       "who": "me",
+       "to": 50,
+       "ms": 900,
+       "run": true,
+       "then": "cheer"
+      },
+      {
+       "at": 1000,
+       "do": "text",
+       "text": "띵—",
+       "x": 74,
+       "y": 12,
+       "style": "sfx",
+       "tilt": 8
+      },
+      {
+       "at": 1000,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "cheer"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "*주말*이 온다",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "halo",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "dance"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "토요일 AM 11:00",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 200,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "알람 없는 *아침*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "subway-seat",
+   "no": 26,
+   "title": "지하철 자리 쟁탈",
+   "credit": "익명의 박사원",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "mate",
+     "as": "mate",
+     "label": "모르는 분",
+     "outfit": "scarf"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 22,
+         "action": "doom",
+         "tag": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2600
+      },
+      {
+       "at": 100,
+       "do": "text",
+       "text": "PM 6:40 퇴근길",
+       "x": 26,
+       "y": 12,
+       "style": "label",
+       "tilt": -3
+      },
+      {
+       "at": 700,
+       "do": "text",
+       "text": "다리가 *부서질 것 같다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 22,
+         "action": "look"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 400,
+       "do": "act",
+       "who": "me",
+       "action": "cheer"
+      },
+      {
+       "at": 400,
+       "do": "mark",
+       "who": "me",
+       "mark": "sparkle"
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "빈자리 발견",
+       "x": 50,
+       "y": 20,
+       "style": "label",
+       "tilt": 4
+      },
+      {
+       "at": 400,
+       "do": "flash"
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 22,
+         "action": "cheer"
+        },
+        {
+         "who": "mate",
+         "x": 112,
+         "facing": -1
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "inch",
+       "who": "me",
+       "to": 44,
+       "steps": 4,
+       "ms": 2000
+      },
+      {
+       "at": 700,
+       "do": "move",
+       "who": "mate",
+       "to": 54,
+       "ms": 700,
+       "run": true,
+       "then": "smug"
+      },
+      {
+       "at": 1500,
+       "do": "text",
+       "text": "쏙",
+       "x": 60,
+       "y": 30,
+       "style": "sfx",
+       "size": 1.3,
+       "tilt": 8
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2400
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "versus",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "flat:#ffe08a",
+       "shot": "face",
+       "focus": "mate",
+       "cast": [
+        {
+         "who": "mate",
+         "x": 50,
+         "action": "smug"
+        }
+       ]
+      },
+      {
+       "bg": "flat:#9fc8ff",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "shock"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "flash"
+      },
+      {
+       "at": 100,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "mate",
+       "mark": "sparkle",
+       "p": 0
+      },
+      {
+       "at": 600,
+       "do": "mark",
+       "who": "me",
+       "mark": "sweat",
+       "p": 1
+      }
+     ]
+    },
+    {
+     "ms": 1600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 44,
+         "action": "quake"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "glitch",
+       "ms": 700
+      },
+      {
+       "at": 100,
+       "do": "shake",
+       "power": 2
+      }
+     ]
+    },
+    {
+     "ms": 3000,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "subway",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 44,
+         "action": "soul"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.35,
+       "ms": 2000
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 3000
+      },
+      {
+       "at": 600,
+       "do": "text",
+       "text": "손잡이와 *하나가 되었다*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      },
+      {
+       "at": 1600,
+       "do": "text",
+       "text": "남은 역 14개",
+       "x": 76,
+       "y": 14,
+       "style": "label",
+       "tilt": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "inner-cider",
+   "no": 27,
+   "title": "사이다는 마음속으로",
+   "credit": "익명의 강대리",
+   "cast": [
+    {
+     "id": "me",
+     "as": "me",
+     "label": "나"
+    },
+    {
+     "id": "boss",
+     "as": "boss",
+     "label": "팀장님",
+     "outfit": "tie"
+    }
+   ],
+   "cuts": [
+    {
+     "ms": 1700,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "phone:16:50|팀장님|이거 오늘까지 가능하죠? ㅎㅎ",
+       "shot": "wide",
+       "cast": []
+      }
+     ],
+     "events": [
+      {
+       "at": 700,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 1800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "rotten",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 300,
+       "do": "mark",
+       "who": "me",
+       "mark": "anger"
+      },
+      {
+       "at": 300,
+       "do": "shake",
+       "power": 1
+      }
+     ]
+    },
+    {
+     "ms": 3200,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "medium",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "rotten",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 200,
+       "do": "dream",
+       "who": "me",
+       "count": 2,
+       "action": "slam",
+       "text": "이 ㅆ.."
+      },
+      {
+       "at": 1300,
+       "do": "dream",
+       "who": "me",
+       "count": 5,
+       "action": "slam",
+       "text": "지금 몇 시인데?!"
+      },
+      {
+       "at": 1300,
+       "do": "shake",
+       "power": 2
+      },
+      {
+       "at": 1300,
+       "do": "cam",
+       "shot": "close",
+       "focus": "me",
+       "ms": 1800
+      }
+     ]
+    },
+    {
+     "ms": 2400,
+     "layout": "full",
+     "enter": "punch",
+     "panels": [
+      {
+       "bg": "flat:#ffb4a8",
+       "shot": "close",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 50,
+         "action": "slam"
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 100,
+       "do": "text",
+       "text": "(상상)",
+       "x": 20,
+       "y": 12,
+       "style": "label",
+       "tilt": -4
+      },
+      {
+       "at": 400,
+       "do": "flash"
+      },
+      {
+       "at": 400,
+       "do": "shake",
+       "power": 3
+      },
+      {
+       "at": 500,
+       "do": "text",
+       "text": "*4시 50분*인데 오늘까지?!",
+       "x": 50,
+       "y": 80,
+       "style": "shout",
+       "size": 0.8
+      }
+     ]
+    },
+    {
+     "ms": 2600,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "face",
+       "focus": "me",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "rotten",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "dreamPop"
+      },
+      {
+       "at": 500,
+       "do": "act",
+       "who": "me",
+       "action": "smug"
+      },
+      {
+       "at": 900,
+       "do": "chat",
+       "from": "me",
+       "text": "넵 알겠습니다^^"
+      }
+     ]
+    },
+    {
+     "ms": 2800,
+     "layout": "full",
+     "enter": "cut",
+     "panels": [
+      {
+       "bg": "office",
+       "shot": "wide",
+       "cast": [
+        {
+         "who": "me",
+         "x": 40,
+         "action": "typeFast",
+         "desk": true
+        }
+       ]
+      }
+     ],
+     "events": [
+      {
+       "at": 0,
+       "do": "light",
+       "level": 0.45,
+       "ms": 2400
+      },
+      {
+       "at": 0,
+       "do": "cam",
+       "shot": "medium",
+       "focus": "me",
+       "ms": 2800
+      },
+      {
+       "at": 400,
+       "do": "text",
+       "text": "타다닥",
+       "x": 72,
+       "y": 36,
+       "style": "sfx",
+       "tilt": -6
+      },
+      {
+       "at": 800,
+       "do": "text",
+       "text": "사이다는 *마음속으로만*",
+       "x": 50,
+       "y": 86,
+       "style": "narr"
+      }
+     ]
+    }
+   ]
   }
  ]
 }
