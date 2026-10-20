@@ -1,4 +1,7 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain/theater';
+
+const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
 import { completedCount, daysUntilPayday } from '../domain/engine';
@@ -257,6 +260,13 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     later(CIDER_TOTAL_MS + 3200, () => setChatFx(null));
   };
 
+  // 썰 극장: 퇴근하면 오늘의 썰이 열린다
+  const [theater, setTheater] = useState<Story | null>(null);
+  const openStory = (st: Story) => {
+    setTheater(st);
+    onState((s) => markStorySeen(s, key, st.id, clockNow()));
+  };
+
   // 다른 종의 손님이 놀러 왔다: 도감에 기록한다 (인사는 손님이 직접 말풍선으로 해서 따로 말하지 않는다)
   const handleVisit = (sp: Species) => onState((s) => recordVisit(s, sp, clockNow()));
   // 방 안 물건: 시계는 남은 시간을 얄밉게 알려 준다
@@ -500,6 +510,26 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
               </button>
             )}
           </section>
+        )}
+
+        {storyUnlocked(day) && (() => {
+          const st = todaysStory(state, key);
+          const fresh = !state.stories?.seen?.[st.id];
+          return (
+            <button type="button" className={`story-cta ${fresh ? 'fresh' : ''}`} onClick={() => openStory(st)}>
+              <span className="story-cta-icon" aria-hidden>🎬</span>
+              <span className="story-cta-text">
+                <small>퇴근 기념 오늘의 썰{fresh ? ' 도착!' : ''}</small>
+                <b>「{st.title}」</b>
+              </span>
+              {fresh && <span className="story-cta-new">NEW</span>}
+            </button>
+          );
+        })()}
+        {theater && (
+          <Suspense fallback={null}>
+            <Theater story={theater} me={custom} onClose={() => setTheater(null)} />
+          </Suspense>
         )}
 
         {shownChat && (

@@ -589,3 +589,22 @@
 @keyframes hs-bun-big-l { from { transform: rotate(-8deg); } to { transform: rotate(5deg); } }
 @keyframes hs-bun-big-r { from { transform: rotate(8deg); } to { transform: rotate(-5deg); } }
 @keyframes hs-bun-run { from { transform: rotate(-4deg); } to { transform: rotate(-14deg); } }
+
+/* 썰 극장 전용 표정·동작 */
+.hs-quake { animation: hs-quake 0.09s steps(2) infinite; }
+@keyframes hs-quake { 0% { transform: translate(-1.2px, 0.4px); } 50% { transform: translate(1.2px, -0.4px); } }
+.hs-quake-hands { animation: hs-quake 0.12s steps(2) infinite; }
+.hs-front.act-quake .hs-bob, .hs-front.act-headhold .hs-bob { animation: hs-quake 0.14s steps(2) infinite; }
+.hs-front.act-shock .hs-bob { animation: hs-shock 0.5s cubic-bezier(.2,1.6,.4,1); transform-origin: 60px 110px; }
+@keyframes hs-shock { 0% { transform: scale(1, 1); } 30% { transform: translateY(-6px) scale(0.92, 1.12); } 100% { transform: scale(1, 1); } }
+.hs-shock-hands { animation: hs-shock 0.5s cubic-bezier(.2,1.6,.4,1); }
+.hs-tears path { stroke-dasharray: 4 3; animation: hs-tear 0.5s linear infinite; }
+@keyframes hs-tear { to { stroke-dashoffset: -14; } }
+.hs-front.act-cry .hs-bob, .hs-sob { animation: hs-sob 0.5s ease-in-out infinite; }
+@keyframes hs-sob { 50% { transform: translateY(1.5px); } }
+.hs-glint { transform-box: fill-box; transform-origin: center; animation: hs-glint 1.2s ease-in-out infinite; }
+@keyframes hs-glint { 0%, 60%, 100% { transform: scale(0); } 75% { transform: scale(1.2) rotate(30deg); } }
+.hs-front.act-kneel .hs-bob { transform: translateY(9px) scale(1.06, 0.88); transform-origin: 60px 110px; }
+.hs-soul { animation: hs-soul 2.4s ease-in-out infinite; }
+@keyframes hs-soul { 0% { transform: translateY(6px); opacity: 0; } 30% { opacity: 0.8; } 100% { transform: translateY(-14px) translateX(3px); opacity: 0; } }
+.hs-front.act-soul .hs-bob { filter: saturate(0.5) brightness(1.05); }

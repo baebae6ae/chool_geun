@@ -142,6 +142,8 @@ export interface AppState {
   visitors?: Partial<Record<Species, { first: number; count: number }>>;
   /** 평일 저녁 가짜 업무 연락을 읽씹한 날 */
   evening?: Record<string, { readAt: number }>;
+  /** 썰 극장: 본 썰(처음 본 시각)과 날짜별 오늘의 썰 */
+  stories?: { seen?: Record<string, number>; days?: Record<string, string> };
   /** 히든 캐릭터가 열렸다고 알려 준 시각 */
   revealed?: { lop?: number };
   /** 이 기기에서 이미 본 업데이트 소식 버전 */

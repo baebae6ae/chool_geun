@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
+import { STORIES, storyLength, type Story } from '../domain/theater';
+
+const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
 import { formatDotDate, dateKey } from '../domain/date';
 import { GACHA_EVENTS, HOLIDAY_EVENTS, RARITIES, RARITY_LABEL, RARITY_RATE, type GachaEvent } from '../domain/gacha';
 import { RARE_BEHAVIORS } from '../domain/rare';
@@ -23,7 +26,10 @@ export function Collection({ state }: { state: AppState }) {
   });
   const ach = achievementContext(state);
   const [achGot, achTotal] = achievementCount(state);
-  const visited = SPECIES.filter((s) => state.visitors?.[s.id]).length;
+  const guests = SPECIES.filter((s) => !s.hidden);
+  const visited = guests.filter((s) => state.visitors?.[s.id]).length;
+  const [story, setStory] = useState<Story | null>(null);
+  const seenStories = STORIES.filter((s) => state.stories?.seen?.[s.id]).length;
 
   return (
     <div className="screen">
@@ -53,13 +59,37 @@ export function Collection({ state }: { state: AppState }) {
         </div>
       </details>
 
+      <section className="card dex story-dex">
+        <div className="dex-head">
+          <span className="rarity-badge">🎬 썰 모음</span>
+          <span className="muted small">{seenStories}/{STORIES.length} · 퇴근하면 하루에 하나씩 열려요</span>
+        </div>
+        <div className="story-list">
+          {STORIES.map((s) => {
+            const at = state.stories?.seen?.[s.id];
+            return (
+              <button key={s.id} className={`story-item ${at ? 'got' : 'locked'}`} disabled={!at} onClick={() => setStory(s)}>
+                <span className="story-no">#{s.no}</span>
+                <span className="story-name">{at ? `「${s.title}」` : '???'}</span>
+                <span className="muted small">{at ? `${Math.round(storyLength(s) / 1000)}초 · 다시 보기 ▶` : '아직 못 본 썰'}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+      {story && (
+        <Suspense fallback={null}>
+          <Theater story={story} me={state.custom} onClose={() => setStory(null)} />
+        </Suspense>
+      )}
+
       <section className="card dex visitor-dex">
         <div className="dex-head">
           <span className="rarity-badge">🚪 방문 손님</span>
-          <span className="muted small">{visited}/{SPECIES.length} · 가끔 다른 친구가 놀러 와요</span>
+          <span className="muted small">{visited}/{guests.length} · 가끔 다른 친구가 놀러 와요</span>
         </div>
         <div className="dex-grid visitor-grid">
-          {SPECIES.map((s) => {
+          {guests.map((s) => {
             const v = state.visitors?.[s.id];
             return (
               <div key={s.id} className={`dex-cell ${v ? 'got' : 'locked'}`}>

@@ -48,7 +48,16 @@ export type FrontAction =
   // 사이다 논파 전용 연기
   | 'slam'
   | 'cider'
-  | 'ahh';
+  | 'ahh'
+  // 썰 극장 전용 표정·동작
+  | 'shock'
+  | 'cry'
+  | 'quake'
+  | 'rotten'
+  | 'resolve'
+  | 'headhold'
+  | 'kneel'
+  | 'soul';
 export type SideAction = 'stand' | 'walk' | 'run' | 'sleep';
 export type Pose = { pose: 'front'; action: FrontAction } | { pose: 'side'; action: SideAction };
 
@@ -154,9 +163,21 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
   const { sp, lop } = useContext(SpeciesCtx);
   const shape = FRONT_BY_SPECIES[sp];
   const bc = bodyPal(sp, c);
-  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' | 'fierce' =
+  const eyes: 'open' | 'closed' | 'sleepy' | 'happy' | 'spiral' | 'squeeze' | 'doom' | 'smug' | 'wink' | 'fierce' | 'blank' | 'teary' | 'quake' | 'rotten' | 'resolve' =
     action === 'doom'
       ? 'doom'
+      : action === 'shock' || action === 'soul'
+      ? 'blank'
+      : action === 'cry'
+      ? 'teary'
+      : action === 'quake' || action === 'headhold'
+      ? 'quake'
+      : action === 'rotten'
+      ? 'rotten'
+      : action === 'resolve'
+      ? 'resolve'
+      : action === 'kneel'
+      ? 'closed'
       : action === 'slam'
       ? 'fierce'
       : action === 'ahh'
@@ -181,9 +202,19 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
               ? 'squeeze'
               : 'open';
   const lookUp = action === 'look';
-  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' | 'kiss' | 'shout' =
-    action === 'doom'
+  const mouth: 'yawn' | 'smile' | 'small' | 'wavy' | 'o' | 'frown' | 'smirk' | 'tongue' | 'kiss' | 'shout' | 'gasp' | 'grin' | 'line' =
+    action === 'doom' || action === 'kneel'
       ? 'frown'
+      : action === 'shock'
+      ? 'gasp'
+      : action === 'cry' || action === 'quake' || action === 'headhold'
+      ? 'wavy'
+      : action === 'rotten'
+      ? 'grin'
+      : action === 'resolve'
+      ? 'line'
+      : action === 'soul'
+      ? 'o'
       : action === 'slam'
       ? 'shout'
       : action === 'ahh'
@@ -307,6 +338,54 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d="M39.4 58.6 a3.6 3.3 0 0 0 7.2 0z M73.4 58.6 a3.6 3.3 0 0 0 7.2 0z" fill={sp === 'cat' ? BLUE_EYE : EYE} stroke={sp === 'cat' ? INK : 'none'} strokeWidth=".8" />
             <path d="M37 53.4 q5 1.4 11 4 M71 49.6 q6 -4.6 12 -1.2" stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" />
           </g>
+        ) : eyes === 'blank' ? (
+          // 너무 놀라 눈이 하얘짐 (흰자만)
+          <g fill="#fff" stroke={INK} strokeWidth="2">
+            <ellipse cx="43" cy="56.5" rx="6.4" ry="7.4" />
+            <ellipse cx="77" cy="56.5" rx="6.4" ry="7.4" />
+          </g>
+        ) : eyes === 'teary' ? (
+          // 울먹울먹: 반짝이는 큰 눈 + 흐르는 눈물
+          <g>
+            {[43, 77].map((x) => (
+              <g key={x}>
+                <circle cx={x} cy="57" r="5" fill={sp === 'cat' ? BLUE_EYE : EYE} stroke={INK} strokeWidth=".8" />
+                <circle cx={x + 1.6} cy="55.2" r="1.8" fill="#fff" />
+                <circle cx={x - 1.8} cy="59" r=".9" fill="#fff" />
+                <path d={`M${x - 5.6} 60.6 q5.6 3 11.2 0`} stroke="#5aa9e6" strokeWidth="2" fill="none" />
+              </g>
+            ))}
+            <g className="hs-tears" stroke="#7cc4f2" strokeWidth="3.4" strokeLinecap="round" fill="none" opacity=".9">
+              <path d="M39 62 q-1 8 1 18" />
+              <path d="M81 62 q1 8 -1 18" />
+            </g>
+          </g>
+        ) : eyes === 'quake' ? (
+          // 동공 지진: 흰자 속 작은 눈동자가 덜덜
+          <g>
+            <g fill="#fff" stroke={INK} strokeWidth="1.8">
+              <ellipse cx="43" cy="57" rx="5.6" ry="6.2" />
+              <ellipse cx="77" cy="57" rx="5.6" ry="6.2" />
+            </g>
+            <g className="hs-quake" fill={EYE}>
+              <circle cx="43" cy="57" r="1.9" />
+              <circle cx="77" cy="57" r="1.9" />
+            </g>
+          </g>
+        ) : eyes === 'rotten' ? (
+          // 썩은 미소: 반쯤 감긴 눈 + 처진 눈썹
+          <g stroke={INK} strokeLinecap="round" fill="none">
+            <path d="M37 57 q6 -3 12 0 M71 57 q6 -3 12 0" strokeWidth="2.6" />
+            <path d="M39.6 57.6 a3.4 2.6 0 0 0 6.8 0z M73.6 57.6 a3.4 2.6 0 0 0 6.8 0z" fill={sp === 'cat' ? BLUE_EYE : EYE} stroke="none" />
+            <path d="M37 49 q6 -2 11 1.6 M83 49 q-6 -2 -11 1.6" strokeWidth="1.8" />
+          </g>
+        ) : eyes === 'resolve' ? (
+          // 비장함: 날카로운 눈썹 + 눈빛 반짝
+          <g>
+            <OpenEyes sp={sp} y={57} />
+            <path d="M35 51 l14 3.6 M85 51 l-14 3.6" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+            <path className="hs-glint" d={star(81, 53, 3.2)} fill="#fff" stroke="#ffd23c" strokeWidth=".8" />
+          </g>
         ) : eyes === 'fierce' ? (
           // 눈을 부릅뜨고 눈썹을 세운 "이건 못 참아" 표정
           <g>
@@ -337,7 +416,7 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <FrontNose sp={sp} />
         {action === 'doze' && <circle className="hs-snot" cx="65" cy="63.5" r="3" fill="#d6efff" stroke="#8cc3e6" strokeWidth="1" />}
         {sp === 'bird' ? (
-          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o' || mouth === 'tongue' || mouth === 'shout'} />
+          <Beak open={mouth === 'yawn' || mouth === 'smile' || mouth === 'o' || mouth === 'tongue' || mouth === 'shout' || mouth === 'gasp' || mouth === 'grin'} />
         ) : sp === 'rabbit' && (mouth === 'small' || mouth === 'smile') ? (
           mouth === 'smile' ? (
             <path className="hs-mouth" d="M57.2 68.4 Q60 69.6 62.8 68.4 Q62.2 72.2 60 72.2 Q57.8 72.2 57.2 68.4Z" fill={MOUTH} stroke={INK} strokeWidth="1.5" />
@@ -358,6 +437,18 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
             <path d="M53.6 66.6 q6.4 4 13.2 -1.8" />
             <path d="M67.4 65.2 l1.8 -1.6" strokeWidth="1.4" />
           </g>
+        ) : mouth === 'gasp' ? (
+          <g className="hs-mouth">
+            <ellipse cx="60" cy="69" rx="4.4" ry="6.2" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
+            <ellipse cx="60" cy="72" rx="2.6" ry="2" fill={TONGUE} />
+          </g>
+        ) : mouth === 'grin' ? (
+          <g className="hs-mouth" stroke={INK} strokeLinejoin="round">
+            <path d="M51 64.4 Q60 68 69 64.4 Q67.6 71.4 60 71.4 Q52.4 71.4 51 64.4Z" fill="#fff" strokeWidth="1.8" />
+            <path d="M52.6 67 h14.8 M56 65.4 v5 M60 66 v5.4 M64 65.4 v5" strokeWidth="1" />
+          </g>
+        ) : mouth === 'line' ? (
+          <path className="hs-mouth" d="M55.6 67 h8.8" stroke={INK} strokeWidth="2.2" strokeLinecap="round" />
         ) : mouth === 'shout' ? (
           <g className="hs-mouth" strokeLinejoin="round">
             <path d="M53 63.6 Q60 61.4 67 63.6 Q68 74.6 60 74.6 Q52 74.6 53 63.6Z" fill={MOUTH} stroke={INK} strokeWidth="1.8" />
@@ -523,6 +614,13 @@ function FrontView({ c, clip, action, custom, className, still }: ViewProps<Fron
         <g className="hs-sparkle" fill="#ffd23c" stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
           <path d={star(12, 24, 5)} />
           <path d={star(108, 20, 4.4)} />
+        </g>
+      )}
+      {action === 'soul' && (
+        // 영혼 이탈: 반투명한 작은 내가 스르르 빠져나간다
+        <g className="hs-soul" opacity=".75">
+          <path d="M60 4 C48 4 44 14 45 22 C46 30 44 34 40 38 C46 38 50 35 52 32 C54 36 58 37 62 34 C66 37 70 36 72 32 C74 35 78 37 82 36 C77 32 76 27 76 21 C76 12 71 4 60 4Z" fill="#f4f8ff" stroke="#9fb4d8" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M54 17 v3 M66 17 v3 M57 25 q3 2 6 0" stroke="#6f7fb5" strokeWidth="1.6" strokeLinecap="round" fill="none" />
         </g>
       )}
       {action === 'cider' && (
@@ -908,6 +1006,62 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
     case 'slam':
       // 책상을 내려치는 두 팔은 책상과 함께 SlamDesk에서 그린다
       return null;
+    case 'shock':
+      // 화들짝: 두 손이 몸 옆으로 번쩍
+      return (
+        <g className="hs-hand hs-shock-hands">
+          <Paw x={sp === 'cat' ? 34 : 24} y={sp === 'cat' ? 84 : 72} rot={-40} />
+          <Paw x={sp === 'cat' ? 86 : 96} y={sp === 'cat' ? 84 : 72} rot={40} />
+        </g>
+      );
+    case 'quake':
+      // 두 손으로 볼을 감싸고 덜덜 (절규)
+      return (
+        <g className="hs-hand hs-quake-hands">
+          <Paw x={sp === 'cat' ? 36 : 30} y={sp === 'cat' ? 66 : 64} rot={-30} />
+          <Paw x={sp === 'cat' ? 84 : 90} y={sp === 'cat' ? 66 : 64} rot={30} />
+        </g>
+      );
+    case 'headhold':
+      // 머리를 감싸 쥠
+      return (
+        <g className="hs-hand hs-quake-hands">
+          <Paw x={sp === 'cat' ? 28 : 26} y={sp === 'cat' ? 40 : 42} rot={-55} />
+          <Paw x={sp === 'cat' ? 92 : 94} y={sp === 'cat' ? 40 : 42} rot={55} />
+        </g>
+      );
+    case 'cry':
+      // 주먹 쥐고 울먹
+      return (
+        <g className="hs-sob">
+          <Paw x={sp === 'cat' ? 48 : 46} y={sp === 'cat' ? 92 : 80} rot={-20} />
+          <Paw x={sp === 'cat' ? 72 : 74} y={sp === 'cat' ? 92 : 80} rot={20} />
+        </g>
+      );
+    case 'resolve':
+      // 비장하게 주먹을 꽉
+      return (
+        <>
+          <Paw x={sp === 'cat' ? 50 : 51} y={sp === 'cat' ? 94 : 86} rot={-10} />
+          <Paw x={sp === 'cat' ? 70 : 69} y={sp === 'cat' ? 94 : 86} rot={10} />
+        </>
+      );
+    case 'rotten':
+    case 'soul':
+      return (
+        <>
+          <Paw x={50} y={sp === 'cat' ? 98 : 90} rot={-20} />
+          <Paw x={70} y={sp === 'cat' ? 98 : 90} rot={20} />
+        </>
+      );
+    case 'kneel':
+      // 바닥에 손을 짚고 털썩 (OTL)
+      return (
+        <>
+          <Paw x={36} y={104} rot={-10} />
+          <Paw x={84} y={104} rot={10} />
+        </>
+      );
     case 'cider':
       // 캔을 두 손으로 잡고 벌컥벌컥 (캔은 HeldProp)
       return (
@@ -1101,8 +1255,10 @@ function FrontHands({ action, c, still = false }: { action: FrontAction; c: Pale
  */
 function BirdWings({ action, c, still }: { action: FrontAction; c: Palette; still: boolean }) {
   const mode: 'fold' | 'up' | 'wave' | 'open' | 'ear' =
-    action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue' || action === 'slam'
+    action === 'cheer' || action === 'dance' || action === 'yawn' || action === 'tongue' || action === 'slam' || action === 'shock'
       ? 'up'
+      : action === 'headhold' || action === 'quake'
+      ? 'ear'
       : action === 'wave' || action === 'phoneShow' || action === 'phoneToss' || action === 'blowkiss' || action === 'ahh'
         ? 'wave'
         : action === 'earplug'
