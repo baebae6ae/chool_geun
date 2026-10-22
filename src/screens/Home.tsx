@@ -4,13 +4,12 @@ import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
-import { completedCount, daysUntilPayday } from '../domain/engine';
+import { daysUntilPayday } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { MILESTONES, milestoneIndex } from '../domain/milestones';
 import { RARE_BY_ID, type RareId } from '../domain/rare';
-import { careerStats, completedInSeason, formatWon, itemOf } from '../domain/records';
+import { careerStats, formatWon, itemOf } from '../domain/records';
 import { careerTitle, REACTION_LINES, speciesWord } from '../domain/customization';
-import { itemAt, SEASON_LENGTH } from '../domain/workItems';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
 import { endOvertime, hhmm, liveOvertime, pendingLeftAsk, recordLeft, startOvertime, wageTypeOf } from '../domain/overtime';
@@ -163,11 +162,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
   const item = day ? itemOf(day) : null;
   const pct = Math.floor(progress * 100);
 
-  // 이번 시즌에 완성한 작업물 → 햄스터 방 선반
-  const season = Math.floor(completedCount(state.days) / SEASON_LENGTH) + 1;
-  const trophies = [...completedInSeason(state.days, season)]
-    .sort((a, b) => a - b)
-    .map((i) => ({ ...itemAt(season, i), index: i, fresh: !!day?.completed && day.season === season && day.workItemIndex === i }));
+  // 오늘 완성한 작업물 → 그날 하루만 햄스터 책상 옆에 (지난 작업물은 사무실 탭에서 시즌별로 본다)
+  const todayItem = day?.completed ? item : null;
 
   // 햄스터 말풍선: 번 돈 환산, 희귀 행동
   const [bubble, setBubble] = useState<{ key: string; text: string } | null>(null);
@@ -469,7 +465,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           name={settings.hamsterName}
           now={now}
           fit={clock}
-          trophies={trophies}
+          today={todayItem}
           bubble={bubble}
           payday={payD === 0}
           onRare={handleRare}

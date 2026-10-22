@@ -368,42 +368,21 @@ export function WallClock({ x, now }: { x: number; now: number }) {
   );
 }
 
-/* ---------- 완성한 작업물 배치 (이번 시즌에 만든 물건이 햄스터 집 벽·바닥 곳곳에 놓인다) ---------- */
+/* ---------- 오늘 완성한 작업물: 그날 하루만 쳇바퀴 위 작은 벽 선반에 올라간다 (지난 것은 사무실 탭에서) ---------- */
 export interface Trophy {
   emoji: string;
   name: string;
-  /** 시즌 안에서의 순번(0~19) — 놓일 자리를 정한다 */
-  index: number;
-  /** 오늘 막 완성한 것 */
-  fresh: boolean;
   pos: { size: number };
 }
 
-/** 창문·시계·쳇바퀴·책상을 피해 비어 있는 자리 20곳 (서식지 너비·높이의 %) */
-const SLOTS: [number, number][] = [
-  [8, 12], [18, 10], [28, 13], [9, 27], [19, 25], [29, 29],
-  [31, 51], [40, 58], [49, 56], [58, 58], [66, 52],
-  [69, 12], [77, 15], [70, 28], [79, 32], [66, 41], [75, 45],
-  [91, 38], [94, 51], [27, 45],
-];
-
-export function PlacedItems({ items }: { items: Trophy[] }) {
+export function TodayItem({ item, x }: { item: Trophy; x: number }) {
   return (
-    <div className="placed" aria-label={`완성한 작업물 ${items.length}개`}>
-      {items.map((it) => {
-        const [x, y] = SLOTS[it.index % SLOTS.length];
-        const size = Math.round(Math.min(22, Math.max(14, 11 + it.pos.size * 3.4)));
-        return (
-          <span
-            key={it.name}
-            className={`${it.fresh ? 'fresh' : ''} ${hasItemIcon(it.name) ? 'drawn' : ''}`}
-            title={it.name}
-            style={{ left: `${x}%`, top: `${y}%`, fontSize: size }}
-          >
-            <ItemIcon item={it} />
-          </span>
-        );
-      })}
+    <div className="today-item" style={{ left: x }} title={`오늘 완성: ${item.name}`} aria-label={`오늘 완성한 작업물 ${item.name}`}>
+      <span className={hasItemIcon(item.name) ? 'drawn' : undefined}>
+        <ItemIcon item={item} />
+      </span>
+      <i className="today-shelf" aria-hidden />
+      <small>오늘 완성!</small>
     </div>
   );
 }

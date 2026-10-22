@@ -7,7 +7,7 @@ import { buzz } from '../../haptics';
 import { THING_ACTION, THING_LABEL, type Thing } from '../../domain/play';
 import type { RareId } from '../../domain/rare';
 import { RotLayer, rotLevel } from './RotLayer';
-import { Bowl, DeskBack, DeskFront, Floor, Nest, PlacedItems, SeasonDecor, WallClock, Wheel, Window, type Trophy } from './props';
+import { Bowl, DeskBack, DeskFront, Floor, Nest, SeasonDecor, TodayItem, WallClock, Wheel, Window, type Trophy } from './props';
 import type { SeasonId } from '../../domain/seasons';
 import { pickVisitor, VISIT_CHANCE, VISITOR_COLOR } from '../../domain/visitors';
 import { DEFAULT_CUSTOM } from '../../domain/customization';
@@ -21,8 +21,8 @@ interface Props {
   now: number;
   /** 탁상시계 화면: 주어진 칸 높이에 맞춰 방 전체를 확대 */
   fit?: boolean;
-  /** 이번 시즌에 완성한 작업물 (벽 선반) */
-  trophies?: Trophy[];
+  /** 오늘 완성한 작업물 (그날 하루만 벽 선반에 올라간다) */
+  today?: Trophy | null;
   /** 햄스터 머리 위 말풍선. key가 바뀔 때마다 새로 뜬다 */
   bubble?: { key: string; text: string } | null;
   /** 월급날엔 가끔 춤춘다 */
@@ -105,7 +105,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, trophies = [], bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, today = null, bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -558,7 +558,7 @@ export function Habitat({ custom, mood, name, now, fit = false, trophies = [], b
       >
         {season && <SeasonDecor id={season} W={W} />}
         <Window x={spots.window} now={now} />
-        {trophies.length > 0 && <PlacedItems items={trophies} />}
+        {today && <TodayItem item={today} x={spots.wheel + 4} />}
         <WallClock x={spots.desk} now={now} />
         <Floor />
         <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />

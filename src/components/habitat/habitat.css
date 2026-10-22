@@ -143,24 +143,51 @@
 
 /* 완성품 선반 — 창문 왼쪽, 쳇바퀴 위 벽 */
 /* 완성한 작업물: 벽·바닥 곳곳에 놓인다 */
-.placed {
+.today-item {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
+  top: 19%;
   z-index: 0;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  pointer-events: none;
 }
-.placed span {
-  position: absolute;
-  transform: translate(-50%, -50%);
+.today-item > span {
+  font-size: 26px;
   line-height: 1;
   filter: saturate(0.85) url(#pencil-emoji) drop-shadow(1px 0 0 rgba(120, 82, 56, 0.75)) drop-shadow(-1px 0 0 rgba(120, 82, 56, 0.75)) drop-shadow(0 1px 0 rgba(120, 82, 56, 0.75)) drop-shadow(0 -1px 0 rgba(120, 82, 56, 0.75));
+  animation: today-bob 2.4s ease-in-out infinite;
 }
-.placed .fresh {
-  animation: shelf-fresh 2.4s ease-in-out infinite;
+.today-item > span.drawn {
+  filter: url(#pencil-soft);
 }
-@keyframes shelf-fresh {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -56%) scale(1.18); }
+.today-item > span.drawn .ev-svg {
+  width: 1.35em;
+  height: 1.35em;
+  vertical-align: top;
+}
+.today-item small {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #4a3226;
+  color: #ffe39a;
+  font-size: 0.55rem;
+  font-weight: 900;
+  white-space: nowrap;
+  rotate: -4deg;
+}
+.today-shelf {
+  display: block;
+  width: 46px;
+  height: 6px;
+  margin-top: -1px;
+  border-radius: 3px;
+  background: #c99a6b;
+  border: 1.5px solid #8a6448;
+}
+@keyframes today-bob {
+  50% { transform: translateY(-4px) scale(1.08); }
 }
 
 /* 서식지 배경(시즌을 끝내면 열린다) */
@@ -213,15 +240,6 @@
   88% { opacity: 1; translate: 0 0; }
   100% { opacity: 0; translate: 0 -6px; }
 }
-.placed span.drawn {
-  filter: url(#pencil-soft);
-}
-.placed span.drawn .ev-svg {
-  width: 1.35em;
-  height: 1.35em;
-  vertical-align: top;
-}
-
 /* 해바라기씨 그릇: 눌러서 간식 주기 */
 .habitat-bowl-hit {
   position: absolute;
