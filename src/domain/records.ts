@@ -1,9 +1,9 @@
 /** 기획서 11~13. 일일 / 주간 / 월간 기록 집계 */
 import { addDays, mondayOf } from './date';
 import { daysUntilPayday } from './engine';
-import { isBankDay } from './schedule';
+import { isBankDay, monthlyPay } from './schedule';
 import { itemAt } from './workItems';
-import type { DailyWork } from './types';
+import type { DailyWork, Settings } from './types';
 
 export function itemOf(day: Pick<DailyWork, 'season' | 'workItemIndex'>) {
   return itemAt(day.season, day.workItemIndex);
@@ -83,28 +83,27 @@ export function formatWon(n: number, decimals = 0): string {
 }
 
 /** 월급날: 지난 월급날 다음 날부터 오늘까지 번 돈 (오늘은 지금까지 번 만큼) */
+/**
+ * 월급날 정산: 월급은 앱을 켠 날과 상관없이 정해진 만큼 들어온다.
+ * 그래서 들어올 돈 = 설정한 월급 + 지난 월급날 이후 기록한 야근 수당. 출근 일수는 앱으로 기록한 날만 센다.
+ */
 export function paydaySummary(
   days: Record<string, DailyWork>,
   key: string,
-  payday: number,
-  todayEarned: number,
-): { total: number; workDays: number; since: string } {
+  settings: Settings,
+): { salary: number; overtime: number; total: number; workDays: number; since: string } {
   let prev = addDays(key, -1);
-  for (let i = 0; i < 40 && daysUntilPayday(prev, payday) !== 0; i++) prev = addDays(prev, -1);
+  for (let i = 0; i < 40 && daysUntilPayday(prev, settings.payday) !== 0; i++) prev = addDays(prev, -1);
   const since = addDays(prev, 1);
-  let total = 0;
+  let overtime = 0;
   let workDays = 0;
   for (const d of Object.values(days)) {
     if (d.date < since || d.date > key) continue;
-    if (d.date === key) {
-      total += d.clockedOut ? d.earned : todayEarned;
-      workDays++;
-    } else if (d.clockedOut) {
-      total += d.earned;
-      workDays++;
-    }
+    if (d.date === key || d.clockedOut) workDays++;
+    overtime += d.overtimePay ?? 0;
   }
-  return { total, workDays, since };
+  const salary = monthlyPay(settings);
+  return { salary, overtime, total: salary + overtime, workDays, since };
 }
 
 export interface CareerStats {

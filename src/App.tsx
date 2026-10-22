@@ -6,7 +6,7 @@ import { endOvertime, recordLeft } from './domain/overtime';
 import { applySettings, completedCount, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
 import { LOP_DAYS } from './domain/customization';
 import { paydaySummary } from './domain/records';
-import { dayBounds, earnedAt } from './domain/schedule';
+import { dayBounds } from './domain/schedule';
 import type { AppState, Settings } from './domain/types';
 import { sendNotification } from './notify';
 import { Collection } from './screens/Collection';
@@ -220,12 +220,7 @@ export function App() {
   const isPayday = daysUntilPayday(key, settings.payday) === 0;
   const showPayday = !gacha && !showClockOut && !showSettings && isPayday && state.paydaySeen !== key;
   const pay = showPayday
-    ? paydaySummary(
-        state.days,
-        key,
-        settings.payday,
-        today && !today.clockedOut ? earnedAt(key, today.schedule, today.hourly, now) : 0,
-      )
+    ? paydaySummary(state.days, key, settings)
     : null;
 
   const openRecord = (date?: string) => {
@@ -326,7 +321,8 @@ export function App() {
       {pay && (
         <PaydayModal
           custom={state.custom}
-          total={pay.total}
+          salary={pay.salary}
+          overtime={pay.overtime}
           workDays={pay.workDays}
           name={settings.hamsterName}
           onClose={() => setState((s) => ({ ...s, paydaySeen: key }))}

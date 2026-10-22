@@ -157,13 +157,15 @@ export function WhatsNewModal({ custom, items, onShown, onClose }: { custom: Cus
 /** 월급날: 한 달에 한 번 오는 가장 큰 순간 */
 export function PaydayModal({
   custom,
-  total,
+  salary,
+  overtime,
   workDays,
   name,
   onClose,
 }: {
   custom: Customization;
-  total: number;
+  salary: number;
+  overtime: number;
   workDays: number;
   name: string;
   onClose: () => void;
@@ -191,14 +193,24 @@ export function PaydayModal({
         </div>
         <h2 className="stagger">💰 오늘은 월급날!</h2>
         <p className="stagger">한 달 동안 {name || '햄스터'}랑 같이 정말 수고했어요.</p>
-        {workDays > 0 && (
-          <div className="kv stagger">
-            <span>지난 월급날 이후 출근</span>
-            <strong>{workDays}일</strong>
-            <span>그동안 번 돈</span>
-            <strong>{formatWon(Math.floor(total))}</strong>
-          </div>
-        )}
+        <div className="kv stagger">
+          <span>이번 달 월급</span>
+          <strong>{formatWon(Math.floor(salary))}</strong>
+          {overtime > 0 && (
+            <>
+              <span>+ 야근 수당</span>
+              <strong>{formatWon(Math.floor(overtime))}</strong>
+              <span>통장에 들어올 돈</span>
+              <strong>{formatWon(Math.floor(salary + overtime))}</strong>
+            </>
+          )}
+          {workDays > 0 && (
+            <>
+              <span>지난 월급날 이후 같이 출근</span>
+              <strong>{workDays}일</strong>
+            </>
+          )}
+        </div>
         <button className="btn primary" onClick={close}>
           야호! 🎉
         </button>

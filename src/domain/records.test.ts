@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { seasonParts } from './records';
-import type { DailyWork } from './types';
+import { paydaySummary, seasonParts } from './records';
+import type { DailyWork, Settings } from './types';
 
 const day = (date: string, season: number, workItemIndex: number, completed = true) => ({ date, season, workItemIndex, completed }) as DailyWork;
 const toDays = (list: DailyWork[]) => Object.fromEntries(list.map((d) => [d.date, d]));
@@ -23,5 +23,31 @@ describe('파트별 결과물', () => {
     expect(parts.length).toBe(1);
     expect(parts[0].filter(Boolean).length).toBe(1);
     expect(seasonParts(days, 3)).toEqual([]);
+  });
+});
+
+describe('월급날 정산', () => {
+  const settings = { salary: 3_000_000, payday: 25 } as Settings;
+  it('앱을 켠 날 수와 상관없이 설정한 월급이 그대로 들어온다', () => {
+    // 지난 월급날(11/25) 이후 앱으로 기록한 날은 이틀뿐
+    const days = toDays([
+      { ...day('2026-12-21', 1, 0), clockedOut: true, earned: 140_000 },
+      { ...day('2026-12-22', 1, 1), clockedOut: true, earned: 140_000 },
+    ] as DailyWork[]);
+    const p = paydaySummary(days, '2026-12-23', settings);
+    expect(p.salary).toBe(3_000_000);
+    expect(p.total).toBe(3_000_000);
+    expect(p.workDays).toBe(2);
+  });
+
+  it('지난 월급날 이후 야근 수당만 더하고, 그 전 야근은 뺀다', () => {
+    const days = toDays([
+      { ...day('2026-11-24', 1, 0), clockedOut: true, overtimePay: 50_000 },
+      { ...day('2026-12-02', 1, 1), clockedOut: true, overtimePay: 30_000 },
+      { ...day('2026-12-15', 1, 2), clockedOut: true, overtimePay: 20_000 },
+    ] as DailyWork[]);
+    const p = paydaySummary(days, '2026-12-23', settings);
+    expect(p.overtime).toBe(50_000);
+    expect(p.total).toBe(3_050_000);
   });
 });
