@@ -2899,3 +2899,27 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 .story-item .story-no { grid-row: 1 / 3; font-weight: 900; color: #e8504b; }
 .story-item .story-name { font-weight: 800; }
 .story-item.locked { opacity: 0.55; }
+
+/* ---------- 계절 이벤트 카드: 출석 도장 + 받은 아이템 바로 써 보기 ---------- */
+.season-soon { font-weight: 700; color: var(--ink-2); }
+.season-stamps { list-style: none; margin: 10px 0 6px; padding: 0; display: flex; gap: 6px; }
+.season-stamps li { flex: 1; aspect-ratio: 1; max-width: 42px; display: grid; place-items: center; border-radius: 50%; border: 2px dashed var(--pencil-edge, var(--line)); font-size: 0.78rem; font-weight: 800; color: var(--ink-2); background: var(--paper, var(--bg)); }
+.season-stamps li.prize { border-style: solid; font-size: 1.05rem; }
+.season-stamps li.done { border-style: solid; border-color: #d9711f; background: #ffe0b8; color: #b5560f; }
+.season-stamps li.done.prize { background: #ffcf8a; animation: season-pop 0.4s cubic-bezier(.2,1.6,.4,1); }
+@keyframes season-pop { from { transform: scale(0.6); } }
+.season-items { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.season-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; border: 2px solid var(--pencil-edge, var(--line)); background: var(--paper, var(--bg)); }
+.season-item.locked { opacity: 0.6; border-style: dashed; }
+.season-item.worn { border-color: #d9711f; background: #fff1dc; }
+.season-item-icon { font-size: 1.6rem; width: 34px; text-align: center; }
+.season-item-text { flex: 1; display: grid; line-height: 1.25; }
+.season-item-text b { font-size: 0.95rem; }
+.season-item-text small { font-size: 0.72rem; color: var(--ink-2); font-weight: 700; }
+.season-item-btn { padding: 7px 12px; border-radius: 999px; border: 2px solid var(--pen, var(--accent)); background: #ffe39a; font-weight: 900; font-size: 0.82rem; color: #2d2018; white-space: nowrap; }
+.season-item-btn.on { background: #fff; color: #b5560f; border-color: #d9711f; }
+.season-item-lock { font-size: 0.75rem; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .season-item.worn { background: color-mix(in srgb, #d9711f 22%, transparent); }
+  :root:not([data-theme='light']) .season-stamps li.done { background: color-mix(in srgb, #d9711f 35%, transparent); color: #ffd8a8; }
+}

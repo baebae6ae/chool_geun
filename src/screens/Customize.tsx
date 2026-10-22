@@ -18,7 +18,7 @@ import { playerProgress } from '../domain/engine';
 import type { AppState, Customization } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
 import { dateKey } from '../domain/date';
-import { activeSeason, daysUntilSeason, nextSeasonItem, ownedSeasonItems, seasonDays, seasonRangeText, SEASON_EVENTS } from '../domain/seasons';
+import { activeSeason, daysUntilSeason, nextSeasonItem, ownedSeasonItems, seasonDays, seasonRangeText, type SeasonItem } from '../domain/seasons';
 import { now as clockNow } from '../store';
 
 /** 기획서 15. 햄스터 커스터마이징 (진행 보상으로 해금) */
@@ -49,7 +49,7 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
         작업물 {p.completed}개 완성 · 도감 {p.collected}종 · 누적 {Math.floor(p.earned / 10000).toLocaleString('ko-KR')}만 원 — 더 모으면 새 아이템이 열려요
       </p>
 
-      <SeasonCard state={state} />
+      <SeasonCard state={state} onWear={set} />
 
       <Picker title="캐릭터" items={SPECIES} value={c.species ?? 'hamster'} isOpen={open} onPick={(species) => set({ species })} />
       <Picker title="서식지 배경 (시즌을 끝내면 열려요)" items={BACKGROUNDS} value={c.bg ?? 'default'} isOpen={open} onPick={(bg) => set({ bg })} />
@@ -66,8 +66,8 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
           />
         </div>
       </section>
-      <Picker title="머리 위 (사무용품)" items={HATS} value={c.hat} isOpen={open} onPick={(hat) => set({ hat })} />
-      <Picker title="몸 (업무복·사무용품)" items={OUTFITS} value={c.outfit} isOpen={open} onPick={(outfit) => set({ outfit })} />
+      <Picker title="머리 위 (사무용품 · 이벤트)" items={HATS} value={c.hat} isOpen={open} onPick={(hat) => set({ hat })} />
+      <Picker title="몸 (업무복 · 사무용품 · 이벤트)" items={OUTFITS} value={c.outfit} isOpen={open} onPick={(outfit) => set({ outfit })} />
       <Picker title="손에 든 것" items={HANDS} value={c.hand} isOpen={open} onPick={(hand) => set({ hand })} />
 
       <section className="card">
@@ -93,53 +93,95 @@ export function Customize({ state, onChange }: { state: AppState; onChange: (c: 
   );
 }
 
-/** 계절 이벤트: 기간 중 앱을 켠 날이 쌓이면 한정 꾸미기 아이템이 열린다 */
-function SeasonCard({ state }: { state: AppState }) {
+/** 계절 이벤트: 기간 중 앱을 켠 날이 쌓이면 한정 꾸미기 아이템이 열린다.
+ * 받은 것과 지금 쓰고 있는 것을 구분해서 보여 주고, 여기서 바로 써 볼 수 있다. */
+function SeasonCard({ state, onWear }: { state: AppState; onWear: (patch: Partial<Customization>) => void }) {
   const today = dateKey(clockNow());
   const now = activeSeason(today);
   const soon = daysUntilSeason(today);
   const owned = ownedSeasonItems(state);
   const days = seasonDays(state);
-  if (!now && !(soon && soon.days <= 21) && owned.length === 0) return null;
+  const c = state.custom;
+  // 지금 이벤트(또는 곧 시작할 이벤트)의 아이템 + 지난 이벤트에서 받아 둔 아이템
+  const event = now?.event ?? (soon && soon.days <= 21 ? soon.event : null);
+  const past = owned.filter((i) => i.event !== event?.id);
+  if (!event && past.length === 0) return null;
+
+  const worn = (i: SeasonItem) => (i.kind === 'hat' ? c.hat : i.kind === 'outfit' ? c.outfit : c.deco) === i.id;
+  const toggle = (i: SeasonItem) => {
+    const id = worn(i) ? 'none' : i.id;
+    onWear(i.kind === 'hat' ? { hat: id as Customization['hat'] } : i.kind === 'outfit' ? { outfit: id as Customization['outfit'] } : { deco: id as Customization['deco'] });
+  };
+  const row = (i: SeasonItem, have: boolean, left: number) => {
+    const on = have && worn(i);
+    return (
+      <li key={i.id} className={`season-item ${have ? 'have' : 'locked'} ${on ? 'worn' : ''}`}>
+        <span className="season-item-icon" aria-hidden>
+          {have ? i.emoji : '🔒'}
+        </span>
+        <span className="season-item-text">
+          <b>{i.label}</b>
+          <small>{KIND_LABEL[i.kind]}</small>
+        </span>
+        {have ? (
+          <button className={`season-item-btn ${on ? 'on' : ''}`} onClick={() => toggle(i)} aria-pressed={on}>
+            {on ? (i.kind === 'deco' ? '놓는 중 ✓' : '착용 중 ✓') : i.kind === 'deco' ? '책상에 놓기' : '써 보기'}
+          </button>
+        ) : (
+          <span className="season-item-lock">{now ? `${left}일 더 켜면` : `${i.days}일째`}</span>
+        )}
+      </li>
+    );
+  };
+
   return (
     <section className="card season-card">
-      {now ? (
+      {event && (
         <>
           <div className="card-label">
-            {now.event.emoji} {now.event.name} 이벤트 · {seasonRangeText(now.event)}
+            {event.emoji} {event.name} 이벤트 · {seasonRangeText(event)}
+            {!now && soon && <span className="season-soon"> · {soon.days}일 뒤 시작</span>}
           </div>
+          {/* 출석 도장: 받는 날에는 아이템 그림 */}
+          <ol className="season-stamps" aria-label={`이벤트 기간에 ${now ? days[event.id] : 0}일 접속`}>
+            {Array.from({ length: Math.max(...event.items.map((i) => i.days)) }, (_, k) => {
+              const d = k + 1;
+              const prize = event.items.find((i) => i.days === d);
+              const done = !!now && days[event.id] >= d;
+              return (
+                <li key={d} className={`${done ? 'done' : ''} ${prize ? 'prize' : ''}`}>
+                  {prize ? (done ? prize.emoji : '🎁') : done ? '🐾' : d}
+                </li>
+              );
+            })}
+          </ol>
           <p className="muted small">
-            이 기간에 앱을 켠 날이 쌓이면 한정 아이템이 열려요. 지금까지 {days[now.event.id]}일 접속했어요.
-            {(() => {
-              const next = nextSeasonItem(state, now.event.id);
-              return next ? ` 다음 아이템 "${next.item.label}"까지 ${next.remaining}일!` : ' 한정 아이템을 모두 모았어요!';
-            })()}
+            {now
+              ? (() => {
+                  const next = nextSeasonItem(state, event.id);
+                  return `이 기간에 앱을 켠 날 ${days[event.id]}일째. ${next ? `${next.remaining}일 더 켜면 "${next.item.label}"!` : '한정 아이템을 모두 모았어요!'}`;
+                })()
+              : '이 기간에 앱을 켠 날이 쌓이면 한정 아이템을 받아요.'}
           </p>
+          <ul className="season-items">
+            {event.items.map((i) => {
+              const have = owned.some((o) => o.id === i.id);
+              return row(i, have, i.days - (now ? days[event.id] : 0));
+            })}
+          </ul>
         </>
-      ) : soon && soon.days <= 21 ? (
-        <>
-          <div className="card-label">
-            {soon.event.emoji} {soon.event.name} 이벤트가 {soon.days}일 뒤에 시작해요
-          </div>
-          <p className="muted small">{seasonRangeText(soon.event)} 동안 앱을 켜면 한정 꾸미기 아이템을 받을 수 있어요.</p>
-        </>
-      ) : (
-        <div className="card-label">🎁 받은 한정 아이템 {owned.length}개 — 아래 목록에서 골라 입어 보세요</div>
       )}
-      <div className="chips">
-        {SEASON_EVENTS.flatMap((e) => e.items).map((i) => {
-          const got = owned.some((o) => o.id === i.id);
-          return (
-            <span key={i.id} className={`chip ${got ? 'on' : 'locked'}`} aria-label={`${i.label} ${got ? '받음' : '아직'}`}>
-              {got ? '' : '🔒 '}
-              {i.emoji} {i.label}
-            </span>
-          );
-        })}
-      </div>
+      {past.length > 0 && (
+        <>
+          <div className="card-label sub">🎁 지난 이벤트에서 받은 아이템</div>
+          <ul className="season-items">{past.map((i) => row(i, true, 0))}</ul>
+        </>
+      )}
     </section>
   );
 }
+
+const KIND_LABEL: Record<SeasonItem['kind'], string> = { hat: '머리 위', outfit: '몸', deco: '책상 장식품' };
 
 function Picker<T extends string>({
   title,

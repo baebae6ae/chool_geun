@@ -22,7 +22,7 @@ import { isHolidayEvent } from './domain/gacha';
 import { installBackButton, useBackHandler } from './backStack';
 import { installNotifDebug, syncNotifications } from './notifySchedule';
 import { grantAchievements, newAchievements } from './domain/achievements';
-import { visitSeason } from './domain/seasons';
+import { ownedSeasonItems, SEASON_BY_ID, visitSeason } from './domain/seasons';
 import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
 import { refreshStories } from './domain/theater';
 
@@ -132,16 +132,27 @@ export function App() {
   // 계절 이벤트 기간에 앱을 켠 날 기록 + 새 업적 달성 확인
   const dayKey = dateKey(now);
   const hasSettings = !!state.settings;
+  // 알림은 줄을 서서 하나씩 뜬다 (업적·한정 아이템·히든 캐릭터가 한꺼번에 와도 덮어쓰지 않게)
+  const [toasts, setToasts] = useState<{ key: number; text: string }[]>([]);
+  const toast = toasts[0] ?? null;
+  const pushToast = (text: string) => setToasts((q) => [...q, { key: Date.now() + Math.random(), text }]);
   useEffect(() => {
-    if (hasSettings) setState((s) => visitSeason(s, dayKey));
+    if (!hasSettings) return;
+    const before = ownedSeasonItems(getState()).map((i) => i.id);
+    setState((s) => visitSeason(s, dayKey));
+    // 오늘 켜서 새로 받은 한정 아이템이 있으면 알려 준다 (화면이 다 뜬 뒤에, 다른 알림 다음 차례로)
+    const got = ownedSeasonItems(getState()).filter((i) => !before.includes(i.id));
+    if (got.length) {
+      const i = got[got.length - 1];
+      setTimeout(() => pushToast(`${i.emoji} ${SEASON_BY_ID[i.event].name} 한정 「${i.label}」 받았어요! 꾸미기에서 ${i.kind === 'deco' ? '놓아' : '써'} 보세요`), 1200);
+    }
   }, [dayKey, hasSettings]);
-  const [toast, setToast] = useState<{ key: number; text: string } | null>(null);
   useEffect(() => {
     if (!state.settings) return;
     const fresh = newAchievements(state);
     if (!fresh.length) return;
     setState((s) => grantAchievements(s, fresh.map((x) => x.id), clockNow()));
-    setToast({ key: Date.now(), text: fresh.length > 2 ? `🏅 업적 ${fresh.length}개를 한꺼번에 달성했어요!` : `🏅 업적 달성! ${fresh.map((x) => x.name).join(' · ')}` });
+    pushToast(fresh.length > 2 ? `🏅 업적 ${fresh.length}개를 한꺼번에 달성했어요!` : `🏅 업적 달성! ${fresh.map((x) => x.name).join(' · ')}`);
   }, [state]);
   // 썰 극장: 새 썰은 앱 업데이트 없이 인터넷에서 받아온다 (받으면 화면을 다시 그린다)
   const [, setStoriesTick] = useState(0);
@@ -149,17 +160,17 @@ export function App() {
     refreshStories().then((changed) => changed && setStoriesTick((n) => n + 1));
   }, []);
 
-  // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (업적 알림과 겹치지 않게 조금 뒤에)
+  // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (다른 알림 다음 차례로)
   const lopReady = !!state.settings && !state.revealed?.lop && completedCount(state.days) >= LOP_DAYS;
   useEffect(() => {
     if (!lopReady) return;
     setState((s) => ({ ...s, revealed: { ...s.revealed, lop: clockNow() } }));
     // 기록하자마자 lopReady가 false로 바뀌므로 타이머는 정리하지 않는다
-    setTimeout(() => setToast({ key: Date.now(), text: '🐇 히든 캐릭터 롭이어가 열렸어요! 꾸미기에서 바꿔 보세요' }), 4200);
+    setTimeout(() => pushToast('🐇 히든 캐릭터 롭이어가 열렸어요! 꾸미기에서 바꿔 보세요'), 1200);
   }, [lopReady]);
   useEffect(() => {
     if (!toast) return;
-    const id = setTimeout(() => setToast(null), 3700);
+    const id = setTimeout(() => setToasts((q) => q.slice(1)), 3700);
     return () => clearTimeout(id);
   }, [toast]);
 
