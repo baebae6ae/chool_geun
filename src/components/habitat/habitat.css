@@ -145,7 +145,8 @@
 /* 완성한 작업물: 벽·바닥 곳곳에 놓인다 */
 .today-item {
   position: absolute;
-  top: 19%;
+  /* 쳇바퀴(바닥에서 14px + 높이 108px) 바로 위 */
+  bottom: 128px;
   z-index: 0;
   transform: translateX(-50%);
   display: grid;
