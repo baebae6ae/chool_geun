@@ -13,6 +13,13 @@ export interface NewsItem {
 
 export const NEWS: { version: number; items: NewsItem[] }[] = [
   {
+    version: 5,
+    items: [
+      { icon: '🐉', text: '회사 다 부숴버리고 싶을 땐 홈의 「드래곤 변신하기」! 할 때마다 다른 장면과 엔딩' },
+      { icon: '🎃', text: '이벤트 아이템은 꾸미기에서 바로 「써 보기」, 받는 날엔 알림도 떠요' },
+    ],
+  },
+  {
     version: 4,
     items: [
       { icon: '🍿', text: '썰 극장에 새 썰이 잔뜩 들어왔어요 (총 33편)' },
