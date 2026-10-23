@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ATTACKS, pickAttacks } from './dragon';
+import { ATTACKS, ENDINGS, planDragon, pickAttacks, RAGE_LINES } from './dragon';
 
 describe('드래곤 변신', () => {
   it('부수기 장면은 겹치지 않게 3개를 고른다', () => {
@@ -18,5 +18,18 @@ describe('드래곤 변신', () => {
     }
     expect(seen.size).toBe(ATTACKS.length);
     expect(combos.size).toBeGreaterThan(10);
+  });
+
+  it('분노 원인·주문·엔딩도 할 때마다 랜덤이고, 여러 번 하면 엔딩 5종이 다 나온다', () => {
+    const endings = new Set<string>();
+    const rages = new Set<string>();
+    for (let i = 0; i < 80; i++) {
+      const p = planDragon(`p-${i}`);
+      expect(p.spell.length).toBeGreaterThan(0);
+      endings.add(p.ending);
+      rages.add(p.rage.text);
+    }
+    expect(endings.size).toBe(ENDINGS.length);
+    expect(rages.size).toBeGreaterThan(RAGE_LINES.length / 2);
   });
 });

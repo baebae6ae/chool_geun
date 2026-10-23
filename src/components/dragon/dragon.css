@@ -47,11 +47,11 @@
 @keyframes dr-impact { 0% { filter: invert(1) grayscale(1) contrast(1.8); } }
 
 /* 판타지 글씨: 금빛 세리프 */
-.dragon .dr-sfx { position: absolute; left: 0; right: 0; top: 13%; margin: 0; text-align: center; font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: clamp(2.2rem, 11vw, 3.6rem); letter-spacing: -0.02em; line-height: 1.1; color: #ffe9a8; -webkit-text-stroke: 2px #3a0d00; paint-order: stroke fill; text-shadow: 0 0 18px rgba(255, 120, 30, 0.9), 0 4px 0 #3a0d00; opacity: 0; transform: rotate(-4deg) scale(2.2); }
+.dragon .dr-sfx { position: absolute; left: 0; right: 0; top: 19%; margin: 0; text-align: center; font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: clamp(2.2rem, 11vw, 3.6rem); letter-spacing: -0.02em; line-height: 1.1; color: #ffe9a8; -webkit-text-stroke: 2px #3a0d00; paint-order: stroke fill; text-shadow: 0 0 18px rgba(255, 120, 30, 0.9), 0 4px 0 #3a0d00; opacity: 0; transform: rotate(-4deg) scale(2.2); }
 .dragon .dr-sfx.on { animation: dr-sfx 0.35s cubic-bezier(.2,1.5,.4,1) forwards, dr-sfxboil 0.14s steps(2) 0.35s infinite; }
 @keyframes dr-sfx { to { opacity: 1; transform: rotate(-4deg) scale(1); } }
 @keyframes dr-sfxboil { 50% { translate: 2px -2px; } }
-.dragon .dr-caption { position: absolute; left: 0; right: 0; bottom: calc(9% + env(safe-area-inset-bottom)); margin: 0; text-align: center; font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.06em; color: #fff; text-shadow: 0 2px 12px #000, 0 0 2px #000; opacity: 0; animation: dr-caption 0.7s 0.9s ease-out forwards; }
+.dragon .dr-caption { position: absolute; left: 12px; right: 12px; bottom: calc(8.5vh + 14px + env(safe-area-inset-bottom)); word-break: keep-all; margin: 0; text-align: center; font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.06em; color: #fff; text-shadow: 0 2px 12px #000, 0 0 2px #000; opacity: 0; animation: dr-caption 0.7s 0.9s ease-out forwards; }
 .dragon .dr-caption::before, .dragon .dr-caption::after { content: '—'; color: #ffb347; margin: 0 10px; }
 @keyframes dr-caption { from { opacity: 0; letter-spacing: 0.5em; } to { opacity: 1; letter-spacing: 0.06em; } }
 
@@ -111,6 +111,70 @@
 .dragon .dr-end-sub { margin: 0 0 12px; font-weight: 800; opacity: 0.7; }
 .dragon .dr-end .btn { width: min(280px, 80vw); }
 
+/* ---------- 열받는 메시지 · 분노 게이지 · 주문 ---------- */
+.dragon .dr-noti { position: absolute; left: 14px; right: 14px; top: calc(14px + env(safe-area-inset-top)); display: grid; gap: 4px; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.95); color: #2d2018; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); border: 2px solid #2d2018; animation: dr-noti 0.45s cubic-bezier(.2,1.3,.4,1) backwards; }
+.dragon .dr-noti small { font-size: 0.72rem; font-weight: 800; opacity: 0.65; }
+.dragon .dr-noti b { font-size: 1rem; line-height: 1.4; word-break: keep-all; }
+@keyframes dr-noti { from { transform: translateY(-140%); } }
+.dragon .dr-twitch { animation: dr-boil 0.1s steps(2) 4; }
+.dragon .dr-anger { position: absolute; left: 62%; bottom: 52%; font-size: 2.2rem; animation: dr-pop 0.25s cubic-bezier(.2,1.6,.4,1), dr-throb 0.5s 0.25s ease-in-out infinite; }
+@keyframes dr-throb { 50% { transform: scale(1.25); } }
+.dragon .dr-gauge { position: absolute; left: 16px; right: 16px; top: calc(16% + env(safe-area-inset-top)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; color: #2d2018; font-weight: 900; }
+.dragon .dr-gauge span { font-size: 0.85rem; }
+.dragon .dr-gauge b { min-width: 3.4em; text-align: right; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.dragon .dr-gauge-bar { height: 18px; border-radius: 9px; border: 2.5px solid #2d2018; background: #fff8e8; overflow: hidden; }
+.dragon .dr-gauge-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb347, #e8504b); }
+.dragon .dr-gauge.over b { color: #c0322d; font-size: 1.8rem; animation: dr-boil 0.07s steps(2) infinite; }
+.dragon .dr-gauge.over .dr-gauge-bar { animation: dr-gaugeglow 0.25s steps(2) infinite; }
+.dragon .dr-gauge.over .dr-gauge-bar i { background: repeating-linear-gradient(-45deg, #e8504b 0 10px, #ff7a1a 10px 20px); }
+@keyframes dr-gaugeglow { 50% { box-shadow: 0 0 16px #ff3b1a; border-color: #c0322d; } }
+.dragon .dr-spell { position: absolute; left: 12px; right: 12px; top: 26%; margin: 0; text-align: center; font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 1.45rem; line-height: 1.35; word-break: keep-all; color: #ffe9a8; -webkit-text-stroke: 1.5px #3a0d00; paint-order: stroke fill; text-shadow: 0 0 14px #ff3b1a; opacity: 0; animation: dr-spell 0.6s 1.6s ease-out forwards; }
+@keyframes dr-spell { from { opacity: 0; letter-spacing: 0.4em; filter: blur(4px); } to { opacity: 1; letter-spacing: 0; filter: blur(0); } }
+
+/* ---------- 판타지: 영화 같은 검은 띠 · 체력바 · 데미지 · 칭호 ---------- */
+.dragon .dr-bar { position: absolute; left: 0; right: 0; height: 8.5vh; background: #000; z-index: 20; pointer-events: none; animation: dr-barin 0.35s ease-out; }
+.dragon .dr-bar.top { top: 0; }
+.dragon .dr-bar.bottom { bottom: 0; }
+@keyframes dr-barin { from { height: 0; } }
+.dragon .dr-hp { position: absolute; left: 22px; right: 22px; top: calc(8.5vh + 10px); z-index: 21; display: grid; gap: 3px; text-align: center; }
+.dragon .dr-hp span { font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 0.82rem; color: #ffe9a8; text-shadow: 0 1px 4px #000; letter-spacing: 0.08em; }
+.dragon .dr-hp-bar { position: relative; height: 12px; border: 2px solid #c9934a; border-radius: 3px; background: rgba(0, 0, 0, 0.6); overflow: hidden; }
+.dragon .dr-hp-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#ff5a4a, #b3201a); transition: width 0.3s ease-out; }
+.dragon .dr-hp-bar i.lag { background: #ffd27a; transition: none; }
+.dragon .dr-hp.dead span::after { content: ' · DEFEATED'; color: #ff8f86; }
+.dragon .dr-title { position: absolute; left: 0; right: 0; bottom: calc(8.5vh + 40px); z-index: 21; display: grid; gap: 4px; text-align: center; opacity: 0; animation: dr-caption 1s 0.5s ease-out forwards; }
+.dragon .dr-title b { font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 2rem; color: #ffe9a8; -webkit-text-stroke: 1px #3a0d00; paint-order: stroke fill; text-shadow: 0 0 20px rgba(255, 120, 30, 0.9), 0 3px 0 #3a0d00; }
+.dragon .dr-title small { font-family: 'Noto Serif KR', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: #ffcf9a; }
+.dragon .dr-damage { position: absolute; left: 50%; top: 42%; z-index: 22; margin: 0; translate: -50% 0; white-space: nowrap; font-weight: 900; font-size: 1.8rem; font-style: italic; color: #fff; -webkit-text-stroke: 2px #b3201a; paint-order: stroke fill; text-shadow: 0 0 12px #ff3b1a; animation: dr-dmg 1.2s ease-out forwards; }
+@keyframes dr-dmg { 0% { transform: scale(2.4); opacity: 0; } 15% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
+.dragon .dr-combo { position: absolute; right: 14px; top: calc(8.5vh + 52px); z-index: 22; margin: 0; font-weight: 900; font-style: italic; font-size: 1.25rem; color: #ffe066; -webkit-text-stroke: 1.5px #3a0d00; paint-order: stroke fill; rotate: 6deg; animation: dr-pop 0.3s cubic-bezier(.2,1.6,.4,1); }
+.dragon .dr-systems { position: absolute; left: 0; right: 0; bottom: calc(8.5vh + 22px); z-index: 22; display: grid; gap: 6px; justify-items: center; }
+.dragon .dr-system { width: fit-content; max-width: 86%; margin: 0; padding: 6px 12px; border: 1.5px solid #c9934a; border-radius: 4px; background: rgba(10, 16, 40, 0.82); color: #e8f0ff; font-weight: 800; font-size: 0.85rem; box-shadow: 0 0 10px rgba(120, 160, 255, 0.4); animation: dr-sys 0.35s ease-out; }
+@keyframes dr-sys { from { opacity: 0; transform: translateX(-20px); } }
+.dragon .dr-win { position: absolute; left: 0; right: 0; top: 36%; z-index: 22; display: grid; gap: 10px; text-align: center; }
+.dragon .dr-win b { font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif; font-weight: 900; font-size: 3rem; color: #ffe066; -webkit-text-stroke: 2px #3a0d00; paint-order: stroke fill; text-shadow: 0 0 24px #ff9a1a, 0 4px 0 #3a0d00; animation: dr-sfx 0.4s cubic-bezier(.2,1.5,.4,1) both; transform: rotate(-4deg) scale(2.2); }
+.dragon .dr-win p { margin: 0 auto; padding: 8px 14px; border: 1.5px solid #c9934a; border-radius: 4px; background: rgba(10, 16, 40, 0.85); color: #fff3c4; font-weight: 900; animation: dr-sys 0.4s 0.6s ease-out backwards; }
+.dragon .dr-victory .dr-img { filter: brightness(0.55) saturate(1.2); }
+
+/* ---------- 현실 복귀 엔딩 ---------- */
+.dragon .dr-say { z-index: 5; }
+.dragon .dr-note { position: absolute; left: 12px; right: 12px; top: -62%; margin: 0; text-align: center; font-weight: 900; color: #2d2018; font-size: 1.45rem; line-height: 1.4; word-break: keep-all; animation: dr-pop 0.35s cubic-bezier(.2,1.6,.4,1); }
+.dragon .dr-monitor { position: absolute; left: 50%; bottom: 66%; translate: -50% 0; width: 66%; padding: 6px; border-radius: 8px; background: #2d2f3a; border: 2.5px solid #1b1c24; }
+.dragon .dr-monitor-screen { padding: 6px 8px; border-radius: 4px; background: #fff; color: #2d2018; min-height: 56px; }
+.dragon .dr-monitor-screen small { display: block; font-size: 0.6rem; font-weight: 800; opacity: 0.6; border-bottom: 1px solid #ddd; margin-bottom: 4px; }
+.dragon .dr-typed { margin: 0; font-weight: 900; font-size: 0.95rem; white-space: nowrap; overflow: hidden; width: 0; animation: dr-type 1.5s steps(14) forwards; }
+@keyframes dr-type { to { width: 100%; } }
+.dragon .dr-cup { position: absolute; left: 66%; bottom: 14%; width: 22%; opacity: 0; }
+.dragon .dr-cup.on { opacity: 1; animation: dr-crunch 0.35s cubic-bezier(.2,1.6,.4,1); }
+@keyframes dr-crunch { 0% { transform: scale(1.4, 0.6); } 100% { transform: scale(1); } }
+.dragon .dr-loop { position: absolute; inset: 0; }
+.dragon .dr-fact { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; background: #fff; color: #2d2018; text-align: center; animation: dr-unwhite 0.8s ease-out; }
+.dragon .dr-fact-label { margin: 0; font-weight: 900; font-size: 1rem; opacity: 0.6; }
+.dragon .dr-fact-text { margin: 0; font-weight: 900; font-size: 1.6rem; line-height: 1.35; word-break: keep-all; animation: dr-pop 0.45s 0.4s cubic-bezier(.2,1.6,.4,1) backwards; }
+.dragon .dr-fact-me { width: 36%; max-width: 160px; margin-top: 18px; }
+.dragon .dr-fact-me .hs { width: 100%; height: auto; }
+.dragon .dr-end.loop .dr-end-title { color: #c0322d; }
+
 @media (prefers-reduced-motion: reduce) {
-  .dragon .dr-rage, .dragon .dr-boil, .dragon .dr-lines, .dragon .dr-sfx.on, .dragon .dr-cute-text { animation-iteration-count: 1; }
+  .dragon .dr-rage, .dragon .dr-boil, .dragon .dr-lines, .dragon .dr-sfx.on, .dragon .dr-cute-text, .dragon .dr-gauge.over b { animation-iteration-count: 1; }
 }

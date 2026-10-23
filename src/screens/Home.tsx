@@ -259,8 +259,16 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
 
   // 썰 극장: 퇴근하면 오늘의 썰이 열린다
   const [theater, setTheater] = useState<Story | null>(null);
-  // 드래곤 변신: 스트레스 풀고 싶을 때 아무 때나
+  // 드래곤 변신: 스트레스 풀고 싶을 때 아무 때나. 현실 복귀 엔딩 중 하나는 진짜 남은 시간으로 팩트 폭격
   const [dragon, setDragon] = useState(false);
+  const reality = (() => {
+    if (day && !day.clockedOut && bounds && now < bounds.end) {
+      const m = Math.ceil((bounds.end - now) / 60_000);
+      return `퇴근까지 ${Math.floor(m / 60)}시간 ${m % 60}분 남았습니다`;
+    }
+    if (!day) return '쉬는 날은 생각보다 빨리 끝납니다';
+    return '내일도 출근입니다';
+  })();
   const openStory = (st: Story) => {
     setTheater(st);
     onState((s) => markStorySeen(s, key, st.id, clockNow()));
@@ -539,7 +547,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         )}
         {dragon && (
           <Suspense fallback={null}>
-            <Dragon me={custom} onClose={() => setDragon(false)} />
+            <Dragon me={custom} reality={reality} onClose={() => setDragon(false)} />
           </Suspense>
         )}
 

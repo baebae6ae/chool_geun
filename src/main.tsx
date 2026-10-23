@@ -8,15 +8,17 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 const Gallery = lazy(() => import('./dev/Gallery').then((m) => ({ default: m.Gallery })));
 const Diag = lazy(() => import('./dev/Diag').then((m) => ({ default: m.Diag })));
 const TheaterDev = lazy(() => import('./dev/TheaterDev').then((m) => ({ default: m.TheaterDev })));
+const DragonDev = lazy(() => import('./dev/DragonDev').then((m) => ({ default: m.DragonDev })));
 const params = new URLSearchParams(location.search);
 const isGallery = params.has('gallery');
 const isDiag = params.has('diag');
 const isTheater = params.has('theater');
+const isDragon = params.has('dragon');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isGallery || isDiag || isTheater ? (
-      <Suspense>{isDiag ? <Diag /> : isTheater ? <TheaterDev /> : <Gallery />}</Suspense>
+    {isGallery || isDiag || isTheater || isDragon ? (
+      <Suspense>{isDiag ? <Diag /> : isTheater ? <TheaterDev /> : isDragon ? <DragonDev /> : <Gallery />}</Suspense>
     ) : (
       <ErrorBoundary>
         <App />

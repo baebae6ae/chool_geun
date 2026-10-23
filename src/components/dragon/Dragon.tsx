@@ -1,16 +1,16 @@
 /**
  * 드래곤 변신: 화가 쌓이면 캐릭터가 정통 판타지 드래곤으로 변해 회사를 부순다… 고 상상한다.
- * 1) 귀여운 사무실에서 부들부들 → 화면이 쩍 갈라짐
- * 2) 판타지 일러스트로 그림체 전환: 눈 번쩍 → 등장 포효 → 랜덤 부수기 3장면
- * 3) 하얗게 번쩍 → 다시 귀여운 사무실, 상상이었다
- * 장면마다 카메라가 움직이고(줌·팬), 불길·잔해·충격파·집중선 효과를 얹는다. 화면을 누르면 다음 장면으로.
+ * 1) 열받는 메시지 → 분노 게이지 999% → 변신 주문 → 화면이 쩍 갈라짐
+ * 2) 판타지 일러스트로 그림체 전환 (영화 같은 검은 띠): 타이틀 → 등장 포효와 칭호 → 본사 체력바를 깎는 랜덤 부수기 3장면 → 본사 처치
+ * 3) 하얗게 번쩍 → 다시 귀여운 사무실, 랜덤 엔딩 5종 중 하나로 상상이었음을 보여 준다
+ * 화면을 누르면 다음 장면으로.
  */
 import { useEffect, useRef, useState } from 'react';
 import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
 import { Backdrop } from '../theater/Backdrops';
 import { castSpecies } from '../../domain/theater';
 import { DEFAULT_CUSTOM } from '../../domain/customization';
-import { pickAttacks, type Attack, type AttackId } from '../../domain/dragon';
+import { planDragon, type Attack, type AttackId, type DragonPlan, type EndingId, type RageLine } from '../../domain/dragon';
 import type { Customization, HamsterColor } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
 import { buzz } from '../../haptics';
@@ -39,42 +39,61 @@ interface Shot {
   caption?: string;
   /** 효과가 터지는 곳 (화면 %) */
   at?: [number, number];
+  /** 본사 체력: 시작 → 맞은 뒤 (0~1). 없으면 체력바를 안 그린다 */
+  hp?: [number, number];
+  damage?: string;
+  combo?: number;
+  /** 타이틀 · 시스템 메시지 */
+  title?: boolean;
+  system?: string[];
 }
 
 const ATTACK_SHOT: Record<AttackId, Omit<Shot, 'sfx' | 'caption'>> = {
-  fire: { img: fire, ms: 2600, from: 'scale(1.25) translate(6%, 4%)', to: 'scale(1.1) translate(-5%, -2%)', hit: 300, fx: ['fire', 'embers', 'lines'], at: [70, 50] },
-  claw: { img: claw, ms: 2400, from: 'scale(1.35) translate(0, -8%)', to: 'scale(1.12) translate(0, 2%)', hit: 450, fx: ['debris', 'embers'], at: [45, 78] },
-  crush: { img: crush, ms: 2400, from: 'scale(1.1)', to: 'scale(1.45) translate(-2%, -6%)', hit: 600, fx: ['debris', 'embers'], at: [52, 72] },
-  tail: { img: tail, ms: 2400, from: 'scale(1.3) translate(-12%, 0)', to: 'scale(1.3) translate(10%, 0)', hit: 500, fx: ['debris', 'lines'], at: [40, 70] },
-  roar: { img: roar, ms: 2600, from: 'scale(1.05)', to: 'scale(1.3)', hit: 350, fx: ['rings', 'glass', 'embers'], at: [50, 30] },
-  dive: { img: dive, ms: 2400, from: 'scale(1.5) translate(0, 10%)', to: 'scale(1.05) translate(0, -4%)', hit: 900, fx: ['lines', 'debris', 'embers'], at: [50, 80] },
+  fire: { img: fire, ms: 2600, from: 'scale(1.25) translate(6%, 4%)', to: 'scale(1.1) translate(-5%, -2%)', hit: 300, fx: ['fire', 'embers', 'lines'], at: [70, 55] },
+  claw: { img: claw, ms: 2600, from: 'scale(1.35) translate(0, -8%)', to: 'scale(1.12) translate(0, 2%)', hit: 450, fx: ['debris', 'embers'], at: [45, 75] },
+  crush: { img: crush, ms: 2600, from: 'scale(1.1)', to: 'scale(1.45) translate(-2%, -6%)', hit: 600, fx: ['debris', 'embers'], at: [52, 70] },
+  tail: { img: tail, ms: 2600, from: 'scale(1.3) translate(-12%, 0)', to: 'scale(1.3) translate(10%, 0)', hit: 500, fx: ['debris', 'lines'], at: [40, 68] },
+  roar: { img: roar, ms: 2600, from: 'scale(1.05)', to: 'scale(1.3)', hit: 350, fx: ['rings', 'glass', 'embers'], at: [50, 35] },
+  dive: { img: dive, ms: 2600, from: 'scale(1.5) translate(0, 10%)', to: 'scale(1.05) translate(0, -4%)', hit: 900, fx: ['lines', 'debris', 'embers'], at: [50, 75] },
 };
+const IMG: Record<AttackId, string> = { fire, claw, crush, tail, roar, dive };
 
-const INTRO: Shot[] = [
-  { img: face, ms: 1800, from: 'scale(1.05)', to: 'scale(1.3) translate(4%, 6%)', fx: ['flare', 'embers'], at: [42, 34] },
-  { img: rise, ms: 2600, from: 'scale(1.3) translate(0, 8%)', to: 'scale(1.08) translate(0, 0)', hit: 400, fx: ['rings', 'embers'], sfx: '크와아아앙!!!', at: [55, 32] },
-];
+type Beat =
+  | { kind: 'trigger' | 'rage' | 'shatter' | 'white' | 'dream' | 'ending'; ms: number }
+  | { kind: 'shot'; shot: Shot }
+  | { kind: 'victory'; ms: number; img: string }
+  | { kind: 'end' };
 
-type Beat = { kind: 'rage'; ms: number } | { kind: 'shatter'; ms: number } | { kind: 'shot'; shot: Shot } | { kind: 'white'; ms: number } | { kind: 'dream'; ms: number } | { kind: 'boss'; ms: number } | { kind: 'end' };
-
-function plan(attacks: Attack[]): Beat[] {
+function beatsOf(p: DragonPlan): Beat[] {
+  const n = p.attacks.length;
   return [
-    { kind: 'rage', ms: 2200 },
+    { kind: 'trigger', ms: 2800 },
+    { kind: 'rage', ms: 3400 },
     { kind: 'shatter', ms: 650 },
-    ...INTRO.map((shot) => ({ kind: 'shot' as const, shot })),
-    ...attacks.map((a) => ({ kind: 'shot' as const, shot: { ...ATTACK_SHOT[a.id], sfx: a.sfx, caption: a.caption } })),
+    { kind: 'shot', shot: { img: face, ms: 2600, from: 'scale(1.05)', to: 'scale(1.3) translate(4%, 6%)', fx: ['flare', 'embers'], at: [42, 34], title: true } },
+    {
+      kind: 'shot',
+      shot: { img: rise, ms: 3000, from: 'scale(1.3) translate(0, 8%)', to: 'scale(1.08)', hit: 400, fx: ['rings', 'embers'], sfx: '크와아아앙!!!', at: [55, 32], hp: [1, 1], system: ['[칭호 획득] 사무실의 재앙', '직급 변경: 대리 → 고대 흑룡'] },
+    },
+    ...p.attacks.map((a: Attack, k) => ({
+      kind: 'shot' as const,
+      shot: { ...ATTACK_SHOT[a.id], sfx: a.sfx, caption: a.caption, damage: a.damage, combo: k + 1, hp: [1 - k / n, 1 - (k + 1) / n] as [number, number] },
+    })),
+    { kind: 'victory', ms: 2800, img: IMG[p.attacks[n - 1].id] },
     { kind: 'white', ms: 900 },
-    { kind: 'dream', ms: 2600 },
-    { kind: 'boss', ms: 3000 },
+    { kind: 'dream', ms: 1900 },
+    { kind: 'ending', ms: p.ending === 'loop' ? 2600 : 3400 },
     { kind: 'end' },
   ];
 }
 
 const msOf = (b: Beat) => (b.kind === 'shot' ? b.shot.ms : b.kind === 'end' ? 0 : b.ms);
+const FANTASY = new Set(['shot', 'victory']);
 
-export function Dragon({ me, onClose }: { me: Customization; onClose: () => void }) {
+export function Dragon({ me, reality, seed, onClose }: { me: Customization; reality: string; seed?: string; onClose: () => void }) {
   const [run, setRun] = useState(0);
-  const [beats, setBeats] = useState(() => plan(pickAttacks(`${Date.now()}`)));
+  const [plan, setPlan] = useState(() => planDragon(seed ?? `${Date.now()}`));
+  const [beats, setBeats] = useState(() => beatsOf(plan));
   const [i, setI] = useState(0);
   useBackHandler(true, onClose);
   const beat = beats[i];
@@ -89,31 +108,43 @@ export function Dragon({ me, onClose }: { me: Customization; onClose: () => void
 
   const next = () => beat.kind !== 'end' && setI((n) => Math.min(n + 1, beats.length - 1));
   const again = () => {
-    setBeats(plan(pickAttacks(`${Date.now()}:${run}`)));
+    const p = planDragon(`${Date.now()}:${run}`);
+    setPlan(p);
+    setBeats(beatsOf(p));
     setRun((n) => n + 1);
     setI(0);
   };
+  const k = `${run}-${i}`;
+  const loop = plan.ending === 'loop';
 
   return (
     <div className="dragon" role="dialog" aria-modal="true" aria-label="드래곤 변신">
       <div className="dr-screen" onClick={next}>
-        {beat.kind === 'rage' && <Rage key={`${run}-${i}`} me={me} />}
-        {beat.kind === 'shatter' && <Shatter key={`${run}-${i}`} me={me} />}
-        {beat.kind === 'shot' && <ShotView key={`${run}-${i}`} shot={beat.shot} />}
-        {beat.kind === 'white' && <div key={`${run}-${i}`} className="dr-white" />}
-        {beat.kind === 'dream' && <Dream key={`${run}-${i}`} me={me} />}
-        {beat.kind === 'boss' && <Boss key={`${run}-${i}`} me={me} />}
+        {beat.kind === 'trigger' && <Trigger key={k} me={me} line={plan.rage} />}
+        {beat.kind === 'rage' && <Rage key={k} me={me} spell={plan.spell} />}
+        {beat.kind === 'shatter' && <Shatter key={k} me={me} />}
+        {beat.kind === 'shot' && <ShotView key={k} shot={beat.shot} />}
+        {beat.kind === 'victory' && <Victory key={k} img={beat.img} />}
+        {beat.kind === 'white' && <div key={k} className="dr-white" />}
+        {beat.kind === 'dream' && <Dream key={k} me={me} />}
+        {beat.kind === 'ending' && <Ending key={k} me={me} id={plan.ending} reality={reality} />}
         {beat.kind === 'end' && (
-          <div className="dr-end">
-            <p className="dr-end-title">…상상이었다</p>
-            <p className="dr-end-sub">스트레스 -100% (재미용)</p>
+          <div className={`dr-end ${loop ? 'loop' : ''}`}>
+            <p className="dr-end-title">{loop ? '…2차 변신 각' : '…상상이었다'}</p>
+            <p className="dr-end-sub">{loop ? '스트레스 +100% (재미용)' : '스트레스 -100% (재미용)'}</p>
             <button type="button" className="btn primary" onClick={again}>
-              🐉 한 번 더 변신
+              {loop ? '🐉 2차 변신' : '🐉 한 번 더 변신'}
             </button>
             <button type="button" className="btn ghost" onClick={onClose}>
               현실로 돌아가기
             </button>
           </div>
+        )}
+        {FANTASY.has(beat.kind) && (
+          <>
+            <i className="dr-bar top" aria-hidden />
+            <i className="dr-bar bottom" aria-hidden />
+          </>
         )}
       </div>
       {beat.kind !== 'end' && (
@@ -127,9 +158,9 @@ export function Dragon({ me, onClose }: { me: Customization; onClose: () => void
 
 /* ============================ 귀여운 세계 ============================ */
 
-function Office({ children }: { children: React.ReactNode }) {
+function Office({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="dr-office">
+    <div className={`dr-office ${className}`}>
       <div className="dr-set">
         <Backdrop bg="office" props={{}} />
         {children}
@@ -146,20 +177,70 @@ function Actor({ custom, pose, x, className = '' }: { custom: Customization; pos
   );
 }
 
-/** 부들부들 → 금이 쩍쩍 */
-function Rage({ me }: { me: Customization }) {
-  useEffect(() => buzz([20, 40, 20, 40, 60]), []);
+/** 폰 알림처럼 날아드는 메시지 */
+function Noti({ line, delay = 0.2 }: { line: RageLine; delay?: number }) {
+  return (
+    <div className="dr-noti" style={{ animationDelay: `${delay}s` }}>
+      <small>
+        💬 {line.from} · {line.time}
+      </small>
+      <b>{line.text}</b>
+    </div>
+  );
+}
+
+/** 열받는 메시지가 도착한다 */
+function Trigger({ me, line }: { me: Customization; line: RageLine }) {
+  const [mad, setMad] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setMad(true);
+      buzz(40);
+    }, 1500);
+    return () => clearTimeout(id);
+  }, []);
+  return (
+    <div className="dr-trigger">
+      <Office>
+        <Actor custom={me} pose={{ pose: 'front', action: mad ? 'rotten' : 'type' }} x={50} className={mad ? 'dr-twitch' : ''} />
+        {mad && <span className="dr-anger" aria-hidden>💢</span>}
+      </Office>
+      <Noti line={line} />
+    </div>
+  );
+}
+
+/** 분노 게이지 999% → 변신 주문 → 금이 쩍쩍 */
+function Rage({ me, spell }: { me: Customization; spell: string }) {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    buzz([20, 40, 20, 40, 60]);
+    const start = performance.now();
+    const id = setInterval(() => {
+      const t = performance.now() - start;
+      // 1.1초 동안 100%까지, 그다음 0.6초 만에 999%까지 촤라락
+      setPct(t < 1100 ? Math.round((t / 1100) * 100) : Math.min(999, Math.round(100 + ((t - 1100) / 600) * 899)));
+    }, 50);
+    return () => clearInterval(id);
+  }, []);
+  const over = pct > 100;
   return (
     <div className="dr-rage">
       <Office>
         <Actor custom={me} pose={{ pose: 'front', action: 'quake' }} x={50} className="dr-boil" />
       </Office>
       <div className="dr-red" />
+      <div className={`dr-gauge ${over ? 'over' : ''}`}>
+        <span>분노 게이지</span>
+        <div className="dr-gauge-bar">
+          <i style={{ width: `${Math.min(100, pct)}%` }} />
+        </div>
+        <b>{pct}%</b>
+      </div>
       <svg className="dr-cracks" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
         <path d="M50 46 L38 30 L30 34 L18 12 M38 30 L42 8 M50 46 L66 34 L74 40 L90 18 M66 34 L64 6 M50 46 L58 62 L76 70 L96 64 M58 62 L54 92 M50 46 L34 58 L20 56 L4 72 M34 58 L30 90" />
       </svg>
-      <p className="dr-cute-text a">부들부들…</p>
-      <p className="dr-cute-text b">더는… 못 참아!!</p>
+      <p className="dr-spell">{spell}</p>
     </div>
   );
 }
@@ -180,8 +261,8 @@ function Shatter({ me }: { me: Customization }) {
   return (
     <div className="dr-shatter">
       <img className="dr-img under" src={face} alt="" />
-      {SHARDS.map(([poly, dx, dy, r], k) => (
-        <div key={k} className="dr-shard" style={{ clipPath: `polygon(${poly})`, '--dx': `${dx}vw`, '--dy': `${dy}vh`, '--r': `${r}deg` } as React.CSSProperties}>
+      {SHARDS.map(([poly, dx, dy, r], n) => (
+        <div key={n} className="dr-shard" style={{ clipPath: `polygon(${poly})`, '--dx': `${dx}vw`, '--dy': `${dy}vh`, '--r': `${r}deg` } as React.CSSProperties}>
           <Office>
             <Actor custom={me} pose={{ pose: 'front', action: 'quake' }} x={50} />
           </Office>
@@ -210,40 +291,109 @@ function Dream({ me }: { me: Customization }) {
 }
 
 const BOSS_COLOR: Record<string, HamsterColor> = { cat: 'cream', hamster: 'golden', bird: 'white', rabbit: 'gray' };
-function Boss({ me }: { me: Customization }) {
-  const sp = castSpecies(me.species).boss;
-  const boss: Customization = { ...DEFAULT_CUSTOM, species: sp, color: BOSS_COLOR[sp] ?? 'gray', outfit: 'tie', glasses: true };
+
+/** 현실 복귀 엔딩 5종 */
+function Ending({ me, id, reality }: { me: Customization; id: EndingId; reality: string }) {
   const [step, setStep] = useState(0);
-  const t = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => {
-    t.current = [setTimeout(() => setStep(1), 700), setTimeout(() => setStep(2), 1500)];
-    return () => t.current.forEach(clearTimeout);
+    const ts = [setTimeout(() => setStep(1), 700), setTimeout(() => setStep(2), 1600)];
+    return () => ts.forEach(clearTimeout);
   }, []);
-  return (
-    <div className="dr-boss">
+  if (id === 'boss') {
+    const sp = castSpecies(me.species).boss;
+    const boss: Customization = { ...DEFAULT_CUSTOM, species: sp, color: BOSS_COLOR[sp] ?? 'gray', outfit: 'tie', glasses: true };
+    return (
       <Office>
-        <Actor custom={me} pose={{ pose: 'front', action: step >= 2 ? 'shock' : 'soul' }} x={36} />
+        <Actor custom={me} pose={{ pose: 'front', action: step >= 2 ? 'shock' : 'soul' }} x={34} />
         <Actor custom={boss} pose={step ? { pose: 'front', action: 'look' } : { pose: 'side', action: 'walk' }} x={step ? 70 : 96} className="dr-boss-walk" />
         {step >= 1 && <div className="dr-say boss">김대리 뭐 해?</div>}
         {step >= 2 && <div className="dr-say me">넵! 아무것도요…</div>}
       </Office>
+    );
+  }
+  if (id === 'keyboard') {
+    return (
+      <Office>
+        <div className="dr-monitor">
+          <div className="dr-monitor-screen">
+            <small>보고서_최종.docx</small>
+            <p className="dr-typed">ㅂㅂㅂㅂ부ㅅㅅ셔ㅕㅕ쾅ㅋ앙ㅇ</p>
+          </div>
+        </div>
+        <Actor custom={me} pose={{ pose: 'front', action: step >= 2 ? 'shock' : 'typeFast' }} x={50} />
+        {step >= 2 && <p className="dr-note">(상상 속 발톱질을 키보드로 하고 있었다)</p>}
+      </Office>
+    );
+  }
+  if (id === 'cup') {
+    return (
+      <Office>
+        <Actor custom={me} pose={{ pose: 'front', action: step >= 2 ? 'shock' : 'soul' }} x={42} />
+        <svg className={`dr-cup ${step >= 1 ? 'on' : ''}`} viewBox="0 0 60 60" aria-hidden>
+          <path d="M14 22 L22 18 L30 24 L40 17 L47 23 L42 48 Q30 52 18 48Z" fill="#fff" stroke="#2d2018" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d="M20 30 L28 34 L36 29 L44 33" fill="none" stroke="#c9a27a" strokeWidth="2" />
+          <path d="M18 48 Q24 56 34 54 Q44 56 48 50 Q40 46 30 50 Q24 47 18 48Z" fill="#7a4a2e" />
+          <circle cx="50" cy="44" r="2.4" fill="#7a4a2e" />
+          <circle cx="10" cy="40" r="1.8" fill="#7a4a2e" />
+        </svg>
+        {step >= 2 && <p className="dr-note">…작은 파괴는 진짜였다</p>}
+      </Office>
+    );
+  }
+  if (id === 'loop') {
+    return (
+      <div className="dr-loop">
+        <Office>
+          <Actor custom={me} pose={{ pose: 'front', action: step >= 1 ? 'quake' : 'soul' }} x={50} className={step >= 1 ? 'dr-boil' : ''} />
+        </Office>
+        {step >= 1 && <div className="dr-red" />}
+        <Noti line={{ from: '팀장님', time: '방금', text: '아 그리고 하나만 더~ ㅎㅎ' }} delay={0.1} />
+      </div>
+    );
+  }
+  return (
+    <div className="dr-fact">
+      <p className="dr-fact-label">현실:</p>
+      <p className="dr-fact-text">{reality}</p>
+      <div className="dr-fact-me">
+        <HamsterSprite custom={me} pose={{ pose: 'front', action: 'soul' }} />
+      </div>
     </div>
   );
 }
 
 /* ============================ 판타지 세계 ============================ */
 
+function HpBar({ hp, hit }: { hp: [number, number]; hit: boolean }) {
+  const v = hit ? hp[1] : hp[0];
+  return (
+    <div className={`dr-hp ${v <= 0 ? 'dead' : ''}`}>
+      <span>⚜ 주식회사 본사 ⚜</span>
+      <div className="dr-hp-bar">
+        <i className="lag" style={{ width: `${hp[0] * 100}%` }} />
+        <i style={{ width: `${v * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
 function ShotView({ shot }: { shot: Shot }) {
   const cam = useRef<HTMLDivElement>(null);
   const [hit, setHit] = useState(false);
+  const [sys, setSys] = useState(0);
   useEffect(() => {
     cam.current?.animate([{ transform: shot.from }, { transform: shot.to }], { duration: shot.ms, easing: 'cubic-bezier(.3,.1,.3,1)', fill: 'forwards' });
-    if (shot.hit === undefined) return;
-    const id = setTimeout(() => {
-      setHit(true);
-      buzz([80, 40, 120]);
-    }, shot.hit);
-    return () => clearTimeout(id);
+    const ts: ReturnType<typeof setTimeout>[] = [];
+    if (shot.hit !== undefined) {
+      ts.push(
+        setTimeout(() => {
+          setHit(true);
+          buzz([80, 40, 120]);
+        }, shot.hit),
+      );
+    }
+    shot.system?.forEach((_, n) => ts.push(setTimeout(() => setSys(n + 1), 1000 + n * 700)));
+    return () => ts.forEach(clearTimeout);
   }, [shot]);
   const [x, y] = shot.at ?? [50, 50];
   return (
@@ -260,13 +410,50 @@ function ShotView({ shot }: { shot: Shot }) {
       {hit && shot.fx.includes('glass') && <Glass />}
       {(shot.fx.includes('lines') || hit) && <Lines />}
       {hit && <div className="dr-hitflash" />}
+      {shot.hp && <HpBar hp={shot.hp} hit={hit} />}
+      {shot.title && (
+        <div className="dr-title">
+          <b>제3사업부의 흑룡</b>
+          <small>THE BLACK DRAGON OF DEPT. 3</small>
+        </div>
+      )}
       {shot.sfx && <p className={`dr-sfx ${hit || shot.hit === undefined ? 'on' : ''}`}>{shot.sfx}</p>}
+      {hit && shot.damage && <p className="dr-damage">{shot.damage}</p>}
+      {hit && shot.combo && shot.combo > 1 && <p className="dr-combo">{shot.combo} HIT COMBO!</p>}
+      {!!shot.system && (
+        <div className="dr-systems">
+          {shot.system.slice(0, sys).map((m) => (
+            <p key={m} className="dr-system">
+              {m}
+            </p>
+          ))}
+        </div>
+      )}
       {shot.caption && <p className="dr-caption">{shot.caption}</p>}
     </div>
   );
 }
 
-const R = (k: number, n: number) => ((k * 9301 + 49297) % 233280) / 233280 * n;
+/** 본사 처치! */
+function Victory({ img }: { img: string }) {
+  useEffect(() => buzz([40, 30, 40, 30, 120]), []);
+  return (
+    <div className="dr-shot dr-victory">
+      <div className="dr-cam">
+        <img className="dr-img" src={img} alt="" />
+      </div>
+      <div className="dr-vignette" />
+      <Embers />
+      <HpBar hp={[0, 0]} hit />
+      <div className="dr-win">
+        <b>본사 처치!</b>
+        <p>획득: 퇴근권 ×1 · 연차 ×∞</p>
+      </div>
+    </div>
+  );
+}
+
+const R = (k: number, n: number) => (((k * 9301 + 49297) % 233280) / 233280) * n;
 
 function Embers() {
   return (
