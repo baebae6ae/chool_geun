@@ -1,0 +1,268 @@
+{
+ "version": 1,
+ "attacks": [
+  {
+   "id": "fire",
+   "name": "불 뿜기",
+   "img": "dragon/fire.webp",
+   "sfx": "화르르르륵!!",
+   "caption": "결재 라인, 전원 불탔다.",
+   "damage": "CRITICAL! -999,999",
+   "cam": [
+    "scale(1.25) translate(6%, 4%)",
+    "scale(1.1) translate(-5%, -2%)"
+   ],
+   "hit": 300,
+   "fx": [
+    "fire",
+    "embers",
+    "lines"
+   ],
+   "at": [
+    70,
+    55
+   ]
+  },
+  {
+   "id": "claw",
+   "name": "발톱 내려찍기",
+   "img": "dragon/claw.webp",
+   "sfx": "콰아앙!!",
+   "caption": "반려된 서류 427장, 영원히 반려.",
+   "damage": "-반려 ∞",
+   "cam": [
+    "scale(1.35) translate(0, -8%)",
+    "scale(1.12) translate(0, 2%)"
+   ],
+   "hit": 450,
+   "fx": [
+    "debris",
+    "embers"
+   ],
+   "at": [
+    45,
+    75
+   ]
+  },
+  {
+   "id": "crush",
+   "name": "쥐어 부수기",
+   "img": "dragon/crush.webp",
+   "sfx": "우지끈!!",
+   "caption": "용지 걸림, 영구 해결.",
+   "damage": "CRITICAL! -용지 걸림",
+   "cam": [
+    "scale(1.1)",
+    "scale(1.45) translate(-2%, -6%)"
+   ],
+   "hit": 600,
+   "fx": [
+    "debris",
+    "embers"
+   ],
+   "at": [
+    52,
+    70
+   ]
+  },
+  {
+   "id": "tail",
+   "name": "꼬리 휩쓸기",
+   "img": "dragon/tail.webp",
+   "sfx": "휘이익—!!",
+   "caption": "5분이면 끝나는 회의, 진짜 5분 만에 끝.",
+   "damage": "-회의 3시간",
+   "cam": [
+    "scale(1.3) translate(-12%, 0)",
+    "scale(1.3) translate(10%, 0)"
+   ],
+   "hit": 500,
+   "fx": [
+    "debris",
+    "lines"
+   ],
+   "at": [
+    40,
+    68
+   ]
+  },
+  {
+   "id": "roar",
+   "name": "포효 충격파",
+   "img": "dragon/roar.webp",
+   "sfx": "크롸아아아!!",
+   "caption": "유리 천장, 와장창.",
+   "damage": "CRITICAL! -유리 천장",
+   "cam": [
+    "scale(1.05)",
+    "scale(1.3)"
+   ],
+   "hit": 350,
+   "fx": [
+    "rings",
+    "glass",
+    "embers"
+   ],
+   "at": [
+    50,
+    35
+   ]
+  },
+  {
+   "id": "dive",
+   "name": "급강하 박치기",
+   "img": "dragon/dive.webp",
+   "sfx": "쿠콰콰쾅!!",
+   "caption": "본사 이전 확정.",
+   "damage": "CRITICAL! -9,999,999",
+   "cam": [
+    "scale(1.5) translate(0, 10%)",
+    "scale(1.05) translate(0, -4%)"
+   ],
+   "hit": 900,
+   "fx": [
+    "lines",
+    "debris",
+    "embers"
+   ],
+   "at": [
+    50,
+    75
+   ]
+  },
+  {
+   "id": "paper",
+   "name": "결재판 내려찍기",
+   "img": "dragon/paper.webp",
+   "fit": "frame",
+   "sfx": "파바바박!!",
+   "caption": "결재판, 다시는 안 올라온다.",
+   "damage": "CRITICAL! -결재판 ∞",
+   "cam": [
+    "scale(1.05) translate(0, -3%)",
+    "scale(1.2) translate(0, 3%)"
+   ],
+   "hit": 450,
+   "fx": [
+    "debris",
+    "embers"
+   ],
+   "at": [
+    45,
+    58
+   ]
+  },
+  {
+   "id": "monitor",
+   "name": "모니터 화형식",
+   "img": "dragon/monitor.webp",
+   "fit": "frame",
+   "sfx": "화르륵 펑!!",
+   "caption": "엑셀 시트, 저장 안 하고 종료.",
+   "damage": "-엑셀 시트 47개",
+   "cam": [
+    "scale(1.15) translate(-4%, 0)",
+    "scale(1.05) translate(4%, 0)"
+   ],
+   "hit": 500,
+   "fx": [
+    "fire",
+    "glass",
+    "embers"
+   ],
+   "at": [
+    72,
+    55
+   ]
+  },
+  {
+   "id": "whirl",
+   "name": "사무실 대청소",
+   "img": "dragon/whirl.webp",
+   "fit": "frame",
+   "sfx": "휘몰아쳐라!!",
+   "caption": "책상 배치, 전면 재검토.",
+   "damage": "CRITICAL! -책상 32개",
+   "cam": [
+    "scale(1.1) rotate(-3deg)",
+    "scale(1.2) rotate(3deg)"
+   ],
+   "hit": 500,
+   "fx": [
+    "debris",
+    "lines"
+   ],
+   "at": [
+    45,
+    55
+   ]
+  },
+  {
+   "id": "copier",
+   "name": "복사기 압착",
+   "img": "dragon/copier.webp",
+   "fit": "frame",
+   "sfx": "콰지직!!",
+   "caption": "양면 인쇄, 이제 단면도 안 됨.",
+   "damage": "-양면 인쇄",
+   "cam": [
+    "scale(1.05)",
+    "scale(1.25) translate(0, 4%)"
+   ],
+   "hit": 550,
+   "fx": [
+    "debris",
+    "embers"
+   ],
+   "at": [
+    55,
+    62
+   ]
+  },
+  {
+   "id": "charge",
+   "name": "칼퇴 돌진",
+   "img": "dragon/charge.webp",
+   "fit": "frame",
+   "sfx": "쿠구구궁!!",
+   "caption": "퇴근 경로, 직선으로 확보.",
+   "damage": "CRITICAL! -퇴근 장애물",
+   "cam": [
+    "scale(1.3) translate(6%, 0)",
+    "scale(1.05) translate(-4%, 0)"
+   ],
+   "hit": 600,
+   "fx": [
+    "lines",
+    "debris",
+    "embers"
+   ],
+   "at": [
+    45,
+    58
+   ]
+  },
+  {
+   "id": "cabinet",
+   "name": "서류함 강탈",
+   "img": "dragon/cabinet.webp",
+   "fit": "frame",
+   "sfx": "으라차차!!",
+   "caption": "인사평가 서류, 압수.",
+   "damage": "-인사평가 서류",
+   "cam": [
+    "scale(1.05) translate(0, 3%)",
+    "scale(1.2) translate(-3%, -2%)"
+   ],
+   "hit": 600,
+   "fx": [
+    "debris",
+    "embers"
+   ],
+   "at": [
+    62,
+    58
+   ]
+  }
+ ]
+}

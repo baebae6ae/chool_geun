@@ -2,30 +2,120 @@
  * 드래곤 변신: 화나거나 스트레스 풀고 싶을 때 누르는 아무 맥락 없는 기능.
  * 열받는 메시지 → 분노 게이지 999% → 정통 판타지 드래곤으로 변신해 본사를 부수고 → 결국 상상이었다.
  * 분노 원인·주문·부수기 장면·현실 복귀 엔딩은 할 때마다 랜덤으로 고른다.
+ * 부수기 장면은 dragon.json 데이터라서 사이트에 올리면 앱 업데이트 없이 늘어난다 (썰 극장과 같은 방식).
  */
 import { createRng } from './random';
+import bundled from '../content/dragon.json';
 
-export type AttackId = 'fire' | 'claw' | 'crush' | 'tail' | 'roar' | 'dive';
+/** 장면 위에 얹는 효과 */
+export type Fx = 'fire' | 'debris' | 'rings' | 'glass' | 'lines' | 'embers' | 'flare';
+const FX = new Set<string>(['fire', 'debris', 'rings', 'glass', 'lines', 'embers', 'flare']);
 
+/**
+ * 부수기 장면 하나. 그림과 연출은 데이터라서, 새 장면은 dragon.json에 더해 올리면 앱 업데이트 없이 받아진다.
+ * img는 사이트 기준 경로(dragon/xxx.webp), cam은 카메라 시작·끝 transform, hit은 쾅 하는 순간(ms),
+ * at은 효과가 터지는 화면 위치(%), fit이 frame이면 정사각형 그림을 영화처럼 띠를 두르고 가운데 둔다.
+ */
 export interface Attack {
-  id: AttackId;
+  id: string;
   name: string;
+  img: string;
   /** 화면에 크게 박히는 효과음 */
   sfx: string;
   /** 판타지 자막 (직장 개그) */
   caption: string;
   /** 칠 때 튀는 데미지 숫자 */
   damage: string;
+  cam: [string, string];
+  hit: number;
+  fx: Fx[];
+  at: [number, number];
+  fit?: 'cover' | 'frame';
+  /** 그림 주소 (불러올 때 채운다) */
+  src?: string;
 }
 
-export const ATTACKS: Attack[] = [
-  { id: 'fire', name: '불 뿜기', sfx: '화르르르륵!!', caption: '결재 라인, 전원 불탔다.', damage: 'CRITICAL! -999,999' },
-  { id: 'claw', name: '발톱 내려찍기', sfx: '콰아앙!!', caption: '반려된 서류 427장, 영원히 반려.', damage: '-반려 ∞' },
-  { id: 'crush', name: '쥐어 부수기', sfx: '우지끈!!', caption: '용지 걸림, 영구 해결.', damage: 'CRITICAL! -용지 걸림' },
-  { id: 'tail', name: '꼬리 휩쓸기', sfx: '휘이익—!!', caption: '5분이면 끝나는 회의, 진짜 5분 만에 끝.', damage: '-회의 3시간' },
-  { id: 'roar', name: '포효 충격파', sfx: '크롸아아아!!', caption: '유리 천장, 와장창.', damage: 'CRITICAL! -유리 천장' },
-  { id: 'dive', name: '급강하 박치기', sfx: '쿠콰콰쾅!!', caption: '본사 이전 확정.', damage: 'CRITICAL! -9,999,999' },
-];
+const isStr = (v: unknown, max = 80): v is string => typeof v === 'string' && v.length > 0 && v.length <= max;
+const isNum = (v: unknown, lo: number, hi: number): v is number => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+/** 카메라는 scale·translate·rotate만 (숫자와 %·deg·px) */
+const CAM = /^(\s*(scale|rotate|translate|translateX|translateY)\(\s*-?[\d.]+(%|deg|px)?(\s*,\s*-?[\d.]+(%|deg|px)?)?\s*\))+\s*$/;
+
+/** 인터넷에서 받은 장면이 엔진이 그릴 수 있는 형태인지 확인한다 (틀린 장면은 건너뛴다) */
+export function validAttack(x: unknown): x is Attack {
+  const a = x as Attack;
+  try {
+    return (
+      !!a &&
+      isStr(a.id, 30) && /^[a-z0-9-]+$/.test(a.id) &&
+      isStr(a.name, 30) &&
+      isStr(a.img, 60) && /^dragon\/[a-z0-9-]+\.(webp|png|jpg)$/.test(a.img) &&
+      isStr(a.sfx, 30) && isStr(a.caption, 60) && isStr(a.damage, 40) &&
+      Array.isArray(a.cam) && a.cam.length === 2 && a.cam.every((c) => isStr(c) && CAM.test(c)) &&
+      isNum(a.hit, 0, 3000) &&
+      Array.isArray(a.fx) && a.fx.every((f) => FX.has(f)) &&
+      Array.isArray(a.at) && a.at.length === 2 && a.at.every((v) => isNum(v, 0, 100)) &&
+      (a.fit === undefined || a.fit === 'cover' || a.fit === 'frame')
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** 사이트 주소: 장면 목록과 앱에 없는 새 그림을 여기서 받는다 */
+export const DRAGON_SITE = 'https://baebae6ae.github.io/chool_geun/';
+const CACHE_KEY = 'hamster-dragon:v1';
+const BASE: string = import.meta.env.BASE_URL ?? './';
+
+const BUNDLED: Attack[] = (bundled.attacks as unknown[]).filter(validAttack);
+const BUNDLED_IMG = new Set(BUNDLED.map((a) => a.img));
+/** 앱에 들어 있는 그림은 앱 안에서, 새로 받은 그림은 사이트에서 */
+const withSrc = (a: Attack): Attack => ({ ...a, src: BUNDLED_IMG.has(a.img) ? `${BASE}${a.img}` : `${DRAGON_SITE}${a.img}` });
+
+function readCache(): Attack[] {
+  try {
+    const d = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null');
+    return Array.isArray(d?.attacks) ? d.attacks.filter(validAttack) : [];
+  } catch {
+    return [];
+  }
+}
+let remote: Attack[] = typeof localStorage === 'undefined' ? [] : readCache();
+
+/** 앱에 든 장면 + 받아 둔 장면 (같은 id면 받아 둔 쪽이 최신) */
+export function allAttacks(): Attack[] {
+  const map = new Map(BUNDLED.map((a) => [a.id, a]));
+  for (const a of remote) map.set(a.id, a);
+  return [...map.values()].map(withSrc);
+}
+
+/** 사이트에서 장면 목록을 받아 기기에 저장한다. 실패하면 조용히 넘어간다. 새로 받았으면 true */
+export async function refreshDragon(fetcher: typeof fetch = fetch): Promise<boolean> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetcher(`${DRAGON_SITE}dragon.json?h=${Math.floor(Date.now() / 3_600_000)}`, { cache: 'no-cache', signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!r.ok) return false;
+    const d = await r.json();
+    const list: Attack[] = Array.isArray(d?.attacks) ? d.attacks.filter(validAttack) : [];
+    if (!list.length) return false;
+    const changed = JSON.stringify(list) !== JSON.stringify(remote);
+    remote = list;
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ attacks: list }));
+    } catch {
+      // 저장 못 해도 이번 실행 동안은 쓴다
+    }
+    return changed;
+  } catch {
+    return false;
+  }
+}
+
+/** 테스트용: 받아 둔 장면 바꾸기 */
+export function __setRemoteAttacks(list: Attack[]) {
+  remote = list;
+}
 
 /** 변신 직전에 날아오는 열받는 메시지 */
 export interface RageLine {
@@ -69,16 +159,12 @@ export interface DragonPlan {
 }
 
 /** 이번 변신에서 보여 줄 것들 (부수기 장면은 count개, 겹치지 않게) */
-export function planDragon(seed: string, count = 3): DragonPlan {
+export function planDragon(seed: string, count = 3, list: Attack[] = allAttacks()): DragonPlan {
   const rng = createRng(`dragon:${seed}`);
-  const pick = <T,>(list: T[]) => list[Math.floor(rng() * list.length)];
-  const pool = [...ATTACKS];
+  const pick = <T,>(items: T[]) => items[Math.floor(rng() * items.length)];
+  const pool = [...list];
   const attacks: Attack[] = [];
   while (attacks.length < count && pool.length) attacks.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
   return { rage: pick(RAGE_LINES), spell: pick(SPELLS), attacks, ending: pick(ENDINGS) };
 }
 
-/** 하위 호환: 부수기 장면만 고르기 */
-export function pickAttacks(seed: string, count = 3): Attack[] {
-  return planDragon(seed, count).attacks;
-}

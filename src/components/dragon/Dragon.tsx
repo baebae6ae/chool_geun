@@ -10,21 +10,17 @@ import { HamsterSprite, type Pose } from '../hamster/HamsterSprite';
 import { Backdrop } from '../theater/Backdrops';
 import { castSpecies } from '../../domain/theater';
 import { DEFAULT_CUSTOM } from '../../domain/customization';
-import { planDragon, type Attack, type AttackId, type DragonPlan, type EndingId, type RageLine } from '../../domain/dragon';
+import { planDragon, type Attack, type DragonPlan, type EndingId, type Fx, type RageLine } from '../../domain/dragon';
 import type { Customization, HamsterColor } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
 import { buzz } from '../../haptics';
-import face from '../../assets/dragon/face.webp';
-import rise from '../../assets/dragon/rise.webp';
-import fire from '../../assets/dragon/fire.webp';
-import claw from '../../assets/dragon/claw.webp';
-import crush from '../../assets/dragon/crush.webp';
-import tail from '../../assets/dragon/tail.webp';
-import roar from '../../assets/dragon/roar.webp';
-import dive from '../../assets/dragon/dive.webp';
 import './dragon.css';
 
-type Fx = 'fire' | 'debris' | 'rings' | 'glass' | 'lines' | 'embers' | 'flare';
+/** 변신 장면 그림 (앱 안 public/dragon) */
+const BASE: string = import.meta.env.BASE_URL ?? './';
+const face = `${BASE}dragon/face.webp`;
+const rise = `${BASE}dragon/rise.webp`;
+const fire = `${BASE}dragon/fire.webp`;
 
 interface Shot {
   img: string;
@@ -46,22 +42,31 @@ interface Shot {
   /** 타이틀 · 시스템 메시지 */
   title?: boolean;
   system?: string[];
+  /** frame: 정사각형 그림을 가운데 두고 뒤에 흐리게 깐다 */
+  fit?: 'cover' | 'frame';
 }
 
-const ATTACK_SHOT: Record<AttackId, Omit<Shot, 'sfx' | 'caption'>> = {
-  fire: { img: fire, ms: 2600, from: 'scale(1.25) translate(6%, 4%)', to: 'scale(1.1) translate(-5%, -2%)', hit: 300, fx: ['fire', 'embers', 'lines'], at: [70, 55] },
-  claw: { img: claw, ms: 2600, from: 'scale(1.35) translate(0, -8%)', to: 'scale(1.12) translate(0, 2%)', hit: 450, fx: ['debris', 'embers'], at: [45, 75] },
-  crush: { img: crush, ms: 2600, from: 'scale(1.1)', to: 'scale(1.45) translate(-2%, -6%)', hit: 600, fx: ['debris', 'embers'], at: [52, 70] },
-  tail: { img: tail, ms: 2600, from: 'scale(1.3) translate(-12%, 0)', to: 'scale(1.3) translate(10%, 0)', hit: 500, fx: ['debris', 'lines'], at: [40, 68] },
-  roar: { img: roar, ms: 2600, from: 'scale(1.05)', to: 'scale(1.3)', hit: 350, fx: ['rings', 'glass', 'embers'], at: [50, 35] },
-  dive: { img: dive, ms: 2600, from: 'scale(1.5) translate(0, 10%)', to: 'scale(1.05) translate(0, -4%)', hit: 900, fx: ['lines', 'debris', 'embers'], at: [50, 75] },
-};
-const IMG: Record<AttackId, string> = { fire, claw, crush, tail, roar, dive };
+/** 데이터로 받은 부수기 장면 → 화면 연출 */
+const attackShot = (a: Attack, k: number, n: number): Shot => ({
+  img: a.src ?? `${BASE}${a.img}`,
+  ms: 2600,
+  from: a.cam[0],
+  to: a.cam[1],
+  hit: a.hit,
+  fx: a.fx,
+  at: a.at,
+  fit: a.fit,
+  sfx: a.sfx,
+  caption: a.caption,
+  damage: a.damage,
+  combo: k + 1,
+  hp: [1 - k / n, 1 - (k + 1) / n],
+});
 
 type Beat =
   | { kind: 'trigger' | 'rage' | 'shatter' | 'white' | 'dream' | 'ending'; ms: number }
   | { kind: 'shot'; shot: Shot }
-  | { kind: 'victory'; ms: number; img: string }
+  | { kind: 'victory'; ms: number; img: string; fit?: 'cover' | 'frame' }
   | { kind: 'end' };
 
 function beatsOf(p: DragonPlan): Beat[] {
@@ -75,11 +80,8 @@ function beatsOf(p: DragonPlan): Beat[] {
       kind: 'shot',
       shot: { img: rise, ms: 3000, from: 'scale(1.3) translate(0, 8%)', to: 'scale(1.08)', hit: 400, fx: ['rings', 'embers'], sfx: '크와아아앙!!!', at: [55, 32], hp: [1, 1], system: ['[칭호 획득] 사무실의 재앙', '직급 변경: 대리 → 고대 흑룡'] },
     },
-    ...p.attacks.map((a: Attack, k) => ({
-      kind: 'shot' as const,
-      shot: { ...ATTACK_SHOT[a.id], sfx: a.sfx, caption: a.caption, damage: a.damage, combo: k + 1, hp: [1 - k / n, 1 - (k + 1) / n] as [number, number] },
-    })),
-    { kind: 'victory', ms: 2800, img: IMG[p.attacks[n - 1].id] },
+    ...p.attacks.map((a, k) => ({ kind: 'shot' as const, shot: attackShot(a, k, n) })),
+    { kind: 'victory', ms: 2800, img: p.attacks[n - 1].src ?? `${BASE}${p.attacks[n - 1].img}`, fit: p.attacks[n - 1].fit },
     { kind: 'white', ms: 900 },
     { kind: 'dream', ms: 1900 },
     { kind: 'ending', ms: p.ending === 'loop' ? 2600 : 3400 },
@@ -124,7 +126,7 @@ export function Dragon({ me, reality, seed, onClose }: { me: Customization; real
         {beat.kind === 'rage' && <Rage key={k} me={me} spell={plan.spell} />}
         {beat.kind === 'shatter' && <Shatter key={k} me={me} />}
         {beat.kind === 'shot' && <ShotView key={k} shot={beat.shot} />}
-        {beat.kind === 'victory' && <Victory key={k} img={beat.img} />}
+        {beat.kind === 'victory' && <Victory key={k} img={beat.img} fit={beat.fit} />}
         {beat.kind === 'white' && <div key={k} className="dr-white" />}
         {beat.kind === 'dream' && <Dream key={k} me={me} />}
         {beat.kind === 'ending' && <Ending key={k} me={me} id={plan.ending} reality={reality} />}
@@ -397,7 +399,8 @@ function ShotView({ shot }: { shot: Shot }) {
   }, [shot]);
   const [x, y] = shot.at ?? [50, 50];
   return (
-    <div className={`dr-shot ${hit ? 'hit' : ''}`} style={{ '--x': `${x}%`, '--y': `${y}%` } as React.CSSProperties}>
+    <div className={`dr-shot ${hit ? 'hit' : ''} ${shot.fit === 'frame' ? 'framed' : ''}`} style={{ '--x': `${x}%`, '--y': `${y}%` } as React.CSSProperties}>
+      {shot.fit === 'frame' && <img className="dr-img dr-backfill" src={shot.img} alt="" />}
       <div className="dr-cam" ref={cam}>
         <img className="dr-img" src={shot.img} alt="" />
       </div>
@@ -435,10 +438,11 @@ function ShotView({ shot }: { shot: Shot }) {
 }
 
 /** 본사 처치! */
-function Victory({ img }: { img: string }) {
+function Victory({ img, fit }: { img: string; fit?: 'cover' | 'frame' }) {
   useEffect(() => buzz([40, 30, 40, 30, 120]), []);
   return (
-    <div className="dr-shot dr-victory">
+    <div className={`dr-shot dr-victory ${fit === 'frame' ? 'framed' : ''}`}>
+      {fit === 'frame' && <img className="dr-img dr-backfill" src={img} alt="" />}
       <div className="dr-cam">
         <img className="dr-img" src={img} alt="" />
       </div>

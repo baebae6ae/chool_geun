@@ -25,6 +25,7 @@ import { grantAchievements, newAchievements } from './domain/achievements';
 import { ownedSeasonItems, SEASON_BY_ID, visitSeason } from './domain/seasons';
 import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
 import { refreshStories } from './domain/theater';
+import { refreshDragon } from './domain/dragon';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -158,6 +159,8 @@ export function App() {
   const [, setStoriesTick] = useState(0);
   useEffect(() => {
     refreshStories().then((changed) => changed && setStoriesTick((n) => n + 1));
+    // 드래곤 변신 장면도 같은 방식으로 받아온다 (다음 변신부터 새 장면이 섞인다)
+    refreshDragon();
   }, []);
 
   // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (다른 알림 다음 차례로)

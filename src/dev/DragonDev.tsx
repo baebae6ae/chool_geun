@@ -1,4 +1,4 @@
-/** 개발용: ?dragon&ending=fact&species=.. 로 드래곤 변신을 바로 연다 (엔딩을 골라 볼 수 있다) */
+/** 개발용: ?dragon&ending=fact&attacks=paper,monitor&species=.. 로 드래곤 변신을 바로 연다 (엔딩·장면을 골라 볼 수 있다) */
 import { useState } from 'react';
 import { Dragon } from '../components/dragon/Dragon';
 import { DEFAULT_CUSTOM } from '../domain/customization';
@@ -8,8 +8,13 @@ import type { Customization } from '../domain/types';
 export function DragonDev() {
   const p = new URLSearchParams(location.search);
   const ending = p.get('ending');
+  const want = p.get('attacks')?.split(',');
+  const ok = (s: string) => {
+    const plan = planDragon(s);
+    return (!ending || plan.ending === ending) && (!want || want.every((id) => plan.attacks.some((a) => a.id === id)));
+  };
   let seed = p.get('seed') ?? 'dev';
-  if (ending) for (let i = 0; i < 500 && planDragon(seed).ending !== ending; i++) seed = `dev-${i}`;
+  if (ending || want) for (let i = 0; i < 20000 && !ok(seed); i++) seed = `dev-${i}`;
   const me: Customization = {
     ...DEFAULT_CUSTOM,
     species: (p.get('species') as Customization['species']) || 'hamster',
