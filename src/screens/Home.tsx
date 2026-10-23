@@ -2,6 +2,7 @@ import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain/theater';
 
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
+const Dragon = lazy(() => import('../components/dragon/Dragon').then((m) => ({ default: m.Dragon })));
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
 import { daysUntilPayday } from '../domain/engine';
@@ -258,6 +259,8 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
 
   // 썰 극장: 퇴근하면 오늘의 썰이 열린다
   const [theater, setTheater] = useState<Story | null>(null);
+  // 드래곤 변신: 스트레스 풀고 싶을 때 아무 때나
+  const [dragon, setDragon] = useState(false);
   const openStory = (st: Story) => {
     setTheater(st);
     onState((s) => markStorySeen(s, key, st.id, clockNow()));
@@ -431,6 +434,13 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           </button>
         )}
       </div>
+      <button type="button" className="dragon-cta" onClick={() => setDragon(true)}>
+        <span aria-hidden>🐉</span>
+        <span>
+          <b>드래곤 변신하기</b>
+          <small>회사 다 부숴버리고 싶을 때</small>
+        </span>
+      </button>
     </>
   );
 
@@ -525,6 +535,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         {theater && (
           <Suspense fallback={null}>
             <Theater story={theater} me={custom} onClose={() => setTheater(null)} />
+          </Suspense>
+        )}
+        {dragon && (
+          <Suspense fallback={null}>
+            <Dragon me={custom} onClose={() => setDragon(false)} />
           </Suspense>
         )}
 
