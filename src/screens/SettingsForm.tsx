@@ -7,6 +7,7 @@ import { hourlyWage, netOptionsOf, validateSchedule } from '../domain/schedule';
 import { estimateNet } from '../domain/tax';
 import type { Customization, Settings } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
+import { ContactLink } from '../components/ContactLink';
 import { pinWidget, widgetAvailable } from '../widgetSync';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -293,9 +294,7 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
             개인정보처리방침
           </a>
           {' · '}
-          <a href="https://github.com/baebae6ae/chool_geun/issues" target="_blank" rel="noopener noreferrer">
-            문의·제안
-          </a>
+          <ContactLink />
         </p>
       </footer>
 

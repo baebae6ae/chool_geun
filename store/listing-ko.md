@@ -57,7 +57,7 @@
 https://baebae6ae.github.io/chool_geun/privacy.html
 
 ## 연락처 (공개되므로 새 메일 권장)
-이메일: (앱 전용 새 메일 주소)
+이메일: eowns0606@gmail.com
 웹사이트: https://github.com/baebae6ae/chool_geun
 
 ## 콘텐츠 등급 설문 답변 가이드

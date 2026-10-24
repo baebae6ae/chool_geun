@@ -1,9 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { saveBackup } from '../backup';
+import { ContactLink } from './ContactLink';
 
 interface State {
   failed: boolean;
   msg: string | null;
+  /** 문의 메일에 붙일 오류 내용 */
+  error?: string;
 }
 
 /**
@@ -13,8 +16,8 @@ interface State {
 export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { failed: false, msg: null };
 
-  static getDerivedStateFromError(): Partial<State> {
-    return { failed: true };
+  static getDerivedStateFromError(error: unknown): Partial<State> {
+    return { failed: true, error: String(error instanceof Error ? `${error.name}: ${error.message}` : error).slice(0, 300) };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -62,9 +65,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
               </p>
             )}
             <p className="muted small">
-              <a href="https://github.com/baebae6ae/chool_geun/issues" target="_blank" rel="noopener noreferrer">
-                문의·제안
-              </a>
+              <ContactLink error={this.state.error}>문의·제안 (오류 내용이 함께 첨부돼요)</ContactLink>
             </p>
           </div>
         </main>
