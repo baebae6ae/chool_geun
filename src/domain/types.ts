@@ -150,6 +150,10 @@ export interface AppState {
   whatsNew?: number;
   /** 근무 중 어이없는 대화에 사이다를 날린 날 */
   chat?: Record<string, { doneAt: number }>;
+  /** 개발자 응원(후원) 기록: 고마워서 남겨 둔다 (도감 후원자 배지) */
+  support?: { count: number; first: number; last: number };
+  /** 보낸 제보 수 */
+  reports?: number;
   /** 달성한 업적 (id → 처음 달성한 시각) */
   achievements?: Record<string, number>;
   /** 계절 이벤트 기간에 앱을 켠 날짜들 (`이벤트:연도` → 날짜 목록) */

@@ -13,6 +13,7 @@ import type { Customization, HamsterColor } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
 import { buzz } from '../../haptics';
 import { Backdrop, Foreground } from './Backdrops';
+import { openSheet } from '../../sheets';
 import './theater.css';
 
 const TICK = 1000 / 12;
@@ -346,6 +347,15 @@ export function Theater({ story, me, onClose, onSeen }: { story: Story; me: Cust
             </button>
             <button className="btn ghost" onClick={onClose}>
               닫기
+            </button>
+            <button
+              className="shorts-report"
+              onClick={() => {
+                onClose();
+                openSheet('report');
+              }}
+            >
+              📮 나도 이런 썰 있다! 제보하기
             </button>
           </div>
         )}

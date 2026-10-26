@@ -13,6 +13,8 @@ import { ACHIEVEMENTS, achievementContext, achievementCount, type Achievement } 
 import { Medal } from '../components/Medal';
 import { HamsterSprite } from '../components/hamster/HamsterSprite';
 import { DEFAULT_CUSTOM, SPECIES } from '../domain/customization';
+import { openSheet } from '../sheets';
+import { isSupporter } from '../domain/support';
 import { VISITOR_COLOR } from '../domain/visitors';
 
 /** 기획서 8. 직장인 가챠 도감 */
@@ -36,6 +38,7 @@ export function Collection({ state }: { state: AppState }) {
     <div className="screen">
       <header className="screen-head">
         <h1><TabIcon id="dex" /> 직장인 도감</h1>
+        {isSupporter(state) && <span className="supporter-badge" title={`${state.support!.count}번 응원`}>💛 후원자</span>}
         <span className="count-chip">{owned} / {GACHA_EVENTS.length}</span>
       </header>
       <p className="muted">근무 중 하루 1~3번, 랜덤으로 직장인 이벤트가 발생해요.</p>
@@ -64,6 +67,9 @@ export function Collection({ state }: { state: AppState }) {
         <div className="dex-head">
           <span className="rarity-badge">🎬 썰 모음</span>
           <span className="muted small">{seenStories}/{stories.length} · 퇴근하면 하루에 하나씩 열려요</span>
+          <button type="button" className="story-report" onClick={() => openSheet('report')}>
+            📮 제보
+          </button>
         </div>
         <div className="story-list">
           {stories.map((s) => {

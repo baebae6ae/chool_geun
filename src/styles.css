@@ -2931,3 +2931,50 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 .dragon-cta small { font-size: 0.72rem; font-weight: 700; color: #ffcf9a; }
 .dragon-cta:active { transform: translateY(2px); box-shadow: 0 1px 0 #2b0e08; }
 .app.clock .dragon-cta { display: none; }
+
+/* ---------- 제보하기 · 개발자 응원하기 ---------- */
+.cheer-sheet { position: relative; text-align: left; }
+.cheer-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--pen); background: var(--card); color: var(--ink); font-weight: 900; }
+.cheer-title { margin: 0 40px 0 0; font-size: 1.25rem; }
+.cheer-kinds { display: flex; flex-wrap: wrap; gap: 8px; }
+.cheer-field { display: grid; gap: 4px; font-weight: 800; font-size: 0.85rem; color: var(--ink); }
+.cheer-field textarea,
+.cheer-field input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 2px solid var(--pen); border-radius: 12px; background: var(--card); color: var(--ink); font: inherit; font-weight: 600; resize: vertical; }
+.cheer-field small { justify-self: end; font-weight: 600; color: var(--ink-2); }
+.cheer-agree { display: flex; align-items: flex-start; gap: 8px; font-size: 0.85rem; font-weight: 700; }
+.cheer-agree input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+.cheer-err { margin: 0; color: #c0322d; font-weight: 800; font-size: 0.85rem; }
+.cheer-support { display: grid; gap: 10px; text-align: center; }
+.cheer-hamster { width: 140px; margin: 0 auto; }
+.cheer-hamster.small { width: 96px; }
+.cheer-hamster .hs { width: 100%; height: auto; }
+.cheer-copy { margin: 0; font-weight: 700; line-height: 1.55; word-break: keep-all; }
+.cheer-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cheer-tier { display: grid; justify-items: center; gap: 2px; padding: 12px 6px; border: 2px solid var(--pen); border-radius: 16px; background: #fff8e8; color: var(--ink); font: inherit; box-shadow: 0 3px 0 var(--pen); }
+.cheer-tier span { font-size: 1.8rem; }
+.cheer-tier b { font-size: 0.85rem; word-break: keep-all; }
+.cheer-tier small { font-size: 0.78rem; font-weight: 800; color: var(--accent-text); }
+.cheer-tier:active { transform: translateY(3px); box-shadow: 0 0 0 var(--pen); }
+.cheer-tier:disabled { opacity: 0.55; box-shadow: none; }
+.cheer-count { margin: 0; font-weight: 900; color: #c98a00; }
+.cheer-done { display: grid; gap: 6px; text-align: center; }
+.cheer-done h2 { margin: 0; }
+.cheer-done p { margin: 0; line-height: 1.5; word-break: keep-all; }
+.cheer-done hr { width: 100%; border: none; border-top: 2px dashed var(--line); margin: 6px 0; }
+.cheer-ask { font-weight: 900; font-size: 1.05rem; }
+.cheer-thanks { position: relative; display: grid; gap: 8px; text-align: center; padding: 10px 0; overflow: hidden; }
+.cheer-thanks h2 { margin: 0; font-size: 1.6rem; animation: slide-up 0.4s ease-out; }
+.cheer-thanks p { margin: 0; line-height: 1.5; word-break: keep-all; }
+.cheer-thanks .cheer-hamster { animation: cheer-hop 0.6s ease-in-out infinite alternate; }
+@keyframes cheer-hop { to { transform: translateY(-8px); } }
+.cheer-confetti { position: absolute; inset: 0; pointer-events: none; }
+.cheer-confetti i { position: absolute; top: -10px; width: 9px; height: 12px; border-radius: 2px; background: #ffd23c; animation: cheer-fall 1.8s ease-in forwards; }
+.cheer-confetti i:nth-child(3n) { background: #ff8b7a; }
+.cheer-confetti i:nth-child(3n + 1) { background: #9fc8ff; }
+@keyframes cheer-fall { to { transform: translateY(320px) rotate(540deg); opacity: 0; } }
+.cheer-card .chip-row { margin-top: 8px; }
+.chat-report { margin-top: 6px; padding: 6px 12px; border: 1.5px dashed var(--pen); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 0.78rem; font-weight: 800; }
+.story-report { margin-left: auto; padding: 3px 10px; border: 1.5px solid var(--pen); border-radius: 999px; background: #fff8e8; color: var(--ink); font: inherit; font-size: 0.75rem; font-weight: 800; }
+.supporter-badge { padding: 3px 10px; border-radius: 999px; background: #fff1c2; border: 1.5px solid #e0b100; color: #8a5a00; font-size: 0.75rem; font-weight: 900; }
+/* 제보·응원 시트가 떠 있을 땐 알림 토스트가 덮지 않게 */
+body:has(.cheer-sheet) .toast { display: none; }

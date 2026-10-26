@@ -8,6 +8,7 @@ import { estimateNet } from '../domain/tax';
 import type { Customization, Settings } from '../domain/types';
 import { TabIcon } from '../components/TabIcon';
 import { ContactLink } from '../components/ContactLink';
+import { openSheet } from '../sheets';
 import { pinWidget, widgetAvailable } from '../widgetSync';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -285,6 +286,21 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
       {widgetAvailable && !onboarding && <WidgetCard />}
 
       <BackupCard onboarding={onboarding} />
+
+      {!onboarding && (
+        <section className="card cheer-card">
+          <div className="card-label">📮 제보 · ☕ 응원</div>
+          <p className="muted small">겪은 썰이나 어이없는 대화를 보내 주시면 각색해서 앱에 실어 드려요. 재밌게 쓰고 계시다면 개발자를 응원해 주세요!</p>
+          <div className="chip-row">
+            <button type="button" className="chip-btn" onClick={() => openSheet('report')}>
+              📮 제보하기
+            </button>
+            <button type="button" className="chip-btn" onClick={() => openSheet('support')}>
+              ☕ 응원하기
+            </button>
+          </div>
+        </section>
+      )}
 
       <footer className="app-info">
         <p>

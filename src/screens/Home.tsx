@@ -2,6 +2,7 @@ import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain/theater';
 
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
+import { openSheet } from '../sheets';
 const Dragon = lazy(() => import('../components/dragon/Dragon').then((m) => ({ default: m.Dragon })));
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
@@ -585,6 +586,9 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
                 <span className="chat-note">상대방이 입력을 멈췄습니다</span>
                 <span className="msg-stamp chat-stamp">{chatFx.stamp}</span>
                 <span className="msg-meta">읽음 ✓✓ · 상대는 말이 없음 · 스트레스 -{chatFx.stress}% (재미용)</span>
+                <button type="button" className="chat-report" onClick={() => openSheet('report')}>
+                  📮 더 어이없는 대화 겪었다면 제보하기
+                </button>
               </div>
             )}
           </section>

@@ -26,6 +26,10 @@ import { ownedSeasonItems, SEASON_BY_ID, visitSeason } from './domain/seasons';
 import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
 import { refreshStories } from './domain/theater';
 import { refreshDragon } from './domain/dragon';
+import { ReportSheet, SupportSheet } from './components/Cheer';
+import { onSheet, type SheetKind } from './sheets';
+import { recordSupport, TIERS } from './domain/support';
+import { settlePending } from './billing';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -161,6 +165,10 @@ export function App() {
     refreshStories().then((changed) => changed && setStoriesTick((n) => n + 1));
     // 드래곤 변신 장면도 같은 방식으로 받아온다 (다음 변신부터 새 장면이 섞인다)
     refreshDragon();
+    // 결제는 됐는데 앱이 꺼져서 마무리 못 한 응원이 있으면 마저 처리하고 기록한다
+    settlePending(TIERS.map((t) => t.id)).then((n) => {
+      for (let i = 0; i < n; i++) setState((s) => recordSupport(s, clockNow()));
+    });
   }, []);
 
   // 히든 캐릭터 롭이어: 출근 50일을 채우면 한 번 알려 준다 (다른 알림 다음 차례로)
@@ -189,6 +197,9 @@ export function App() {
   // 업데이트 소식: 화면에 뜨는 순간 본 것으로 기록해서, 창을 닫지 않고 앱을 꺼도 다음에 또 뜨지 않는다
   // 띄울 때의 소식 목록을 붙잡아 둔다 (본 것으로 기록하면 목록이 비기 때문)
   const [whatsNewOpen, setWhatsNewOpen] = useState<ReturnType<typeof unseenNews> | null>(null);
+  // 제보·응원 시트: 어느 화면에서든 openSheet()로 연다
+  const [sheet, setSheet] = useState<SheetKind | null>(null);
+  useEffect(() => onSheet(setSheet), []);
   const newsPending = whatsNewPending(state);
   useEffect(() => {
     if (newsPending) setWhatsNewOpen(unseenNews(getState()));
@@ -331,6 +342,15 @@ export function App() {
           onClose={() => setState((s) => ({ ...s, paydaySeen: key }))}
         />
       )}
+      {sheet === 'report' && (
+        <ReportSheet
+          state={state}
+          onSent={() => setState((s) => ({ ...s, reports: (s.reports ?? 0) + 1 }))}
+          onSupported={() => setState((s) => recordSupport(s, clockNow()))}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'support' && <SupportSheet state={state} onSupported={() => setState((s) => recordSupport(s, clockNow()))} onClose={() => setSheet(null)} />}
       {whatsNewOpen && !gacha && !pay && !showClockOut && !showSettings && (
         <WhatsNewModal custom={state.custom} items={whatsNewOpen} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(null)} />
       )}
