@@ -35,6 +35,20 @@ describe('제보', () => {
     expect(sent!.body.get('entry.4')).toBe('동의합니다');
   });
 
+  it('실제 폼 선택지 글자와 맞추고, 닉네임을 비우면 익명으로 보낸다', async () => {
+    const { REPORT_FORM } = await import('./report');
+    expect(REPORT_FORM!.kindValue).toEqual({ chat: '어이없는 업무 관련 대화', story: '직장 썰 극장' });
+    expect(REPORT_FORM!.agreeValue).toBe('동의');
+    let body: URLSearchParams | null = null;
+    const fetcher = (async (_u: string, init: RequestInit) => {
+      body = init.body as URLSearchParams;
+      return new Response();
+    }) as unknown as typeof fetch;
+    await sendReport({ kind: 'story', text: '회식 다음 날 기억이 없었던 썰입니다', nick: '  ' }, REPORT_FORM, fetcher);
+    expect(body!.get(REPORT_FORM!.kind)).toBe('직장 썰 극장');
+    expect(body!.get(REPORT_FORM!.nick)).toBe('익명');
+  });
+
   it('인터넷이 끊기면 실패로 알려 준다', async () => {
     const fail = (async () => {
       throw new Error('offline');

@@ -29,7 +29,7 @@ export const REPORT_FORM: ReportForm | null = {
   text: 'entry.377622377',
   nick: 'entry.1662671808',
   agree: 'entry.140036354',
-  kindValue: { chat: '어이없는 업무 관련 대화', story: '직장 썰' },
+  kindValue: { chat: '어이없는 업무 관련 대화', story: '직장 썰 극장' },
   agreeValue: '동의',
 };
 
@@ -57,7 +57,8 @@ export async function sendReport(r: Report, form: ReportForm | null = REPORT_FOR
   const body = new URLSearchParams({
     [form.kind]: form.kindValue[r.kind],
     [form.text]: r.text.trim(),
-    [form.nick]: r.nick.trim(),
+    // 폼에서 닉네임이 필수라, 비워 두면 '익명'으로 보낸다
+    [form.nick]: r.nick.trim() || '익명',
     [form.agree]: form.agreeValue,
   });
   try {

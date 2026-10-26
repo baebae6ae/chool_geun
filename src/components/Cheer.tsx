@@ -178,7 +178,7 @@ export function ReportSheet({ state, onSent, onSupported, onClose }: { state: Ap
         </small>
       </label>
       <label className="cheer-field">
-        <span>크레딧에 쓸 이름 (선택)</span>
+        <span>크레딧에 쓸 이름 (비우면 익명)</span>
         <input type="text" maxLength={20} placeholder="예: 김대리 → 「제보: 익명의 김대리님」" value={nick} onChange={(e) => setNick(e.target.value)} />
       </label>
       <label className="cheer-agree">
