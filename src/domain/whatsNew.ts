@@ -13,6 +13,13 @@ export interface NewsItem {
 
 export const NEWS: { version: number; items: NewsItem[] }[] = [
   {
+    version: 6,
+    items: [
+      { icon: '📮', text: '겪은 썰이나 어이없는 대화를 제보하면 각색해서 앱에 실어 드려요 (설정 → 제보·응원)' },
+      { icon: '☕', text: '재밌게 쓰고 계시다면 커피 한 잔으로 개발자를 응원할 수 있어요' },
+    ],
+  },
+  {
     version: 5,
     items: [
       { icon: '🐉', text: '회사 다 부숴버리고 싶을 땐 홈의 「드래곤 변신하기」! 할 때마다 다른 장면과 엔딩' },

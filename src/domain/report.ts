@@ -22,8 +22,16 @@ export interface ReportForm {
   agreeValue: string;
 }
 
-/** Google 폼이 준비되면 채운다 */
-export const REPORT_FORM: ReportForm | null = null;
+/** 제보용 Google 폼 (미리 채워진 링크에서 얻은 항목 번호와 선택지 글자) */
+export const REPORT_FORM: ReportForm | null = {
+  action: 'https://docs.google.com/forms/d/e/1FAIpQLSd2yBU7eihC_dtOWIaToNjB4DPDU6Mhcgxd9fjCt5Z5t-cvAg/formResponse',
+  kind: 'entry.943265526',
+  text: 'entry.377622377',
+  nick: 'entry.1662671808',
+  agree: 'entry.140036354',
+  kindValue: { chat: '어이없는 업무 관련 대화', story: '직장 썰' },
+  agreeValue: '동의',
+};
 
 export interface Report {
   kind: ReportKind;
