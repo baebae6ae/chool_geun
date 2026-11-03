@@ -2535,7 +2535,7 @@ textarea {
 }
 .share-preview img {
   width: min(72%, 300px);
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   border-radius: 14px;
   border: 2px solid var(--pencil-edge);
   box-shadow: 4px 5px 0 rgba(169, 121, 79, 0.3);

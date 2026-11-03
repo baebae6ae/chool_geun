@@ -122,7 +122,9 @@ export interface CardData {
 }
 
 const W = 1080;
-const H = 1350;
+const H = 1440;
+/** 카드 아래 QR이 여는 스토어 주소 */
+export const STORE_URL = 'https://play.google.com/store/apps/details?id=io.github.baebae6ae.hamsterworklog';
 /** 저장 크기 배율: 그림은 1080×1350 좌표로 그리고 900×1125로 줄여 저장한다 (용량 절약) */
 const OUT_SCALE = 900 / 1080;
 const INK = '#362a20';
@@ -432,6 +434,37 @@ export async function renderCard(d: CardData): Promise<Blob> {
       x += widths[i] + 18;
     });
   }
+
+  // 아래 띠: 어디서 받는지 + 스토어 QR (받은 사람이 바로 찾아올 수 있게)
+  const by = 1294;
+  ctx.strokeStyle = PENCIL;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([12, 10]);
+  ctx.beginPath();
+  ctx.moveTo(84, by);
+  ctx.lineTo(W - 84, by);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const qs = 86;
+  const qx = W - 84 - qs;
+  const qy = by + 12;
+  try {
+    const QR = await import('qrcode');
+    const qr = await loadImage(await QR.toDataURL(STORE_URL, { margin: 1, width: qs * 2, color: { dark: '#362a20', light: '#ffffff' } }));
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, qx - 6, qy - 6, qs + 12, qs + 12, 14);
+    ctx.fill();
+    ctx.drawImage(qr, qx, qy, qs, qs);
+  } catch {
+    // QR을 못 만들어도 글자는 남긴다
+  }
+  ctx.textAlign = 'left';
+  ctx.fillStyle = INK;
+  ctx.font = `400 44px Jua, ${sans}`;
+  ctx.fillText('🐹 햄스터 출근일지', 84, by + 52);
+  ctx.fillStyle = INK2;
+  ctx.font = `700 30px ${sans}`;
+  ctx.fillText('출근하면 번 돈이 실시간으로 쌓이는 앱', 84, by + 92);
 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('이미지를 만들지 못했어요'))), 'image/jpeg', 0.86));
 }

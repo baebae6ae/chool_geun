@@ -150,6 +150,8 @@ export interface AppState {
   whatsNew?: number;
   /** 근무 중 어이없는 대화에 사이다를 날린 날 */
   chat?: Record<string, { doneAt: number }>;
+  /** Play 별점 창을 띄운 횟수와 마지막 시각 */
+  reviewAsk?: { count: number; last: number };
   /** 개발자 응원(후원) 기록: 고마워서 남겨 둔다 (도감 후원자 배지) */
   support?: { count: number; first: number; last: number };
   /** 보낸 제보 수 */

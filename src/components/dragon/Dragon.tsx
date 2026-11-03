@@ -14,6 +14,7 @@ import { planDragon, type Attack, type DragonPlan, type EndingId, type Fx, type 
 import type { Customization, HamsterColor } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
 import { buzz } from '../../haptics';
+import { happyMoment } from '../../happy';
 import './dragon.css';
 
 /** 변신 장면 그림 (앱 안 public/dragon) */
@@ -117,6 +118,10 @@ export function Dragon({ me, reality, seed, onClose }: { me: Customization; real
     setI(0);
   };
   const k = `${run}-${i}`;
+  // 변신을 끝까지 봤으면 기분 좋은 순간
+  useEffect(() => {
+    if (beat.kind === 'end') happyMoment();
+  }, [beat.kind]);
   const loop = plan.ending === 'loop';
 
   return (

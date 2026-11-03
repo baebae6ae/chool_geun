@@ -30,6 +30,8 @@ import { ReportSheet, SupportSheet } from './components/Cheer';
 import { onSheet, type SheetKind } from './sheets';
 import { recordSupport, TIERS } from './domain/support';
 import { settlePending } from './billing';
+import { happyMoment, onHappy, requestReview } from './happy';
+import { markReviewAsked, shouldAskReview } from './domain/review';
 
 type Tab = 'home' | 'office' | 'dex' | 'records' | 'custom';
 
@@ -200,6 +202,16 @@ export function App() {
   // 제보·응원 시트: 어느 화면에서든 openSheet()로 연다
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   useEffect(() => onSheet(setSheet), []);
+  // 기분 좋은 순간에 가끔 Play 별점 창 (조건은 domain/review.ts)
+  useEffect(
+    () =>
+      onHappy(() => {
+        if (!shouldAskReview(getState(), clockNow())) return;
+        setState((s) => markReviewAsked(s, clockNow()));
+        setTimeout(requestReview, 1200);
+      }),
+    [],
+  );
   const newsPending = whatsNewPending(state);
   useEffect(() => {
     if (newsPending) setWhatsNewOpen(unseenNews(getState()));
@@ -339,7 +351,10 @@ export function App() {
           overtime={pay.overtime}
           workDays={pay.workDays}
           name={settings.hamsterName}
-          onClose={() => setState((s) => ({ ...s, paydaySeen: key }))}
+          onClose={() => {
+            setState((s) => ({ ...s, paydaySeen: key }));
+            happyMoment();
+          }}
         />
       )}
       {sheet === 'report' && (

@@ -3,6 +3,7 @@ import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain
 
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
 import { openSheet } from '../sheets';
+import { happyMoment } from '../happy';
 const Dragon = lazy(() => import('../components/dragon/Dragon').then((m) => ({ default: m.Dragon })));
 import { Habitat } from '../components/habitat/Habitat';
 import { dateKey, formatKoreanDate, formatRemaining } from '../domain/date';
@@ -254,6 +255,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     // 기록(업적 알림 포함)은 쾅 한 뒤에 남긴다
     const r = addHeart(stateRef.current, clockNow());
     later(SLAM_HIT_MS + 900, () => onState((s) => addHeart(winChat(s, key, clockNow()), clockNow()).state));
+    later(CIDER_TOTAL_MS + 3400, happyMoment);
     if (r.leveledUp) later(at + 2600, () => say(`💖 친밀도 ${r.leveledUp}단계! ${BOND_TITLES[r.leveledUp! - 1]}`));
     later(CIDER_TOTAL_MS + 3200, () => setChatFx(null));
   };
@@ -543,7 +545,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         })()}
         {theater && (
           <Suspense fallback={null}>
-            <Theater story={theater} me={custom} onClose={() => setTheater(null)} />
+            <Theater story={theater} me={custom} onSeen={happyMoment} onClose={() => setTheater(null)} />
           </Suspense>
         )}
         {dragon && (
