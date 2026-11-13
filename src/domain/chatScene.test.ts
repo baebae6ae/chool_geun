@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { atTime } from './date';
 import { createInitialState } from './engine';
-import { chatAt, CIDER_BEATS, CIDER_TOTAL_MS, cleanStress, pendingChat, SCENES, sceneFor, SLAM_HIT_MS, winChat } from './chatScene';
+import { __setRemoteScenes, allScenes, refreshChats, validRawScene, chatAt, CIDER_BEATS, CIDER_TOTAL_MS, cleanStress, pendingChat, SCENES, sceneFor, SLAM_HIT_MS, winChat } from './chatScene';
 import { ACHIEVEMENTS, achievementContext } from './achievements';
 
 const KEY = '2026-10-13';
@@ -83,5 +83,22 @@ describe('어이없는 대화', () => {
     expect(ids).toContain('cider-1');
     expect(ids).toContain('cider-10');
     expect(ids).not.toContain('cider-30');
+  });
+
+  it('사이트에서 받은 대화가 기본 목록을 대신하고, 틀린 대화는 건너뛰고, 실패하면 기본 그대로', async () => {
+    const fresh = Array.from({ length: 12 }, (_, i) => ({ who: '팀장님', lines: ['>안녕하세요', `새 대화 ${i}`], retort: `새 답 ${i}` }));
+    const bad = [{ who: '팀장님', lines: ['>내 말로 끝남', '>또 내 말'], retort: '답' }, { who: '', lines: ['a', 'b'], retort: 'c' }, null];
+    const ok = (async () => ({ ok: true, json: async () => ({ scenes: [...fresh, ...bad] }) })) as unknown as typeof fetch;
+    expect(await refreshChats(ok)).toBe(true);
+    expect(allScenes()).toHaveLength(12);
+    expect(allScenes()[3].lines[0].me).toBe(true);
+    expect(sceneFor(1, KEY).scene.retort).toMatch(/^새 답/);
+    expect(validRawScene(bad[0])).toBe(false);
+    __setRemoteScenes([]);
+    const fail = (async () => ({ ok: false })) as unknown as typeof fetch;
+    expect(await refreshChats(fail)).toBe(false);
+    const tooFew = (async () => ({ ok: true, json: async () => ({ scenes: fresh.slice(0, 3) }) })) as unknown as typeof fetch;
+    expect(await refreshChats(tooFew)).toBe(false);
+    expect(allScenes()).toBe(SCENES);
   });
 });

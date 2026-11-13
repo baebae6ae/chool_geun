@@ -25,6 +25,7 @@ import { grantAchievements, newAchievements } from './domain/achievements';
 import { ownedSeasonItems, SEASON_BY_ID, visitSeason } from './domain/seasons';
 import { markWhatsNewSeen, unseenNews, whatsNewPending } from './domain/whatsNew';
 import { refreshStories } from './domain/theater';
+import { refreshChats } from './domain/chatScene';
 import { refreshDragon } from './domain/dragon';
 import { ReportSheet, SupportSheet } from './components/Cheer';
 import { onSheet, type SheetKind } from './sheets';
@@ -167,6 +168,8 @@ export function App() {
     refreshStories().then((changed) => changed && setStoriesTick((n) => n + 1));
     // 드래곤 변신 장면도 같은 방식으로 받아온다 (다음 변신부터 새 장면이 섞인다)
     refreshDragon();
+    // 사이다 대화도 사이트에서 받아온다 (고치거나 늘려도 앱 업데이트가 필요 없다)
+    refreshChats().then((changed) => changed && setStoriesTick((n) => n + 1));
     // 결제는 됐는데 앱이 꺼져서 마무리 못 한 응원이 있으면 마저 처리하고 기록한다
     settlePending(TIERS.map((t) => t.id)).then((n) => {
       for (let i = 0; i < n; i++) setState((s) => recordSupport(s, clockNow()));
