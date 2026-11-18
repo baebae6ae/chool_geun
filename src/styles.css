@@ -2978,3 +2978,8 @@ html[data-overtime] .ot-panel { background: rgba(246, 250, 228, 0.9); }
 .supporter-badge { padding: 3px 10px; border-radius: 999px; background: #fff1c2; border: 1.5px solid #e0b100; color: #8a5a00; font-size: 0.75rem; font-weight: 900; }
 /* 제보·응원 시트가 떠 있을 땐 알림 토스트가 덮지 않게 */
 body:has(.cheer-sheet) .toast { display: none; }
+
+/* 어제 퇴근 시각: 묻지 않고 정시로 적어 둔 것을 알려 주는 작은 줄 (야근했으면 바로 고친다) */
+.left-note { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 2px 0; padding: 8px 10px 8px 14px; font-size: 0.88rem; font-weight: 700; color: var(--ink); background: color-mix(in srgb, var(--card) 85%, transparent); border: 1.5px dashed var(--line); border-radius: 14px; }
+.left-note .chip-btn { flex: 0 0 auto; padding: 6px 12px; font-size: 0.82rem; }
+.app.clock .left-note { display: none; }

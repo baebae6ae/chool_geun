@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { endOvertime, liveOvertime, overtimeFromLeft, overtimeMoney, overtimeTotals, pendingLeftAsk, recordLeft, startOvertime } from './overtime';
+import { endOvertime, liveOvertime, overtimeFromLeft, overtimeMoney, overtimeTotals, pendingLeftAsk, recordLeft, settleLeft, startOvertime } from './overtime';
 import { atTime } from './date';
 import type { AppState, DailyWork } from './types';
 
@@ -34,6 +34,24 @@ describe('야근 계산', () => {
     expect(pendingLeftAsk(s, '2026-10-03')).toBe('2026-10-01');
     expect(pendingLeftAsk(recordLeft(s, '2026-10-01', null), '2026-10-03')).toBeNull();
     expect(pendingLeftAsk(s, '2026-10-01')).toBe('2026-09-29');
+  });
+  it('퇴근 시각은 묻지 않고 정시로 적는다: 가장 최근 하루만 오늘 정오까지 고칠 수 있게 남긴다', () => {
+    const s = st([day('2026-09-29'), day('2026-10-01'), day('2026-10-02')]);
+    const morning = settleLeft(s, '2026-10-03', atTime('2026-10-03', '08:30'));
+    expect(morning.days['2026-10-02'].leftAsked).toBeFalsy();
+    expect([morning.days['2026-10-01'].leftAsked, morning.days['2026-10-01'].overtimeMs]).toEqual([true, 0]);
+    expect(morning.days['2026-09-29'].leftAsked).toBe(true);
+    const noon = settleLeft(morning, '2026-10-03', atTime('2026-10-03', '12:00'));
+    expect([noon.days['2026-10-02'].leftAsked, noon.days['2026-10-02'].leftAt]).toEqual([true, '18:00']);
+    // 이미 야근했다고 적은 날은 그대로
+    const fixed = settleLeft(recordLeft(s, '2026-10-02', '21:00'), '2026-10-03', atTime('2026-10-03', '13:00'));
+    expect(fixed.days['2026-10-02'].leftAt).toBe('21:00');
+  });
+  it('묻기를 끄면 바로 정시 퇴근, 야근 중인 날은 건드리지 않는다', () => {
+    const off = { ...st([day('2026-10-02')]), settings: { askLeftTime: false } as never };
+    expect(settleLeft(off, '2026-10-03', atTime('2026-10-03', '08:00')).days['2026-10-02'].leftAsked).toBe(true);
+    const ot = { ...st([day('2026-10-02')]), overtime: { date: '2026-10-02', startedAt: atTime('2026-10-02', '18:00') } };
+    expect(settleLeft(ot, '2026-10-03', atTime('2026-10-03', '13:00')).days['2026-10-02'].leftAsked).toBeFalsy();
   });
   it('야근하기 → 진짜 퇴근: 시작한 때부터 끝낸 때까지가 기록된다', () => {
     const k = '2026-10-01';

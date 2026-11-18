@@ -93,6 +93,25 @@ export function pendingLeftAsk(state: AppState, todayKey: string): string | null
   return list[0]?.date ?? null;
 }
 
+/** 홈에 "어제 몇 시 퇴근으로 적었어요" 줄을 보여 주는 마지막 시각 (이후엔 정시 퇴근으로 확정) */
+export const LEFT_NOTE_UNTIL = '12:00';
+
+/**
+ * 퇴근 시각을 묻지 않고 정시 퇴근으로 확정한다.
+ * 홈에 보여 줄 가장 최근 하루(note)만 오늘 정오까지 남겨 두고, 나머지와 정오가 지난 것은 정시 퇴근으로 적는다.
+ * 묻기를 끈 사람은 바로 정시 퇴근. 야근 중인 날은 건드리지 않는다. 나중에 기록 탭에서 언제든 고칠 수 있다.
+ */
+export function settleLeft(state: AppState, todayKey: string, now: number): AppState {
+  const ask = state.settings?.askLeftTime !== false;
+  const note = ask && now < atTime(todayKey, LEFT_NOTE_UNTIL) ? pendingLeftAsk(state, todayKey) : null;
+  let next = state;
+  for (const d of Object.values(state.days)) {
+    if (!d.clockedOut || d.leftAsked || d.date >= todayKey || d.date === note || state.overtime?.date === d.date) continue;
+    next = recordLeft(next, d.date, null);
+  }
+  return next;
+}
+
 export interface OvertimeTotals {
   ms: number;
   pay: number;

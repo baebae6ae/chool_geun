@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal, PaydayModal, WhatsNewModal } from './components/Modals';
 import { addDays, atTime, dateKey } from './domain/date';
-import { endOvertime, recordLeft } from './domain/overtime';
+import { endOvertime, recordLeft, settleLeft } from './domain/overtime';
 import { applySettings, completedCount, daysUntilPayday, markCelebrated, markGachaSeen, reconcile, unseenGacha } from './domain/engine';
 import { LOP_DAYS } from './domain/customization';
 import { paydaySummary } from './domain/records';
@@ -105,6 +105,8 @@ export function App() {
     if (today && r.finalized.includes(today.date)) next = sendNotification(next, 'clockOut', now);
     // 야근은 자정에 자동으로 끝낸다
     if (next.overtime && now >= atTime(addDays(next.overtime.date, 1), '00:00')) next = endOvertime(next, now);
+    // 어제 퇴근 시각은 묻지 않고 정시 퇴근으로 적는다 (오늘 정오까지는 홈에서 '야근했어요'로 고칠 수 있다)
+    next = settleLeft(next, dateKey(now), now);
     setState(next);
   }, [now]);
 

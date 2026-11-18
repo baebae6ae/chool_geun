@@ -15,8 +15,8 @@ import { careerStats, formatWon, itemOf } from '../domain/records';
 import { careerTitle, REACTION_LINES, speciesWord } from '../domain/customization';
 import { dayBounds, earnedAt, hamsterMood, progressAt } from '../domain/schedule';
 import type { AppState, Settings } from '../domain/types';
-import { endOvertime, hhmm, liveOvertime, pendingLeftAsk, recordLeft, startOvertime, wageTypeOf } from '../domain/overtime';
-import { addDays } from '../domain/date';
+import { endOvertime, hhmm, LEFT_NOTE_UNTIL, liveOvertime, pendingLeftAsk, recordLeft, startOvertime, wageTypeOf } from '../domain/overtime';
+import { addDays, atTime } from '../domain/date';
 import { LeftSheet } from '../components/LeftSheet';
 import { now as clockNow } from '../store';
 import { ItemIcon } from '../components/ItemIcon';
@@ -356,15 +356,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     return () => root.removeAttribute('data-overtime');
   }, [otActive]);
 
-  // "어제 몇 시에 퇴근했어요?"
-  const [askDismissed, setAskDismissed] = useState<string | null>(null);
-  const askKey = settings.askLeftTime !== false && !otActive ? pendingLeftAsk(state, key) : null;
+  // 어제 퇴근 시각: 묻지 않고 정시 퇴근으로 적어 두고, 야근한 날만 홈의 작은 줄에서 고친다 (정오가 지나면 확정)
+  const askKey = settings.askLeftTime !== false && !otActive && now < atTime(key, LEFT_NOTE_UNTIL) ? pendingLeftAsk(state, key) : null;
   const askDay = askKey ? state.days[askKey] : undefined;
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  useEffect(() => {
-    setOverlayOpen(!!document.querySelector('.overlay:not(.left-overlay)'));
-  });
-  const showAsk = !!askKey && !!askDay && askKey !== askDismissed && !sharing && !overlayOpen;
+  const [askOpen, setAskOpen] = useState(false);
+  const showAsk = askOpen && !!askKey && !!askDay;
   const askWhen = askKey === addDays(key, -1) ? '어제' : askKey ? formatKoreanDate(askKey).replace(/ ?\(.*\)$/, '') : '';
 
   // 퇴근이 코앞이면 시간이 두근두근 (30분 전부터 점점 빨라진다)
@@ -499,6 +495,17 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           reaction={reaction}
           overtimeMin={otNow ? Math.floor(otNow.ms / 60_000) : null}
         />
+
+        {askKey && askDay && (
+          <div className="left-note" role="status">
+            <span>
+              🕕 {askWhen} {askDay.schedule.workEnd} 퇴근으로 적었어요
+            </span>
+            <button type="button" className="chip-btn" onClick={() => setAskOpen(true)}>
+              야근했어요
+            </button>
+          </div>
+        )}
 
         {shownMsg && (
           <section
@@ -707,8 +714,11 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         <LeftSheet
           when={askWhen}
           workEnd={askDay.schedule.workEnd}
-          onPick={(left) => onState((s) => recordLeft(s, askKey, left))}
-          onLater={() => setAskDismissed(askKey)}
+          onPick={(left) => {
+            onState((s) => recordLeft(s, askKey, left));
+            setAskOpen(false);
+          }}
+          onLater={() => setAskOpen(false)}
         />
       )}
 

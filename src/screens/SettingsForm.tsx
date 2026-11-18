@@ -273,7 +273,7 @@ export function SettingsForm({ initial, custom, onSave, onCancel, onReset }: Pro
         </p>
         <label className="toggle">
           <input type="checkbox" checked={s.askLeftTime !== false} onChange={(e) => set('askLeftTime', e.target.checked)} />
-          다음 날 "몇 시에 퇴근했어요?" 물어보기
+          다음 날 아침 홈에 "어제 몇 시 퇴근" 보여 주기 (야근했으면 바로 고치기)
         </label>
         {hourly > 0 && Number.isFinite(hourly) && (
           <p className="muted small">시간당 급여 약 {formatWon(Math.round(hourly))} ({annual ? (s.showGross ? '세전' : '세후') + ' ' : ''}월급 ÷ 월 근무시간)</p>
