@@ -344,22 +344,32 @@ const bossToo: Episode = {
 // ───────────────────────── 5. '잠깐만' 벽 부수기 ─────────────────────────
 const WALL_WORDS = ['잠깐만~', '이것만 보고 가', '내일 아침까지', '회의 5분만', '자료 하나만', '벌써 가?'];
 function wordTexture(text: string) {
+  const W = 512, H = 320;
   const cv = document.createElement('canvas');
-  cv.width = 256;
-  cv.height = 160;
+  cv.width = W;
+  cv.height = H;
   const g = cv.getContext('2d')!;
-  g.fillStyle = '#ffffff';
-  g.fillRect(0, 0, 256, 160);
-  g.strokeStyle = '#3a3a6a';
-  g.lineWidth = 10;
-  g.strokeRect(5, 5, 246, 150);
-  g.fillStyle = '#3a3a6a';
-  g.font = `700 ${text.length > 6 ? 38 : 48}px GaeguDiary, Jua, sans-serif`;
+  g.fillStyle = '#fffdf7';
+  g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#2b2b55';
+  g.lineWidth = 18;
+  g.strokeRect(9, 9, W - 18, H - 18);
+  g.fillStyle = '#2b2b55';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.fillText(text, 128, 82);
+  // 블록 폭에 꽉 차게, 굵게
+  let size = 150;
+  g.font = `700 ${size}px GaeguDiary, Jua, sans-serif`;
+  while (g.measureText(text).width > W - 60 && size > 40) {
+    size -= 4;
+    g.font = `700 ${size}px GaeguDiary, Jua, sans-serif`;
+  }
+  g.lineWidth = Math.max(3, size / 22);
+  g.strokeText(text, W / 2, H / 2 + 6);
+  g.fillText(text, W / 2, H / 2 + 6);
   const tx = new THREE.CanvasTexture(cv);
   tx.colorSpace = THREE.SRGBColorSpace;
+  tx.anisotropy = 8;
   return tx;
 }
 const wallBreak: Episode = {
@@ -373,11 +383,11 @@ const wallBreak: Episode = {
     const side = new THREE.MeshStandardMaterial({ color: '#f4f1ea', roughness: 0.9 });
     const blocks = WALL_WORDS.map((w, i) => {
       const face = new THREE.MeshStandardMaterial({ map: wordTexture(w), roughness: 0.9 });
-      const m = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3, 2.4), [side, side, side, side, face, side]);
+      const m = new THREE.Mesh(new THREE.BoxGeometry(5.4, 3.4, 2.4), [side, side, side, side, face, side]);
       m.castShadow = m.receiveShadow = true;
       s.add(m);
       const col = i % 2, row = Math.floor(i / 2);
-      return { m, x: DOOR.x - 2.6 + col * 4.8, y: 1.5 + row * 3, z: 4.6 };
+      return { m, x: DOOR.x - 5.4 + col * 5.5, y: 1.7 + row * 3.4, z: 4.6 };
     });
     blocks.forEach((b, i) => debris.burst(new THREE.Vector3(b.x, b.y, b.z), 5.9 + (blocks.length - 1 - i) * 0.42, 22, 30 + i));
     return (t) => {
@@ -393,15 +403,15 @@ const wallBreak: Episode = {
       debris.update(t);
       // 햄스터: 다가가다 멈칫 → 위 블록부터 박치기 → 문으로
       let x = 0, y = 0, z = 0;
-      if (t < 5.8) [x, z] = along([[HAM_START.x, HAM_START.z], [26, 24], [30, 12]], seg(t, 1.5, 3.0));
+      if (t < 5.8) [x, z] = along([[HAM_START.x, HAM_START.z], [22, 24], [22, 13]], seg(t, 1.5, 3.0));
       else if (t < 8.4) {
         const n = Math.min(blocks.length - 1, Math.floor((t - 5.8) / 0.42));
         const b = blocks[blocks.length - 1 - n];
         const k = ((t - 5.8) % 0.42) / 0.42;
-        x = lerp(30, b.x, Math.sin(k * Math.PI));
-        z = lerp(12, b.z + 1.5, Math.sin(k * Math.PI));
+        x = lerp(22, b.x, Math.sin(k * Math.PI));
+        z = lerp(13, b.z + 1.5, Math.sin(k * Math.PI));
         y = Math.sin(k * Math.PI) * (b.y - 1);
-      } else [x, z] = along([[30, 12], [33, 4], [34, -4]], seg(t, 8.4, 9.3));
+      } else [x, z] = along([[22, 13], [33, 4], [34, -4]], seg(t, 8.4, 9.3));
       c.ham.grp.position.set(x, Math.max(0, y), z);
       c.ham.hop(t, (t > 1.5 && t < 3.0) || t > 8.4);
       c.ham.set(c.tex[t < 1.5 ? 'h:type' : t < 5.0 ? 'h:shock' : t < 8.4 ? 'h:smug' : 'h:cheer']);
@@ -409,7 +419,7 @@ const wallBreak: Episode = {
       c.door.door.rotation.y = -Math.PI * 0.55 * eo(seg(t, 8.6, 9.0));
       exitBlink(c, t);
       let cam = opening(t);
-      cam = mix(cam, { tx: 32, ty: 6, tz: 8, ang: 0.32, dist: 72, hgt: 38 }, eio(seg(t, 2.6, 3.4)));
+      cam = mix(cam, { tx: 29, ty: 6.5, tz: 7, ang: 0.02, dist: 64, hgt: 24 }, eio(seg(t, 2.6, 3.4)));
       let shake = 0;
       for (let i = 0; i < blocks.length; i++) if (t > 3.3 + i * 0.32 && t < 3.5 + i * 0.32) shake = 0.5;
       for (let i = 0; i < blocks.length; i++) if (t > 5.9 + i * 0.42 && t < 6.1 + i * 0.42) shake = 0.7;
