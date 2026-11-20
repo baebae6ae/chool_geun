@@ -141,7 +141,7 @@ const airplane: Episode = {
     const lit: [number, number, number][] = [];
     for (let i = 0; i < 46; i++) {
       const bx = OX - 50 + Math.floor(r() * 12) * 12, bz = -70 + Math.floor(r() * 10) * 12;
-      if (Math.abs(bx - OX) < 8 && bz > -40) continue;
+      if (Math.abs(bx - OX) < 28) continue;
       const h = 8 + Math.floor(r() * 5) * 6, col = ['#e8d3b8', '#d9c3e6', '#c9dceb', '#f0c9b4'][i % 4];
       city.box(bx, 0, bz, 8, h, 8, col);
       for (let y = 3; y < h - 2; y += 4) for (let xx = 1; xx < 8; xx += 3) if (r() > 0.35) lit.push([bx + xx, y, bz + 8]);
@@ -186,7 +186,7 @@ const airplane: Episode = {
       } else if (outside && t < 8.6) {
         // 도시 위를 날아 집으로
         const k = seg(t, 4.5, 8.4);
-        const x = OX + Math.sin(k * Math.PI * 1.5) * 18, y = lerp(40, 9, eio(k)) + Math.sin(t * 3) * 1.2, z = lerp(-70, HZ - 2, eio(k));
+        const x = OX + Math.sin(k * Math.PI * 1.5) * 12, y = lerp(46, 9, eio(k)) + Math.sin(t * 3) * 1.2, z = lerp(-70, HZ - 2, eio(k));
         plane.position.set(x, y, z);
         plane.rotation.set(Math.sin(t * 3) * 0.1, Math.PI + Math.cos(k * Math.PI * 1.5) * 0.6, -Math.cos(k * Math.PI * 1.5) * 0.5);
       }
@@ -211,7 +211,7 @@ const airplane: Episode = {
       } else if (t < 8.6) {
         // 비행기 뒤를 따라간다
         const p = plane.position;
-        c.stage.camera.position.set(p.x + 6, p.y + 7, p.z - 22);
+        c.stage.camera.position.set(p.x + 5, p.y + 10, p.z - 24);
         c.stage.camera.lookAt(p.x, p.y, p.z + 6);
       } else {
         shot(c.stage, { tx: HX, ty: 6, tz: HZ - 2, ang: 0.1, dist: 48, hgt: 22 });
