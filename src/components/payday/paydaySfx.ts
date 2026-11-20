@@ -5,7 +5,7 @@
 import type { Sfx } from '../../domain/paydayCinema';
 
 /** 월급날 + 퇴근 탈출에서 쓰는 소리 */
-export type SfxKind = Sfx | 'tick' | 'sting' | 'flap' | 'creak' | 'chime' | 'wind' | 'pop' | 'print' | 'shh' | 'crash' | 'rattle' | 'snip';
+export type SfxKind = Sfx | 'tick' | 'sting' | 'flap' | 'creak' | 'chime' | 'wind' | 'pop' | 'print' | 'shh' | 'crash' | 'rattle' | 'snip' | 'ptap' | 'rustle' | 'crumple' | 'tear' | 'pthud';
 
 type Ctx = AudioContext;
 const SR = 22050;
@@ -119,6 +119,44 @@ function synth(ctx: Ctx, sfx: SfxKind, dur = 0.4): AudioBuffer {
       return make(ctx, 0.35, (t) => 0.45 * rnd() * Math.exp(-t * 12) + 0.5 * Math.exp(-t * 10) * sin(120 - 60 * t, t));
     case 'rattle':
       return make(ctx, 0.3, (t) => (Math.floor(t * 30) % 2 ? 0.25 * Math.exp(-((t * 30) % 1) * 9) : 0) * rnd());
+    case 'ptap': {
+      // 종이 인형이 바닥을 톡: 짧고 마른 바스락
+      let lp = 0;
+      return make(ctx, 0.06, (t) => {
+        lp = lp * 0.35 + rnd() * 0.65;
+        return lp * 0.32 * Math.exp(-t * 70);
+      });
+    }
+    case 'rustle': {
+      // 종이가 휙 스치는 바스락 (군데군데 탁탁 튄다)
+      let lp = 0;
+      const d = dur || 0.4;
+      return make(ctx, d, (t) => {
+        lp = lp * 0.45 + rnd() * 0.55;
+        const crack = rnd() > 0.985 ? 2.2 : 1;
+        return lp * 0.32 * crack * Math.sin(Math.PI * Math.min(1, t / d));
+      });
+    }
+    case 'crumple':
+      // 깜짝! 종이를 구기는 소리 (딱딱 터지는 잔소리가 촘촘)
+      return make(ctx, 0.5, (t) => (rnd() > 0.9 ? rnd() * 0.9 : rnd() * 0.12) * Math.exp(-t * 5));
+    case 'tear': {
+      // 종이 찢어지는 소리: 잔소리가 점점 빨라진다
+      let lp = 0;
+      return make(ctx, 0.4, (t) => {
+        lp = lp * 0.3 + rnd() * 0.7;
+        const dens = 0.85 - t * 0.6;
+        return (rnd() > dens ? lp * 0.8 : lp * 0.15) * Math.min(1, (0.4 - t) / 0.06);
+      });
+    }
+    case 'pthud': {
+      // 두꺼운 종이가 툭 떨어지는 소리
+      let lp = 0;
+      return make(ctx, 0.25, (t) => {
+        lp = lp * 0.85 + rnd() * 0.15;
+        return (lp * 1.6 + 0.35 * sin(80 - 60 * t, t)) * Math.exp(-t * 16);
+      });
+    }
     case 'snip':
       return make(ctx, 0.09, (t) => 0.35 * Math.exp(-t * 50) * (rnd() * 0.6 + sin(2400, t) * 0.4));
   }

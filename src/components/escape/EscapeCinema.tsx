@@ -14,6 +14,11 @@ import { buildDoor, buildOffice, BOSS_AT, HAM_START, paperTexture, Stage, Stande
 import { EPISODES } from './episodes';
 import './escape.css';
 
+/** 소리는 전부 종이로 낸 소리로: 통통·바스락·구깃·찢어짐·툭 */
+const PAPER: Record<string, string> = { tick: 'ptap', whoosh: 'rustle', sting: 'crumple', creak: 'flap', chime: 'rustle', wind: 'rustle', pop: 'flap', shh: 'rustle', thump: 'pthud', crash: 'tear', rattle: 'ptap' };
+const paperCues = (cues: { at: number; sfx: string; dur?: number }[]) =>
+  cues.map((c) => ({ ...c, sfx: PAPER[c.sfx] ?? c.sfx, dur: c.sfx === 'chime' ? 0.5 : c.sfx === 'shh' ? 0.3 : c.dur }));
+
 const HAM_POSES: FrontAction[] = ['type', 'idle', 'shock', 'cheer', 'smug', 'doze', 'shy'];
 const BOSS_POSES: FrontAction[] = ['idle', 'smug', 'shock', 'think', 'shy'];
 const BOSS: Customization = { ...DEFAULT_CUSTOM, species: 'cat', color: 'gray', outfit: 'suit', hat: 'none', glasses: false, hand: 'none' };
@@ -34,7 +39,6 @@ export function EscapeCinema({ custom, episode, onDone }: { custom: Customizatio
   const canvas = useRef<HTMLCanvasElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<'load' | 'play'>('load');
-  const [t, setT] = useState(0);
   const done = useRef(false);
   const finish = () => {
     if (done.current) return;
@@ -68,7 +72,7 @@ export function EscapeCinema({ custom, episode, onDone }: { custom: Customizatio
         update(0);
         stage.render(0);
         setPhase('play');
-        stop = playCues(ep.cues);
+        stop = playCues(paperCues(ep.cues));
         const t0 = performance.now();
         let last = -1, slow = 0, frames = 0;
         const loop = () => {
@@ -81,7 +85,6 @@ export function EscapeCinema({ custom, episode, onDone }: { custom: Customizatio
             last = f;
             update(Math.min(s, ep.dur));
             stage.render(s);
-            setT(s);
             // 느린 기기: 처음 몇 장면이 무거우면 해상도를 낮춘다
             if (frames++ < 30 && performance.now() - a > 45 && ++slow === 5) stage.renderer.setPixelRatio(1);
           }
@@ -104,20 +107,13 @@ export function EscapeCinema({ custom, episode, onDone }: { custom: Customizatio
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const title = phase === 'play' && t < 2.0;
-  const ending = phase === 'play' && t > ep.dur - 1.6;
   return (
-    <div className="escape" role="dialog" aria-modal="true" aria-label={`오늘의 퇴근 탈출: ${ep.title}`}>
+    <div className="escape" role="dialog" aria-modal="true" aria-label="오늘의 퇴근 탈출">
       <canvas ref={canvas} className="esc-canvas" aria-hidden />
       <div className="esc-tilt top" aria-hidden />
       <div className="esc-tilt bottom" aria-hidden />
       <div ref={overlay} className="esc-overlay" aria-hidden />
-      {phase === 'load' && <div className="esc-loading">🚪 퇴근 준비 중…</div>}
-      <div className={`esc-title ${title ? 'on' : ''}`}>
-        <small>오늘의 퇴근 탈출</small>
-        <b>{ep.title}</b>
-      </div>
-      <div className={`esc-ending ${ending ? 'on' : ''}`}>{ep.ending}</div>
+      {phase === 'load' && <div className="esc-loading">🚪</div>}
       <button type="button" className="esc-skip" onClick={finish}>
         건너뛰기 ›
       </button>

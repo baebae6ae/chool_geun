@@ -1,5 +1,6 @@
 /**
  * 오늘의 퇴근 탈출 6편. 각 편은 시간(초)을 받아 장면을 맞추는 함수를 돌려준다.
+ * 글자(제목·말풍선·자막)는 넣지 않는다: 다 말해 주면 재미가 없다. 종이 효과음만.
  * 모두 같은 복셀 사무실에서, 종이 인형이라서 가능한 방법으로 빠져나간다.
  */
 import * as THREE from 'three';
@@ -19,8 +20,6 @@ export type Cue = { at: number; sfx: string; dur?: number };
 export interface Episode {
   id: EscapeId;
   title: string;
-  /** 마지막에 뜨는 한 줄 */
-  ending: string;
   dur: number;
   cues: Cue[];
   setup(c: EpisodeCtx): (t: number) => void;
@@ -38,8 +37,6 @@ const ticks = (from: number, to: number, step = 0.25): Cue[] => {
   for (let t = from; t < to; t += step) out.push({ at: t, sfx: 'tick' });
   return out;
 };
-const v3 = (x: number, y: number, z: number) => () => new THREE.Vector3(x, y, z);
-const above = (s: Standee, h: number) => () => s.grp.position.clone().add(new THREE.Vector3(0, h, 0));
 
 /** 기본 카메라: 오른쪽 위에서 사무실 전체 */
 const WIDE = { tx: 20, ty: 4, tz: 16, ang: 0.5, dist: 108, hgt: 78 };
@@ -66,17 +63,12 @@ const exitBlink = (c: EpisodeCtx, t: number) => c.door.exitMat.color.set(Math.fl
 const sideways: Episode = {
   id: 'sideways',
   title: '옆으로 서면 안 보인다',
-  ending: '퇴근 성공. 얇아서.',
   dur: 10.5,
   cues: [...ticks(1.6, 3.4), { at: 3.35, sfx: 'whoosh', dur: 0.25 }, { at: 3.55, sfx: 'sting' }, { at: 3.75, sfx: 'flap' }, { at: 5.05, sfx: 'flap' }, { at: 7.0, sfx: 'whoosh', dur: 1.5 }, { at: 8.0, sfx: 'creak' }, { at: 8.3, sfx: 'pop' }, { at: 8.9, sfx: 'chime' }],
   setup(c) {
     const bang = buildBang(c.stage.scene);
     const path: P[] = [[HAM_START.x, HAM_START.z], [22, 28], [24, 19]];
     const out: P[] = [[24, 19], [27, 9], [33, 3], [34, -4]];
-    c.stage.say({ text: '…?', from: 3.9, to: 4.9, at: above(c.boss, 14), kind: 'think' });
-    c.stage.say({ text: '……', from: 5.6, to: 6.6, at: above(c.ham, 11.5), kind: 'think' });
-    c.stage.say({ text: '……', from: 6.0, to: 6.9, at: above(c.boss, 14), kind: 'think' });
-    c.stage.say({ text: '방금 뭐가 지나갔는데…', from: 8.9, to: 10.5, at: above(c.boss, 14), kind: 'think' });
     return (t) => {
       const walking = t > 1.6 && t < 3.4;
       const [x, z] = t < 7 ? along(path, seg(t, 1.6, 3.4)) : along(out, eio(seg(t, 7.0, 9.0)));
@@ -115,7 +107,6 @@ const sideways: Episode = {
 const airplane: Episode = {
   id: 'airplane',
   title: '종이비행기 퇴근',
-  ending: '퇴근 완료. 내일은 비행기 모드.',
   dur: 11.5,
   cues: [{ at: 1.9, sfx: 'flap' }, { at: 2.3, sfx: 'flap' }, { at: 2.7, sfx: 'flap' }, { at: 3.2, sfx: 'whoosh', dur: 0.6 }, { at: 4.3, sfx: 'whoosh', dur: 0.3 }, { at: 4.6, sfx: 'wind', dur: 3.6 }, { at: 8.4, sfx: 'whoosh', dur: 0.3 }, { at: 8.9, sfx: 'pop' }, { at: 9.1, sfx: 'chime' }],
   setup(c) {
@@ -161,9 +152,6 @@ const airplane: Episode = {
     flash.className = 'esc-flash';
     c.stage.overlay.appendChild(flash);
     const sky = new THREE.Color('#f5e3c6'), dusk = new THREE.Color('#f6a77e');
-    c.stage.say({ text: '17:59', from: 0.4, to: 1.6, at: v3(22, 18.5, 0.5), kind: 'shout' });
-    c.stage.say({ text: '접는다…', from: 1.7, to: 2.8, at: above(c.ham, 17), kind: 'say' });
-    c.stage.say({ text: '퇴근 완료~', from: 9.3, to: 11.5, at: () => homeHam.grp.position.clone().add(new THREE.Vector3(0, 13, 0)), kind: 'say' });
     // 책상 위에 올라선 햄스터
     const desk = { x: 6.5, y: 7, z: 16.5 };
     return (t) => {
@@ -224,7 +212,6 @@ const airplane: Episode = {
 const copier: Episode = {
   id: 'copier',
   title: '복사기 위장술',
-  ending: '퇴근 성공. 30부 중 1부.',
   dur: 11.5,
   cues: [...ticks(1.5, 3.0), { at: 3.0, sfx: 'whoosh', dur: 0.3 }, { at: 3.5, sfx: 'print', dur: 0.9 }, ...Array.from({ length: 12 }, (_, i) => ({ at: 4.3 + i * 0.12, sfx: 'pop' })), { at: 6.0, sfx: 'whoosh', dur: 0.25 }, { at: 6.2, sfx: 'sting' }, ...ticks(7.0, 8.4, 0.22), { at: 7.8, sfx: 'creak' }, { at: 8.6, sfx: 'chime' }, { at: 9.0, sfx: 'whoosh', dur: 0.4 }],
   setup(c) {
@@ -249,10 +236,6 @@ const copier: Episode = {
     const r = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
     const spots = copies.map(() => ({ x: 6 + r() * 28, z: 12 + r() * 18, ph: r() * 6, sp: 0.6 + r() * 0.8, t0: 4.3 + r() * 1.4 }));
     const seats: P[] = [[7.5, 22], [19.5, 22], [7.5, 30], [19.5, 30]];
-    c.stage.say({ text: '복사 30부!', from: 3.3, to: 4.3, at: v3(CX, 10, CZ), kind: 'shout' });
-    c.stage.say({ text: '누가 진짜야?!', from: 6.3, to: 7.9, at: above(c.boss, 14), kind: 'shout' });
-    c.stage.say({ text: '다음 날 아침…', from: 9.2, to: 10.4, at: v3(14, 16, 20), kind: 'think' });
-    c.stage.say({ text: '오늘따라 다들 열심히네?', from: 10.0, to: 11.5, at: above(c.boss, 14), kind: 'say' });
     return (t) => {
       // 복사기로 가서 쏙
       const [x, z] = along([[HAM_START.x, HAM_START.z], [26, 28], [CX - 1, CZ + 5]], seg(t, 1.5, 3.0));
@@ -314,7 +297,6 @@ const copier: Episode = {
 const bossToo: Episode = {
   id: 'bossToo',
   title: '팀장도 탈출 중',
-  ending: '퇴근 성공. 둘 다.',
   dur: 10.5,
   cues: [...ticks(1.5, 4.4), { at: 4.5, sfx: 'sting' }, { at: 5.4, sfx: 'shh' }, { at: 5.9, sfx: 'shh' }, ...ticks(6.6, 8.0, 0.2), { at: 6.6, sfx: 'creak' }, { at: 7.9, sfx: 'chime' }, { at: 8.9, sfx: 'thump' }],
   setup(c) {
@@ -325,10 +307,6 @@ const bossToo: Episode = {
     const bag = new Voxels().box(0, 0, 0, 3, 2.6, 1.4, '#6b4a33').box(0.8, 2.6, 0.5, 1.4, 0.6, 0.4, '#6b4a33').build();
     s.add(bag);
     const bangs = [buildBang(s), buildBang(s)];
-    c.stage.say({ text: '!!', from: 4.5, to: 5.3, at: above(c.ham, 11.5), kind: 'shout' });
-    c.stage.say({ text: '쉿…!', from: 5.3, to: 6.4, at: above(real, 12.5), kind: 'say' });
-    c.stage.say({ text: '쉿…!', from: 5.8, to: 6.6, at: above(c.ham, 11.5), kind: 'say' });
-    c.stage.say({ text: '팀장 자리엔 등신대만 남았다', from: 9.0, to: 10.5, at: above(c.boss, 9), kind: 'think' });
     return (t) => {
       const [x, z] = t < 6.6 ? along([[HAM_START.x, HAM_START.z], [24, 26], [26, 12], [30.5, 5.5]], seg(t, 1.5, 4.4)) : along([[30.5, 5.5], [33, 2], [33, -4]], seg(t, 6.6, 8.0));
       c.ham.grp.position.set(x, 0, z);
@@ -387,7 +365,6 @@ function wordTexture(text: string) {
 const wallBreak: Episode = {
   id: 'wallBreak',
   title: "'잠깐만' 벽 부수기",
-  ending: '퇴근 성공. 잠깐만은 내일의 나에게.',
   dur: 11.5,
   cues: [...ticks(1.5, 3.0), ...WALL_WORDS.map((_, i) => ({ at: 3.0 + i * 0.32 + 0.3, sfx: 'thump' })), ...WALL_WORDS.map((_, i) => ({ at: 5.9 + i * 0.42, sfx: 'crash' })), { at: 8.6, sfx: 'creak' }, { at: 9.3, sfx: 'chime' }],
   setup(c) {
@@ -403,7 +380,6 @@ const wallBreak: Episode = {
       return { m, x: DOOR.x - 2.6 + col * 4.8, y: 1.5 + row * 3, z: 4.6 };
     });
     blocks.forEach((b, i) => debris.burst(new THREE.Vector3(b.x, b.y, b.z), 5.9 + (blocks.length - 1 - i) * 0.42, 22, 30 + i));
-    c.stage.say({ text: '…좋아.', from: 5.1, to: 5.9, at: above(c.ham, 11.5), kind: 'say' });
     return (t) => {
       // 블록이 쿵쿵 떨어져 벽이 된다
       blocks.forEach((b, i) => {
@@ -446,7 +422,6 @@ const wallBreak: Episode = {
 const scissors: Episode = {
   id: 'scissors',
   title: '가위로 문 만들기',
-  ending: '퇴근 성공. 종이 세상에선 벽도 오려진다.',
   dur: 11,
   cues: [...ticks(1.5, 3.0), { at: 3.1, sfx: 'rattle' }, { at: 3.5, sfx: 'rattle' }, { at: 4.7, sfx: 'pop' }, ...Array.from({ length: 14 }, (_, i) => ({ at: 5.1 + i * 0.18, sfx: 'snip' })), { at: 7.9, sfx: 'thump' }, ...ticks(8.4, 9.4, 0.2), { at: 9.4, sfx: 'chime' }],
   setup(c) {
@@ -487,9 +462,6 @@ const scissors: Episode = {
     });
     sc.visible = false;
     s.add(sc);
-    c.stage.say({ text: '잠겼다…', from: 3.6, to: 4.6, at: above(c.ham, 11.5), kind: 'think' });
-    c.stage.say({ text: '그럼…', from: 4.6, to: 5.2, at: above(c.ham, 11.5), kind: 'say' });
-    c.stage.say({ text: '…어디서 바람이 들어오지?', from: 9.5, to: 11, at: above(c.boss, 14), kind: 'think' });
     return (t) => {
       let x: number, z: number;
       if (t < 3.0) [x, z] = along([[HAM_START.x, HAM_START.z], [26, 24], [33, 4]], seg(t, 1.5, 3.0));
