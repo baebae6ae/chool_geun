@@ -1,0 +1,64 @@
+/* 오늘의 퇴근 탈출 — 모든 규칙은 .escape 안에서만 */
+@font-face {
+  font-family: 'GaeguDiary';
+  font-weight: 700;
+  font-display: block;
+  src: url('../../assets/fonts/gaegu-diary.woff2') format('woff2');
+}
+.escape { position: fixed; inset: 0; z-index: 75; background: #f5e3c6; overflow: hidden; animation: esc-in 0.3s ease-out; }
+@keyframes esc-in { from { opacity: 0; } }
+.escape .esc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.escape .esc-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+/* 미니어처 사진처럼 위아래를 흐리게 */
+.escape .esc-tilt { position: absolute; left: 0; right: 0; height: 26%; pointer-events: none; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.escape .esc-tilt.top { top: 0; mask-image: linear-gradient(#000, transparent); -webkit-mask-image: linear-gradient(#000, transparent); }
+.escape .esc-tilt.bottom { bottom: 0; mask-image: linear-gradient(transparent, #000); -webkit-mask-image: linear-gradient(transparent, #000); }
+.escape .esc-bubble {
+  position: absolute;
+  padding: 6px 14px 8px;
+  border: 3px solid #3a3a6a;
+  border-radius: 18px;
+  background: #fff;
+  color: #3a3a6a;
+  font-family: 'GaeguDiary', 'Jua', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+}
+.escape .esc-bubble::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 14px; height: 14px; background: #fff; border-right: 3px solid #3a3a6a; border-bottom: 3px solid #3a3a6a; transform: translateX(-50%) rotate(45deg); }
+.escape .esc-bubble.think { border-style: dashed; border-radius: 26px; }
+.escape .esc-bubble.think::after { width: 10px; height: 10px; bottom: -16px; border: 3px solid #3a3a6a; border-radius: 50%; transform: translateX(-50%); }
+.escape .esc-bubble.shout { background: #fff2a8; font-size: 26px; border-radius: 6px; }
+.escape .esc-bubble.shout::after { background: #fff2a8; }
+.escape .esc-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.escape .esc-title, .escape .esc-ending {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -12px);
+  opacity: 0;
+  transition: opacity 0.35s, transform 0.35s;
+  text-align: center;
+  font-family: 'GaeguDiary', 'Jua', sans-serif;
+  font-weight: 700;
+  color: #3a3a6a;
+  pointer-events: none;
+}
+.escape .esc-title { top: calc(70px + env(safe-area-inset-top)); display: grid; gap: 2px; padding: 10px 22px 12px; background: rgba(255, 253, 247, 0.92); border: 3px solid #3a3a6a; border-radius: 14px; }
+.escape .esc-title small { font-size: 16px; color: #2fa463; }
+.escape .esc-title b { font-size: 28px; white-space: nowrap; }
+.escape .esc-ending { bottom: calc(60px + env(safe-area-inset-bottom)); padding: 10px 20px 12px; background: #3a3a6a; color: #fff; border-radius: 999px; font-size: 22px; white-space: nowrap; }
+.escape .esc-title.on, .escape .esc-ending.on { opacity: 1; transform: translate(-50%, 0); }
+.escape .esc-loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: 'GaeguDiary', 'Jua', sans-serif; font-weight: 700; font-size: 24px; color: #3a3a6a; }
+.escape .esc-skip {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  padding: 8px 14px;
+  border: 2px solid #3a3a6a;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.85);
+  color: #3a3a6a;
+  font-weight: 800;
+  font-size: 0.9rem;
+}

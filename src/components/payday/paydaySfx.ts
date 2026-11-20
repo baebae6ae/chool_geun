@@ -4,6 +4,9 @@
  */
 import type { Sfx } from '../../domain/paydayCinema';
 
+/** 월급날 + 퇴근 탈출에서 쓰는 소리 */
+export type SfxKind = Sfx | 'tick' | 'sting' | 'flap' | 'creak' | 'chime' | 'wind' | 'pop' | 'print' | 'shh' | 'crash' | 'rattle' | 'snip';
+
 type Ctx = AudioContext;
 const SR = 22050;
 
@@ -20,7 +23,7 @@ function make(ctx: Ctx, sec: number, f: (t: number, i: number) => number): Audio
   return buf;
 }
 
-function synth(ctx: Ctx, sfx: Sfx, dur = 0.4): AudioBuffer {
+function synth(ctx: Ctx, sfx: SfxKind, dur = 0.4): AudioBuffer {
   const rnd = noiseGen(7 + sfx.length * 31);
   const sin = (fr: number, t: number) => Math.sin(2 * Math.PI * fr * t);
   switch (sfx) {
@@ -72,11 +75,57 @@ function synth(ctx: Ctx, sfx: Sfx, dur = 0.4): AudioBuffer {
         const fr = t < 0.35 ? 392 : 330 - (t - 0.35) * 40;
         return 0.22 * Math.min(1, t / 0.02) * Math.exp(-t * 2.2) * (sin(fr, t) + 0.25 * sin(fr * 2, t));
       });
+    case 'tick': {
+      // 종이 인형 통통 걸음
+      const fr = 900 + (rnd() + 1) * 150;
+      return make(ctx, 0.08, (t) => 0.3 * Math.exp(-t * 60) * sin(fr, t) + 0.15 * rnd() * Math.exp(-t * 120));
+    }
+    case 'sting':
+      // 들켰다! 두둥
+      return make(ctx, 0.9, (t) =>
+        [[196, 0], [185, 0.18]].reduce((s, [fr, d]) => (t > d ? s + 0.4 * Math.exp(-(t - d) * 4) * (sin(fr, t) + 0.5 * sin(fr * 1.5, t) + 0.3 * sin(fr * 2, t)) : s), 0),
+      );
+    case 'flap': {
+      // 종이 접는 바스락
+      let lp = 0;
+      return make(ctx, 0.22, (t) => {
+        lp = lp * 0.3 + rnd() * 0.7;
+        return lp * 0.4 * Math.exp(-t * 14) * (0.6 + 0.4 * sin(55, t));
+      });
+    }
+    case 'creak':
+      return make(ctx, 0.5, (t) => 0.16 * Math.exp(-t * 3) * sin(220 + 120 * sin(7, t), t));
+    case 'chime':
+      return make(ctx, 1.0, (t) => [1047, 1319, 1568, 2093].reduce((s, fr, i) => (t > i * 0.09 ? s + 0.14 * Math.exp(-(t - i * 0.09) * 5) * sin(fr, t) : s), 0));
+    case 'wind': {
+      let lp = 0;
+      return make(ctx, dur, (t) => {
+        lp = lp * 0.97 + rnd() * 0.03;
+        return lp * 2.2 * Math.min(1, t / 0.4) * Math.min(1, (dur - t) / 0.5) * (0.7 + 0.3 * sin(0.7, t));
+      });
+    }
+    case 'pop':
+      return make(ctx, 0.12, (t) => 0.3 * Math.exp(-t * 40) * sin(500 + 900 * t * 8, t));
+    case 'print':
+      return make(ctx, dur, (t) => 0.12 * Math.sign(sin(110, t)) * (0.6 + 0.4 * sin(9, t)) * Math.min(1, (dur - t) / 0.08) + 0.04 * rnd());
+    case 'shh': {
+      let lp = 0;
+      return make(ctx, 0.5, (t) => {
+        lp = lp * 0.2 + rnd() * 0.8;
+        return lp * 0.25 * Math.min(1, t / 0.08) * Math.min(1, (0.5 - t) / 0.15);
+      });
+    }
+    case 'crash':
+      return make(ctx, 0.35, (t) => 0.45 * rnd() * Math.exp(-t * 12) + 0.5 * Math.exp(-t * 10) * sin(120 - 60 * t, t));
+    case 'rattle':
+      return make(ctx, 0.3, (t) => (Math.floor(t * 30) % 2 ? 0.25 * Math.exp(-((t * 30) % 1) * 9) : 0) * rnd());
+    case 'snip':
+      return make(ctx, 0.09, (t) => 0.35 * Math.exp(-t * 50) * (rnd() * 0.6 + sin(2400, t) * 0.4));
   }
 }
 
 /** 시간표대로 효과음을 예약한다. 멈출 때 부르는 함수를 돌려준다 */
-export function playCues(cues: { at: number; sfx: Sfx; dur?: number }[], offset = 0): () => void {
+export function playCues(cues: { at: number; sfx: SfxKind | string; dur?: number }[], offset = 0): () => void {
   let ctx: AudioContext | null = null;
   try {
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -93,7 +142,7 @@ export function playCues(cues: { at: number; sfx: Sfx; dur?: number }[], offset 
       const key = `${c.sfx}:${c.dur ?? ''}${c.sfx === 'clink' ? Math.round(c.at * 10) % 4 : ''}`;
       let buf = cache.get(key);
       if (!buf) {
-        buf = synth(ctx, c.sfx, c.dur);
+        buf = synth(ctx, c.sfx as SfxKind, c.dur);
         cache.set(key, buf);
       }
       const src = ctx.createBufferSource();

@@ -13,6 +13,15 @@ export interface NewsItem {
 
 export const NEWS: { version: number; items: NewsItem[] }[] = [
   {
+    version: 7,
+    items: [
+      { icon: '🚪', text: '퇴근하면 「오늘의 퇴근 탈출」! 미니어처 사무실에서 종이 인형 햄찌가 매일 다른 방법으로 탈출해요 (6편)' },
+      { icon: '💸', text: '월급날엔 다이어리 연출이 나와요. 월급이 들어오고… 30분 뒤…' },
+      { icon: '🕕', text: '"어제 몇 시에 퇴근했어요?" 팝업 대신, 야근한 날만 홈에서 바로 고쳐요' },
+      { icon: '🥤', text: '사이다 날리기 대사를 80개 전부 새로 썼어요' },
+    ],
+  },
+  {
     version: 6,
     items: [
       { icon: '📮', text: '겪은 썰이나 어이없는 대화를 제보하면 각색해서 앱에 실어 드려요 (설정 → 제보·응원)' },

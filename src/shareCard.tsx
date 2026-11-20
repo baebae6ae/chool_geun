@@ -140,7 +140,7 @@ const PENCIL_FILTER = `<defs><filter id="pencil-hs" x="-6%" y="-6%" width="112%"
 <feMerge><feMergeNode in="wob"/><feMergeNode in="paper"/></feMerge></filter></defs>`;
 
 /** 햄스터 스프라이트를 화면 밖에서 그려 독립된 SVG 문자열로 만든다 */
-function hamsterSvg(custom: Customization, pose: Pose, size: number, tired = false): string {
+export function hamsterSvg(custom: Customization, pose: Pose, size: number, tired = false): string {
   const host = document.createElement('div');
   const root = createRoot(host);
   flushSync(() => root.render(<HamsterSprite custom={custom} pose={pose} className="no-shadow" still />));
@@ -164,7 +164,7 @@ function hamsterSvg(custom: Customization, pose: Pose, size: number, tired = fal
   return out;
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
+export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);

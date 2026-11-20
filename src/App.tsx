@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useClockMode, useWakeLock } from './clockMode';
 import { ClockOutModal, GachaModal, PaydayModal, WhatsNewModal } from './components/Modals';
 import { addDays, atTime, dateKey } from './domain/date';
@@ -18,6 +18,9 @@ import { SettingsForm } from './screens/SettingsForm';
 import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
 import { TabIcon, type IconId } from './components/TabIcon';
 import { PaydayCinema } from './components/payday/PaydayCinema';
+import { markEscapeSeen, pickEscape } from './domain/escape';
+
+const EscapeCinema = lazy(() => import('./components/escape/EscapeCinema').then((m) => ({ default: m.EscapeCinema })));
 import { installWidgetDebug, syncWidget } from './widgetSync';
 import { isHolidayEvent } from './domain/gacha';
 import { installBackButton, useBackHandler } from './backStack';
@@ -76,9 +79,10 @@ export function App() {
   const state = useAppState();
   const now = useNow(1000);
   const [tab, setTabState] = useState<Tab>(initialTab);
-  const [paydayCinema, setPaydayCinema] = useState<string | null>(() =>
-    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'skip' : null,
-  );
+  const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [paydayCinema, setPaydayCinema] = useState<string | null>(reduceMotion ? 'skip' : null);
+  // 퇴근: 오늘의 퇴근 탈출(복셀 연출)을 먼저 보여 주고, 끝나면 퇴근 정리 카드
+  const [escapeDone, setEscapeDone] = useState<string | null>(reduceMotion ? 'skip' : null);
   const setTab = (t: Tab) => {
     setTabState(t);
     try {
@@ -382,7 +386,19 @@ export function App() {
       {whatsNewOpen && !gacha && !pay && !showClockOut && !showSettings && (
         <WhatsNewModal custom={state.custom} items={whatsNewOpen} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(null)} />
       )}
-      {showClockOut && today && (
+      {showClockOut && today && escapeDone !== today.date && escapeDone !== 'skip' && (
+        <Suspense fallback={null}>
+          <EscapeCinema
+            custom={state.custom}
+            episode={pickEscape(state, today.date)}
+            onDone={() => {
+              setState((s) => markEscapeSeen(s, pickEscape(s, today.date), today.date));
+              setEscapeDone(today.date);
+            }}
+          />
+        </Suspense>
+      )}
+      {showClockOut && today && (escapeDone === today.date || escapeDone === 'skip') && (
         <ClockOutModal
           day={today}
           custom={state.custom}
