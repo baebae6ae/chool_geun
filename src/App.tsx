@@ -17,6 +17,7 @@ import { Records } from './screens/Records';
 import { SettingsForm } from './screens/SettingsForm';
 import { getState, inAppBrowser, now as clockNow, resetState, setState, storageOk, useAppState, useNow } from './store';
 import { TabIcon, type IconId } from './components/TabIcon';
+import { PaydayCinema } from './components/payday/PaydayCinema';
 import { installWidgetDebug, syncWidget } from './widgetSync';
 import { isHolidayEvent } from './domain/gacha';
 import { installBackButton, useBackHandler } from './backStack';
@@ -75,6 +76,9 @@ export function App() {
   const state = useAppState();
   const now = useNow(1000);
   const [tab, setTabState] = useState<Tab>(initialTab);
+  const [paydayCinema, setPaydayCinema] = useState<string | null>(() =>
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'skip' : null,
+  );
   const setTab = (t: Tab) => {
     setTabState(t);
     try {
@@ -250,6 +254,7 @@ export function App() {
   const showClockOut = !gacha && today?.clockedOut && !today.celebrated;
   const isPayday = daysUntilPayday(key, settings.payday) === 0;
   const showPayday = !gacha && !showClockOut && !showSettings && isPayday && state.paydaySeen !== key;
+  // 월급날: 다이어리 연출을 먼저 보여 주고, 끝나면(건너뛰면) 이번 달 정리 카드 ('동작 줄이기'면 바로 카드)
   const pay = showPayday
     ? paydaySummary(state.days, key, settings)
     : null;
@@ -349,7 +354,10 @@ export function App() {
           onClose={() => setState((s) => markGachaSeen(s, gacha.date, gacha.eventId, gacha.at))}
         />
       )}
-      {pay && (
+      {pay && paydayCinema !== key && paydayCinema !== 'skip' && (
+        <PaydayCinema custom={state.custom} total={pay.salary + pay.overtime} dateKey={key} onDone={() => setPaydayCinema(key)} />
+      )}
+      {pay && (paydayCinema === key || paydayCinema === 'skip') && (
         <PaydayModal
           custom={state.custom}
           salary={pay.salary}

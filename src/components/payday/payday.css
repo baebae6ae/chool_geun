@@ -1,0 +1,45 @@
+/* 월급날 다이어리 연출 — 모든 규칙은 .pcine 안에서만 */
+@font-face {
+  font-family: 'GaeguDiary';
+  font-weight: 700;
+  font-display: block;
+  src: url('../../assets/fonts/gaegu-diary.woff2') format('woff2');
+}
+.pcine {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  overflow: hidden;
+  background-color: #fffdf7;
+  background-image: repeating-linear-gradient(transparent 0 57px, #b9d4ee 57px 59px);
+  animation: pc-in 0.3s ease-out;
+}
+@keyframes pc-in { from { opacity: 0; } }
+.pcine .pc-stage { position: absolute; left: 50%; top: 50%; width: 720px; height: 1280px; }
+.pcine .pc-cam { position: absolute; inset: 0; transform-origin: 0 0; }
+.pcine .pc-flip { position: absolute; inset: -400px 0; transform-origin: 0 50%; overflow: hidden; background: #fffdf7; }
+.pcine .pc-flip > .pc-cam { top: 400px; bottom: 400px; }
+.pcine .pc-page { position: absolute; inset: -60px; background-color: #fffdf7; background-image: repeating-linear-gradient(transparent 0 57px, #b9d4ee 57px 59px); background-position: 0 70px; }
+.pcine .pc-page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 138px; width: 3px; background: #f2a0a0; }
+.pcine .pc-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.22)); pointer-events: none; }
+.pcine .pc-vig { position: absolute; inset: -400px; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(120, 90, 50, 0.2)); pointer-events: none; }
+.pcine .pc-hand { position: absolute; white-space: nowrap; font-family: 'GaeguDiary', 'Jua', cursive; font-weight: 700; color: #3a3a6a; line-height: 1.15; filter: url(#pc-wob2); }
+.pcine .pc-layer { position: absolute; left: 0; top: 0; overflow: visible; }
+.pcine .pc-doodle { filter: url(#pc-wob); }
+.pcine .pc-crayon { filter: url(#pc-wob) url(#pc-crayon); }
+.pcine .pc-ham { position: absolute; width: 360px; height: 360px; transform-origin: 50% 94%; }
+.pcine .pc-ham svg { width: 100%; height: 100%; }
+.pcine .pc-note { position: absolute; width: 300px; height: 150px; transform-origin: 10% 90%; }
+.pcine .pc-bill { position: absolute; width: 260px; height: 120px; transform-origin: 50% 50%; background: #fff; border-radius: 8px; }
+.pcine .pc-skip {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  padding: 8px 14px;
+  border: 2px solid #3a3a6a;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.85);
+  color: #3a3a6a;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
