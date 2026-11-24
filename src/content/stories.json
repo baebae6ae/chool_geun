@@ -13590,12 +13590,6 @@
        "y": 40,
        "style": "shout",
        "size": 1
-      },
-      {
-       "at": 0,
-       "do": "mark",
-       "who": "me",
-       "mark": "sparkle"
       }
      ]
     },
