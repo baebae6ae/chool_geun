@@ -8,6 +8,7 @@ function storiesFile(): Plugin {
     name: 'stories-json',
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'stories.json', source: readFileSync('src/content/stories.json', 'utf-8') });
+      this.emitFile({ type: 'asset', fileName: 'events.json', source: readFileSync('src/content/events.json', 'utf-8') });
       this.emitFile({ type: 'asset', fileName: 'chat.json', source: readFileSync('src/content/chat.json', 'utf-8') });
       this.emitFile({ type: 'asset', fileName: 'dragon.json', source: readFileSync('src/content/dragon.json', 'utf-8') });
     },

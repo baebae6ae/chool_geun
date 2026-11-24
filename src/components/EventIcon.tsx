@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { EXTRA_ICONS, type Shape } from '../domain/remoteEvents';
 
 /**
  * 도감 이벤트·희귀 행동 아이콘 — 이모지 대신 파스텔 색연필 느낌으로 직접 그린 그림.
@@ -701,6 +702,23 @@ const ICONS: Record<string, ReactNode> = {
 };
 export const hasEventIcon = (id: string) => id in ICONS;
 
+/** 사이트에서 받은 이벤트: 도형 목록을 같은 색연필 스타일로 그린다 */
+function ShapeIcon({ shapes }: { shapes: Shape[] }) {
+  const col = (v?: string) => (v === undefined ? undefined : v === 'none' ? 'none' : v.startsWith('#') ? v : ((C as Record<string, string>)[v] ?? K));
+  return (
+    <S>
+      {shapes.map((x, i) => {
+        const common = { fill: col(x.fill) ?? 'none', stroke: col(x.stroke), strokeWidth: x.sw };
+        if (x.t === 'path') return <path key={i} d={x.d} {...common} />;
+        if (x.t === 'circle') return <circle key={i} cx={x.cx} cy={x.cy} r={x.r} {...common} />;
+        if (x.t === 'ellipse') return <ellipse key={i} cx={x.cx} cy={x.cy} rx={x.rx} ry={x.ry} {...common} />;
+        return <rect key={i} x={x.x} y={x.y} width={x.w} height={x.h} rx={x.rx} {...common} />;
+      })}
+    </S>
+  );
+}
+
 export function EventIcon({ id, emoji }: { id: string; emoji: string }) {
-  return <>{ICONS[id] ?? emoji}</>;
+  const extra = EXTRA_ICONS[id];
+  return <>{ICONS[id] ?? (extra ? <ShapeIcon shapes={extra} /> : emoji)}</>;
 }

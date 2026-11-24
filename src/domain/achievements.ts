@@ -135,6 +135,12 @@ export const ACHIEVEMENTS: Achievement[] = [
   a('season-all', '한정 수집가', '한정 아이템을 전부 받아요', 'gift', 'gold', SEASON_ITEMS.length, (c) => c.seasonItems),
 ];
 
+// 도감 완성 목표는 이벤트가 늘어나면 같이 늘어난다
+for (const [id, list] of [['dex-all', GACHA_EVENTS], ['holiday-all', HOLIDAY_EVENTS]] as const) {
+  const x = ACHIEVEMENTS.find((a) => a.id === id);
+  if (x) Object.defineProperty(x, 'goal', { get: () => list.length });
+}
+
 export const ACH_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((x) => [x.id, x])) as Record<string, Achievement>;
 
 /** 지금 상태에서 새로 달성한 업적 */

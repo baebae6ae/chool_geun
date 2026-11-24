@@ -1,0 +1,718 @@
+{
+ "version": 1,
+ "events": [
+  {
+   "id": "w-snack",
+   "kind": "work",
+   "rarity": "COMMON",
+   "emoji": "🍪",
+   "name": "탕비실 간식 리필",
+   "description": "오늘 과자가 새로 들어왔습니다!",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 9,
+     "y": 20,
+     "w": 30,
+     "h": 19,
+     "rx": 3,
+     "fill": "orange"
+    },
+    {
+     "t": "path",
+     "d": "M9 26h30"
+    },
+    {
+     "t": "circle",
+     "cx": 17,
+     "cy": 16,
+     "r": 5,
+     "fill": "brown"
+    },
+    {
+     "t": "circle",
+     "cx": 27,
+     "cy": 13,
+     "r": 5,
+     "fill": "yellow"
+    },
+    {
+     "t": "circle",
+     "cx": 34,
+     "cy": 18,
+     "r": 4,
+     "fill": "brown"
+    },
+    {
+     "t": "circle",
+     "cx": 16,
+     "cy": 15,
+     "r": 0.8,
+     "fill": "dark",
+     "stroke": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 28,
+     "cy": 12,
+     "r": 0.8,
+     "fill": "dark",
+     "stroke": "none"
+    }
+   ]
+  },
+  {
+   "id": "w-charger",
+   "kind": "work",
+   "rarity": "COMMON",
+   "emoji": "🔌",
+   "name": "충전기 실종",
+   "description": "분명 여기 꽂아 뒀는데…",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 14,
+     "y": 11,
+     "w": 15,
+     "h": 13,
+     "rx": 3,
+     "fill": "gray"
+    },
+    {
+     "t": "path",
+     "d": "M19 11V5M25 11V5"
+    },
+    {
+     "t": "path",
+     "d": "M21.5 24v7q0 8-8 8H8"
+    },
+    {
+     "t": "path",
+     "d": "M33 26q0-5 5-5 4 0 4 4 0 3-4 5v2"
+    },
+    {
+     "t": "circle",
+     "cx": 38,
+     "cy": 38,
+     "r": 1.3,
+     "fill": "dark",
+     "stroke": "none"
+    }
+   ]
+  },
+  {
+   "id": "w-meta-meeting",
+   "kind": "work",
+   "rarity": "COMMON",
+   "emoji": "🗓️",
+   "name": "회의를 위한 회의",
+   "description": "회의 일정을 정하는 회의가 잡혔습니다.",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 14,
+     "y": 8,
+     "w": 26,
+     "h": 24,
+     "rx": 4,
+     "fill": "cream"
+    },
+    {
+     "t": "rect",
+     "x": 8,
+     "y": 14,
+     "w": 26,
+     "h": 26,
+     "rx": 4,
+     "fill": "white"
+    },
+    {
+     "t": "rect",
+     "x": 8,
+     "y": 14,
+     "w": 26,
+     "h": 7,
+     "fill": "red"
+    },
+    {
+     "t": "path",
+     "d": "M14 11v6M28 11v6"
+    },
+    {
+     "t": "circle",
+     "cx": 15,
+     "cy": 28,
+     "r": 1.6,
+     "fill": "blue",
+     "stroke": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 21,
+     "cy": 28,
+     "r": 1.6,
+     "fill": "blue",
+     "stroke": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 27,
+     "cy": 28,
+     "r": 1.6,
+     "fill": "blue",
+     "stroke": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 15,
+     "cy": 34,
+     "r": 1.6,
+     "fill": "blue",
+     "stroke": "none"
+    }
+   ]
+  },
+  {
+   "id": "w-pen-dry",
+   "kind": "work",
+   "rarity": "COMMON",
+   "emoji": "🖊️",
+   "name": "볼펜 잉크 끝",
+   "description": "중요한 서명 직전에.",
+   "icon": [
+    {
+     "t": "path",
+     "d": "M13 35l17-17 5 5-17 17-7 2z",
+     "fill": "blue"
+    },
+    {
+     "t": "path",
+     "d": "M30 18l3-3 5 5-3 3"
+    },
+    {
+     "t": "path",
+     "d": "M8 43q5-3 9 0 4 3 8 0",
+     "fill": "none",
+     "stroke": "gray",
+     "sw": 2.5
+    },
+    {
+     "t": "path",
+     "d": "M36 32l4 2M35 37l4 1",
+     "fill": "none",
+     "stroke": "dark"
+    }
+   ]
+  },
+  {
+   "id": "w-canteen",
+   "kind": "work",
+   "rarity": "UNCOMMON",
+   "emoji": "🍛",
+   "name": "구내식당 특식",
+   "description": "오늘 메뉴가 돈가스래요!",
+   "icon": [
+    {
+     "t": "ellipse",
+     "cx": 24,
+     "cy": 32,
+     "rx": 19,
+     "ry": 8,
+     "fill": "white"
+    },
+    {
+     "t": "ellipse",
+     "cx": 24,
+     "cy": 31,
+     "rx": 15,
+     "ry": 5.5,
+     "fill": "cream"
+    },
+    {
+     "t": "rect",
+     "x": 13,
+     "y": 23,
+     "w": 17,
+     "h": 9,
+     "rx": 3,
+     "fill": "orange"
+    },
+    {
+     "t": "path",
+     "d": "M16 26l3 3M21 25l3 3M26 25l2 3",
+     "fill": "none",
+     "stroke": "brown"
+    },
+    {
+     "t": "ellipse",
+     "cx": 33,
+     "cy": 29,
+     "rx": 5,
+     "ry": 3,
+     "fill": "green"
+    },
+    {
+     "t": "path",
+     "d": "M40 8v10M37 8v4a3 3 0 0 0 6 0V8M8 8v10q0 2 2 2"
+    }
+   ]
+  },
+  {
+   "id": "w-umbrella",
+   "kind": "work",
+   "rarity": "UNCOMMON",
+   "emoji": "☂️",
+   "name": "우산 챙긴 날",
+   "description": "오늘따라 일기예보가 맞았습니다.",
+   "icon": [
+    {
+     "t": "path",
+     "d": "M7 24a17 17 0 0 1 34 0q-4-3-8.5 0-4.25-3-8.5 0-4.25-3-8.5 0-4.25-3-8.5 0z",
+     "fill": "blue"
+    },
+    {
+     "t": "path",
+     "d": "M24 24v13q0 4-4 4-3 0-3-3"
+    },
+    {
+     "t": "path",
+     "d": "M11 31l-2 4M38 31l-2 4M31 36l-2 4",
+     "fill": "none",
+     "stroke": "blue",
+     "sw": 2.4
+    }
+   ]
+  },
+  {
+   "id": "w-no-queue",
+   "kind": "work",
+   "rarity": "UNCOMMON",
+   "emoji": "🖨️",
+   "name": "복사기 대기 0명",
+   "description": "기다림 없이 바로 출력됐습니다.",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 9,
+     "y": 18,
+     "w": 30,
+     "h": 15,
+     "rx": 3,
+     "fill": "gray"
+    },
+    {
+     "t": "rect",
+     "x": 14,
+     "y": 10,
+     "w": 20,
+     "h": 8,
+     "rx": 1,
+     "fill": "white"
+    },
+    {
+     "t": "rect",
+     "x": 14,
+     "y": 30,
+     "w": 20,
+     "h": 10,
+     "rx": 1,
+     "fill": "white"
+    },
+    {
+     "t": "path",
+     "d": "M18 34h12M18 37h8"
+    },
+    {
+     "t": "circle",
+     "cx": 33,
+     "cy": 23,
+     "r": 1.5,
+     "fill": "green"
+    },
+    {
+     "t": "path",
+     "d": "M40 8v5M37.5 10.5h5M6 9v4M4 11h4",
+     "fill": "none",
+     "stroke": "yellow",
+     "sw": 2.4
+    }
+   ]
+  },
+  {
+   "id": "w-window-seat",
+   "kind": "work",
+   "rarity": "RARE",
+   "emoji": "🪟",
+   "name": "창가 자리 당첨",
+   "description": "자리 배치가 바뀌었는데… 창가다!",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 8,
+     "y": 7,
+     "w": 22,
+     "h": 20,
+     "rx": 2,
+     "fill": "blue"
+    },
+    {
+     "t": "path",
+     "d": "M19 7v20M8 17h22"
+    },
+    {
+     "t": "circle",
+     "cx": 36,
+     "cy": 12,
+     "r": 5,
+     "fill": "yellow"
+    },
+    {
+     "t": "rect",
+     "x": 26,
+     "y": 28,
+     "w": 13,
+     "h": 4,
+     "rx": 2,
+     "fill": "red"
+    },
+    {
+     "t": "rect",
+     "x": 28,
+     "y": 20,
+     "w": 9,
+     "h": 8,
+     "rx": 2.5,
+     "fill": "red"
+    },
+    {
+     "t": "path",
+     "d": "M32.5 32v6M27 41h11"
+    },
+    {
+     "t": "path",
+     "d": "M6 31l3 2M5 36l4 0",
+     "fill": "none",
+     "stroke": "yellow",
+     "sw": 2.4
+    }
+   ]
+  },
+  {
+   "id": "w-room-booked",
+   "kind": "work",
+   "rarity": "RARE",
+   "emoji": "🚪",
+   "name": "회의실 예약 성공",
+   "description": "제일 인기 많은 회의실을 잡았습니다.",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 12,
+     "y": 6,
+     "w": 20,
+     "h": 34,
+     "rx": 2,
+     "fill": "brown"
+    },
+    {
+     "t": "circle",
+     "cx": 28,
+     "cy": 24,
+     "r": 1.6,
+     "fill": "yellow"
+    },
+    {
+     "t": "path",
+     "d": "M6 40h36"
+    },
+    {
+     "t": "circle",
+     "cx": 35,
+     "cy": 13,
+     "r": 7,
+     "fill": "green"
+    },
+    {
+     "t": "path",
+     "d": "M31.5 13l2.5 2.5 4.5-5",
+     "fill": "none",
+     "stroke": "white",
+     "sw": 2.6
+    }
+   ]
+  },
+  {
+   "id": "w-boss-halfday",
+   "kind": "work",
+   "rarity": "EPIC",
+   "emoji": "🪑",
+   "name": "팀장님 오후 반차",
+   "description": "오후가 이렇게 평화로울 수가.",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 15,
+     "y": 10,
+     "w": 18,
+     "h": 16,
+     "rx": 4,
+     "fill": "red"
+    },
+    {
+     "t": "rect",
+     "x": 13,
+     "y": 26,
+     "w": 22,
+     "h": 5,
+     "rx": 2.5,
+     "fill": "red"
+    },
+    {
+     "t": "path",
+     "d": "M24 31v7M15 41h18M17 41v-3M31 41v-3"
+    },
+    {
+     "t": "rect",
+     "x": 31,
+     "y": 5,
+     "w": 12,
+     "h": 10,
+     "rx": 1,
+     "fill": "yellow"
+    },
+    {
+     "t": "path",
+     "d": "M33 9h8M33 12h5"
+    },
+    {
+     "t": "circle",
+     "cx": 8,
+     "cy": 14,
+     "r": 1.5,
+     "fill": "yellow",
+     "stroke": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 10,
+     "cy": 30,
+     "r": 1.2,
+     "fill": "yellow",
+     "stroke": "none"
+    }
+   ]
+  },
+  {
+   "id": "h-sample",
+   "kind": "holiday",
+   "rarity": "COMMON",
+   "emoji": "🍢",
+   "name": "마트 시식 코너",
+   "description": "한 바퀴 돌았더니 배가 부릅니다.",
+   "icon": [
+    {
+     "t": "ellipse",
+     "cx": 24,
+     "cy": 36,
+     "rx": 17,
+     "ry": 5.5,
+     "fill": "cream"
+    },
+    {
+     "t": "circle",
+     "cx": 15,
+     "cy": 30,
+     "r": 3.4,
+     "fill": "brown"
+    },
+    {
+     "t": "circle",
+     "cx": 24,
+     "cy": 28,
+     "r": 3.4,
+     "fill": "orange"
+    },
+    {
+     "t": "circle",
+     "cx": 33,
+     "cy": 30,
+     "r": 3.4,
+     "fill": "brown"
+    },
+    {
+     "t": "path",
+     "d": "M15 30l-3-12M24 28l0-13M33 30l3-12"
+    }
+   ]
+  },
+  {
+   "id": "h-midnight-snack",
+   "kind": "holiday",
+   "rarity": "COMMON",
+   "emoji": "🍜",
+   "name": "새벽 2시 야식",
+   "description": "배고픈 게 아니라 심심한 겁니다.",
+   "icon": [
+    {
+     "t": "path",
+     "d": "M37 4a8 8 0 1 0 6 11 6 6 0 1 1-6-11z",
+     "fill": "yellow"
+    },
+    {
+     "t": "path",
+     "d": "M8 25h30a15 15 0 0 1-30 0z",
+     "fill": "orange"
+    },
+    {
+     "t": "path",
+     "d": "M30 9l-8 18M35 11l-9 16"
+    },
+    {
+     "t": "path",
+     "d": "M14 31q3 2 6 0 3 2 6 0 3 2 6 0",
+     "fill": "none",
+     "stroke": "cream",
+     "sw": 2.4
+    }
+   ]
+  },
+  {
+   "id": "h-solo-movie",
+   "kind": "holiday",
+   "rarity": "UNCOMMON",
+   "emoji": "🍿",
+   "name": "극장 혼영",
+   "description": "가운데 자리를 혼자 차지했습니다.",
+   "icon": [
+    {
+     "t": "path",
+     "d": "M13 20h22l-3 21H16z",
+     "fill": "white"
+    },
+    {
+     "t": "path",
+     "d": "M20 20l1 21M28 20l-1 21",
+     "fill": "none",
+     "stroke": "red",
+     "sw": 2.6
+    },
+    {
+     "t": "circle",
+     "cx": 17,
+     "cy": 17,
+     "r": 3.4,
+     "fill": "cream"
+    },
+    {
+     "t": "circle",
+     "cx": 23,
+     "cy": 14,
+     "r": 3.6,
+     "fill": "cream"
+    },
+    {
+     "t": "circle",
+     "cx": 29,
+     "cy": 16,
+     "r": 3.4,
+     "fill": "cream"
+    },
+    {
+     "t": "circle",
+     "cx": 33,
+     "cy": 19,
+     "r": 2.8,
+     "fill": "cream"
+    }
+   ]
+  },
+  {
+   "id": "h-baking",
+   "kind": "holiday",
+   "rarity": "RARE",
+   "emoji": "🧁",
+   "name": "베이킹 대성공",
+   "description": "오븐에서 꺼낸 순간 박수가 나왔습니다.",
+   "icon": [
+    {
+     "t": "path",
+     "d": "M12 26h24l-3 14H15z",
+     "fill": "purple"
+    },
+    {
+     "t": "path",
+     "d": "M11 26q1-13 13-13t13 13z",
+     "fill": "brown"
+    },
+    {
+     "t": "circle",
+     "cx": 24,
+     "cy": 11,
+     "r": 2.4,
+     "fill": "red"
+    },
+    {
+     "t": "path",
+     "d": "M19 30l1 9M24 30v9M29 30l-1 9",
+     "fill": "none",
+     "stroke": "pink"
+    },
+    {
+     "t": "path",
+     "d": "M40 9v6M37 12h6",
+     "fill": "none",
+     "stroke": "yellow",
+     "sw": 2.4
+    }
+   ]
+  },
+  {
+   "id": "h-trip",
+   "kind": "holiday",
+   "rarity": "EPIC",
+   "emoji": "🧳",
+   "name": "즉흥 여행",
+   "description": "\"그냥 가 볼까?\"가 진짜가 됐습니다.",
+   "icon": [
+    {
+     "t": "rect",
+     "x": 9,
+     "y": 17,
+     "w": 30,
+     "h": 22,
+     "rx": 4,
+     "fill": "orange"
+    },
+    {
+     "t": "path",
+     "d": "M19 17v-5h10v5"
+    },
+    {
+     "t": "circle",
+     "cx": 17,
+     "cy": 27,
+     "r": 3,
+     "fill": "yellow"
+    },
+    {
+     "t": "rect",
+     "x": 26,
+     "y": 24,
+     "w": 8,
+     "h": 6,
+     "rx": 1.5,
+     "fill": "blue"
+    },
+    {
+     "t": "path",
+     "d": "M14 43v-4M34 43v-4"
+    },
+    {
+     "t": "path",
+     "d": "M33 6l8 2-3 3 4 3-2 1-4-2-3 2-1-1z",
+     "fill": "white"
+    }
+   ]
+  }
+ ]
+}
