@@ -14,12 +14,14 @@ describe('시즌', () => {
       expect(new Set(s.items.map((i) => i.name)).size).toBe(SEASON_LENGTH);
     }
   });
-  it('시즌 5부터는 처음 테마로 돌아가 2회차가 된다', () => {
+  it('시즌 5는 바닷가 매점, 시즌 6부터는 처음 테마로 돌아가 2회차가 된다', () => {
     expect(seasonDef(1).theme).toBe('office');
     expect(seasonDef(2).theme).toBe('cafe');
-    expect(seasonDef(5).theme).toBe('office');
-    expect(seasonLap(5)).toBe(2);
-    expect(seasonTitle(5)).toContain('2회차');
+    expect(seasonDef(5).theme).toBe('beach');
+    expect(seasonDef(5).items).toHaveLength(20);
+    expect(seasonDef(6).theme).toBe('office');
+    expect(seasonLap(6)).toBe(2);
+    expect(seasonTitle(6)).toContain('2회차');
   });
   it('완성 개수로 시즌과 순번을 정한다', () => {
     expect(itemForCompletedCount(0)).toEqual({ season: 1, index: 0 });

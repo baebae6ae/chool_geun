@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { C, K, S, face } from './EventIcon';
 
 /**
- * 사무실·카페·옥상 정원·캠핑장 물건 80개를 파스텔 색연필 느낌으로 직접 그린 그림.
+ * 사무실·카페·옥상 정원·캠핑장·바닷가 매점 물건 100개를 파스텔 색연필 느낌으로 직접 그린 그림.
  * 이름(WorkItem.name)으로 찾는다. 48×48 안에 갈색 연필선 + 연한 칠.
  */
 const leaf = (d: string, fill: string = C.green) => <path d={d} fill={fill} />;
@@ -735,6 +735,183 @@ export const ITEM_ICONS: Record<string, ReactNode> = {
       <path d="M36 42l9-3M44 42l-9-3" strokeWidth="3" stroke="#c99058" />
       <path d="M40 38c1-3 4-4 3-9-3 1-6 4-3 9z" fill={C.orange} />
       <path d="M38 6l1.6 3.6 3.8.4-2.8 2.6.8 3.8-3.4-1.9-3.4 1.9.8-3.8-2.8-2.6 3.8-.4z" fill={C.yellow} strokeWidth="1.2" />
+    </S>
+  ),
+  // ================= 시즌 5: 바닷가 매점 =================
+  파라솔: (
+    <S>
+      <path d="M4 22a20 14 0 0 1 40 0z" fill={C.red} />
+      <path d="M12 22a12 13 0 0 1 12-13 12 13 0 0 1 12 13" fill={C.cream} />
+      <path d="M24 9a5 13 0 0 1 4 13h-8a5 13 0 0 1 4-13z" fill={C.red} />
+      <path d="M24 9V5M24 22v21" />
+      <path d="M14 44h20" stroke="#e9cf98" strokeWidth="3" />
+    </S>
+  ),
+  선베드: (
+    <S>
+      <path d="M6 32h26l10-14" />
+      <path d="M8 28h24l9-12 3 2-9 13H8z" fill={C.blue} />
+      <path d="M12 28v4M20 28v4M28 28v4" stroke="#ffffff" strokeWidth="2.4" />
+      <path d="M10 32l-3 10M30 32l3 10" />
+    </S>
+  ),
+  모래성: (
+    <S>
+      <path d="M6 42V28h8v-4h4v4h12v-4h4v4h8v14z" fill="#f1d18d" />
+      <path d="M17 28V16h14v12" fill="#f6dea6" />
+      <path d="M17 16v-3h3v3h3v-3h2v3h3v-3h3v3" />
+      <path d="M24 13V5l6 2.5-6 2.5" fill={C.red} />
+      <path d="M21 42v-6a3 3 0 0 1 6 0v6" fill="#d9b06b" />
+    </S>
+  ),
+  아이스박스: (
+    <S>
+      <rect x="6" y="18" width="36" height="22" rx="4" fill={C.blue} />
+      <rect x="6" y="18" width="36" height="7" rx="3" fill="#ffffff" />
+      <path d="M17 18v-5h14v5" />
+      <path d="M13 31h8" stroke="#ffffff" strokeWidth="2.6" />
+      <path d="M36 10l2 3M40 8l-1 4M33 7l3 3" stroke={C.blue} />
+    </S>
+  ),
+  수박: (
+    <S>
+      <path d="M4 20a20 20 0 0 0 40 0z" fill={C.green} />
+      <path d="M8 20a16 16 0 0 0 32 0z" fill="#ff8f8f" />
+      <path d="M16 26l1 2M24 30l0 2M32 26l-1 2M20 22l1 2M28 22l-1 2" stroke="#3a2a20" strokeWidth="2.4" />
+    </S>
+  ),
+  튜브: (
+    <S>
+      <circle cx="24" cy="24" r="17" fill={C.red} />
+      <circle cx="24" cy="24" r="7" fill="#d7eefb" />
+      <path d="M12 12l5 5M36 12l-5 5M12 36l5-5M36 36l-5-5" stroke="#ffffff" strokeWidth="5" />
+      <circle cx="24" cy="24" r="17" />
+      <circle cx="24" cy="24" r="7" />
+    </S>
+  ),
+  갈매기: (
+    <S>
+      <path d="M4 22q10-10 20 2q10-12 20-2" />
+      <path d="M17 24q7-3 14 0-7 6-14 0z" fill={C.white} />
+      <path d="M31 22l4 1-4 2" fill={C.yellow} />
+      <path d="M8 36q6-5 11 1q6-6 11-1" stroke={C.dark} />
+    </S>
+  ),
+  야자수: (
+    <S>
+      <path d="M22 44q4-14 0-26" strokeWidth="4" stroke="#c99a70" />
+      <path d="M22 44q4-14 0-26" />
+      <path d="M22 18q-10-8-18-2 8-1 18 2zM22 18q10-9 20-3-10 0-20 3zM22 18q-4-12-14-12 8 4 14 12zM22 18q6-11 16-11-9 4-16 11z" fill={C.green} />
+      <circle cx="20" cy="20" r="2.4" fill="#a8774f" />
+      <circle cx="25" cy="21" r="2.4" fill="#a8774f" />
+    </S>
+  ),
+  서핑보드: (
+    <S>
+      <path d="M24 3c9 9 9 33 0 42-9-9-9-33 0-42z" fill={C.yellow} />
+      <path d="M24 6v36" stroke={C.red} strokeWidth="3" />
+      <path d="M24 38l-4 4M24 38l4 4" />
+    </S>
+  ),
+  빙수기: (
+    <S>
+      <path d="M10 26h28l-4 14H14z" fill={C.cream} />
+      <path d="M9 26q2-14 15-14t15 14z" fill="#ffffff" />
+      <path d="M16 22q3-5 8-6M28 16q5 2 7 7" stroke={C.pink} strokeWidth="3" />
+      <circle cx="30" cy="12" r="3.4" fill={C.red} />
+      <path d="M33 4l-4 9" />
+    </S>
+  ),
+  레모네이드: (
+    <S>
+      <path d="M12 10h24l-3 32H15z" fill="#fff6b8" />
+      <path d="M13 20h22" stroke="#ffffff" strokeWidth="2.4" />
+      <path d="M30 4l-4 20" stroke={C.red} strokeWidth="2.6" />
+      <circle cx="35" cy="10" r="6" fill={C.yellow} />
+      <path d="M35 4v12M29 10h12" stroke="#ffffff" strokeWidth="1.4" />
+      <rect x="18" y="26" width="6" height="6" rx="1.5" fill="#d8f0ff" />
+    </S>
+  ),
+  조개: (
+    <S>
+      <path d="M24 40L6 22q4-14 18-14t18 14z" fill={C.pink} />
+      <path d="M24 40L15 12M24 40V9M24 40l9-28M24 40L9 18M24 40l15-22" />
+      <path d="M20 40h8" />
+    </S>
+  ),
+  꽃게: (
+    <S>
+      <ellipse cx="24" cy="28" rx="13" ry="9" fill={C.red} />
+      <path d="M11 24l-5-8M37 24l5-8" />
+      <path d="M2 14a4 4 0 0 1 8 0l-3 3z" fill={C.red} />
+      <path d="M46 14a4 4 0 0 0-8 0l3 3z" fill={C.red} />
+      <path d="M13 34l-6 6M17 36l-3 7M35 34l6 6M31 36l3 7" />
+      <path d="M20 19v-5M28 19v-5" />
+      <circle cx="20" cy="13" r="1.8" fill="#3a2a20" />
+      <circle cx="28" cy="13" r="1.8" fill="#3a2a20" />
+    </S>
+  ),
+  비치볼: (
+    <S>
+      <circle cx="24" cy="24" r="18" fill="#ffffff" />
+      <path d="M24 6a10 18 0 0 0 0 36" fill={C.red} />
+      <path d="M24 6a10 18 0 0 1 0 36" fill={C.blue} />
+      <path d="M6 24h36" stroke={C.yellow} strokeWidth="3" />
+      <circle cx="24" cy="24" r="18" />
+    </S>
+  ),
+  선글라스: (
+    <S>
+      <path d="M4 18h40" />
+      <path d="M6 18h15v7a7 7 0 0 1-15 0z" fill="#4a4f5c" />
+      <path d="M27 18h15v7a7 7 0 0 1-15 0z" fill="#4a4f5c" />
+      <path d="M10 21l4 0M31 21l4 0" stroke="#ffffff" strokeWidth="2" />
+      <path d="M21 20q3-2 6 0" />
+    </S>
+  ),
+  불가사리: (
+    <S>
+      <path d="M24 4l5.5 12.5 13.5 1.2-10.2 9 3.1 13.3L24 33l-11.9 7 3.1-13.3-10.2-9 13.5-1.2z" fill={C.orange} />
+      <circle cx="24" cy="15" r="1.2" fill="#ffffff" stroke="none" />
+      <circle cx="31" cy="22" r="1.2" fill="#ffffff" stroke="none" />
+      <circle cx="17" cy="22" r="1.2" fill="#ffffff" stroke="none" />
+      <circle cx="21" cy="29" r="1.2" fill="#ffffff" stroke="none" />
+      <circle cx="28" cy="29" r="1.2" fill="#ffffff" stroke="none" />
+    </S>
+  ),
+  해먹: (
+    <S>
+      <path d="M4 8v36M44 8v36" strokeWidth="3" stroke="#c99a70" />
+      <path d="M4 14l6 8M44 14l-6 8" />
+      <path d="M10 22q14 16 28 0z" fill={C.orange} />
+      <path d="M13 25q11 9 22 0" stroke="#ffffff" strokeWidth="2" />
+    </S>
+  ),
+  등대: (
+    <S>
+      <path d="M17 44l3-30h8l3 30z" fill="#ffffff" />
+      <path d="M18.4 32h11.2l.8 6H17.6zM19.4 22h9.2l.6 5h-10.4z" fill={C.red} />
+      <rect x="18" y="8" width="12" height="6" fill={C.yellow} />
+      <path d="M16 8h16l-8-5z" fill={C.red} />
+      <path d="M30 11l12-4M30 11l12 4M18 11L6 7M18 11L6 15" stroke={C.yellow} strokeWidth="2.4" />
+    </S>
+  ),
+  노을: (
+    <S>
+      <path d="M8 30a16 16 0 0 1 32 0z" fill={C.orange} />
+      <path d="M2 30h44" />
+      <path d="M8 35h32M14 40h20" stroke={C.blue} strokeWidth="2.6" />
+      <path d="M24 8v5M10 15l3 3M38 15l-3 3" stroke={C.orange} />
+    </S>
+  ),
+  '매점 완성': (
+    <S>
+      <path d="M6 22h36v20H6z" fill={C.cream} />
+      <path d="M3 22l5-12h32l5 12z" fill={C.red} />
+      <path d="M11 10l-3 12M19 10l-2 12M27 10l1 12M35 10l3 12" stroke="#ffffff" strokeWidth="2.4" />
+      <rect x="12" y="28" width="11" height="14" fill={C.blue} />
+      <rect x="28" y="28" width="9" height="7" rx="1.5" fill={C.yellow} />
+      <path d="M40 6l1.4 3 3.2.3-2.4 2.2.7 3.2-2.9-1.6-2.9 1.6.7-3.2-2.4-2.2 3.2-.3z" fill={C.yellow} strokeWidth="1.2" />
     </S>
   ),
 };

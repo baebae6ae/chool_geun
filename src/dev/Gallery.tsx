@@ -8,6 +8,7 @@ import { EventIcon } from '../components/EventIcon';
 import { ItemIcon } from '../components/ItemIcon';
 import { SEASONS } from '../domain/workItems';
 import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
+import { OfficeRoom } from '../components/OfficeRoom';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
 
@@ -21,6 +22,8 @@ export function Gallery() {
   if (params.has('icons')) return <IconSheet />;
   if (params.has('cards')) return <CardSheet />;
   if (params.has('gear')) return <GearSheet />;
+  // ?gallery&room=5 — 그 시즌 방을 작업물 전부 완성한 모습으로
+  if (params.has('room')) return <div style={{ width: 360, padding: 12 }}><OfficeRoom season={Number(params.get('room'))} done={new Set(Array.from({ length: 20 }, (_, i) => i))} /></div>;
   const size = Number(params.get('size') || 220);
   const custom: Customization = {
     ...DEFAULT_CUSTOM,

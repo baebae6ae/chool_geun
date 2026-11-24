@@ -2239,7 +2239,23 @@ textarea {
     repeating-linear-gradient(90deg, #bfe0a4 0 36px, #b2d796 36px 72px);
   border-top-color: #84b574;
 }
+/* 시즌 5: 바닷가 매점 — 하늘, 바다 띠, 모래 */
+.office-theme-beach.office-walled {
+  background-color: #cfe9fb;
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 4px, rgba(255, 255, 255, 0.3) 4px 5.4px),
+    linear-gradient(180deg, #ffd9b3 0 14%, #cfe9fb 30%, #8ccbf0 30% 44%, #a7d9f5 44% 52%, transparent 52%);
+}
+.office-theme-beach .office-floor {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.5) 0 1.5px, transparent 2px) 0 0 / 18px 14px,
+    repeating-linear-gradient(118deg, transparent 0 5px, rgba(255, 255, 255, 0.25) 5px 6.4px),
+    #f3dca6;
+  border-top-color: #ffffff;
+}
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .office-theme-beach.office-walled { background-color: var(--wall); background-image: none; }
+  :root:not([data-theme='light']) .office-theme-beach .office-floor { background: var(--floor-2); }
   :root:not([data-theme='light']) .office-theme-cafe.office-walled,
   :root:not([data-theme='light']) .office-theme-garden.office-walled,
   :root:not([data-theme='light']) .office-theme-camp.office-walled { background-color: var(--wall); background-image: none; }

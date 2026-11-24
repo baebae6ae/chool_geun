@@ -12,7 +12,7 @@ export interface WorkItem {
 
 export const SEASON_LENGTH = 20;
 
-export type RoomTheme = 'office' | 'cafe' | 'garden' | 'camp';
+export type RoomTheme = 'office' | 'cafe' | 'garden' | 'camp' | 'beach';
 
 export interface SeasonDef {
   theme: RoomTheme;
@@ -127,14 +127,39 @@ const CAMP: WorkItem[] = [
   w(20, '🏕️', '캠프 완성', '시즌 완성', 92, 50, 2.6),
 ];
 
+/** 시즌 5 — 바닷가 매점 */
+const BEACH: WorkItem[] = [
+  w(1, '⛱️', '파라솔', '매점 시작', 50, 60, 3),
+  w(2, '🛏️', '선베드', '휴식', 28, 76, 2.4),
+  w(3, '🏰', '모래성', '모래놀이', 70, 82, 2),
+  w(4, '🧊', '아이스박스', '시원한 보관', 84, 72, 1.8),
+  w(5, '🍉', '수박', '간식', 60, 88, 1.5),
+  w(6, '🛟', '튜브', '물놀이', 14, 86, 1.8),
+  w(7, '🕊️', '갈매기', '손님', 30, 14, 1.5),
+  w(8, '🌴', '야자수', '풍경', 9, 52, 3),
+  w(9, '🏄', '서핑보드', '물놀이', 92, 56, 2.4),
+  w(10, '🍧', '빙수기', '매점 메뉴', 40, 64, 1.6),
+  w(11, '🍋', '레모네이드', '매점 메뉴', 60, 64, 1.3),
+  w(12, '🐚', '조개', '바닷가', 24, 92, 1.2),
+  w(13, '🦀', '꽃게', '손님', 78, 92, 1.4),
+  w(14, '🏐', '비치볼', '놀이', 40, 86, 1.4),
+  w(15, '🕶️', '선글라스', '멋', 70, 66, 1.1),
+  w(16, '⭐', '불가사리', '바닷가', 92, 88, 1.2),
+  w(17, '🪢', '해먹', '휴식', 22, 60, 2.6),
+  w(18, '🗼', '등대', '풍경', 88, 22, 2.4),
+  w(19, '🌅', '노을', '풍경', 56, 18, 3.2),
+  w(20, '🏖️', '매점 완성', '시즌 완성', 50, 44, 2.6),
+];
+
 export const SEASONS: SeasonDef[] = [
   { theme: 'office', title: '햄스터 사무실 만들기', room: '사무실', icon: '🏢', items: OFFICE },
   { theme: 'cafe', title: '햄스터 카페 열기', room: '카페', icon: '☕', items: CAFE },
   { theme: 'garden', title: '옥상 정원 가꾸기', room: '옥상 정원', icon: '🌻', items: GARDEN },
   { theme: 'camp', title: '햄스터 캠핑장', room: '캠핑장', icon: '⛺', items: CAMP },
+  { theme: 'beach', title: '바닷가 매점 열기', room: '바닷가 매점', icon: '🏖️', items: BEACH },
 ];
 
-/** 시즌 5부터는 처음 테마로 돌아가 2회차가 된다 */
+/** 시즌 6부터는 처음 테마로 돌아가 2회차가 된다 */
 export function seasonDef(season: number): SeasonDef {
   return SEASONS[(Math.max(1, season) - 1) % SEASONS.length];
 }
