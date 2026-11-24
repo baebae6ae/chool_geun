@@ -137,7 +137,7 @@ export interface AppState {
   /** 친밀도: 쓰다듬고 간식 줄수록 쌓이는 하트 (하루 최대 10개) */
   bond?: { hearts: number; today?: { date: string; n: number } };
   /** 누적 기록 (업적용) */
-  stats?: { pet?: number; feed?: number; hug?: number; ignored?: number; chatWins?: number; things?: Partial<Record<'window' | 'clock' | 'wheel' | 'nest' | 'desk', number>> };
+  stats?: { pet?: number; feed?: number; hug?: number; ignored?: number; chatWins?: number; dragon?: number; escapes?: number; paydays?: number; things?: Partial<Record<'window' | 'clock' | 'wheel' | 'nest' | 'desk', number>> };
   /** 놀러 온 손님 도감 */
   visitors?: Partial<Record<Species, { first: number; count: number }>>;
   /** 평일 저녁 가짜 업무 연락을 읽씹한 날 */

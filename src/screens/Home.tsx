@@ -557,7 +557,14 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
         )}
         {dragon && (
           <Suspense fallback={null}>
-            <Dragon me={custom} reality={reality} onClose={() => setDragon(false)} />
+            <Dragon
+              me={custom}
+              reality={reality}
+              onClose={() => {
+                setDragon(false);
+                onState((s) => bumpStat(s, 'dragon'));
+              }}
+            />
           </Suspense>
         )}
 

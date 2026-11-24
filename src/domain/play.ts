@@ -148,7 +148,7 @@ export function addHeart(state: AppState, now: number): { state: AppState; level
 
 /* ---------- 누적 기록 (업적용) ---------- */
 
-export type StatKey = 'pet' | 'feed' | 'hug';
+export type StatKey = 'pet' | 'feed' | 'hug' | 'dragon' | 'escapes' | 'paydays';
 
 export function bumpStat(state: AppState, key: StatKey): AppState {
   const stats = state.stats ?? {};

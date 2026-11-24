@@ -19,6 +19,7 @@ import { getState, inAppBrowser, now as clockNow, resetState, setState, storageO
 import { TabIcon, type IconId } from './components/TabIcon';
 import { PaydayCinema } from './components/payday/PaydayCinema';
 import { markEscapeSeen, pickEscape } from './domain/escape';
+import { bumpStat } from './domain/play';
 
 const EscapeCinema = lazy(() => import('./components/escape/EscapeCinema').then((m) => ({ default: m.EscapeCinema })));
 import { installWidgetDebug, syncWidget } from './widgetSync';
@@ -369,7 +370,7 @@ export function App() {
           workDays={pay.workDays}
           name={settings.hamsterName}
           onClose={() => {
-            setState((s) => ({ ...s, paydaySeen: key }));
+            setState((s) => bumpStat({ ...s, paydaySeen: key }, 'paydays'));
             happyMoment();
           }}
         />
@@ -392,7 +393,7 @@ export function App() {
             custom={state.custom}
             episode={pickEscape(state, today.date)}
             onDone={() => {
-              setState((s) => markEscapeSeen(s, pickEscape(s, today.date), today.date));
+              setState((s) => bumpStat(markEscapeSeen(s, pickEscape(s, today.date), today.date), 'escapes'));
               setEscapeDone(today.date);
             }}
           />
