@@ -11,6 +11,7 @@ import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
 import { OfficeRoom } from '../components/OfficeRoom';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
+import { DeskFront, SeasonDecor } from '../components/habitat/props';
 
 const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap', 'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss', 'slam', 'cider', 'ahh', 'shock', 'cry', 'quake', 'rotten', 'resolve', 'headhold', 'kneel', 'soul', 'think', 'aha', 'tug', 'poke'];
 const SIDE: SideAction[] = ['stand', 'walk', 'run', 'sleep'];
@@ -22,6 +23,7 @@ export function Gallery() {
   if (params.has('icons')) return <IconSheet />;
   if (params.has('cards')) return <CardSheet />;
   if (params.has('gear')) return <GearSheet />;
+  if (params.has('newseason')) return <NewSeasonSheet />;
   // ?gallery&room=5 — 그 시즌 방을 작업물 전부 완성한 모습으로
   if (params.has('room')) return <div style={{ width: 360, padding: 12 }}><OfficeRoom season={Number(params.get('room'))} done={new Set(Array.from({ length: 20 }, (_, i) => i))} /></div>;
   const size = Number(params.get('size') || 220);
@@ -145,4 +147,37 @@ function GearSheet() {
   });
   HATS.forEach((h) => out.push(cell('z' + h.id, '자는 ' + h.label, { ...base, hat: h.id }, { pose: 'side', action: 'sleep' })));
   return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 10, background: '#fdf5e8', width: 1260 }}>{out}</div>;
+}
+
+/** ?gallery&newseason — 새해·설날 한정 아이템 확인 */
+function NewSeasonSheet() {
+  const base = { ...DEFAULT_CUSTOM, outfit: 'none' as const };
+  const looks: [string, Customization][] = [
+    ['고깔모자', { ...base, hat: 'partyhat' }],
+    ['해돋이 머리띠', { ...base, hat: 'sunband' }],
+    ['어깨띠', { ...base, outfit: 'sash' }],
+    ['복건+한복', { ...base, hat: 'bokgeon', outfit: 'hanbok' }],
+    ['한복', { ...base, outfit: 'hanbok' }],
+  ];
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 10, background: '#fdf5e8', width: 960 }}>
+      {looks.map(([l, c]) => (
+        <figure key={l} style={{ margin: 0, width: 180, textAlign: 'center', fontSize: 12 }}>
+          <div style={{ width: 180, height: 180 }}><HamsterSprite custom={c} pose={{ pose: 'front', action: 'idle' }} still /></div>
+          <div style={{ width: 180, height: 130 }}><HamsterSprite custom={c} pose={{ pose: 'side', action: 'stand' }} still /></div>
+          {l}
+        </figure>
+      ))}
+      {(['tteokguk', 'bokjumeoni', 'kite'] as const).map((d) => (
+        <div key={d} style={{ position: 'relative', width: 200, height: 150, background: '#f3e6d0' }}>
+          <DeskFront x={100} custom={{ ...base, deco: d }} />
+        </div>
+      ))}
+      {(['newyear', 'seollal'] as const).map((id) => (
+        <div key={id} style={{ position: 'relative', width: 420, height: 80, background: '#f6ead6' }}>
+          <SeasonDecor id={id} W={420} />
+        </div>
+      ))}
+    </div>
+  );
 }

@@ -92,6 +92,8 @@ const OUTFIT_COLOR: Record<Customization['outfit'], string> = {
   box: '#d9aa6e',
   skeleton: '#3b3350',
   scarf: '#d6453d',
+  sash: '#fffdf6',
+  hanbok: '#f7b6c8',
 };
 
 type Palette = (typeof COLORS)[number];
@@ -1582,6 +1584,27 @@ function FrontOutfit({ id }: { id: Customization['outfit'] }) {
           <ellipse cx="63.6" cy="90" rx="2.1" ry="2.5" fill={INK} stroke="none" />
         </g>
       );
+    case 'sash':
+      // 새해 어깨띠: "칼퇴 기원"
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M8 62 L20 56 L114 104 L106 114Z" fill={col} />
+          <path d="M10 64.6 L21 59 M107 110 L113 107" stroke="#e0533d" strokeWidth="2.4" />
+          <text x="0" y="0" transform="translate(36 73) rotate(27)" fontSize="10" fontWeight="900" fill="#e0533d" stroke="none" textAnchor="middle" fontFamily="sans-serif">
+            칼퇴
+          </text>
+        </g>
+      );
+    case 'hanbok':
+      // 설날 한복: 흰 깃, 고름
+      return (
+        <g stroke={INK} strokeWidth="2" strokeLinejoin="round">
+          <path d="M-4 78 Q60 94 124 78 L128 124 H-8Z" fill={col} />
+          <path d="M42 86 L60 104 L78 86" fill="none" stroke="#fffdf6" strokeWidth="5" />
+          <path d="M42 86 L60 104 L78 86" fill="none" strokeWidth="1.2" />
+          <path d="M60 104 Q52 112 48 122 M60 104 Q66 114 66 124" fill="none" stroke="#c9302c" strokeWidth="3.4" strokeLinecap="round" />
+        </g>
+      );
     case 'scarf':
       // 빨간 목도리: 목에 두른 띠와 늘어진 끝자락
       return (
@@ -1684,6 +1707,38 @@ function Hat({ id, side }: { id: Customization['hat']; side: boolean }) {
           <path d="M-11.4 -9 Q0 -5 11.6 -9 L12.4 -3 Q0 1 -12.4 -3Z" fill="#a874d8" />
           <rect x="-3.6" y="-8.4" width="7.2" height="6.4" rx="1" fill="#ffd54a" strokeWidth="1.2" />
           <ellipse cx="0" cy="-1" rx="24" ry="5.5" fill="#3a2c4e" />
+        </g>
+      );
+    case 'partyhat':
+      // 새해 고깔모자
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+          <path d="M-12 -2 L1 -34 L14 -2Z" fill="#ffd54a" />
+          <path d="M-7 -14 L8 -10 M-3.6 -23 L5 -21" stroke="#e0533d" strokeWidth="3" />
+          <path d="M-12 -2 Q1 3 14 -2" fill="none" />
+          <circle cx="1" cy="-35" r="4.4" fill="#e0533d" />
+          <circle cx="-4" cy="-6" r="1.4" fill="#4aa3e8" stroke="none" />
+          <circle cx="8" cy="-17" r="1.4" fill="#4aa3e8" stroke="none" />
+        </g>
+      );
+    case 'sunband':
+      // 해돋이 머리띠
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+          <path d="M-24 2 Q0 -12 24 2" fill="none" stroke="#e0533d" strokeWidth="5" />
+          <path d="M-24 2 Q0 -12 24 2" fill="none" />
+          <path d="M-9 -6 a9 9 0 0 1 18 0z" fill="#ffb347" />
+          <path d="M0 -19 V-23 M-11 -14 l-3 -3 M11 -14 l3 -3 M-15 -6 h-4 M15 -6 h4" stroke="#ff9a3c" strokeWidth="2.2" />
+        </g>
+      );
+    case 'bokgeon':
+      // 설날 복건
+      return (
+        <g stroke={INK} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+          <path d="M13 -8 L26 6 L20 8 L10 -2Z" fill="#2f3442" />
+          <path d="M-17 -1 Q-15 -25 0 -27 Q15 -25 17 -1Z" fill="#2f3442" />
+          <path d="M-16.4 -7 Q0 -3 16.4 -7" fill="none" stroke="#d9b45a" strokeWidth="2.6" />
+          <circle cx="0" cy="-16" r="3.2" fill="#d9b45a" />
         </g>
       );
     case 'santa':

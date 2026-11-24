@@ -4,9 +4,10 @@
  * - 한 번 받은 아이템은 기간이 끝나도 계속 쓸 수 있다.
  */
 import { addDays, pad } from './date';
+import { holidaysOf } from './holidays';
 import type { AppState } from './types';
 
-export type SeasonId = 'halloween' | 'christmas';
+export type SeasonId = 'halloween' | 'christmas' | 'newyear' | 'seollal';
 
 export interface SeasonItem {
   kind: 'hat' | 'outfit' | 'deco';
@@ -24,7 +25,21 @@ export interface SeasonEvent {
   /** [월, 일] 시작과 끝(그날 포함). 해를 넘기지 않는 기간 */
   from: [number, number];
   to: [number, number];
+  /** 해마다 날짜가 바뀌는 이벤트(설날)는 해마다 기간을 계산한다. 못 구하면 그해는 없음 */
+  range?: (year: number) => [string, string] | null;
+  /** 기간 안내 문구 (range를 쓰면 필요) */
+  rangeText?: string;
   items: SeasonItem[];
+}
+
+/** 설 연휴(대체공휴일 포함) 이틀 전부터 이틀 뒤까지 */
+function seollalRange(year: number): [string, string] | null {
+  const days = Object.entries(holidaysOf(year))
+    .filter(([, name]) => name.includes('설날'))
+    .map(([k]) => k)
+    .sort();
+  if (!days.length) return null;
+  return [addDays(days[0], -2), addDays(days[days.length - 1], 2)];
 }
 
 export const SEASON_EVENTS: SeasonEvent[] = [
@@ -54,6 +69,34 @@ export const SEASON_EVENTS: SeasonEvent[] = [
       { kind: 'deco', id: 'tree', label: '크리스마스 트리', emoji: '🎄', days: 7 },
     ],
   },
+  {
+    id: 'newyear',
+    name: '새해',
+    emoji: '🌅',
+    from: [1, 1],
+    to: [1, 7],
+    items: [
+      { kind: 'hat', id: 'partyhat', label: '고깔모자', emoji: '🎉', days: 1 },
+      { kind: 'hat', id: 'sunband', label: '해돋이 머리띠', emoji: '🌅', days: 2 },
+      { kind: 'outfit', id: 'sash', label: '칼퇴 어깨띠', emoji: '🎗️', days: 3 },
+      { kind: 'deco', id: 'tteokguk', label: '떡국', emoji: '🥣', days: 5 },
+    ],
+  },
+  {
+    id: 'seollal',
+    name: '설날',
+    emoji: '🧧',
+    from: [1, 25],
+    to: [2, 15],
+    range: seollalRange,
+    rangeText: '설 연휴 앞뒤 이틀',
+    items: [
+      { kind: 'hat', id: 'bokgeon', label: '복건', emoji: '🎩', days: 1 },
+      { kind: 'outfit', id: 'hanbok', label: '한복', emoji: '👘', days: 2 },
+      { kind: 'deco', id: 'bokjumeoni', label: '복주머니', emoji: '🧧', days: 3 },
+      { kind: 'deco', id: 'kite', label: '방패연', emoji: '🪁', days: 4 },
+    ],
+  },
 ];
 
 export const SEASON_BY_ID = Object.fromEntries(SEASON_EVENTS.map((e) => [e.id, e])) as Record<SeasonId, SeasonEvent>;
@@ -61,15 +104,17 @@ export const SEASON_ITEMS: (SeasonItem & { event: SeasonId })[] = SEASON_EVENTS.
 
 const ymd = (y: number, [m, d]: [number, number]) => `${y}-${pad(m)}-${pad(d)}`;
 
-export function seasonRange(e: SeasonEvent, year: number): [string, string] {
-  return [ymd(year, e.from), ymd(year, e.to)];
+export function seasonRange(e: SeasonEvent, year: number): [string, string] | null {
+  return e.range ? e.range(year) : [ymd(year, e.from), ymd(year, e.to)];
 }
 
 /** 이 날짜가 속한 계절 이벤트 (없으면 null) */
 export function activeSeason(key: string): { event: SeasonEvent; year: number; from: string; to: string } | null {
   const year = Number(key.slice(0, 4));
   for (const event of SEASON_EVENTS) {
-    const [from, to] = seasonRange(event, year);
+    const r = seasonRange(event, year);
+    if (!r) continue;
+    const [from, to] = r;
     if (key >= from && key <= to) return { event, year, from, to };
   }
   return null;
@@ -81,7 +126,9 @@ export function daysUntilSeason(key: string): { event: SeasonEvent; days: number
   const year = Number(key.slice(0, 4));
   let best: { event: SeasonEvent; days: number } | null = null;
   for (const event of SEASON_EVENTS) {
-    const [from] = seasonRange(event, year);
+    const r = seasonRange(event, year);
+    if (!r) continue;
+    const [from] = r;
     if (from <= key) continue;
     let n = 0;
     for (let k = key; k < from && n < 400; k = addDays(k, 1)) n++;
@@ -102,7 +149,7 @@ export function visitSeason(state: AppState, key: string): AppState {
 
 /** 이벤트별로 지금까지 가장 많이 접속한 해의 접속일수 */
 export function seasonDays(state: Pick<AppState, 'seasons'>): Record<SeasonId, number> {
-  const out: Record<SeasonId, number> = { halloween: 0, christmas: 0 };
+  const out = Object.fromEntries(SEASON_EVENTS.map((e) => [e.id, 0])) as Record<SeasonId, number>;
   for (const [id, list] of Object.entries(state.seasons ?? {})) {
     const ev = id.split(':')[0] as SeasonId;
     if (ev in out) out[ev] = Math.max(out[ev], list.length);
@@ -124,5 +171,6 @@ export function nextSeasonItem(state: Pick<AppState, 'seasons'>, id: SeasonId) {
 }
 
 export function seasonRangeText(e: SeasonEvent): string {
+  if (e.rangeText) return e.rangeText;
   return `${e.from[0]}/${e.from[1]}~${e.to[0]}/${e.to[1]}`;
 }

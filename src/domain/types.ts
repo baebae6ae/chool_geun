@@ -47,12 +47,12 @@ export interface Settings extends Schedule {
 
 export type HamsterColor = 'golden' | 'white' | 'gray' | 'choco' | 'cream' | 'silver';
 /** 머리 위: 사무용품 */
-export type HatId = 'none' | 'headset' | 'postit' | 'cup' | 'stapler' | 'mouse' | 'eraser' | 'tape' | 'pumpkin' | 'witch' | 'santa' | 'antlers';
+export type HatId = 'none' | 'headset' | 'postit' | 'cup' | 'stapler' | 'mouse' | 'eraser' | 'tape' | 'pumpkin' | 'witch' | 'santa' | 'antlers' | 'partyhat' | 'sunband' | 'bokgeon';
 /** 몸: 업무복·사무용품 */
-export type OutfitId = 'none' | 'tie' | 'suit' | 'cardigan' | 'badge' | 'bubble' | 'box' | 'skeleton' | 'scarf';
+export type OutfitId = 'none' | 'tie' | 'suit' | 'cardigan' | 'badge' | 'bubble' | 'box' | 'skeleton' | 'scarf' | 'sash' | 'hanbok';
 /** 손에 든 것 */
 export type HandId = 'none' | 'pencil' | 'highlighter' | 'calculator' | 'stamp';
-export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern' | 'jackolantern' | 'tree';
+export type DecoId = 'none' | 'plant' | 'doll' | 'cactus' | 'cake' | 'sunflower' | 'lantern' | 'jackolantern' | 'tree' | 'tteokguk' | 'bokjumeoni' | 'kite';
 export type RoomBg = 'default' | 'cafe' | 'garden' | 'camp';
 
 export type Species = 'hamster' | 'rabbit' | 'bird' | 'cat' | 'lop';

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from './engine';
 import { HATS, isUnlocked, OUTFITS, DECOS, sanitizeCustom, unlockText } from './customization';
-import { activeSeason, daysUntilSeason, nextSeasonItem, ownedSeasonItems, seasonDays, SEASON_ITEMS, visitSeason } from './seasons';
+import { activeSeason, daysUntilSeason, nextSeasonItem, ownedSeasonItems, seasonDays, SEASON_ITEMS, visitSeason, SEASON_EVENTS, seasonRange } from './seasons';
 import { playerProgress } from './engine';
 
 describe('계절 이벤트', () => {
@@ -42,8 +42,17 @@ describe('계절 이벤트', () => {
     expect(ownedSeasonItems(s).some((i) => i.id === 'tree')).toBe(true);
   });
 
-  it('한정 아이템 8개가 모두 꾸미기 목록에 있고, 안내 문구가 있다', () => {
-    expect(SEASON_ITEMS).toHaveLength(8);
+  it('설날 이벤트는 해마다 설 연휴 앞뒤 이틀로 바뀐다', () => {
+    const e = SEASON_EVENTS.find((x) => x.id === 'seollal')!;
+    expect(seasonRange(e, 2026)).toEqual(['2026-02-14', '2026-02-20']);
+    expect(seasonRange(e, 2028)).toEqual(['2028-01-24', '2028-01-30']);
+    expect(activeSeason('2028-01-25')?.event.id).toBe('seollal');
+    expect(activeSeason('2027-01-03')?.event.id).toBe('newyear');
+    expect(activeSeason('2027-01-08')).toBeNull();
+  });
+
+  it('한정 아이템 16개가 모두 꾸미기 목록에 있고, 안내 문구가 있다', () => {
+    expect(SEASON_ITEMS).toHaveLength(16);
     for (const i of SEASON_ITEMS) {
       const list = i.kind === 'hat' ? HATS : i.kind === 'outfit' ? OUTFITS : DECOS;
       const it = list.find((x) => x.id === i.id);

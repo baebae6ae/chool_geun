@@ -1,4 +1,5 @@
 /** 서식지 소품. 각각 bottom-center 기준으로 absolute 배치된다. */
+import type { SeasonId } from '../../domain/seasons';
 import type { CSSProperties } from 'react';
 import { sampleShape, tuftPath, rand01 } from '../hamster/geometry';
 import type { Customization } from '../../domain/types';
@@ -170,6 +171,45 @@ function Deco({ id }: { id: Customization['deco'] }) {
           <path d="M9 28 Q6 38 9 48 M19 28 Q22 38 19 48" fill="none" stroke="#e07a1c" strokeWidth="1" />
           <path className="prop-glow" d="M7.6 35 l3.4 -4.4 l3.4 4.4z M14.4 35 l3.4 -4.4 l3.4 4.4z" fill="#ffe36b" />
           <path className="prop-glow" d="M8 41.4 q6 6 12 0 l-1.4 4.2 l-2.6 -2 l-2 3 l-2 -3 l-2.6 2z" fill="#ffe36b" />
+        </g>
+      );
+    case 'tteokguk':
+      // 새해 떡국
+      return (
+        <g>
+          <path d="M9 24 q-2 -4 1 -7 M14 23 q-2 -4 1 -7 M19 24 q-2 -4 1 -7" fill="none" stroke="#c9c2b8" strokeWidth="1" strokeLinecap="round" />
+          <path d="M2 34 h24 a12 11 0 0 1 -24 0z" fill="#fffdf7" stroke="#8a5a36" strokeWidth="1" />
+          <ellipse cx="14" cy="34" rx="12" ry="3" fill="#fff4dc" stroke="#8a5a36" strokeWidth=".8" />
+          <ellipse cx="9" cy="33.6" rx="2.6" ry="1.4" fill="#ffffff" stroke="#c9c2b8" strokeWidth=".6" />
+          <ellipse cx="15" cy="34.6" rx="2.6" ry="1.4" fill="#ffffff" stroke="#c9c2b8" strokeWidth=".6" />
+          <path d="M18 33 l4 -.8" stroke="#ffd54a" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M11 32.4 l2 1" stroke="#6fbd82" strokeWidth="1.4" strokeLinecap="round" />
+          <rect x="10" y="44" width="8" height="3" rx="1" fill="#e8c9a0" />
+          <path d="M23 26 l5 -12 M25 27 l5 -12" stroke="#c99a70" strokeWidth="1.2" strokeLinecap="round" />
+        </g>
+      );
+    case 'bokjumeoni':
+      // 설날 복주머니
+      return (
+        <g>
+          <path d="M8 31 Q1 50 14 51 Q27 50 20 31Z" fill="#e0443f" stroke="#a8302c" strokeWidth="1" strokeLinejoin="round" />
+          <path d="M8.5 31 Q14 27 19.5 31" fill="#e0443f" stroke="#a8302c" strokeWidth="1" />
+          <rect x="8" y="29.6" width="12" height="3.4" rx="1.6" fill="#ffd54a" stroke="#c9a12f" strokeWidth=".8" />
+          <path d="M11 33 q-3 5 -1 9 M17 33 q3 5 1 9" fill="none" stroke="#ffd54a" strokeWidth="1.2" />
+          <circle cx="14" cy="42" r="4" fill="#ffd54a" stroke="#c9a12f" strokeWidth=".8" />
+          <path d="M12 42 h4 M14 40 v4" stroke="#c9302c" strokeWidth="1" />
+        </g>
+      );
+    case 'kite':
+      // 설날 방패연
+      return (
+        <g>
+          <path d="M14 34 q-4 5 0 9 q4 4 0 9" fill="none" stroke="#8a5a36" strokeWidth=".9" />
+          <rect x="4" y="8" width="20" height="26" rx="1.5" fill="#fffdf7" stroke="#8a5a36" strokeWidth="1" />
+          <rect x="4" y="8" width="20" height="5" fill="#e0443f" />
+          <path d="M4 34 L24 8 M24 34 L4 8" stroke="#c9b8a0" strokeWidth=".7" />
+          <circle cx="14" cy="22" r="4.4" fill="#f6e7cf" stroke="#8a5a36" strokeWidth=".9" />
+          <path d="M4 34 h20" stroke="#4aa3e8" strokeWidth="2" />
         </g>
       );
     case 'tree':
@@ -408,7 +448,7 @@ function wirePoints(W: number, n: number): { d: string; pts: Pt[] } {
   return { d: `M${a[0]} ${a[1]} Q${c1[0]} ${c1[1]} ${m[0]} ${m[1]} Q${c2[0]} ${c2[1]} ${b[0]} ${b[1]}`, pts };
 }
 
-export function SeasonDecor({ id, W }: { id: 'halloween' | 'christmas'; W: number }) {
+export function SeasonDecor({ id, W }: { id: SeasonId; W: number }) {
   const n = Math.max(6, Math.round(W / 46));
   const { d, pts } = wirePoints(W, n);
   const style: CSSProperties = { position: 'absolute', left: 0, top: 0, width: W, height: 70, zIndex: 0, pointerEvents: 'none' };
@@ -435,6 +475,50 @@ export function SeasonDecor({ id, W }: { id: 'halloween' | 'christmas'; W: numbe
                 <circle cx="-1" cy="1.2" r=".9" fill="#ffe36b" />
                 <circle cx="1.4" cy="1.2" r=".9" fill="#ffe36b" />
               </g>
+            </g>
+          ),
+        )}
+      </svg>
+    );
+  }
+  if (id === 'newyear') {
+    // 새해: 알록달록 삼각 깃발 줄 + 벽에 붙은 해돋이
+    const flags = ['#e8504b', '#ffd54a', '#4aa3e8', '#5bc27a', '#ff8fb0'];
+    return (
+      <svg viewBox={`0 0 ${W} 70`} style={style} aria-hidden>
+        <path d={d} stroke="#8b5e3c" strokeWidth="1.2" fill="none" />
+        {pts.map(([x, y], i) => (
+          <path key={i} d={`M${x - 6} ${y - 1} L${x + 6} ${y - 1} L${x} ${y + 12}Z`} fill={flags[i % flags.length]} stroke="#8b5e3c" strokeWidth=".7" strokeLinejoin="round" />
+        ))}
+        <g transform={`translate(${Math.round(W * 0.27)} 50)`}>
+          <path d="M-14 6 a14 14 0 0 1 28 0z" fill="#ffb347" stroke="#e08a2c" strokeWidth=".9" />
+          <path d="M0 -12 V-16 M-11 -7 l-3 -3 M11 -7 l3 -3" stroke="#ff9a3c" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M-20 6 h40" stroke="#4aa3e8" strokeWidth="2" strokeLinecap="round" />
+        </g>
+      </svg>
+    );
+  }
+  if (id === 'seollal') {
+    // 설날: 청사초롱 + 색동 띠
+    const stripes = ['#e8504b', '#ffd54a', '#5bc27a', '#4aa3e8', '#f7b6c8'];
+    return (
+      <svg viewBox={`0 0 ${W} 70`} style={style} aria-hidden>
+        <path d={d} stroke="#6b4a3a" strokeWidth="1.2" fill="none" />
+        {pts.map(([x, y], i) =>
+          i % 2 === 0 ? (
+            <g key={i} transform={`translate(${x} ${y})`}>
+              <path d="M0 0 v3" stroke="#6b4a3a" strokeWidth="1" />
+              <rect x="-4" y="3" width="8" height="2.2" rx=".6" fill="#3a2a1e" />
+              <path d="M-6 5.2 h12 v5 h-12z" fill="#e8504b" stroke="#a82f29" strokeWidth=".6" />
+              <path className="prop-glow" d="M-6 10.2 h12 v6 h-12z" fill="#4a7fd1" stroke="#2f5aa0" strokeWidth=".6" />
+              <rect x="-4" y="16.2" width="8" height="2" rx=".6" fill="#3a2a1e" />
+              <path d="M0 18.2 v4" stroke="#e8504b" strokeWidth="1.4" strokeLinecap="round" />
+            </g>
+          ) : (
+            <g key={i} transform={`translate(${x - 2.5} ${y})`}>
+              {stripes.map((c, k) => (
+                <rect key={k} x="0" y={k * 2.4} width="5" height="2.4" fill={c} />
+              ))}
             </g>
           ),
         )}
