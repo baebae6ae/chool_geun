@@ -4,7 +4,7 @@
  * 2쪽: "그리고 30분 뒤…" 청구서 넷이 쾅쾅 들이닥쳐 동전을 쓸어 가고 잔액 3,200원 → "다음 달에 봐…ㅠ"
  * 사용자가 꾸민 햄스터와 실제 금액·날짜가 그대로 들어간다. 1초에 30번만 다시 그려서 가볍게 한다.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { HamsterSprite } from '../hamster/HamsterSprite';
 import type { FrontAction } from '../hamster/HamsterSprite';
 import type { Customization } from '../../domain/types';
@@ -27,10 +27,15 @@ const write = (p: number): React.CSSProperties => ({ clipPath: `inset(-30px ${10
 /** 선이 그려지는 효과 (pathLength=1) */
 const drawn = (p: number): React.CSSProperties => ({ strokeDasharray: '1 1', strokeDashoffset: 1 - p });
 
+/** 햄스터 그림은 무거우니 동작이 바뀔 때만 다시 그린다 (위치·크기는 바깥 div가 움직인다) */
+const Sprite = memo(function Sprite({ custom, action }: { custom: Customization; action: FrontAction }) {
+  return <HamsterSprite custom={custom} pose={{ pose: 'front', action }} />;
+});
+
 function Ham({ custom, action, x, y, sx, sy, rot, opacity = 1 }: { custom: Customization; action: FrontAction; x: number; y: number; sx: number; sy: number; rot: number; opacity?: number }) {
   return (
     <div className="pc-ham" style={{ left: x - 180, top: y - 340, opacity, transform: `rotate(${rot}deg) scale(${sx},${sy})` }}>
-      <HamsterSprite custom={custom} pose={{ pose: 'front', action }} />
+      <Sprite custom={custom} action={action} />
     </div>
   );
 }
@@ -228,7 +233,6 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
   const bills = useMemo(() => paydayBills(total), [total]);
   const date = useMemo(() => diaryDate(dateKey), [dateKey]);
   const [t, setT] = useState(0);
-  const [boil, setBoil] = useState(1);
   const done = useRef(false);
   const finish = () => {
     if (done.current) return;
@@ -247,15 +251,10 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
     const stop = playCues(sfxCues(bills));
     buzz([30, 60, 30]);
     const t0 = performance.now();
-    let raf = 0, last = -1;
+    let raf = 0;
     const loop = () => {
       const s = (performance.now() - t0) / 1000;
-      const f = Math.floor(s * 30);
-      if (f !== last) {
-        last = f;
-        setT(s);
-        setBoil((Math.floor(s * 8) % 4) + 1);
-      }
+      setT(s);
       if (s >= CINEMA_END) return finish();
       raf = requestAnimationFrame(loop);
     };
@@ -289,8 +288,7 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
   return (
     <div className="pcine" role="dialog" aria-modal="true" aria-label="월급날">
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
-        <filter id="pc-wob"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves={2} seed={boil} result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="7" /></filter>
-        <filter id="pc-wob2"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves={1} seed={boil} result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3" /></filter>
+        <filter id="pc-wob"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves={2} seed={3} result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="7" /></filter>
         <filter id="pc-crayon"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves={1} seed={2} result="t" /><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.15" result="m" /><feComposite in="SourceGraphic" in2="m" operator="in" /></filter>
       </svg>
       <div className="pc-stage" style={{ transform: `translate(-50%,-50%) scale(${fit})` }} aria-hidden>
