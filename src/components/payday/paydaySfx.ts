@@ -169,7 +169,7 @@ export function playCues(cues: { at: number; sfx: SfxKind | string; dur?: number
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return () => {};
     ctx = new AC();
-    void ctx.resume?.();
+    ctx.resume?.()?.catch(() => {});
     const master = ctx.createGain();
     master.gain.value = 0.7;
     master.connect(ctx.destination);

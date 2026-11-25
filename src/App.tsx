@@ -19,6 +19,7 @@ import { getState, inAppBrowser, now as clockNow, resetState, setState, storageO
 import { TabIcon, type IconId } from './components/TabIcon';
 import { PaydayCinema } from './components/payday/PaydayCinema';
 import { markEscapeSeen, pickEscape } from './domain/escape';
+import { markPaydaySeen, pickPayday } from './domain/paydayCinema';
 import { bumpStat } from './domain/play';
 
 const EscapeCinema = lazy(() => import('./components/escape/EscapeCinema').then((m) => ({ default: m.EscapeCinema })));
@@ -363,7 +364,16 @@ export function App() {
         />
       )}
       {pay && paydayCinema !== key && paydayCinema !== 'skip' && (
-        <PaydayCinema custom={state.custom} total={pay.salary + pay.overtime} dateKey={key} onDone={() => setPaydayCinema(key)} />
+        <PaydayCinema
+          custom={state.custom}
+          total={pay.salary + pay.overtime}
+          dateKey={key}
+          episode={pickPayday(state, key)}
+          onDone={() => {
+            setState((s) => markPaydaySeen(s, pickPayday(s, key), key));
+            setPaydayCinema(key);
+          }}
+        />
       )}
       {pay && (paydayCinema === key || paydayCinema === 'skip') && (
         <PaydayModal

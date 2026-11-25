@@ -168,6 +168,8 @@ export interface AppState {
   paydaySeen?: string;
   /** 퇴근 탈출: 본 편과 본 날짜 (한 바퀴 다 보면 비운다) */
   escapes?: Partial<Record<string, { date: string }>>;
+  /** 월급날 다이어리 본 편 */
+  paydayEps?: Partial<Record<string, { date: string }>>;
   /** 지금 야근 중 (야근하기를 누른 뒤 진짜 퇴근을 누르기 전) */
   overtime?: { date: string; startedAt: number };
 }

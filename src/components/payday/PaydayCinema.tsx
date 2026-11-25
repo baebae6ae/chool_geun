@@ -1,65 +1,19 @@
 /**
  * 월급날 다이어리 연출 (약 12초). 노트 위 손그림처럼 선이 꿈틀거리고, 카메라가 당기고 흔들린다.
  * 1쪽: 월급 알림 띠링 → 움츠렸다 점프 → 동전이 쏟아져 더미가 된다 → "부자다~♡"
- * 2쪽: "그리고 30분 뒤…" 청구서 넷이 쾅쾅 들이닥쳐 동전을 쓸어 가고 잔액 3,200원 → "다음 달에 봐…ㅠ"
- * 사용자가 꾸민 햄스터와 실제 금액·날짜가 그대로 들어간다. 1초에 30번만 다시 그려서 가볍게 한다.
+ * 2쪽: 편마다 다르다. 원래 편은 "그리고 30분 뒤…" 청구서 넷이 동전을 쓸어 가고 잔액 3,200원, 나머지 다섯 편은 episodes.tsx
+ * 사용자가 꾸민 햄스터와 실제 금액·날짜가 그대로 들어간다. 햄스터 그림은 동작이 바뀔 때만 다시 그린다.
  */
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { HamsterSprite } from '../hamster/HamsterSprite';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FrontAction } from '../hamster/HamsterSprite';
 import type { Customization } from '../../domain/types';
 import { useBackHandler } from '../../backStack';
 import { buzz } from '../../haptics';
-import { BURST, CINEMA_END, diaryDate, GRAB_DUR, grabAt, LEFTOVER, PAGE2, PAGE_FLIP, paydayBills, PILE, sfxCues, type CinemaBill } from '../../domain/paydayCinema';
+import { BURST, CINEMA_END, diaryDate, GRAB_DUR, grabAt, LEFTOVER, PAGE2, PAGE_FLIP, paydayBills, PILE, sfxCues, withPage1, type CinemaBill, type PaydayId } from '../../domain/paydayCinema';
 import { playCues } from './paydaySfx';
+import { back, clamp, Coins, drawn, ei, eio, eo, Ham, lerp, seg, won, write } from './kit';
+import { EPISODES } from './episodes';
 import './payday.css';
-
-const clamp = (x: number) => Math.max(0, Math.min(1, x));
-const seg = (t: number, a: number, b: number) => clamp((t - a) / (b - a));
-const eo = (x: number) => 1 - Math.pow(1 - x, 3);
-const ei = (x: number) => x * x * x;
-const eio = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const back = (x: number) => (x <= 0 ? 0 : 1 + 3.2 * Math.pow(x - 1, 3) + 2.2 * Math.pow(x - 1, 2));
-const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
-const won = (n: number) => Math.max(0, Math.floor(n)).toLocaleString('ko-KR');
-/** 글씨가 왼쪽부터 써지는 효과 */
-const write = (p: number): React.CSSProperties => ({ clipPath: `inset(-30px ${100 - p * 100}% -30px -30px)` });
-/** 선이 그려지는 효과 (pathLength=1) */
-const drawn = (p: number): React.CSSProperties => ({ strokeDasharray: '1 1', strokeDashoffset: 1 - p });
-
-/** 햄스터 그림은 무거우니 동작이 바뀔 때만 다시 그린다 (위치·크기는 바깥 div가 움직인다) */
-const Sprite = memo(function Sprite({ custom, action }: { custom: Customization; action: FrontAction }) {
-  return <HamsterSprite custom={custom} pose={{ pose: 'front', action }} />;
-});
-
-function Ham({ custom, action, x, y, sx, sy, rot, opacity = 1 }: { custom: Customization; action: FrontAction; x: number; y: number; sx: number; sy: number; rot: number; opacity?: number }) {
-  return (
-    <div className="pc-ham" style={{ left: x - 180, top: y - 340, opacity, transform: `rotate(${rot}deg) scale(${sx},${sy})` }}>
-      <Sprite custom={custom} action={action} />
-    </div>
-  );
-}
-
-function Coins({ list }: { list: { x: number; y: number; ry: number; fill: number }[] }) {
-  return (
-    <>
-      <svg className="pc-layer pc-crayon" width="720" height="1280">
-        <g fill="#f6c443">
-          {list.map((c, i) => (
-            <ellipse key={i} cx={c.x} cy={c.y} rx={28} ry={Math.max(2, c.ry - 2)} opacity={c.fill} />
-          ))}
-        </g>
-      </svg>
-      <svg className="pc-layer pc-doodle" width="720" height="1280">
-        <g fill="none" stroke="#3a3a6a" strokeWidth="5">
-          {list.map((c, i) => (
-            <ellipse key={i} cx={c.x} cy={c.y} rx={30} ry={Math.max(3, c.ry)} />
-          ))}
-        </g>
-      </svg>
-    </>
-  );
-}
 
 const star = (x: number, y: number, s: number) =>
   `M${x} ${y - s}L${x + s * 0.3} ${y - s * 0.3}L${x + s} ${y}L${x + s * 0.3} ${y + s * 0.3}L${x} ${y + s}L${x - s * 0.3} ${y + s * 0.3}L${x - s} ${y}L${x - s * 0.3} ${y - s * 0.3}Z`;
@@ -229,7 +183,7 @@ function Page2({ u, custom, total, bills, date }: { u: number; custom: Customiza
   );
 }
 
-export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Customization; total: number; dateKey: string; onDone: () => void }) {
+export function PaydayCinema({ custom, total, dateKey, episode = 'bills', onDone }: { custom: Customization; total: number; dateKey: string; episode?: PaydayId; onDone: () => void }) {
   const bills = useMemo(() => paydayBills(total), [total]);
   const date = useMemo(() => diaryDate(dateKey), [dateKey]);
   const [t, setT] = useState(0);
@@ -248,7 +202,7 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
     return () => window.removeEventListener('resize', onResize);
   }, []);
   useEffect(() => {
-    const stop = playCues(sfxCues(bills));
+    const stop = playCues(episode === 'bills' ? sfxCues(bills) : withPage1(EPISODES[episode].cues(total)));
     buzz([30, 60, 30]);
     const t0 = performance.now();
     let raf = 0;
@@ -284,6 +238,7 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
   const endZ = eio(seg(u, 5.0, 6.0));
   const cam2 = cam(lerp(1.1, 1.16, endZ), 360, lerp(640, 720, endZ));
   const flip = eio(seg(t, PAGE_FLIP, PAGE2));
+  const Ep = episode === 'bills' ? null : EPISODES[episode].Page;
 
   return (
     <div className="pcine" role="dialog" aria-modal="true" aria-label="월급날">
@@ -295,7 +250,7 @@ export function PaydayCinema({ custom, total, dateKey, onDone }: { custom: Custo
         {u > -0.6 && (
           <div className="pc-cam" style={cam2}>
             <div className="pc-page" />
-            <Page2 u={Math.max(0, u)} custom={custom} total={total} bills={bills} date={date} />
+            {Ep ? <Ep u={Math.max(0, u)} custom={custom} total={total} date={date} /> : <Page2 u={Math.max(0, u)} custom={custom} total={total} bills={bills} date={date} />}
           </div>
         )}
         {flip < 1 && (

@@ -31,3 +31,34 @@ describe('월급날 다이어리 연출', () => {
     expect(cues.every((c, i) => c.at >= 0 && c.at < CINEMA_END && (i === 0 || c.at >= cues[i - 1].at))).toBe(true);
   });
 });
+
+describe('월급날 다이어리 여러 편', () => {
+  const base = { seed: 7 };
+  it('처음엔 원래 편, 그다음부터는 안 본 편 먼저, 같은 날은 같은 편', async () => {
+    const { pickPayday, markPaydaySeen, PAYDAY_IDS } = await import('./paydayCinema');
+    expect(pickPayday(base, '2026-11-25')).toBe('bills');
+    let s = { ...base } as never as import('./types').AppState;
+    const seen: string[] = [];
+    for (let m = 1; m <= PAYDAY_IDS.length; m++) {
+      const key = `2027-${String(m).padStart(2, '0')}-25`;
+      const id = pickPayday(s, key);
+      expect(seen).not.toContain(id);
+      seen.push(id);
+      s = markPaydaySeen(s, id, key);
+      expect(pickPayday(s, key)).toBe(id);
+    }
+    expect(new Set(seen).size).toBe(PAYDAY_IDS.length);
+    // 다 봤으면 새 바퀴
+    const next = pickPayday(s, '2027-12-25');
+    expect(Object.keys(markPaydaySeen(s, next, '2027-12-25').paydayEps ?? {})).toEqual([next]);
+  });
+
+  it('나눠 가져가는 돈은 음수가 없고, 남는 돈이 딱 맞는다', async () => {
+    const { splitPay } = await import('./paydayCinema');
+    for (const total of [2_918_960, 120_000, 500]) {
+      const parts = splitPay(total, 870, [0.3, 0.2, 0.5]);
+      expect(parts.every((x) => x >= 0)).toBe(true);
+      if (total > 870) expect(total - parts.reduce((a, b) => a + b, 0)).toBe(870);
+    }
+  });
+});
