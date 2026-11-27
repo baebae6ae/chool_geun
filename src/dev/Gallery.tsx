@@ -12,6 +12,9 @@ import { OfficeRoom } from '../components/OfficeRoom';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
 import { Habitat } from '../components/habitat/Habitat';
+import { ClockOutModal } from '../components/Modals';
+import { setDiary } from '../domain/diary';
+import type { AppState, DailyWork } from '../domain/types';
 import { DeskFront, SeasonDecor } from '../components/habitat/props';
 
 const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap', 'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss', 'slam', 'cider', 'ahh', 'shock', 'cry', 'quake', 'rotten', 'resolve', 'headhold', 'kneel', 'soul', 'think', 'aha', 'tug', 'poke'];
@@ -25,6 +28,7 @@ export function Gallery() {
   if (params.has('cards')) return <CardSheet />;
   if (params.has('gear')) return <GearSheet />;
   if (params.has('newseason')) return <NewSeasonSheet />;
+  if (params.has('diary')) return <DiaryPreview />;
   // ?gallery&vibe=monday|friday — 요일 분위기 방
   if (params.has('vibe')) {
     const v = params.get('vibe');
@@ -190,4 +194,11 @@ function NewSeasonSheet() {
       ))}
     </div>
   );
+}
+
+/** ?gallery&diary — 퇴근 카드의 한 줄 일기 */
+function DiaryPreview() {
+  const base = { date: '2026-11-27', season: 1, workItemIndex: 3, schedule: { workStart: '09:00', workEnd: '18:00', lunchStart: '12:00', lunchEnd: '13:00' }, hourly: 12000, openedAt: 0, endTime: 0, progress: 1, completed: true, clockedOut: true, early: false, earned: 96000, workedMs: 8 * 3600e3, gacha: [], comment: '', celebrated: false } as unknown as DailyWork;
+  const [st, setSt] = useState({ days: { [base.date]: base } } as unknown as AppState);
+  return <ClockOutModal day={st.days[base.date]} custom={DEFAULT_CUSTOM} onClose={() => {}} onRecord={() => {}} onDiary={(p) => setSt((s) => setDiary(s, base.date, p))} />;
 }

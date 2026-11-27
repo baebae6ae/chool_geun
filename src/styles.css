@@ -2999,3 +2999,68 @@ body:has(.cheer-sheet) .toast { display: none; }
 .left-note { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 2px 0; padding: 8px 10px 8px 14px; font-size: 0.88rem; font-weight: 700; color: var(--ink); background: color-mix(in srgb, var(--card) 85%, transparent); border: 1.5px dashed var(--line); border-radius: 14px; }
 .left-note .chip-btn { flex: 0 0 auto; padding: 6px 12px; font-size: 0.82rem; }
 .app.clock .left-note { display: none; }
+
+/* ---------- 오늘의 한 줄 일기 ---------- */
+.diary {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  text-align: left;
+}
+.diary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.diary-memo-btn {
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+}
+.diary-moods {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 6px;
+}
+.diary-moods button {
+  flex: 1;
+  height: 42px;
+  font-size: 1.45rem;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--card);
+  filter: grayscale(0.6);
+  opacity: 0.75;
+  transition: transform 0.15s, opacity 0.15s, filter 0.15s;
+}
+.diary-moods button.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  filter: none;
+  opacity: 1;
+  transform: scale(1.08);
+}
+.diary-memo {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  resize: none;
+}
+.stamp.on.mood { font-size: 1.05em; filter: none; }
+.diary-memo:focus { outline: 2px solid var(--accent); outline-offset: 0; }

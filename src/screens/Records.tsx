@@ -9,7 +9,7 @@ import { LeftSheet } from '../components/LeftSheet';
 import { playerProgress } from '../domain/engine';
 import { holidayName } from '../domain/holidays';
 import { dayBounds, isWorkday } from '../domain/schedule';
-import type { AppState, DailyWork, Settings } from '../domain/types';
+import type { AppState, DailyWork, Settings, Diary } from '../domain/types';
 import { ItemIcon } from '../components/ItemIcon';
 import { TabIcon } from '../components/TabIcon';
 import { useBackHandler } from '../backStack';
@@ -45,7 +45,7 @@ function StampWeek({ state, now }: { state: AppState; now: number }) {
               const hol = off ? holidayStamp(state, date) : null;
               return (
                 <span className={`stamp ${worked(day, now) ? 'on' : off ? 'off' : ''} ${hol ? 'hol' : ''}`} title={holidayName(date)}>
-                  {worked(day, now) ? '🐾' : off ? (hol ?? '휴') : ''}
+                  {worked(day, now) ? (day?.diary?.mood ?? '🐾') : off ? (hol ?? '휴') : ''}
                 </span>
               );
             })()}
@@ -101,7 +101,7 @@ function StampCalendar({
             title={holidayName(d)}
           >
             <small>{Number(d.slice(8))}</small>
-            {on && <span className="stamp on">🐾</span>}
+            {on && <span className={`stamp on${day?.diary?.mood ? ' mood' : ''}`}>{day?.diary?.mood ?? '🐾'}</span>}
             {on && day?.completed && <i title={itemOf(day).name}><ItemIcon item={itemOf(day)} /></i>}
             {inMonth && !on && ov && <em className={`ov ${ov}`}>{ov === 'off' ? '쉼' : '출근'}</em>}
             {inMonth && !on && !ov && holidayStamp(state, d) && <i className="hol">{holidayStamp(state, d)}</i>}
@@ -119,6 +119,7 @@ export function Records({
   focusDate,
   onDayOverride,
   onLeft,
+  onDiary,
 }: {
   state: AppState;
   now: number;
@@ -126,6 +127,8 @@ export function Records({
   onDayOverride?: (date: string, v: Override) => void;
   /** 퇴근 시각 기록·수정 (null이면 정시 퇴근) */
   onLeft?: (date: string, left: string | null) => void;
+  /** 그날의 일기 고치기 */
+  onDiary?: (date: string, patch: Partial<Diary>) => void;
 }) {
   const [editLeft, setEditLeft] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
@@ -174,7 +177,7 @@ export function Records({
           </div>
         ) : (
           <>
-            {current && <DailyRecordCard day={current} hamsterName={state.settings?.hamsterName ?? ''} onEditLeft={onLeft ? () => setEditLeft(current.date) : undefined} />}
+            {current && <DailyRecordCard day={current} hamsterName={state.settings?.hamsterName ?? ''} onEditLeft={onLeft ? () => setEditLeft(current.date) : undefined} onDiary={onDiary ? (p) => onDiary(current.date, p) : undefined} />}
             <ul className="record-list">
               {records.map((r) => (
                 <li key={r.date}>

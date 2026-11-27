@@ -1,8 +1,9 @@
+import { DiaryEditor } from './DiaryEditor';
 import { useEffect, useState } from 'react';
 import { EVENT_BY_ID, GACHA_BY_ID, isHolidayEvent, RARITY_LABEL } from '../domain/gacha';
 import { formatDotDate, formatDuration } from '../domain/date';
 import { formatWon, itemOf } from '../domain/records';
-import type { Customization, DailyWork, Rarity } from '../domain/types';
+import type { Customization, DailyWork, Rarity, Diary } from '../domain/types';
 import { buzz } from '../haptics';
 import { HamsterSprite } from './hamster/HamsterSprite';
 import { ProgressBar } from './WorkBuild';
@@ -68,7 +69,7 @@ export function GachaModal({ id, eventId, isNew, remaining, onClose }: { id: str
 }
 
 /** 기획서 10. 퇴근 연출 */
-export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWork; custom: Customization; onClose: () => void; onRecord: () => void }) {
+export function ClockOutModal({ day, custom, onClose, onRecord, onDiary }: { day: DailyWork; custom: Customization; onClose: () => void; onRecord: () => void; onDiary?: (patch: Partial<Diary>) => void }) {
   const item = itemOf(day);
   const [leaving, setLeaving] = useState(false);
   useEffect(() => {
@@ -112,6 +113,7 @@ export function ClockOutModal({ day, custom, onClose, onRecord }: { day: DailyWo
           <span>오늘 번 돈</span>
           <strong>{formatWon(Math.floor(day.earned))}</strong>
         </div>
+        {onDiary && <DiaryEditor diary={day.diary} onChange={onDiary} />}
         <button className="btn primary" onClick={() => leave(onRecord)}>오늘의 기록 보기</button>
         <button className="btn ghost" onClick={() => leave(onClose)}>닫기</button>
       </div>
@@ -220,7 +222,7 @@ export function PaydayModal({
 }
 
 /** 기획서 11. Daily Record 카드 */
-export function DailyRecordCard({ day, hamsterName, onEditLeft }: { day: DailyWork; hamsterName: string; onEditLeft?: () => void }) {
+export function DailyRecordCard({ day, hamsterName, onEditLeft, onDiary }: { day: DailyWork; hamsterName: string; onEditLeft?: () => void; onDiary?: (patch: Partial<Diary>) => void }) {
   const item = itemOf(day);
   const gachaCount = day.gacha.filter((g) => g.obtained).length;
   return (
@@ -268,6 +270,16 @@ export function DailyRecordCard({ day, hamsterName, onEditLeft }: { day: DailyWo
         <button type="button" className="btn ghost small-btn" onClick={onEditLeft}>
           퇴근 시각 {day.leftAsked ? '고치기' : '기록하기'}
         </button>
+      )}
+      {onDiary ? (
+        <DiaryEditor key={day.date} diary={day.diary} onChange={onDiary} label="그날의 일기" />
+      ) : (
+        day.diary && (
+          <div className="record-comment">
+            <span>그날의 일기</span>
+            <p>{day.diary.mood} {day.diary.memo}</p>
+          </div>
+        )
       )}
       <div className="record-comment">
         <span>오늘의 한마디</span>

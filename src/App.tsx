@@ -19,6 +19,7 @@ import { getState, inAppBrowser, now as clockNow, resetState, setState, storageO
 import { TabIcon, type IconId } from './components/TabIcon';
 import { PaydayCinema } from './components/payday/PaydayCinema';
 import { markEscapeSeen, pickEscape } from './domain/escape';
+import { setDiary } from './domain/diary';
 import { markPaydaySeen, pickPayday } from './domain/paydayCinema';
 import { bumpStat } from './domain/play';
 
@@ -313,6 +314,7 @@ export function App() {
                 now={now}
                 focusDate={recordFocus}
                 onLeft={(date, left) => setState((s) => recordLeft(s, date, left))}
+                onDiary={(date, patch) => setState((s) => setDiary(s, date, patch))}
                 onDayOverride={(date, v) =>
                   setState((s) => {
                     if (!s.settings) return s;
@@ -416,6 +418,7 @@ export function App() {
         <ClockOutModal
           day={today}
           custom={state.custom}
+          onDiary={(patch) => setState((s) => setDiary(s, today.date, patch))}
           onClose={() => setState((s) => markCelebrated(s, key))}
           onRecord={() => {
             setState((s) => markCelebrated(s, key));

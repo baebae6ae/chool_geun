@@ -116,6 +116,13 @@ export interface DailyWork {
   overtimePay?: number;
   /** 야근을 했지만 못 받은 돈 = 벌었어야 할 돈 (포괄임금제) */
   overtimeOwed?: number;
+  /** 오늘의 한 줄 일기 (사용자가 남긴 기분·메모) */
+  diary?: Diary;
+}
+
+export interface Diary {
+  mood?: string;
+  memo?: string;
 }
 
 /** 기획서 17. Collection */
