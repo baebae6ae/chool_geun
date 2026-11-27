@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Habitat } from './habitat/Habitat';
-import { HOUSE_LEVELS } from './habitat/House';
+import { HOUSE_LEVELS } from '../domain/house';
 import { useBackHandler } from '../backStack';
 import { buzz } from '../haptics';
 import type { Customization } from '../domain/types';

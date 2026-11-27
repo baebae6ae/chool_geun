@@ -10,25 +10,7 @@
 import type { CSSProperties } from 'react';
 import type { Spots } from './brain';
 
-export const HOUSE_LEVELS = [
-  { at: 0, name: '원룸' },
-  { at: 20, name: '러그 깐 원룸' },
-  { at: 40, name: '갤러리 원룸' },
-  { at: 70, name: '커튼 달린 방' },
-  { at: 100, name: '벽난로 하우스' },
-  { at: 150, name: '샹들리에 맨션' },
-  { at: 200, name: '대리석 저택' },
-  { at: 300, name: '황금 저택' },
-  { at: 365, name: '햄스터 궁전' },
-] as const;
-
-export function houseLevel(completedDays: number): number {
-  let lv = 1;
-  HOUSE_LEVELS.forEach((l, i) => {
-    if (completedDays >= l.at) lv = i + 1;
-  });
-  return lv;
-}
+export { HOUSE_LEVELS, houseLevel } from '../../domain/house';
 
 /** 가구가 바뀌는 단계 */
 export const LUX = { goldWheel: 7, royalBed: 8, goldBowl: 8, throne: 9 } as const;

@@ -1,5 +1,6 @@
 import { weekVibe } from '../domain/weekVibe';
-import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { houseLevelOf } from '../domain/house';
+import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain/theater';
 
 const Theater = lazy(() => import('../components/theater/Theater').then((m) => ({ default: m.Theater })));
@@ -161,6 +162,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
 
   const mood = day ? hamsterMood(key, day.schedule, now, day.clockedOut) : 'holiday';
   const vibe = day ? weekVibe(key, settings, day.schedule, now, mood) : null;
+  const house = useMemo(() => houseLevelOf(state), [state.days, settings.dayOverrides]); // eslint-disable-line react-hooks/exhaustive-deps
   const progress = day ? (day.clockedOut ? day.progress : progressAt(key, day.schedule, now)) : 0;
   const earned = day ? (day.clockedOut ? day.earned : earnedAt(key, day.schedule, day.hourly, now)) : 0;
   const bounds = day ? dayBounds(key, day.schedule) : null;
@@ -488,6 +490,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           bubble={bubble}
           payday={payD === 0}
           vibe={vibe}
+          house={house}
           onRare={handleRare}
           onInteract={handleInteract}
           onTouch={handleTouch}

@@ -20,6 +20,8 @@ import { TabIcon, type IconId } from './components/TabIcon';
 import { PaydayCinema } from './components/payday/PaydayCinema';
 import { markEscapeSeen, pickEscape } from './domain/escape';
 import { setDiary } from './domain/diary';
+import { pendingHouseUp } from './domain/house';
+import { HouseUpModal } from './components/HouseUpModal';
 import { markPaydaySeen, pickPayday } from './domain/paydayCinema';
 import { bumpStat } from './domain/play';
 
@@ -262,6 +264,7 @@ export function App() {
   const pending = unseenGacha(state);
   const gacha = pending[0];
   const showClockOut = !gacha && today?.clockedOut && !today.celebrated;
+  const houseUp = pendingHouseUp(state);
   const isPayday = daysUntilPayday(key, settings.payday) === 0;
   const showPayday = !gacha && !showClockOut && !showSettings && isPayday && state.paydaySeen !== key;
   // 월급날: 다이어리 연출을 먼저 보여 주고, 끝나면(건너뛰면) 이번 달 정리 카드 ('동작 줄이기'면 바로 카드)
@@ -399,6 +402,9 @@ export function App() {
         />
       )}
       {sheet === 'support' && <SupportSheet state={state} onSupported={() => setState((s) => recordSupport(s, clockNow()))} onClose={() => setSheet(null)} />}
+      {houseUp && !gacha && !pay && !showClockOut && !showSettings && !whatsNewOpen && (
+        <HouseUpModal level={houseUp} custom={state.custom} name={settings.hamsterName} now={now} onClose={() => setState((s) => ({ ...s, houseSeen: houseUp }))} />
+      )}
       {whatsNewOpen && !gacha && !pay && !showClockOut && !showSettings && (
         <WhatsNewModal custom={state.custom} items={whatsNewOpen} onShown={() => setState((s) => markWhatsNewSeen(s))} onClose={() => setWhatsNewOpen(null)} />
       )}

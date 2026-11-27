@@ -13,7 +13,6 @@ import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
 import { Habitat } from '../components/habitat/Habitat';
 import { HOUSE_LEVELS } from '../components/habitat/House';
-import { HouseUpModal } from '../components/HouseUpModal';
 import { ClockOutModal } from '../components/Modals';
 import { setDiary } from '../domain/diary';
 import type { AppState, DailyWork } from '../domain/types';
@@ -31,8 +30,6 @@ export function Gallery() {
   if (params.has('gear')) return <GearSheet />;
   if (params.has('newseason')) return <NewSeasonSheet />;
   if (params.has('diary')) return <DiaryPreview />;
-  // ?gallery&houseup=9 — 집 업그레이드 연출
-  if (params.has('houseup')) return <HouseUpModal level={Number(params.get('houseup')) || 4} custom={{ ...DEFAULT_CUSTOM, outfit: 'tie' }} name="햄찌" now={new Date('2026-11-27T14:00:00').getTime()} onClose={() => location.reload()} />;
   // ?gallery&house — 집 꾸미기 9단계
   if (params.has('house')) {
     return (
