@@ -29,33 +29,33 @@ const hang = (x: number, w: number, top: number): CSSProperties => ({
 /* ---------- 쳇바퀴 ---------- */
 const RUNGS = Array.from({ length: 18 }, (_, i) => (i / 18) * Math.PI * 2);
 
-export function Wheel({ x, layer, spinning, dir }: { x: number; layer: 'back' | 'front'; spinning: boolean; dir: 1 | -1 }) {
+export function Wheel({ x, layer, spinning, dir, gold = false }: { x: number; layer: 'back' | 'front'; spinning: boolean; dir: 1 | -1; gold?: boolean }) {
   const cls = `wheel-rot ${spinning ? 'spin' : ''} ${dir < 0 ? 'ccw' : ''}`;
   return (
     <svg viewBox="0 0 100 108" style={place(x, 100, 14, layer === 'back' ? 1 : 7)} aria-hidden>
       {layer === 'back' ? (
         <g>
-          <path d="M50 52 L26 106 M50 52 L74 106" stroke="#d9ae82" strokeWidth="5" strokeLinecap="round" />
-          <rect x="18" y="102" width="64" height="6" rx="3" fill="#c99d70" />
-          <circle cx="50" cy="52" r="45" fill="#fff5e6" opacity=".75" />
+          <path d="M50 52 L26 106 M50 52 L74 106" stroke={gold ? '#d4a23a' : '#d9ae82'} strokeWidth="5" strokeLinecap="round" />
+          <rect x="18" y="102" width="64" height="6" rx="3" fill={gold ? '#b8862a' : '#c99d70'} />
+          <circle cx="50" cy="52" r="45" fill={gold ? '#fff2c4' : '#fff5e6'} opacity=".75" />
           <g className={cls}>
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <path
                 key={i}
                 d={`M50 52 L${50 + 42 * Math.cos((i * Math.PI) / 3)} ${52 + 42 * Math.sin((i * Math.PI) / 3)}`}
-                stroke="#ecd2b0"
+                stroke={gold ? '#f2c14e' : '#ecd2b0'}
                 strokeWidth="2"
               />
             ))}
           </g>
-          <circle cx="50" cy="52" r="4.5" fill="#d9ae82" />
+          <circle cx="50" cy="52" r="4.5" fill={gold ? '#e0533d' : '#d9ae82'} />
         </g>
       ) : (
         <g>
-          <circle cx="50" cy="52" r="45" fill="none" stroke="#efc99a" strokeWidth="4" />
+          <circle cx="50" cy="52" r="45" fill="none" stroke={gold ? '#f2c14e' : '#efc99a'} strokeWidth={gold ? 5 : 4} />
           <g className={cls}>
             {RUNGS.map((a, i) => (
-              <circle key={i} cx={50 + 45 * Math.cos(a)} cy={52 + 45 * Math.sin(a)} r="2.2" fill="#d3a26f" />
+              <circle key={i} cx={50 + 45 * Math.cos(a)} cy={52 + 45 * Math.sin(a)} r="2.2" fill={gold ? (i % 3 ? '#b8862a' : '#4fc3f7') : '#d3a26f'} />
             ))}
           </g>
         </g>
@@ -65,11 +65,24 @@ export function Wheel({ x, layer, spinning, dir }: { x: number; layer: 'back' | 
 }
 
 /* ---------- 책상 (의자 = 뒤, 책상·노트북 = 앞) ---------- */
-export function DeskBack({ x }: { x: number }) {
+export function DeskBack({ x, throne = false }: { x: number; throne?: boolean }) {
   return (
-    <svg className="pencil" viewBox="0 0 90 100" style={place(x, 90, 14, 2)} aria-hidden>
-      <rect x="27" y="22" width="36" height="34" rx="9" fill="#b4d3ee" />
-      <rect x="31" y="26" width="28" height="26" rx="7" fill="#d3e6f6" />
+    <svg className="pencil" viewBox="0 0 90 100" style={{ ...place(x, 90, 14, 2), overflow: 'visible' }} aria-hidden>
+      {throne ? (
+        // 궁전: 왕좌
+        <g>
+          <path d="M22 60 V8 q23 -16 46 0 V60Z" fill="#b8333b" stroke="#b8862a" strokeWidth="3" />
+          <path d="M28 56 V12 q17 -11 34 0 V56" fill="none" stroke="#f2c14e" strokeWidth="1.6" />
+          <path d="M33 -8 L33 -18 L39 -12 L45 -22 L51 -12 L57 -18 L57 -8Z" fill="#f2c14e" stroke="#b8862a" strokeWidth="1.2" strokeLinejoin="round" />
+          <circle cx="45" cy="-22" r="2.4" fill="#e0533d" />
+          {[[36, 24], [45, 20], [54, 24], [36, 40], [45, 36], [54, 40]].map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy} r="1.6" fill="#f2c14e" />)}
+        </g>
+      ) : (
+        <>
+          <rect x="27" y="22" width="36" height="34" rx="9" fill="#b4d3ee" />
+          <rect x="31" y="26" width="28" height="26" rx="7" fill="#d3e6f6" />
+        </>
+      )}
     </svg>
   );
 }
@@ -249,17 +262,25 @@ const SEEDS = Array.from({ length: 9 }, (_, i) => ({
   r: -40 + rand01(i + 20) * 80,
 }));
 
-export function Bowl({ x }: { x: number }) {
+export function Bowl({ x, gold = false }: { x: number; gold?: boolean }) {
   return (
-    <svg className="pencil" viewBox="0 0 46 22" style={place(x, 46, 12, 2)} aria-hidden>
-      <ellipse cx="23" cy="8" rx="20" ry="5" fill="#f0b8c0" />
+    <svg className="pencil" viewBox="0 0 46 22" style={{ ...place(x, 46, 12, 2), overflow: 'visible' }} aria-hidden>
+      <ellipse cx="23" cy="8" rx="20" ry="5" fill={gold ? '#ffe08a' : '#f0b8c0'} />
       {SEEDS.map((s, i) => (
         <g key={i} transform={`translate(${s.x} ${s.y}) rotate(${s.r})`}>
           <ellipse rx="1.6" ry="2.8" fill="#4a4540" />
           <path d="M0 -2.2 V2.2" stroke="#efe9df" strokeWidth=".5" />
         </g>
       ))}
-      <path d="M3 8 Q4 20 23 20 Q42 20 43 8 Q23 14 3 8Z" fill="#f4a6b3" stroke="#d9848f" strokeWidth="1" />
+      {gold && (
+        // 황금 밥그릇: 씨앗 대신 보석이 넘친다
+        <g>
+          <path d="M8 6 l3 -5 l3 5z" fill="#4fc3f7" stroke="#2a8fc0" strokeWidth=".5" />
+          <path d="M20 4 l3 -6 l3 6 l-3 3z" fill="#e0533d" stroke="#a8302c" strokeWidth=".5" />
+          <path d="M31 6 l3 -4 l3 4 l-3 2z" fill="#6fd08c" stroke="#3f8f57" strokeWidth=".5" />
+        </g>
+      )}
+      <path d="M3 8 Q4 20 23 20 Q42 20 43 8 Q23 14 3 8Z" fill={gold ? '#f2c14e' : '#f4a6b3'} stroke={gold ? '#b8862a' : '#d9848f'} strokeWidth="1" />
       <path d="M8 13 Q23 17 38 13" stroke="#fff" strokeWidth="1.4" fill="none" opacity=".6" strokeLinecap="round" />
     </svg>
   );
@@ -277,13 +298,16 @@ const NEST_FRONT = tuftPath(
   0.3,
 );
 
-export function Nest({ x, layer }: { x: number; layer: 'back' | 'front' }) {
+export function Nest({ x, layer, royal = false }: { x: number; layer: 'back' | 'front'; royal?: boolean }) {
   return (
     <svg className="pencil" viewBox="0 0 90 38" style={place(x, 90, 8, layer === 'back' ? 1 : 4)} aria-hidden>
       {layer === 'back' ? (
-        <path d={NEST_BACK} fill="#fbf4e8" stroke="#e3d5bf" strokeWidth="1.2" />
+        <path d={NEST_BACK} fill={royal ? '#c9a6ee' : '#fbf4e8'} stroke={royal ? '#b8862a' : '#e3d5bf'} strokeWidth="1.2" />
       ) : (
-        <path d={NEST_FRONT} fill="#fffaf2" stroke="#e3d5bf" strokeWidth="1.2" />
+        <>
+          <path d={NEST_FRONT} fill={royal ? '#9b6bd1' : '#fffaf2'} stroke={royal ? '#b8862a' : '#e3d5bf'} strokeWidth={royal ? 1.6 : 1.2} />
+          {royal && <path d="M8 33 Q45 39 82 33" fill="none" stroke="#f2c14e" strokeWidth="1.6" strokeDasharray="3 2" />}
+        </>
       )}
     </svg>
   );

@@ -13,7 +13,7 @@ import { pickVisitor, VISIT_CHANCE, VISITOR_COLOR } from '../../domain/visitors'
 import { DEFAULT_CUSTOM } from '../../domain/customization';
 import type { Species } from '../../domain/types';
 import type { Vibe } from '../../domain/weekVibe';
-import { HouseDecor } from './House';
+import { HouseDecor, HouseWall, LUX } from './House';
 import './habitat.css';
 
 interface Props {
@@ -566,6 +566,7 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
           ...(overtimeOn ? ({ '--rot': rotLevel(overtimeMin ?? 0) } as React.CSSProperties) : null),
         }}
       >
+        <HouseWall level={house} />
         {season && <SeasonDecor id={season} W={W} />}
         {vibe && <div className={`vibe-tint vibe-tint-${vibe}`} aria-hidden />}
         {vibe === 'friday' && (
@@ -580,9 +581,9 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
         <WallClock x={spots.desk} now={now} />
         <Floor />
         <HouseDecor level={house} spots={spots} />
-        <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />
-        <Nest x={spots.bed} layer="back" />
-        <Bowl x={spots.bowl} />
+        <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} gold={house >= LUX.goldWheel} />
+        <Nest x={spots.bed} layer="back" royal={house >= LUX.royalBed} />
+        <Bowl x={spots.bowl} gold={house >= LUX.goldBowl} />
         <button
           type="button"
           className="habitat-bowl-hit"
@@ -598,7 +599,7 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
         {custom.laptop && (
           <button type="button" className="habitat-thing" style={{ left: spots.desk - 22, bottom: 58, width: 44, height: 26 }} onClick={() => touch('desk')} aria-label={`${THING_LABEL.desk} 누르기`} />
         )}
-        <DeskBack x={spots.desk} />
+        <DeskBack x={spots.desk} throne={house >= LUX.throne} />
 
         <div
           ref={actor}
@@ -691,9 +692,9 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
             {bubble.text}
           </div>
         )}
-        <Nest x={spots.bed} layer="front" />
+        <Nest x={spots.bed} layer="front" royal={house >= LUX.royalBed} />
         <DeskFront x={spots.desk} custom={custom} mugTaken={place === 'desk' && pose.action === 'sip'} />
-        <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} />
+        <Wheel x={spots.wheel} layer="front" spinning={onWheel && pose.action === 'run'} dir={facing} gold={house >= LUX.goldWheel} />
         {mood === 'oneMore' && <div className="habitat-speech">조금만 더...</div>}
         {overtimeOn && <RotLayer />}
       </div>

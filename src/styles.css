@@ -3064,3 +3064,11 @@ body:has(.cheer-sheet) .toast { display: none; }
 }
 .stamp.on.mood { font-size: 1.05em; filter: none; }
 .diary-memo:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+
+/* ---------- 집 업그레이드 연출 ---------- */
+.house-up .gacha-emoji-wrap.house-up-room { width: 100%; }
+.house-up .gacha-emoji-wrap.house-up-room::before { width: 340px; height: 340px; }
+.house-up .gacha-emoji { width: 100%; font-size: inherit; animation: house-up-pop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.house-up .gacha-emoji .habitat-wrap { pointer-events: none; }
+@keyframes house-up-pop { from { scale: 0.4; opacity: 0; } }
+.house-up .habitat-status { display: none; }
