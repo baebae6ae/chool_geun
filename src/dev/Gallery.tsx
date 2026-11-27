@@ -11,6 +11,7 @@ import { GACHA_EVENTS, HOLIDAY_EVENTS } from '../domain/gacha';
 import { OfficeRoom } from '../components/OfficeRoom';
 import { RARE_BEHAVIORS } from '../domain/rare';
 import { MedalSheet } from './MedalSheet';
+import { Habitat } from '../components/habitat/Habitat';
 import { DeskFront, SeasonDecor } from '../components/habitat/props';
 
 const FRONT: FrontAction[] = ['idle', 'sniff', 'groom', 'nibble', 'yawn', 'sip', 'look', 'type', 'typeFast', 'wave', 'stuff', 'sneeze', 'doze', 'dizzy', 'dance', 'cheer', 'heart', 'shy', 'hug', 'doom', 'meal', 'game', 'phone', 'read', 'shower', 'snack', 'smug', 'tongue', 'shrug', 'slowclap', 'phoneShow', 'earplug', 'phoneToss', 'hipsway', 'blowkiss', 'slam', 'cider', 'ahh', 'shock', 'cry', 'quake', 'rotten', 'resolve', 'headhold', 'kneel', 'soul', 'think', 'aha', 'tug', 'poke'];
@@ -24,6 +25,15 @@ export function Gallery() {
   if (params.has('cards')) return <CardSheet />;
   if (params.has('gear')) return <GearSheet />;
   if (params.has('newseason')) return <NewSeasonSheet />;
+  // ?gallery&vibe=monday|friday — 요일 분위기 방
+  if (params.has('vibe')) {
+    const v = params.get('vibe');
+    return (
+      <div style={{ width: 390, padding: 16, background: '#faf6ef' }}>
+        <Habitat custom={{ ...DEFAULT_CUSTOM, outfit: 'tie' }} mood="working" name="햄찌" now={Date.now()} vibe={v === 'monday' || v === 'friday' ? v : null} />
+      </div>
+    );
+  }
   // ?gallery&room=5 — 그 시즌 방을 작업물 전부 완성한 모습으로
   if (params.has('room')) return <div style={{ width: 360, padding: 12 }}><OfficeRoom season={Number(params.get('room'))} done={new Set(Array.from({ length: 20 }, (_, i) => i))} /></div>;
   const size = Number(params.get('size') || 220);

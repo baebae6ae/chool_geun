@@ -366,3 +366,51 @@
 /* 할로윈 박쥐 */
 .bat { animation: bat-bob 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes bat-bob { 50% { transform: translateY(2.5px) rotate(4deg); } }
+
+/* ---------- 요일 분위기: 월요병 · 불금 (글자 없이 분위기만) ---------- */
+.vibe-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.vibe-tint-monday { background: linear-gradient(180deg, rgba(96, 110, 136, 0.2), rgba(96, 110, 136, 0.1)); }
+.vibe-tint-friday { background: radial-gradient(ellipse at 50% 0%, rgba(255, 196, 92, 0.22), rgba(255, 140, 170, 0.08) 70%); }
+/* 월요일: 머리 위에 따라다니는 비구름 */
+.vibe-cloud {
+  position: absolute;
+  left: 50%;
+  bottom: 80px;
+  width: 44px;
+  margin-left: -22px;
+  pointer-events: none;
+  animation: vibe-float 3s ease-in-out infinite;
+}
+.vibe-rain { animation: vibe-rain 0.7s linear infinite; }
+@keyframes vibe-float { 50% { translate: 0 -3px; } }
+@keyframes vibe-rain { from { translate: 0 -3px; opacity: 1; } to { translate: 0 4px; opacity: 0.3; } }
+/* 월요일: 햄스터가 축 처져서 고개를 푹 */
+.habitat.vibe-monday .habitat-lift { rotate: 4deg; translate: 0 2px; }
+/* 금요일: 가구가 들썩들썩, 음표가 둥둥 */
+.habitat.vibe-friday > svg:not(.habitat-floor),
+.habitat.vibe-friday .habitat-lift { animation: vibe-bop 0.5s ease-in-out infinite alternate; }
+.habitat.vibe-friday > svg:nth-of-type(2n) { animation-delay: 0.25s; }
+@keyframes vibe-bop { from { translate: 0 0; } to { translate: 0 -2.5px; } }
+.vibe-notes { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.vibe-notes span {
+  position: absolute;
+  bottom: 40px;
+  color: #c9603a;
+  font-size: 19px;
+  font-weight: 700;
+  opacity: 0;
+  animation: vibe-note 3.6s ease-out infinite;
+}
+@keyframes vibe-note {
+  0% { opacity: 0; translate: 0 0; rotate: -10deg; }
+  20% { opacity: 0.9; }
+  100% { opacity: 0; translate: 14px -120px; rotate: 14deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vibe-cloud, .vibe-rain, .habitat.vibe-friday > svg, .habitat.vibe-friday .habitat-lift, .vibe-notes span { animation: none !important; }
+}

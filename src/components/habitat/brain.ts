@@ -4,6 +4,7 @@
  */
 import { RARE_BEHAVIORS, type RareId } from '../../domain/rare';
 import type { HamsterMood } from '../../domain/schedule';
+import type { Vibe } from '../../domain/weekVibe';
 import type { FrontAction, Pose, SideAction } from '../hamster/HamsterSprite';
 import { VISITOR_LINES } from '../../domain/visitors';
 import type { Species } from '../../domain/types';
@@ -213,6 +214,8 @@ export function planErrand(
   hour = 12,
   /** 친밀도 단계 (1~5). 친할수록 하트를 날리고 춤을 춘다 */
   bond = 1,
+  /** 요일 분위기: 월요병이면 축 처지고, 불금이면 들썩인다 */
+  vibe: Vibe | null = null,
 ): { name: string; steps: Step[] } {
   const go = (to: number, lazy = false) => travel(x, to, rnd, lazy);
   const wanderTo = () => between(rnd, s.wanderMin, Math.max(s.wanderMin + 1, s.wanderMax));
@@ -275,6 +278,27 @@ export function planErrand(
       RARE_BEHAVIORS.map((r) => [r.id, r.weight, RARE[r.id]] as Choice),
     );
     return { name: `rare:${id}`, steps: errand(x) };
+  }
+
+  // 요일 분위기: 할 일의 절반쯤을 그날 기분대로 바꾼다
+  if (vibe === 'monday' && mood !== 'off' && rnd() < 0.5) {
+    const [name, errand] = weighted(rnd, [
+      ['m:doom', 3, () => [...go(s.desk), front('doom', between(rnd, 5000, 8000), 'desk')]],
+      ['m:headhold', 1.5, () => inPlace(front('headhold', 3200))],
+      ['m:yawn', 1.5, yawn],
+      ['m:window', 1.5, () => [...go(s.window), front('look', between(rnd, 4000, 6500)), front('yawn', 2800)]],
+      ['m:shuffle', 1.5, pace],
+    ] as Choice[]);
+    if (name !== last) return { name, steps: errand(x) };
+  }
+  if (vibe === 'friday' && rnd() < 0.5) {
+    const [name, errand] = weighted(rnd, [
+      ['f:dance', 3, () => [...go(wanderTo()), front('dance', between(rnd, 3500, 5500))]],
+      ['f:hipsway', 2, () => inPlace(front('hipsway', 3200))],
+      ['f:cheer', 1.5, () => inPlace(front('cheer', 2600))],
+      ['f:wheel', 1.5, playWheel],
+    ] as Choice[]);
+    if (name !== last) return { name, steps: errand(x) };
   }
 
   let list: Choice[];

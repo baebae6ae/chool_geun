@@ -1,3 +1,4 @@
+import { weekVibe } from '../domain/weekVibe';
 import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { markStorySeen, storyUnlocked, todaysStory, type Story } from '../domain/theater';
 
@@ -159,6 +160,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
     override === 'off' ? (holidayName(key) ?? '쉬는 날') : override === 'on' ? undefined : settings.holidaysOff !== false ? holidayName(key) : undefined;
 
   const mood = day ? hamsterMood(key, day.schedule, now, day.clockedOut) : 'holiday';
+  const vibe = day ? weekVibe(key, settings, day.schedule, now, mood) : null;
   const progress = day ? (day.clockedOut ? day.progress : progressAt(key, day.schedule, now)) : 0;
   const earned = day ? (day.clockedOut ? day.earned : earnedAt(key, day.schedule, day.hourly, now)) : 0;
   const bounds = day ? dayBounds(key, day.schedule) : null;
@@ -485,6 +487,7 @@ export function Home({ state, now, onOpenSettings, onRare, clock = false, onStat
           today={todayItem}
           bubble={bubble}
           payday={payD === 0}
+          vibe={vibe}
           onRare={handleRare}
           onInteract={handleInteract}
           onTouch={handleTouch}

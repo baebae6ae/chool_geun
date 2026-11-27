@@ -12,6 +12,7 @@ import type { SeasonId } from '../../domain/seasons';
 import { pickVisitor, VISIT_CHANCE, VISITOR_COLOR } from '../../domain/visitors';
 import { DEFAULT_CUSTOM } from '../../domain/customization';
 import type { Species } from '../../domain/types';
+import type { Vibe } from '../../domain/weekVibe';
 import './habitat.css';
 
 interface Props {
@@ -27,6 +28,8 @@ interface Props {
   bubble?: { key: string; text: string } | null;
   /** 월급날엔 가끔 춤춘다 */
   payday?: boolean;
+  /** 요일 분위기: 월요병(방이 흐리고 축 처짐) · 불금(방이 들썩) */
+  vibe?: Vibe | null;
   /** 화면을 보고 있을 때 희귀 행동이 시작됨 */
   onRare?: (id: RareId) => void;
   /** 사용자가 햄스터와 논다: 쓰다듬기·간식 주기·위로(안아주기). 쓰다듬었을 때 고른 동작도 알려 준다 */
@@ -105,7 +108,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, today = null, bubble, payday = false, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, today = null, bubble, payday = false, vibe = null, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -131,6 +134,8 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
   const lastErrand = useRef<string | undefined>(undefined);
   const paydayRef = useRef(payday);
   const bondRef = useRef(bond ?? 1);
+  const vibeRef = useRef(vibe);
+  vibeRef.current = vibe;
   bondRef.current = bond ?? 1;
   const hourRef = useRef(new Date(now).getHours());
   hourRef.current = new Date(now).getHours();
@@ -391,6 +396,7 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
             paydayRef.current,
             hourRef.current,
             bondRef.current,
+            vibeRef.current,
           );
           lastErrand.current = plan.name;
           queue.current = plan.steps;
@@ -416,7 +422,8 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
         const { step, since } = cur.current;
         if (step.t === 'move') {
           const dir = step.to >= x.current ? 1 : -1;
-          const nx = instant ? step.to : x.current + dir * SPEED[step.gait] * dt;
+          const slow = vibeRef.current === 'monday' && step.gait === 'walk' ? 0.55 : 1; // 월요일엔 좀비 걸음
+          const nx = instant ? step.to : x.current + dir * SPEED[step.gait] * slow * dt;
           if ((dir > 0 && nx >= step.to) || (dir < 0 && nx <= step.to)) {
             x.current = step.to;
             cur.current = null;
@@ -548,7 +555,7 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
     <div className="habitat-wrap">
       <div className="habitat-frame" ref={frame}>
       <div
-        className={overtimeOn ? 'habitat rotting' : 'habitat'}
+        className={`habitat${overtimeOn ? ' rotting' : ''}${vibe ? ` vibe-${vibe}` : ''}`}
         data-bg={custom.bg ?? 'default'}
         ref={box}
         style={{
@@ -557,6 +564,14 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
         }}
       >
         {season && <SeasonDecor id={season} W={W} />}
+        {vibe && <div className={`vibe-tint vibe-tint-${vibe}`} aria-hidden />}
+        {vibe === 'friday' && (
+          <div className="vibe-notes" aria-hidden>
+            {['♪', '♫', '♪', '♬'].map((n, i) => (
+              <span key={i} style={{ left: `${14 + i * 22}%`, animationDelay: `${i * 0.9}s` }}>{n}</span>
+            ))}
+          </div>
+        )}
         <Window x={spots.window} now={now} />
         {today && <TodayItem item={today} x={spots.wheel + 4} />}
         <WallClock x={spots.desk} now={now} />
@@ -602,6 +617,15 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
               />
             </div>
           </div>
+          {vibe === 'monday' && place !== 'bed' && (
+            <svg className="vibe-cloud" viewBox="0 0 60 44" aria-hidden>
+              <g className="vibe-rain" stroke="#7d93b8" strokeWidth="2" strokeLinecap="round">
+                <path d="M18 26 l-2 6 M30 28 l-2 6 M42 26 l-2 6" />
+                <path d="M24 34 l-2 6 M36 34 l-2 6" />
+              </g>
+              <path d="M14 24 a8 8 0 0 1 4 -15 a11 11 0 0 1 21 -2 a9 9 0 0 1 8 17z" fill="#b8c2d3" stroke="#8b97ad" strokeWidth="1.4" strokeLinejoin="round" />
+            </svg>
+          )}
           {heart > 0 && (
             <span key={heart} className="habitat-heart" aria-hidden>
               ♥
