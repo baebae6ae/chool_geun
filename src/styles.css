@@ -3065,10 +3065,207 @@ body:has(.cheer-sheet) .toast { display: none; }
 .stamp.on.mood { font-size: 1.05em; filter: none; }
 .diary-memo:focus { outline: 2px solid var(--accent); outline-offset: 0; }
 
-/* ---------- 집 업그레이드 연출 ---------- */
-.house-up .gacha-emoji-wrap.house-up-room { width: 100%; }
-.house-up .gacha-emoji-wrap.house-up-room::before { width: 340px; height: 340px; }
-.house-up .gacha-emoji { width: 100%; font-size: inherit; animation: house-up-pop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1); }
-.house-up .gacha-emoji .habitat-wrap { pointer-events: none; }
-@keyframes house-up-pop { from { scale: 0.4; opacity: 0; } }
-.house-up .habitat-status { display: none; }
+/* ---------- 집 업그레이드 연출 (방 업그레이드 전용, 진짜 가챠와 다름) ---------- */
+.hu-cine {
+  --hu-c: #5aa9ff;
+  --hu-c2: #b9dcff;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  user-select: none;
+}
+.hu-cine.tier-purple { --hu-c: #b06bff; --hu-c2: #e2c6ff; }
+.hu-cine.tier-gold { --hu-c: #ffc93c; --hu-c2: #fff1b8; }
+.hu-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--hu-c) 26%, #16122b), #07060f 70%);
+  animation: hu-dim 0.5s ease-out;
+}
+.stage-3 .hu-bg { background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--hu-c) 45%, #1d1838), #0b0918 75%); }
+@keyframes hu-dim { from { opacity: 0; } }
+.hu-center { position: relative; width: 0; height: 0; }
+/* 1) 빛 알갱이가 모인다 */
+.hu-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  background: var(--hu-c2);
+  box-shadow: 0 0 10px var(--hu-c);
+  translate: -50% -50%;
+  animation: hu-gather 1s cubic-bezier(0.6, 0, 0.9, 0.5) both;
+}
+@keyframes hu-gather {
+  from { transform: translate(var(--x), var(--y)) scale(1.4); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: translate(0, 0) scale(0.3); opacity: 0; }
+}
+.hu-orb {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  left: -45px;
+  top: -45px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 22%, var(--hu-c2) 40%, var(--hu-c) 62%, transparent 72%);
+  filter: drop-shadow(0 0 22px var(--hu-c));
+  animation: hu-orb 1.1s ease-out both, hu-pulse 0.45s ease-in-out 0.9s infinite alternate;
+}
+@keyframes hu-orb { from { scale: 0; } 70% { scale: 1.15; } to { scale: 1; } }
+@keyframes hu-pulse { to { scale: 1.12; } }
+.stage-1 .hu-orb { animation: hu-orb-out 0.35s ease-in forwards; }
+@keyframes hu-orb-out { to { scale: 2.4; opacity: 0; } }
+/* 2) 빛나는 문 */
+.hu-door {
+  position: absolute;
+  width: 120px;
+  left: -60px;
+  top: -92px;
+  opacity: 0;
+  filter: drop-shadow(0 0 18px var(--hu-c)) drop-shadow(0 0 40px var(--hu-c));
+}
+.stage-1 .hu-door { animation: hu-door-in 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) forwards, hu-shake 0.09s linear 0.5s infinite; }
+@keyframes hu-door-in { from { opacity: 0; scale: 0.3; } to { opacity: 1; scale: 1; } }
+@keyframes hu-shake { 25% { translate: -2px 1px; } 50% { translate: 2px -1px; } 75% { translate: -1px -2px; } }
+.tier-gold .hu-door { filter: drop-shadow(0 0 16px #ffd93d) drop-shadow(0 0 34px #ff9ad0) drop-shadow(0 0 56px #9be7ff); }
+/* 문 안으로 빨려 들어가듯 확 커진다 */
+.stage-2 .hu-door { opacity: 1; animation: hu-enter 0.3s ease-in forwards; }
+@keyframes hu-enter { from { scale: 1; } to { scale: 7; opacity: 0.6; } }
+.stage-2 .hu-leak { opacity: 1; height: 150px; animation: hu-enter 0.3s ease-in forwards; }
+.hu-leak {
+  position: absolute;
+  width: 6px;
+  height: 0;
+  left: -3px;
+  top: -80px;
+  background: #fff;
+  box-shadow: 0 0 20px 8px var(--hu-c2), 0 0 60px 20px var(--hu-c);
+  opacity: 0;
+}
+.stage-1 .hu-leak { animation: hu-leak 0.9s ease-in 0.4s forwards; }
+@keyframes hu-leak { from { opacity: 0; height: 0; } to { opacity: 1; height: 150px; } }
+/* 3) 번쩍 */
+.hu-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: hu-flash 0.3s ease-out 0.12s forwards; }
+@keyframes hu-flash { from { opacity: 0; } 30% { opacity: 1; } to { opacity: 1; } }
+/* 4) 결과 */
+.hu-result {
+  position: relative;
+  width: min(380px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: hu-whiteout 0.5s ease-out;
+}
+@keyframes hu-whiteout { from { filter: brightness(3); } }
+.hu-beam {
+  position: absolute;
+  left: 50%;
+  top: -60vh;
+  width: 220px;
+  height: 120vh;
+  translate: -50% 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hu-c2) 55%, transparent), #fff8, color-mix(in srgb, var(--hu-c2) 55%, transparent), transparent);
+  filter: blur(6px);
+  animation: hu-beam 0.7s ease-out both;
+  pointer-events: none;
+}
+@keyframes hu-beam { from { scale: 0.1 1; opacity: 0; } 40% { opacity: 1; } to { scale: 1 1; opacity: 0.55; } }
+.hu-rays {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 720px;
+  height: 720px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--hu-c) 45%, transparent) 0deg 9deg, transparent 9deg 24deg);
+  mask: radial-gradient(circle, #000 18%, transparent 62%);
+  animation: hu-rays-in 0.6s ease-out both, hu-spin 16s linear infinite;
+  pointer-events: none;
+}
+.tier-gold .hu-rays { background: repeating-conic-gradient(from 0deg, #ff6b6b88 0deg 6deg, #ffd93d88 6deg 12deg, #6bff9588 12deg 18deg, #4fc3f788 18deg 24deg, #c39bff88 24deg 30deg, transparent 30deg 45deg); }
+@keyframes hu-rays-in { from { scale: 0.2; opacity: 0; } }
+@keyframes hu-spin { to { rotate: 360deg; } }
+.hu-ring {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border-radius: 50%;
+  border: 4px solid var(--hu-c2);
+  box-shadow: 0 0 24px var(--hu-c);
+  animation: hu-ring 0.9s ease-out both;
+  pointer-events: none;
+}
+.hu-ring.r2 { animation-delay: 0.18s; border-width: 2px; }
+@keyframes hu-ring { from { scale: 0.2; opacity: 1; } to { scale: 5; opacity: 0; } }
+.hu-sparks { position: absolute; left: 50%; top: 44%; pointer-events: none; }
+.hu-sparks i {
+  position: absolute;
+  background: var(--hu-c2);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: hu-spark 1.3s ease-out both;
+}
+.tier-gold .hu-sparks i:nth-child(3n) { background: #ff9ad0; }
+.tier-gold .hu-sparks i:nth-child(3n + 1) { background: #9be7ff; }
+@keyframes hu-spark {
+  from { transform: rotate(var(--a)) translateX(0) scale(0.2); opacity: 1; }
+  to { transform: rotate(var(--a)) translateX(var(--r)) scale(1.2); opacity: 0; }
+}
+.hu-stars { position: relative; display: flex; gap: 4px; font-size: 26px; line-height: 1; }
+.hu-stars span {
+  color: var(--hu-c);
+  text-shadow: 0 0 8px var(--hu-c), 0 2px 0 rgba(0, 0, 0, 0.35);
+  animation: hu-star 0.4s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+@keyframes hu-star { from { scale: 3; opacity: 0; rotate: -40deg; } }
+.hu-room {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  padding: 4px;
+  background: linear-gradient(135deg, #fff, var(--hu-c2), var(--hu-c), var(--hu-c2), #fff);
+  box-shadow: 0 0 30px var(--hu-c), 0 0 70px color-mix(in srgb, var(--hu-c) 60%, transparent);
+  animation: hu-room 0.7s cubic-bezier(0.25, 1.5, 0.5, 1) 0.1s both;
+}
+.tier-gold .hu-room { background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bff95, #4fc3f7, #c39bff, #ff6b6b); background-size: 300% 300%; animation: hu-room 0.7s cubic-bezier(0.25, 1.5, 0.5, 1) 0.1s both, hu-holo 3s linear infinite; }
+@keyframes hu-holo { to { background-position: 300% 0; } }
+@keyframes hu-room { from { scale: 0.2; rotate: -8deg; opacity: 0; } }
+.hu-room .habitat-wrap { pointer-events: none; }
+.hu-room .habitat-status { display: none; }
+.hu-room .habitat { margin: 0; }
+.hu-lv {
+  position: relative;
+  margin-top: 6px;
+  padding: 3px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #1a1530;
+  background: var(--hu-c);
+  box-shadow: 0 0 14px var(--hu-c);
+  animation: hu-pop 0.4s ease-out 0.55s both;
+}
+.hu-name {
+  position: relative;
+  font-size: 1.7rem;
+  font-weight: 900;
+  text-shadow: 0 0 12px var(--hu-c), 0 3px 0 rgba(0, 0, 0, 0.4);
+  animation: hu-slam 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 0.7s both;
+}
+.hu-sub { position: relative; font-size: 0.85rem; opacity: 0.85; animation: hu-pop 0.4s ease-out 0.9s both; }
+.hu-btn { position: relative; width: 100%; margin-top: 10px; animation: hu-pop 0.4s ease-out 1.1s both; }
+@keyframes hu-pop { from { opacity: 0; translate: 0 10px; } }
+@keyframes hu-slam { from { scale: 2.6; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .hu-cine * { animation-duration: 0.01s !important; animation-iteration-count: 1 !important; }
+}
