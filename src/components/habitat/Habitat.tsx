@@ -13,6 +13,7 @@ import { pickVisitor, VISIT_CHANCE, VISITOR_COLOR } from '../../domain/visitors'
 import { DEFAULT_CUSTOM } from '../../domain/customization';
 import type { Species } from '../../domain/types';
 import type { Vibe } from '../../domain/weekVibe';
+import { HouseDecor } from './House';
 import './habitat.css';
 
 interface Props {
@@ -30,6 +31,8 @@ interface Props {
   payday?: boolean;
   /** 요일 분위기: 월요병(방이 흐리고 축 처짐) · 불금(방이 들썩) */
   vibe?: Vibe | null;
+  /** 집 꾸미기 단계 (1~9). 출근이 쌓일수록 방이 좋아진다 */
+  house?: number;
   /** 화면을 보고 있을 때 희귀 행동이 시작됨 */
   onRare?: (id: RareId) => void;
   /** 사용자가 햄스터와 논다: 쓰다듬기·간식 주기·위로(안아주기). 쓰다듬었을 때 고른 동작도 알려 준다 */
@@ -108,7 +111,7 @@ const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(pr
 /** 방의 기준 높이. 탁상시계 화면에선 이 높이를 칸에 맞춰 확대한다 */
 const BASE_H = 236;
 
-export function Habitat({ custom, mood, name, now, fit = false, today = null, bubble, payday = false, vibe = null, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
+export function Habitat({ custom, mood, name, now, fit = false, today = null, bubble, payday = false, vibe = null, house = 1, onRare, onInteract, onTouch, bond, season, onVisit, moment, reaction, overtimeMin = null }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const bubbleEl = useRef<HTMLDivElement>(null);
@@ -576,6 +579,7 @@ export function Habitat({ custom, mood, name, now, fit = false, today = null, bu
         {today && <TodayItem item={today} x={spots.wheel + 4} />}
         <WallClock x={spots.desk} now={now} />
         <Floor />
+        <HouseDecor level={house} spots={spots} />
         <Wheel x={spots.wheel} layer="back" spinning={onWheel && pose.action === 'run'} dir={facing} />
         <Nest x={spots.bed} layer="back" />
         <Bowl x={spots.bowl} />
